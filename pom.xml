@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jvnet.hudson.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.349</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <build>
+    <plugins>  
+      <plugin>
+        <!-- Enforce Java 5.0 compatibility. -->
+        <groupId>org.jvnet</groupId>
+        <artifactId>animal-sniffer</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <id>animal-sniffer</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <signature>
+                <groupId>org.jvnet.animal-sniffer</groupId>
+                <artifactId>java1.5</artifactId>
+                <version>1.0</version>
+              </signature>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <artifactId>timestamper</artifactId>
+  <packaging>hpi</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>Timestamper</name>
+  <description>Adds timestamps to the Console Output</description>
+  <url>http://wiki.hudson-ci.org/display/HUDSON/Timestamper</url>
+
+  <developers>
+    <developer>
+      <id>stevengbrown</id>
+      <name>Steven Brown</name>
+      <email>StevenGBrown@gmail.com</email>
+    </developer>
+  </developers>
+</project>
