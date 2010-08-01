@@ -35,26 +35,42 @@ import hudson.model.Run.RunnerAbortedException;
 import hudson.remoting.Channel;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
+import hudson.util.RobustReflectionConverter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+import com.thoughtworks.xstream.mapper.Mapper;
+
 /**
- * Build wrapper that decorates the build's launcher to insert a
- * {@link TimestampNote} on each output line.
+ * Build wrapper that decorates the build's launcher to (once
+ * {@link #setUp(AbstractBuild, Launcher, BuildListener)} has been called)
+ * insert a {@link TimestampNote} on each output line.
  * 
  * @author Steven G. Brown
  */
 public final class TimestamperBuildWrapper extends BuildWrapper {
 
   /**
+   * Map containing the {@link TimestamperLauncher} for each build.
+   */
+  @SuppressWarnings("unchecked")
+  private transient ConcurrentMap<AbstractBuild, TimestamperLauncher> launchers;
+
+  /**
    * Create a new {@link TimestamperBuildWrapper}.
    */
   @DataBoundConstructor
+  @SuppressWarnings("unchecked")
   public TimestamperBuildWrapper() {
+    launchers = new ConcurrentHashMap<AbstractBuild, TimestamperLauncher>();
   }
 
   /**
@@ -64,7 +80,18 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
   @Override
   public Environment setUp(AbstractBuild build, Launcher launcher,
       BuildListener listener) throws IOException, InterruptedException {
+    TimestamperLauncher timestamperLauncher = launchers.get(build);
+    if (timestamperLauncher != null) {
+      timestamperLauncher.startInsertingTimestamps();
+    }
     return new Environment() {
+      @Override
+      public boolean tearDown(AbstractBuild tearDownBuild,
+          BuildListener tearDownListener) throws IOException,
+          InterruptedException {
+        launchers.remove(tearDownBuild);
+        return true;
+      }
     };
   }
 
@@ -76,12 +103,15 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
   public Launcher decorateLauncher(AbstractBuild build, Launcher launcher,
       BuildListener listener) throws IOException, InterruptedException,
       RunnerAbortedException {
-    return new TimestamperLauncher(launcher);
+    TimestamperLauncher timestamperLauncher = new TimestamperLauncher(launcher);
+    launchers.put(build, timestamperLauncher);
+    return timestamperLauncher;
   }
 
   /**
-   * Launcher that replaces the STDOUT {@link OutputStream} with a
-   * {@link TimestamperOutputStream} and delegates to the provided launcher.
+   * Delegating launcher that, once {@link #startInsertingTimestamps()} has been
+   * called, replaces the STDOUT {@link OutputStream} with a
+   * {@link TimestamperOutputStream}.
    */
   private static class TimestamperLauncher extends Launcher {
 
@@ -89,6 +119,14 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
      * The delegate launcher.
      */
     private final Launcher delegate;
+
+    /**
+     * Flag that determines whether to insert time-stamps. Initially set to
+     * false to prevent time-stamps being inserted during the SCM checkout (see
+     * HUDSON-7111). Will be set to {@code true} by the
+     * {@link #setUp(AbstractBuild, Launcher, BuildListener)} method.
+     */
+    private boolean insertTimestamps;
 
     /**
      * Create a new {@link TimestamperLauncher}.
@@ -102,14 +140,24 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     }
 
     /**
+     * Start inserting time-stamps in the STDOUT stream of newly created
+     * launchers.
+     */
+    void startInsertingTimestamps() {
+      insertTimestamps = true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public Proc launch(ProcStarter starter) throws IOException {
       ProcStarter replacementProcStarter = starter.copy();
-      OutputStream replacementOutputStream = new TimestamperOutputStream(
-          replacementProcStarter.stdout());
-      replacementProcStarter.stdout(replacementOutputStream);
+      if (insertTimestamps) {
+        OutputStream replacementOutputStream = new TimestamperOutputStream(
+            replacementProcStarter.stdout());
+        replacementProcStarter.stdout(replacementOutputStream);
+      }
       return delegate.launch(replacementProcStarter);
     }
 
@@ -179,6 +227,25 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     public void close() throws IOException {
       super.close();
       delegate.close();
+    }
+  }
+
+  /**
+   * {@link Converter} implementation for XStream. This converter uses the
+   * {@link PureJavaReflectionProvider}, which ensures that the
+   * {@link TimestamperBuildWrapper#TimestamperBuildWrapper()} constructor is
+   * called.
+   */
+  public static class ConverterImpl extends RobustReflectionConverter {
+
+    /**
+     * Class constructor.
+     * 
+     * @param mapper
+     *          the mapper
+     */
+    public ConverterImpl(Mapper mapper) {
+      super(mapper, new PureJavaReflectionProvider());
     }
   }
 
