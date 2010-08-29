@@ -24,14 +24,18 @@
 package hudson.plugins.timestamper;
 
 import hudson.Extension;
+import hudson.Launcher;
 import hudson.console.LineTransformationOutputStream;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Build wrapper that decorates the build's logger to insert a
@@ -40,6 +44,25 @@ import java.io.OutputStream;
  * @author Steven G. Brown
  */
 public final class TimestamperBuildWrapper extends BuildWrapper {
+
+  /**
+   * Create a new {@link TimestamperBuildWrapper}.
+   */
+  @DataBoundConstructor
+  public TimestamperBuildWrapper() {
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public Environment setUp(AbstractBuild build, Launcher launcher,
+      BuildListener listener) throws IOException, InterruptedException {
+    // Hudson requires this method to be overridden.
+    return new Environment() {
+    };
+  }
 
   /**
    * {@inheritDoc}
