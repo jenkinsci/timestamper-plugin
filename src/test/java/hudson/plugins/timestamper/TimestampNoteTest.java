@@ -34,7 +34,6 @@ import java.util.TimeZone;
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -87,8 +86,6 @@ public class TimestampNoteTest {
   /**
    */
   @Test
-  @Ignore
-  // TODO: Re-enable test once AntTargetNote is compatible with TimestampNote.
   public void antTargetNoteThenTimestamp() {
     assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
         is("<b>00:00:00</b>  <b class=ant-target>target</b>:"));

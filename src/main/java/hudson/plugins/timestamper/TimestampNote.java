@@ -79,7 +79,9 @@ public final class TimestampNote extends ConsoleNote<Object> {
       int charPos) {
     String formattedDate = dateFormatThreadLocal.get().format(
         new Date(millisSinceEpoch));
-    text.addMarkup(0, "<b>" + formattedDate + "</b>  ");
+    // Add as end tag, which will be inserted prior to tags added by other
+    // console notes (e.g. AntTargetNote).
+    text.addMarkup(0, 0, "", "<b>" + formattedDate + "</b>  ");
     return null;
   }
 }
