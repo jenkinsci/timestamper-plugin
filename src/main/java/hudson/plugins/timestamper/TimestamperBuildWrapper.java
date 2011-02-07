@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2010 Steven G. Brown
+ * Copyright (c) 2011 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
   @Override
   public Environment setUp(AbstractBuild build, Launcher launcher,
       BuildListener listener) throws IOException, InterruptedException {
-    // Hudson requires this method to be overridden.
+    // Jenkins requires this method to be overridden.
     return new Environment() {
     };
   }
