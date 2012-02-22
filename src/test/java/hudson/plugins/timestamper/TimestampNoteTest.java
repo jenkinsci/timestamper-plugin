@@ -29,6 +29,9 @@ import hudson.MarkupText;
 import hudson.console.ConsoleNote;
 import hudson.tasks._ant.AntTargetNote;
 
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.SerializationUtils;
@@ -42,6 +45,7 @@ import org.junit.Test;
 public class TimestampNoteTest {
 
   private static TimeZone systemDefaultTimeZone;
+  private static String expectedLinePrefix;
 
   /**
    */
@@ -50,6 +54,8 @@ public class TimestampNoteTest {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat smf = new SimpleDateFormat(Messages.TimestampFormat());    
+    expectedLinePrefix = Messages.LinePrefix(smf.format(new Date(0)));
   }
 
   /**
@@ -64,7 +70,7 @@ public class TimestampNoteTest {
   @Test
   public void timestampNote() {
     assertThat(annotate("line", new TimestampNote(0)),
-        is("<b>00:00:00</b>  line"));
+        is(expectedLinePrefix + "line"));
   }
 
   /**
@@ -72,7 +78,7 @@ public class TimestampNoteTest {
   @Test
   public void serialization() {
     assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is("<b>00:00:00</b>  line"));
+        is(expectedLinePrefix + "line"));
   }
 
   /**
@@ -80,7 +86,7 @@ public class TimestampNoteTest {
   @Test
   public void timestampThenAntTargetNote() {
     assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
-        is("<b>00:00:00</b>  <b class=ant-target>target</b>:"));
+        is(expectedLinePrefix + "<b class=ant-target>target</b>:"));
   }
 
   /**
@@ -88,7 +94,7 @@ public class TimestampNoteTest {
   @Test
   public void antTargetNoteThenTimestamp() {
     assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
-        is("<b>00:00:00</b>  <b class=ant-target>target</b>:"));
+        is(expectedLinePrefix + "<b class=ant-target>target</b>:"));
   }
 
   @SuppressWarnings("unchecked")

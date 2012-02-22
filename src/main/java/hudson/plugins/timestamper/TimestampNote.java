@@ -28,6 +28,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 
 import java.sql.Date;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 
 /**
@@ -52,7 +53,7 @@ public final class TimestampNote extends ConsoleNote<Object> {
      */
     @Override
     protected SimpleDateFormat initialValue() {
-      return new SimpleDateFormat("HH:mm:ss");
+      return new SimpleDateFormat(Messages.TimestampFormat());
     }
   };
 
@@ -81,7 +82,8 @@ public final class TimestampNote extends ConsoleNote<Object> {
         new Date(millisSinceEpoch));
     // Add as end tag, which will be inserted prior to tags added by other
     // console notes (e.g. AntTargetNote).
-    text.addMarkup(0, 0, "", "<b>" + formattedDate + "</b>  ");
+    String linePrefix = Messages.LinePrefix(formattedDate);
+    text.addMarkup(0, 0, "", linePrefix); // "<b>" + formattedDate + "</b>  "
     return null;
   }
 }
