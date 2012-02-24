@@ -31,7 +31,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>1.424</version>
+        <version>1.442</version>
     </parent>
 
     <artifactId>timestamper</artifactId>
@@ -47,6 +47,7 @@
         <compileTarget>1.6</compileTarget>
         <!-- define all plugin versions -->
         <maven.version>3.0.3</maven.version>
+        <powermock.version>1.4.11</powermock.version>
     </properties>
 
     <!-- Note: Avoid parent versions 1.393 through 1.398.
@@ -79,6 +80,26 @@
     </distributionManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Fixing easymock to 3.0 because transitive dependency grabbed by powermock
+              only allow to mock interfaces -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.8.5</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

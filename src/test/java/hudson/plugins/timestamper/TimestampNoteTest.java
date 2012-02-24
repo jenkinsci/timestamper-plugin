@@ -23,91 +23,94 @@
  */
 package hudson.plugins.timestamper;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import hudson.MarkupText;
 import hudson.console.ConsoleNote;
 import hudson.tasks._ant.AntTargetNote;
+import org.apache.commons.lang.SerializationUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.SerializationUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Unit test for the {@link TimestampNote} class.
  */
+
+@PrepareForTest(TimestamperConfig.class)
 public class TimestampNoteTest {
 
-  private static TimeZone systemDefaultTimeZone;
-  private static String expectedLinePrefix;
+    private static TimeZone systemDefaultTimeZone;
+    private static String expectedLinePrefix;
 
-  /**
-   */
-  @BeforeClass
-  public static void beforeClass() {
-    systemDefaultTimeZone = TimeZone.getDefault();
-    // Set the time zone to get consistent results.
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    SimpleDateFormat smf = new SimpleDateFormat(Messages.TimestampFormat());    
-    expectedLinePrefix = Messages.LinePrefix(smf.format(new Date(0)));
-  }
-
-  /**
-   */
-  @AfterClass
-  public static void afterClass() {
-    TimeZone.setDefault(systemDefaultTimeZone);
-  }
-
-  /**
-   */
-  @Test
-  public void timestampNote() {
-    assertThat(annotate("line", new TimestampNote(0)),
-        is(expectedLinePrefix + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void serialization() {
-    assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is(expectedLinePrefix + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void timestampThenAntTargetNote() {
-    assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
-        is(expectedLinePrefix + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
-  public void antTargetNoteThenTimestamp() {
-    assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
-        is(expectedLinePrefix + "<b class=ant-target>target</b>:"));
-  }
-
-  @SuppressWarnings("unchecked")
-  private String annotate(String text, ConsoleNote... notes) {
-    Object context = new Object();
-    MarkupText markupText = new MarkupText(text);
-    for (ConsoleNote note : notes) {
-      note.annotate(context, markupText, 0);
+    /**
+     */
+    @BeforeClass
+    public static void beforeClass() {
+        systemDefaultTimeZone = TimeZone.getDefault();
+        // Set the time zone to get consistent results.
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+        SimpleDateFormat smf = new SimpleDateFormat(TimestamperConfig.DEFAULT_TIMESTAMP_FORMAT);
+        expectedLinePrefix = MessageFormat.format(TimestamperConfig.DEFAULT_LINE_PREFIX, smf.format(new Date(0)));
     }
-    return markupText.toString(true);
-  }
+    
+    /**
+     */
+    @AfterClass
+    public static void afterClass() {
+        TimeZone.setDefault(systemDefaultTimeZone);
+    }
 
-  private TimestampNote serialize(TimestampNote note) {
-    return (TimestampNote) SerializationUtils.clone(note);
-  }
+    /**
+     */
+    @Test
+    public void timestampNote() {
+        assertThat(annotate("line", new TimestampNote(0)),
+                is(expectedLinePrefix + "line"));
+    }
+
+    /**
+     */
+    @Test
+    public void serialization() {
+        assertThat(annotate("line", serialize(new TimestampNote(0))),
+                is(expectedLinePrefix + "line"));
+    }
+
+    /**
+     */
+    @Test
+    public void timestampThenAntTargetNote() {
+        assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
+                is(expectedLinePrefix + "<b class=ant-target>target</b>:"));
+    }
+
+    /**
+     */
+    @Test
+    public void antTargetNoteThenTimestamp() {
+        assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
+                is(expectedLinePrefix + "<b class=ant-target>target</b>:"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private String annotate(String text, ConsoleNote... notes) {
+        Object context = new Object();
+        MarkupText markupText = new MarkupText(text);
+        for (ConsoleNote note : notes) {
+            note.annotate(context, markupText, 0);
+        }
+        return markupText.toString(true);
+    }
+
+    private TimestampNote serialize(TimestampNote note) {
+        return (TimestampNote) SerializationUtils.clone(note);
+    }
 }
