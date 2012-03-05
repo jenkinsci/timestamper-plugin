@@ -50,7 +50,7 @@ public class TimestamperConfig extends GlobalConfiguration {
      * @return the timestamp format
      */
     public String getTimestampFormat() {
-        return timestampFormat;
+        return StringUtils.isEmpty(timestampFormat) ? DEFAULT_TIMESTAMP_FORMAT : this.timestampFormat;
     }
 
     /**
@@ -67,7 +67,7 @@ public class TimestamperConfig extends GlobalConfiguration {
      * @return the line prefix
      */
     public String getLinePrefix() {
-        return linePrefix;
+        return StringUtils.isEmpty(linePrefix) ? DEFAULT_LINE_PREFIX : this.linePrefix;
     }
 
     /**
