@@ -1,123 +1,97 @@
-<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.447</version>
+  </parent>
 
-<!--
-  The MIT License
+  <!-- Note: Avoid parent versions 1.393 through 1.398.
+       https://groups.google.com/d/topic/jenkinsci-dev/O50B7XnINoo/discussion -->
 
-  Copyright (c) 2011, Steven Brown, Frederik Fromm
+  <scm>
+    <connection>scm:git:git://github.com/ffromm/timestamper-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:ffromm/timestamper-plugin.git</developerConnection>
+  </scm>
 
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
+  <distributionManagement>
+    <repository>
+      <id>maven.jenkins-ci.org</id>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
 
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
+  <build>
+    <plugins>  
+      <!-- Enforce Java 5.0 compatibility. -->
+      <plugin>
+        <groupId>org.jvnet</groupId>
+        <artifactId>animal-sniffer</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <id>animal-sniffer</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <signature>
+                <groupId>org.jvnet.animal-sniffer</groupId>
+                <artifactId>java1.5</artifactId>
+                <version>1.0</version>
+              </signature>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Needed to build against Jenkins/Hudson 1.387 or earlier. -->
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <goals>deploy</goals>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <artifactId>timestamper</artifactId>
+  <packaging>hpi</packaging>
+  <version>1.2.3-SNAPSHOT</version>
+  <name>Timestamper</name>
+  <description>Adds timestamps to the Console Output</description>
+  <url>http://wiki.jenkins-ci.org/display/JENKINS/Timestamper</url>
 
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-    <parent>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>1.442</version>
-    </parent>
-
-    <artifactId>timestamper</artifactId>
-    <packaging>hpi</packaging>
-    <version>1.2.4-SNAPSHOT</version>
-    <name>Timestamper</name>
-    <description>Adds timestamps to the Console Output</description>
-    <url>http://wiki.jenkins-ci.org/display/JENKINS/Timestamper</url>
-
-    <properties>
-        <!-- http://docs.codehaus.org/display/MAVENUSER/POM+Element+for+Source+File+Encoding -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compileTarget>1.6</compileTarget>
-        <!-- define all plugin versions -->
-        <maven.version>3.0.3</maven.version>
-        <powermock.version>1.4.11</powermock.version>
-    </properties>
-
-    <!-- Note: Avoid parent versions 1.393 through 1.398.
-   https://groups.google.com/d/topic/jenkinsci-dev/O50B7XnINoo/discussion -->
-
-    <scm>
-        <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/timestamper-plugin.git</developerConnection>
-    </scm>
+  <developers>
+    <developer>
+      <id>stevengbrown</id>
+      <name>Steven Brown</name>
+      <email>StevenGBrown@gmail.com</email>
+    </developer>
+  </developers>
 
     <repositories>
         <repository>
-            <id>m.g.o-public</id>
-            <url>http://maven.glassfish.org/content/groups/public/</url>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
-            <id>m.g.o-public</id>
-            <url>http://maven.glassfish.org/content/groups/public/</url>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+</project>  
+  
 
-    <distributionManagement>
-        <repository>
-            <id>maven.jenkins-ci.org</id>
-            <url>http://maven.jenkins-ci.org/content/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>${powermock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>${powermock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- Fixing easymock to 3.0 because transitive dependency grabbed by powermock
-              only allow to mock interfaces -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <developers>
-        <developer>
-            <id>stevengbrown</id>
-            <name>Steven Brown</name>
-            <email>StevenGBrown@gmail.com</email>
-        </developer>
-        <developer>
-            <id>ffromm</id>
-            <name>Frederik Fromm</name>
-            <email>frederik.fromm@gmail.com</email>
-        </developer>
-    </developers>
-</project>

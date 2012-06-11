@@ -33,58 +33,59 @@ import java.text.SimpleDateFormat;
 
 /**
  * Time-stamp note that is inserted into the console output.
- *
+ * 
  * @author Steven G. Brown
  */
 public final class TimestampNote extends ConsoleNote<Object> {
 
-    /**
-     * Serialization UID.
-     */
-    private static final long serialVersionUID = 1L;
+  /**
+   * Serialization UID.
+   */
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Thread-local variable that provides the time-stamp format.
-     */
-    private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected SimpleDateFormat initialValue() {
-            //return new SimpleDateFormat(Messages.TimestampFormat());
-            return new SimpleDateFormat(TimestamperConfig.get().getTimestampFormat());
-        }
-    };
-
-    /**
-     * Milliseconds since the epoch.
-     */
-    private final long millisSinceEpoch;
-
-    /**
-     * Create a new {@link TimestampNote}.
-     *
-     * @param millisSinceEpoch milliseconds since the epoch
-     */
-    TimestampNote(long millisSinceEpoch) {
-        this.millisSinceEpoch = millisSinceEpoch;
-    }
+  /**
+   * Thread-local variable that provides the time-stamp format.
+   */
+  private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
-                                             int charPos) {
-        String formattedDate = dateFormatThreadLocal.get().format(
-                new Date(millisSinceEpoch));
-        // Add as end tag, which will be inserted prior to tags added by other
-        // console notes (e.g. AntTargetNote).
-        //String linePrefix = Messages.LinePrefix(formattedDate);
-        String linePrefix = MessageFormat.format(TimestamperConfig.get().getLinePrefix(), formattedDate);
-        text.addMarkup(0, 0, "", linePrefix); // "<b>" + formattedDate + "</b>  "
-        return null;
+    protected SimpleDateFormat initialValue() {
+      // return new SimpleDateFormat(Messages.TimestampFormat());
+      return new SimpleDateFormat(TimestamperConfig.get().getTimestampFormat());
     }
+  };
+
+  /**
+   * Milliseconds since the epoch.
+   */
+  private final long millisSinceEpoch;
+
+  /**
+   * Create a new {@link TimestampNote}.
+   * 
+   * @param millisSinceEpoch
+   *          milliseconds since the epoch
+   */
+  TimestampNote(long millisSinceEpoch) {
+    this.millisSinceEpoch = millisSinceEpoch;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
+      int charPos) {
+    String formattedDate = dateFormatThreadLocal.get().format(
+        new Date(millisSinceEpoch));
+    // Add as end tag, which will be inserted prior to tags added by other
+    // console notes (e.g. AntTargetNote).
+    // String linePrefix = Messages.LinePrefix(formattedDate);
+    String linePrefix = MessageFormat.format(TimestamperConfig.get().getLinePrefix(), formattedDate);
+    text.addMarkup(0, 0, "", linePrefix);
+    return null;
+  }
 }

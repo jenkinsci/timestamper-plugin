@@ -1,6 +1,7 @@
 package hudson.plugins.timestamper;
 
 import hudson.Extension;
+import hudson.model.Descriptor;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
@@ -28,12 +29,12 @@ public class TimestamperConfig extends GlobalConfiguration {
     /**
      * default for timestamp format
      */
-    public static final String DEFAULT_TIMESTAMP_FORMAT="yyyy-MM-dd HH:mm:ss.SSS";
+    public static final String DEFAULT_TIMESTAMP_FORMAT="HH:mm:ss";
 
     /**
      * default for line prefix
      */
-    public static final String DEFAULT_LINE_PREFIX="{0} | ";
+    public static final String DEFAULT_LINE_PREFIX="<b>{0}</b>  ";
 
     /**
      * Constructor
@@ -82,7 +83,7 @@ public class TimestamperConfig extends GlobalConfiguration {
      * {@inheritDoc}
      */
     @Override
-    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+    public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
         req.bindJSON(this,json);
         save();
         return true;
