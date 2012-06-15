@@ -53,7 +53,6 @@ public final class TimestampNote extends ConsoleNote<Object> {
      */
     @Override
     protected SimpleDateFormat initialValue() {
-      // return new SimpleDateFormat(Messages.TimestampFormat());
       return new SimpleDateFormat(TimestamperConfig.get().getTimestampFormat());
     }
   };
@@ -83,9 +82,7 @@ public final class TimestampNote extends ConsoleNote<Object> {
         new Date(millisSinceEpoch));
     // Add as end tag, which will be inserted prior to tags added by other
     // console notes (e.g. AntTargetNote).
-    // String linePrefix = Messages.LinePrefix(formattedDate);
-    String linePrefix = MessageFormat.format(TimestamperConfig.get().getLinePrefix(), formattedDate);
-    text.addMarkup(0, 0, "", linePrefix);
+    text.addMarkup(0, 0, "", formattedDate);
     return null;
   }
 }

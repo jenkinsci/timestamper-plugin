@@ -22,28 +22,15 @@ public class TimestamperConfig extends GlobalConfiguration {
     private String timestampFormat;
 
     /**
-     * line prefix containing one {0} that gets the formatted timestamp.
-     */
-    private String linePrefix;
-
-    /**
      * default for timestamp format
      */
-    public static final String DEFAULT_TIMESTAMP_FORMAT="HH:mm:ss";
-
-    /**
-     * default for line prefix
-     */
-    public static final String DEFAULT_LINE_PREFIX="<b>{0}</b>  ";
+    public static final String DEFAULT_TIMESTAMP_FORMAT="'<b>'HH:mm:ss'</b> '";
 
     /**
      * Constructor
      */
     public TimestamperConfig() {
-        // unit test has no Jenkins in this case
-        if(Jenkins.getInstance() != null) {
-            load();
-        }
+        load();
     }
 
     /**
@@ -64,22 +51,6 @@ public class TimestamperConfig extends GlobalConfiguration {
     }
 
     /**
-     * Returns the line prefix containing {0} to render the formatted timestamp.
-     * @return the line prefix
-     */
-    public String getLinePrefix() {
-        return StringUtils.isEmpty(linePrefix) ? DEFAULT_LINE_PREFIX : this.linePrefix;
-    }
-
-    /**
-     * Sets the line prefix. One {0} must be used to render the formatted timestamp.
-     * @param linePrefix the line prefix containing {0}
-     */
-    public void setLinePrefix(String linePrefix) {
-        this.linePrefix = StringUtils.isEmpty(linePrefix) ? DEFAULT_LINE_PREFIX : linePrefix;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -94,15 +65,6 @@ public class TimestamperConfig extends GlobalConfiguration {
      * @return the Timestamper config instance.
      */
     public static TimestamperConfig get() {
-        if(Jenkins.getInstance() != null && GlobalConfiguration.all() != null) {
-            return GlobalConfiguration.all().get(TimestamperConfig.class);
-        }
-
-        // MOCK for testing...
-        TimestamperConfig config = new TimestamperConfig();
-        config.setLinePrefix(DEFAULT_LINE_PREFIX);
-        config.setTimestampFormat(DEFAULT_TIMESTAMP_FORMAT);
-
-        return config;
+        return GlobalConfiguration.all().get(TimestamperConfig.class);
     }
 }
