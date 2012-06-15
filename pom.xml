@@ -1,18 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.jvnet.hudson.plugins</groupId>
+    <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.374</version>
-    <relativePath>../pom.xml</relativePath>
+    <version>1.447</version>
   </parent>
 
   <!-- Note: Avoid parent versions 1.393 through 1.398.
        https://groups.google.com/d/topic/jenkinsci-dev/O50B7XnINoo/discussion -->
 
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/timestamper-plugin.git</developerConnection>
+    <connection>scm:git:git://github.com/ffromm/timestamper-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:ffromm/timestamper-plugin.git</developerConnection>
   </scm>
 
   <distributionManagement>

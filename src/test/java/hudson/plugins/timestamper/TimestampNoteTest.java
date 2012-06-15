@@ -29,66 +29,72 @@ import hudson.MarkupText;
 import hudson.console.ConsoleNote;
 import hudson.tasks._ant.AntTargetNote;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.jvnet.hudson.test.HudsonTestCase;
 
 /**
  * Unit test for the {@link TimestampNote} class.
  */
-public class TimestampNoteTest {
+public class TimestampNoteTest extends HudsonTestCase {
 
   private static TimeZone systemDefaultTimeZone;
+  private static String expectedFormattedTimestamp;
 
   /**
    */
-  @BeforeClass
-  public static void beforeClass() {
+  @Override
+  protected void setUp() throws Exception {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat smf = new SimpleDateFormat(TimestamperConfig.DEFAULT_TIMESTAMP_FORMAT);
+    expectedFormattedTimestamp = smf.format(new Date(0));
+    super.setUp();
   }
 
   /**
    */
-  @AfterClass
-  public static void afterClass() {
+  @Override
+  protected void tearDown() throws Exception  {
     TimeZone.setDefault(systemDefaultTimeZone);
+    super.tearDown();
   }
 
   /**
    */
   @Test
-  public void timestampNote() {
+  public void testTimestampNote() {
     assertThat(annotate("line", new TimestampNote(0)),
-        is("<b>00:00:00</b>  line"));
+        is(expectedFormattedTimestamp + "line"));
   }
 
   /**
    */
   @Test
-  public void serialization() {
+  public void testSerialization() {
     assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is("<b>00:00:00</b>  line"));
+        is(expectedFormattedTimestamp + "line"));
   }
 
   /**
    */
   @Test
-  public void timestampThenAntTargetNote() {
+  public void testTimestampThenAntTargetNote() {
     assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
-        is("<b>00:00:00</b>  <b class=ant-target>target</b>:"));
+        is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
   }
 
   /**
    */
   @Test
-  public void antTargetNoteThenTimestamp() {
+  public void testAntTargetNoteThenTimestamp() {
     assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
-        is("<b>00:00:00</b>  <b class=ant-target>target</b>:"));
+        is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
   }
 
   @SuppressWarnings("unchecked")
