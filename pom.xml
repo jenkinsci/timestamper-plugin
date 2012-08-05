@@ -6,20 +6,10 @@
     <version>1.447</version>
   </parent>
 
-  <!-- Note: Avoid parent versions 1.393 through 1.398.
-       https://groups.google.com/d/topic/jenkinsci-dev/O50B7XnINoo/discussion -->
-
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/timestamper-plugin.git</developerConnection>
   </scm>
-
-  <distributionManagement>
-    <repository>
-      <id>maven.jenkins-ci.org</id>
-      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
-    </repository>
-  </distributionManagement>
 
   <build>
     <plugins>  
@@ -44,13 +34,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <!-- Needed to build against Jenkins/Hudson 1.387 or earlier. -->
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <goals>deploy</goals>
-        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -92,6 +75,4 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-</project>  
-  
-
+</project>
