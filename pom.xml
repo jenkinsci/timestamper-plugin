@@ -10,8 +10,8 @@
        https://groups.google.com/d/topic/jenkinsci-dev/O50B7XnINoo/discussion -->
 
   <scm>
-    <connection>scm:git:git://github.com/ffromm/timestamper-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:ffromm/timestamper-plugin.git</developerConnection>
+    <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/timestamper-plugin.git</developerConnection>
   </scm>
 
   <distributionManagement>
