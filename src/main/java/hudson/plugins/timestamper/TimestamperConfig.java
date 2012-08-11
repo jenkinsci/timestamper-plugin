@@ -61,8 +61,9 @@ public class TimestamperConfig extends GlobalConfiguration {
     }
 
     /**
-     * Returns the Timestamper config instance if Jenkins is present. For UnitTests a MOCK is returned.
-     * @return the Timestamper config instance.
+     * Get the currently configured global Timestamper settings.
+     * 
+     * @return the Timestamper global config
      */
     public static TimestamperConfig get() {
         return GlobalConfiguration.all().get(TimestamperConfig.class);
