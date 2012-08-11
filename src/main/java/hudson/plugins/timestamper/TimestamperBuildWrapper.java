@@ -55,7 +55,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   @Override
   public Environment setUp(AbstractBuild build, Launcher launcher,
       BuildListener listener) throws IOException, InterruptedException {
@@ -67,7 +67,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   @Override
   public OutputStream decorateLogger(AbstractBuild build, OutputStream logger) {
     return new TimestamperOutputStream(logger);

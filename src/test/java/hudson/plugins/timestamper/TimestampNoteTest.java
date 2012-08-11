@@ -97,7 +97,7 @@ public class TimestampNoteTest extends HudsonTestCase {
         is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private String annotate(String text, ConsoleNote... notes) {
     Object context = new Object();
     MarkupText markupText = new MarkupText(text);
