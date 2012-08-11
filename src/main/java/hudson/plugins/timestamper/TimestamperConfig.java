@@ -3,8 +3,8 @@ package hudson.plugins.timestamper;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import jenkins.model.GlobalConfiguration;
-import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 

@@ -28,7 +28,6 @@ import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 
 import java.sql.Date;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 
 /**

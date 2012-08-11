@@ -26,9 +26,9 @@ package hudson.plugins.timestamper;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.console.LineTransformationOutputStream;
+import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
