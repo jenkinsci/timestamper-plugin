@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
 
 /**
@@ -42,8 +41,8 @@ import org.jvnet.hudson.test.HudsonTestCase;
  */
 public class TimestampNoteTest extends HudsonTestCase {
 
-  private static TimeZone systemDefaultTimeZone;
-  private static String expectedFormattedTimestamp;
+  private TimeZone systemDefaultTimeZone;
+  private String expectedFormattedTimestamp;
 
   /**
    */
@@ -67,7 +66,6 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   /**
    */
-  @Test
   public void testTimestampNote() {
     assertThat(annotate("line", new TimestampNote(0)),
         is(expectedFormattedTimestamp + "line"));
@@ -75,7 +73,6 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   /**
    */
-  @Test
   public void testSerialization() {
     assertThat(annotate("line", serialize(new TimestampNote(0))),
         is(expectedFormattedTimestamp + "line"));
@@ -83,7 +80,6 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   /**
    */
-  @Test
   public void testTimestampThenAntTargetNote() {
     assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
         is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
@@ -91,7 +87,6 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   /**
    */
-  @Test
   public void testAntTargetNoteThenTimestamp() {
     assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
         is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
