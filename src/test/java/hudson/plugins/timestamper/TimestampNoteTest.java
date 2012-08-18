@@ -51,7 +51,8 @@ public class TimestampNoteTest extends HudsonTestCase {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    SimpleDateFormat smf = new SimpleDateFormat(TimestamperConfig.DEFAULT_TIMESTAMP_FORMAT);
+    SimpleDateFormat smf = new SimpleDateFormat(
+        TimestamperConfig.DEFAULT_TIMESTAMP_FORMAT);
     expectedFormattedTimestamp = smf.format(new Date(0));
     super.setUp();
   }
@@ -59,7 +60,7 @@ public class TimestampNoteTest extends HudsonTestCase {
   /**
    */
   @Override
-  protected void tearDown() throws Exception  {
+  protected void tearDown() throws Exception {
     TimeZone.setDefault(systemDefaultTimeZone);
     super.tearDown();
   }
@@ -92,7 +93,7 @@ public class TimestampNoteTest extends HudsonTestCase {
         is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   private String annotate(String text, ConsoleNote... notes) {
     Object context = new Object();
     MarkupText markupText = new MarkupText(text);
