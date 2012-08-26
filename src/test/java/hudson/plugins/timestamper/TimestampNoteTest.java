@@ -41,6 +41,8 @@ import org.jvnet.hudson.test.HudsonTestCase;
  */
 public class TimestampNoteTest extends HudsonTestCase {
 
+  private static final String FORMAT = "HH:mm:ss";
+
   private static final String OTHER_FORMAT = "HHmmss";
 
   private TimeZone systemDefaultTimeZone;
@@ -53,8 +55,7 @@ public class TimestampNoteTest extends HudsonTestCase {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    TimestamperConfig.get().setTimestampFormat(
-        TimestamperConfig.DEFAULT_TIMESTAMP_FORMAT);
+    TimestamperConfig.get().setTimestampFormat(FORMAT);
   }
 
   /**

@@ -18,14 +18,14 @@ import org.kohsuke.stapler.StaplerRequest;
 public class TimestamperConfig extends GlobalConfiguration {
 
   /**
-   * timestamp format in SimpleDateFormat pattern.
+   * The default time-stamp format.
    */
-  private String timestampFormat;
+  private static final String DEFAULT_TIMESTAMP_FORMAT = "'<b>'HH:mm:ss'</b> '";
 
   /**
-   * default for timestamp format
+   * The chosen time-stamp format, as recognised by SimpleDateFormat.
    */
-  public static final String DEFAULT_TIMESTAMP_FORMAT = "'<b>'HH:mm:ss'</b> '";
+  private String timestampFormat;
 
   /**
    * Constructor
