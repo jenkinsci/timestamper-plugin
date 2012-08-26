@@ -9,8 +9,8 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * Represents the config class to manage timestamp format and line prefix in
- * Jenkins Configure System page.
+ * Global configuration for the Timestamper plugin, as shown on the Jenkins
+ * Configure System page.
  * 
  * @author Frederik Fromm
  */
