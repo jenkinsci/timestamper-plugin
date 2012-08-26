@@ -41,56 +41,72 @@ import org.jvnet.hudson.test.HudsonTestCase;
  */
 public class TimestampNoteTest extends HudsonTestCase {
 
+  private static final String OTHER_FORMAT = "HHmmss";
+
   private TimeZone systemDefaultTimeZone;
-  private String expectedFormattedTimestamp;
 
   /**
    */
   @Override
   protected void setUp() throws Exception {
+    super.setUp();
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    SimpleDateFormat smf = new SimpleDateFormat(
+    TimestamperConfig.get().setTimestampFormat(
         TimestamperConfig.DEFAULT_TIMESTAMP_FORMAT);
-    expectedFormattedTimestamp = smf.format(new Date(0));
-    super.setUp();
   }
 
   /**
    */
   @Override
   protected void tearDown() throws Exception {
-    TimeZone.setDefault(systemDefaultTimeZone);
     super.tearDown();
+    TimeZone.setDefault(systemDefaultTimeZone);
   }
 
   /**
    */
-  public void testTimestampNote() {
+  public void testTimestampNote_DefaultFormat() {
     assertThat(annotate("line", new TimestampNote(0)),
-        is(expectedFormattedTimestamp + "line"));
+        is(timestamp(0) + "line"));
   }
 
   /**
    */
-  public void testSerialization() {
+  public void testTimestampNote_NonDefaultFormat() {
+    TimestamperConfig.get().setTimestampFormat(OTHER_FORMAT);
+    assertThat(annotate("line", new TimestampNote(0)),
+        is(timestamp(0) + "line"));
+  }
+
+  /**
+   */
+  public void testSerialization_DefaultFormat() {
     assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is(expectedFormattedTimestamp + "line"));
+        is(timestamp(0) + "line"));
+  }
+
+  /**
+   */
+  public void testSerialization_NonDefaultFormat() {
+    TimestamperConfig.get().setTimestampFormat(OTHER_FORMAT);
+    assertThat(annotate("line", serialize(new TimestampNote(0))),
+        is(timestamp(0) + "line"));
   }
 
   /**
    */
   public void testTimestampThenAntTargetNote() {
     assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
-        is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
+        is(timestamp(0) + "<b class=ant-target>target</b>:"));
   }
 
   /**
    */
   public void testAntTargetNoteThenTimestamp() {
     assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
-        is(expectedFormattedTimestamp + "<b class=ant-target>target</b>:"));
+        is(timestamp(0) + "<b class=ant-target>target</b>:"));
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -105,5 +121,11 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   private TimestampNote serialize(TimestampNote note) {
     return (TimestampNote) SerializationUtils.clone(note);
+  }
+
+  private String timestamp(long millisSinceEpoch) {
+    TimestamperConfig config = TimestamperConfig.get();
+    return new SimpleDateFormat(config.getTimestampFormat()).format(new Date(
+        millisSinceEpoch));
   }
 }

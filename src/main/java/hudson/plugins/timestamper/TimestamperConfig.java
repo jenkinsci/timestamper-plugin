@@ -53,7 +53,6 @@ public class TimestamperConfig extends GlobalConfiguration {
   public void setTimestampFormat(String timestampFormat) {
     this.timestampFormat = StringUtils.isEmpty(timestampFormat) ? DEFAULT_TIMESTAMP_FORMAT
         : timestampFormat;
-
   }
 
   /**

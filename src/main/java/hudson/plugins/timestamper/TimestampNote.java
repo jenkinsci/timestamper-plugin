@@ -27,8 +27,9 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.commons.lang.time.FastDateFormat;
 
 /**
  * Time-stamp note that is inserted into the console output.
@@ -41,20 +42,6 @@ public final class TimestampNote extends ConsoleNote<Object> {
    * Serialization UID.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Thread-local variable that provides the time-stamp format.
-   */
-  private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected SimpleDateFormat initialValue() {
-      return new SimpleDateFormat(TimestamperConfig.get().getTimestampFormat());
-    }
-  };
 
   /**
    * Milliseconds since the epoch.
@@ -77,7 +64,8 @@ public final class TimestampNote extends ConsoleNote<Object> {
   @Override
   public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
       int charPos) {
-    String formattedDate = dateFormatThreadLocal.get().format(
+    String timestampFormat = TimestamperConfig.get().getTimestampFormat();
+    String formattedDate = FastDateFormat.getInstance(timestampFormat).format(
         new Date(millisSinceEpoch));
     // Add as end tag, which will be inserted prior to tags added by other
     // console notes (e.g. AntTargetNote).
