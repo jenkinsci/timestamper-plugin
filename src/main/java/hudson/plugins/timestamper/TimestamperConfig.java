@@ -29,7 +29,6 @@ import hudson.model.Descriptor;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -59,24 +58,23 @@ public class TimestamperConfig extends GlobalConfiguration {
   }
 
   /**
-   * Returns the timestamp format.
+   * Get the timestamp format.
    * 
    * @return the timestamp format
    */
   public String getTimestampFormat() {
-    return StringUtils.isEmpty(timestampFormat) ? DEFAULT_TIMESTAMP_FORMAT
+    return timestampFormat == null ? DEFAULT_TIMESTAMP_FORMAT
         : this.timestampFormat;
   }
 
   /**
-   * Sets the timestamp format. If null, the default timestamp format is used.
+   * Set the timestamp format.
    * 
    * @param timestampFormat
    *          the timestamp format in SimpleDateFormat pattern.
    */
   public void setTimestampFormat(String timestampFormat) {
-    this.timestampFormat = StringUtils.isEmpty(timestampFormat) ? DEFAULT_TIMESTAMP_FORMAT
-        : timestampFormat;
+    this.timestampFormat = timestampFormat;
   }
 
   /**

@@ -57,6 +57,14 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  public void testSetTimestampFormatEmpty() {
+    TimestamperConfig config = new TimestamperConfig();
+    config.setTimestampFormat("");
+    assertThat(config.getTimestampFormat(), is(""));
+  }
+
+  /**
+   */
   public void testToXmlDefault() {
     TimestamperConfig config = new TimestamperConfig();
     assertThat(toXml(config), is(defaultXml()));
@@ -84,6 +92,13 @@ public class TimestamperConfigTest extends HudsonTestCase {
   public void testFromXmlCustomFormat() {
     TimestamperConfig config = fromXml(xml(customTimestampFormat));
     assertThat(config.getTimestampFormat(), is(customTimestampFormat));
+  }
+
+  /**
+   */
+  public void testFromXmlEmptyFormat() {
+    TimestamperConfig config = fromXml(xml(""));
+    assertThat(config.getTimestampFormat(), is(""));
   }
 
   private String toXml(TimestamperConfig config) {
