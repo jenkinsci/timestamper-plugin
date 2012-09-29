@@ -42,8 +42,9 @@ import org.kohsuke.stapler.StaplerResponse;
  * Action which serves a page of timestamps. The format of this page will not
  * change, so it can be safely parsed by scripts.
  * <p>
- * Each line contains the elapsed time in milliseconds since the start of the
- * build for the equivalent line in the console log.
+ * Each line contains the elapsed time in seconds since the start of the build
+ * for the equivalent line in the console log. The elapsed time will include
+ * three places after the decimal point.
  * 
  * @author Steven G. Brown
  * @since 1.3.2
@@ -133,7 +134,10 @@ public final class TimestampsAction implements Action {
   }
 
   private void writeTimestamp(PrintWriter writer, Timestamp timestamp) {
-    String line = String.valueOf(timestamp.elapsedMillis) + "\n";
+    long seconds = timestamp.elapsedMillis / 1000;
+    long fractional = timestamp.elapsedMillis % 1000;
+    String line = String.format("%d.%03d\n", Long.valueOf(seconds),
+        Long.valueOf(fractional));
     writer.write(line);
   }
 }

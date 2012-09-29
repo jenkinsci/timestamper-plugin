@@ -102,19 +102,18 @@ public class TimestampsActionTest extends HudsonTestCase {
   public void testReadConsoleNotes() throws Exception {
     writeConsoleWithNotes();
     action.doIndex(request, response);
-    StringBuilder expected = new StringBuilder();
-    for (int i = 0; i < 10; i++) {
-      expected.append(i).append('\n');
-    }
-    assertThat(written.toString(), is(expected.toString()));
+    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
   }
 
   private void writeConsoleWithNotes() throws IOException {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    for (int i = 0; i < 10; i++) {
-      TimestampNote timestampNote = new TimestampNote(i);
+    long millisSinceEpoch = 1;
+    for (int i = 0; i < 5; i++) {
+      TimestampNote timestampNote = new TimestampNote(millisSinceEpoch);
       timestampNote.encodeTo(outputStream);
       outputStream.write('a' + i);
+      millisSinceEpoch *= 10;
     }
     byte[] consoleLog = outputStream.toByteArray();
     when(build.getLogInputStream()).thenReturn(
