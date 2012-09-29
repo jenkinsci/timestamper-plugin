@@ -206,6 +206,17 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  public void testReadConsoleNotesEmptyPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
   public void testReadConsoleNotesNegativePrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("-1");

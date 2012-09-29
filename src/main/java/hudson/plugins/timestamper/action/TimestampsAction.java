@@ -128,7 +128,7 @@ public final class TimestampsAction implements Action {
     if ("nanoseconds".equalsIgnoreCase(precision)) {
       return 9;
     }
-    if (precision != null) {
+    if (StringUtils.isNotEmpty(precision)) {
       try {
         int intPrecision = Integer.parseInt(precision);
         if (intPrecision < 0) {
