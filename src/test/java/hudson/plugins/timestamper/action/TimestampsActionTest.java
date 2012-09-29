@@ -99,8 +99,84 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
-  public void testReadConsoleNotes() throws Exception {
+  public void testReadConsoleNotesDefaultPrecision() throws Exception {
     writeConsoleWithNotes();
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesDefaultZeroPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("0");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesOnePrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("1");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.0\n" + "0.0\n" + "0.1\n" + "1.0\n"
+        + "10.0\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesTwoPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("2");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.00\n" + "0.01\n" + "0.10\n" + "1.00\n"
+        + "10.00\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesThreePrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("3");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesSixPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("6");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001000\n" + "0.010000\n"
+        + "0.100000\n" + "1.000000\n" + "10.000000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesNegativePrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("-1");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesInvalidPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("invalid");
     action.doIndex(request, response);
     assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
         + "1.000\n" + "10.000\n"));

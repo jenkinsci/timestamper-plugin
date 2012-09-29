@@ -33,8 +33,11 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -43,13 +46,19 @@ import org.kohsuke.stapler.StaplerResponse;
  * change, so it can be safely parsed by scripts.
  * <p>
  * Each line contains the elapsed time in seconds since the start of the build
- * for the equivalent line in the console log. The elapsed time will include
- * three places after the decimal point.
+ * for the equivalent line in the console log.
+ * <p>
+ * By default, the elapsed time will include three places after the decimal
+ * point. The number of places after the decimal point can be configured by the
+ * "precision" query parameter.
  * 
  * @author Steven G. Brown
  * @since 1.3.2
  */
 public final class TimestampsAction implements Action {
+
+  private static final Logger LOGGER = Logger.getLogger(TimestampsAction.class
+      .getName());
 
   /**
    * The build to inspect.
@@ -98,12 +107,36 @@ public final class TimestampsAction implements Action {
    */
   public void doIndex(StaplerRequest request, StaplerResponse response)
       throws IOException {
+    int precision = getPrecision(request);
     response.setContentType("text/plain;charset=UTF-8");
-    writeConsoleNotes(response.getWriter());
+    writeConsoleNotes(response.getWriter(), precision);
     response.getWriter().flush();
   }
 
-  private void writeConsoleNotes(PrintWriter writer) throws IOException {
+  private int getPrecision(StaplerRequest request) {
+    String precision = request.getParameter("precision");
+    if (precision != null) {
+      try {
+        int intPrecision = Integer.parseInt(precision);
+        if (intPrecision < 0) {
+          unrecognisedPrecision(precision);
+        } else {
+          return intPrecision;
+        }
+      } catch (NumberFormatException ex) {
+        unrecognisedPrecision(precision);
+      }
+    }
+    // Default precision.
+    return 3;
+  }
+
+  private void unrecognisedPrecision(String precision) {
+    LOGGER.log(Level.WARNING, "Unrecognised precision: " + precision);
+  }
+
+  private void writeConsoleNotes(PrintWriter writer, int precision)
+      throws IOException {
     DataInputStream dataInputStream = new DataInputStream(
         new BufferedInputStream(build.getLogInputStream()));
     try {
@@ -124,7 +157,8 @@ public final class TimestampsAction implements Action {
           }
           if (consoleNote instanceof TimestampNote) {
             TimestampNote timestampNote = (TimestampNote) consoleNote;
-            writeTimestamp(writer, timestampNote.getTimestamp(build));
+            Timestamp timestamp = timestampNote.getTimestamp(build);
+            writer.write(formatTimestamp(timestamp, precision) + "\n");
           }
         }
       }
@@ -133,11 +167,18 @@ public final class TimestampsAction implements Action {
     }
   }
 
-  private void writeTimestamp(PrintWriter writer, Timestamp timestamp) {
+  private String formatTimestamp(Timestamp timestamp, int precision) {
     long seconds = timestamp.elapsedMillis / 1000;
-    long fractional = timestamp.elapsedMillis % 1000;
-    String line = String.format("%d.%03d\n", Long.valueOf(seconds),
-        Long.valueOf(fractional));
-    writer.write(line);
+    if (precision == 0) {
+      return String.valueOf(seconds);
+    }
+    long millis = timestamp.elapsedMillis % 1000;
+    String fractional = String.format("%03d", Long.valueOf(millis));
+    if (precision <= 3) {
+      fractional = fractional.substring(0, precision);
+    } else if (precision > 3) {
+      fractional += StringUtils.repeat("0", precision - 3);
+    }
+    return String.valueOf(seconds) + "." + fractional;
   }
 }
