@@ -42,6 +42,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * {@link TimestampNote} on each output line.
  * 
  * @author Steven G. Brown
+ * @since 1.0
  */
 public final class TimestamperBuildWrapper extends BuildWrapper {
 
@@ -70,14 +71,14 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
   @SuppressWarnings("rawtypes")
   @Override
   public OutputStream decorateLogger(AbstractBuild build, OutputStream logger) {
-    return new TimestamperOutputStream(logger);
+    return new TimestampNotesOutputStream(logger);
   }
 
   /**
    * Output stream that writes each line to the provided delegate output stream
    * after inserting a {@link TimestampNote}.
    */
-  private static class TimestamperOutputStream extends
+  private static class TimestampNotesOutputStream extends
       LineTransformationOutputStream {
 
     /**
@@ -86,12 +87,12 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     private final OutputStream delegate;
 
     /**
-     * Create a new {@link TimestamperOutputStream}.
+     * Create a new {@link TimestampNotesOutputStream}.
      * 
      * @param delegate
      *          the delegate output stream
      */
-    private TimestamperOutputStream(OutputStream delegate) {
+    TimestampNotesOutputStream(OutputStream delegate) {
       this.delegate = delegate;
     }
 

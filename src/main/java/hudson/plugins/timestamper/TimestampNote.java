@@ -26,15 +26,13 @@ package hudson.plugins.timestamper;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
-
-import java.util.Date;
-
-import org.apache.commons.lang.time.FastDateFormat;
+import hudson.model.Run;
 
 /**
- * Time-stamp note that is inserted into the console output.
+ * Time-stamp note that is inserted into the console log.
  * 
  * @author Steven G. Brown
+ * @since 1.0
  */
 public final class TimestampNote extends ConsoleNote<Object> {
 
@@ -54,8 +52,20 @@ public final class TimestampNote extends ConsoleNote<Object> {
    * @param millisSinceEpoch
    *          milliseconds since the epoch
    */
-  TimestampNote(long millisSinceEpoch) {
+  public TimestampNote(long millisSinceEpoch) {
     this.millisSinceEpoch = millisSinceEpoch;
+  }
+
+  /**
+   * Get the time-stamp recorded by this console note.
+   * 
+   * @param build
+   *          the build
+   * @return the time-stamp
+   */
+  public Timestamp getTimestamp(Run<?, ?> build) {
+    long elapsedMillis = millisSinceEpoch - build.getTimeInMillis();
+    return new Timestamp(elapsedMillis, millisSinceEpoch);
   }
 
   /**
@@ -64,12 +74,12 @@ public final class TimestampNote extends ConsoleNote<Object> {
   @Override
   public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
       int charPos) {
-    String timestampFormat = TimestamperConfig.get().getTimestampFormat();
-    String formattedDate = FastDateFormat.getInstance(timestampFormat).format(
-        new Date(millisSinceEpoch));
-    // Add as end tag, which will be inserted prior to tags added by other
-    // console notes (e.g. AntTargetNote).
-    text.addMarkup(0, 0, "", formattedDate);
+    if (context instanceof Run<?, ?>) {
+      Run<?, ?> build = (Run<?, ?>) context;
+      Timestamp timestamp = getTimestamp(build);
+      String timestampFormat = TimestamperConfig.get().getTimestampFormat();
+      timestamp.markup(text, timestampFormat);
+    }
     return null;
   }
 }

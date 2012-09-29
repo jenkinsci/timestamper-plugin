@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2010 Steven G. Brown
+ * Copyright (c) 2012 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,102 +35,118 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.SerializationUtils;
-import org.jvnet.hudson.test.HudsonTestCase;
+import nl.jqno.equalsverifier.EqualsVerifier;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
- * Unit test for the {@link TimestampNote} class.
+ * Unit test for the {@link Timestamp} class.
  * 
  * @author Steven G. Brown
  */
-public class TimestampNoteTest extends HudsonTestCase {
+public class TimestampTest {
 
-  private static final String FORMAT = "HH:mm:ss";
+  private static final String FORMAT_ONE = "HH:mm:ss";
 
-  private static final String OTHER_FORMAT = "HHmmss";
+  private static final String FORMAT_TWO = "HHmmss";
 
-  private TimeZone systemDefaultTimeZone;
+  private static TimeZone systemDefaultTimeZone;
 
   /**
    */
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @BeforeClass
+  public static void setUpBeforeClass() {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    TimestamperConfig.get().setTimestampFormat(FORMAT);
   }
 
   /**
    */
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
+  @AfterClass
+  public static void tearDownAfterClass() {
     TimeZone.setDefault(systemDefaultTimeZone);
   }
 
+  private String timestampFormat;
+
   /**
    */
+  @Before
+  public void setUp() {
+    timestampFormat = FORMAT_ONE;
+  }
+
+  /**
+   */
+  @Test
   public void testTimestampNote_DefaultFormat() {
-    assertThat(annotate("line", new TimestampNote(0)),
-        is(timestamp(0) + "line"));
+    assertThat(markup("line", 0).toString(true), is(timestamp(0) + "line"));
   }
 
   /**
    */
+  @Test
   public void testTimestampNote_NonDefaultFormat() {
-    TimestamperConfig.get().setTimestampFormat(OTHER_FORMAT);
-    assertThat(annotate("line", new TimestampNote(0)),
-        is(timestamp(0) + "line"));
+    timestampFormat = FORMAT_TWO;
+    assertThat(markup("line", 0).toString(true), is(timestamp(0) + "line"));
   }
 
   /**
    */
-  public void testSerialization_DefaultFormat() {
-    assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is(timestamp(0) + "line"));
-  }
-
-  /**
-   */
-  public void testSerialization_NonDefaultFormat() {
-    TimestamperConfig.get().setTimestampFormat(OTHER_FORMAT);
-    assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is(timestamp(0) + "line"));
-  }
-
-  /**
-   */
+  @Test
   public void testTimestampThenAntTargetNote() {
-    assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
+    assertThat(
+        annotate(markup("target:", 0), new AntTargetNote()).toString(true),
         is(timestamp(0) + "<b class=ant-target>target</b>:"));
   }
 
   /**
    */
+  @Test
   public void testAntTargetNoteThenTimestamp() {
-    assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
+    assertThat(
+        markup(annotate("target:", new AntTargetNote()), 0).toString(true),
         is(timestamp(0) + "<b class=ant-target>target</b>:"));
+  }
+
+  /**
+   */
+  @Test
+  public void testHashcodeAndEquals() {
+    EqualsVerifier.forClass(Timestamp.class).verify();
+  }
+
+  private MarkupText markup(String text, long millisSinceEpoch) {
+    MarkupText markupText = new MarkupText(text);
+    return markup(markupText, millisSinceEpoch);
+  }
+
+  private MarkupText markup(MarkupText markupText, long millisSinceEpoch) {
+    new Timestamp(0, millisSinceEpoch).markup(markupText, timestampFormat);
+    return markupText;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private MarkupText annotate(String text, ConsoleNote... notes) {
+    MarkupText markupText = new MarkupText(text);
+    return annotate(markupText, notes);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private String annotate(String text, ConsoleNote... notes) {
+  private MarkupText annotate(MarkupText markupText, ConsoleNote... notes) {
     Object context = mock(Run.class);
-    MarkupText markupText = new MarkupText(text);
     for (ConsoleNote note : notes) {
       note.annotate(context, markupText, 0);
     }
-    return markupText.toString(true);
-  }
-
-  private TimestampNote serialize(TimestampNote note) {
-    return (TimestampNote) SerializationUtils.clone(note);
+    return markupText;
   }
 
   private String timestamp(long millisSinceEpoch) {
-    TimestamperConfig config = TimestamperConfig.get();
-    return new SimpleDateFormat(config.getTimestampFormat()).format(new Date(
+    return new SimpleDateFormat(timestampFormat).format(new Date(
         millisSinceEpoch));
   }
 }
