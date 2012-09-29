@@ -119,6 +119,16 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  public void testReadConsoleNotesDefaultSecondsPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("seconds");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
   public void testReadConsoleNotesOnePrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("1");
@@ -152,12 +162,45 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  public void testReadConsoleNotesMillisecondsPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("milliseconds");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
   public void testReadConsoleNotesSixPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("6");
     action.doIndex(request, response);
     assertThat(written.toString(), is("0.001000\n" + "0.010000\n"
         + "0.100000\n" + "1.000000\n" + "10.000000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesMicrosecondsPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("microseconds");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001000\n" + "0.010000\n"
+        + "0.100000\n" + "1.000000\n" + "10.000000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReadConsoleNotesNanosecondsPrecision() throws Exception {
+    writeConsoleWithNotes();
+    when(request.getParameter("precision")).thenReturn("nanoseconds");
+    action.doIndex(request, response);
+    assertThat(written.toString(), is("0.001000000\n" + "0.010000000\n"
+        + "0.100000000\n" + "1.000000000\n" + "10.000000000\n"));
   }
 
   /**

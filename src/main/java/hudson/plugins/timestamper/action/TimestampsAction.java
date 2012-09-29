@@ -50,7 +50,8 @@ import org.kohsuke.stapler.StaplerResponse;
  * <p>
  * By default, the elapsed time will include three places after the decimal
  * point. The number of places after the decimal point can be configured by the
- * "precision" query parameter.
+ * "precision" query parameter, which accepts a number of decimal places or the
+ * values "seconds" or "milliseconds".
  * 
  * @author Steven G. Brown
  * @since 1.3.2
@@ -115,6 +116,18 @@ public final class TimestampsAction implements Action {
 
   private int getPrecision(StaplerRequest request) {
     String precision = request.getParameter("precision");
+    if ("seconds".equalsIgnoreCase(precision)) {
+      return 0;
+    }
+    if ("milliseconds".equalsIgnoreCase(precision)) {
+      return 3;
+    }
+    if ("microseconds".equalsIgnoreCase(precision)) {
+      return 6;
+    }
+    if ("nanoseconds".equalsIgnoreCase(precision)) {
+      return 9;
+    }
     if (precision != null) {
       try {
         int intPrecision = Integer.parseInt(precision);
