@@ -27,9 +27,21 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
+import hudson.plugins.timestamper.action.TimestampsAction;
 
 /**
- * Time-stamp note that is inserted into the console log.
+ * Time-stamp note that was inserted into the console note by the Timestamper
+ * plugin prior to version 1.4.
+ * <p>
+ * The time-stamps are now stored in a separate file, which allows a more
+ * compact format to be used. Having the timestamps in the console log file was
+ * also inconvenient when reading the file in a text editor.
+ * <p>
+ * It is possible to restore the old behaviour of inserting console notes by
+ * setting a system property: {@link #getSystemProperty()}. This will allow
+ * scripts which expect to find the time-stamps within the console log file to
+ * continue working. New scripts should rely on the page served by
+ * {@link TimestampsAction} instead.
  * 
  * @author Steven G. Brown
  * @since 1.0
@@ -40,6 +52,16 @@ public final class TimestampNote extends ConsoleNote<Object> {
    * Serialization UID.
    */
   private static final long serialVersionUID = 1L;
+
+  /**
+   * Get the system property which will cause these console notes to be inserted
+   * into the console log file.
+   * 
+   * @return the system property
+   */
+  public static String getSystemProperty() {
+    return "timestamper-consolenotes";
+  }
 
   /**
    * Milliseconds since the epoch.

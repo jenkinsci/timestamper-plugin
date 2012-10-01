@@ -28,6 +28,7 @@ import hudson.model.Action;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestampNote;
+import hudson.plugins.timestamper.TimestampsIO;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -110,7 +111,20 @@ public final class TimestampsAction implements Action {
       throws IOException {
     int precision = getPrecision(request);
     response.setContentType("text/plain;charset=UTF-8");
-    writeConsoleNotes(response.getWriter(), precision);
+    PrintWriter writer = response.getWriter();
+
+    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+    boolean timestampsFound = false;
+    Timestamp timestamp;
+    while ((timestamp = reader.next()) != null) {
+      timestampsFound = true;
+      writer.write(formatTimestamp(timestamp, precision));
+    }
+
+    if (!timestampsFound) {
+      writeConsoleNotes(writer, precision);
+    }
+
     response.getWriter().flush();
   }
 
@@ -171,7 +185,7 @@ public final class TimestampsAction implements Action {
           if (consoleNote instanceof TimestampNote) {
             TimestampNote timestampNote = (TimestampNote) consoleNote;
             Timestamp timestamp = timestampNote.getTimestamp(build);
-            writer.write(formatTimestamp(timestamp, precision) + "\n");
+            writer.write(formatTimestamp(timestamp, precision));
           }
         }
       }
@@ -183,7 +197,7 @@ public final class TimestampsAction implements Action {
   private String formatTimestamp(Timestamp timestamp, int precision) {
     long seconds = timestamp.elapsedMillis / 1000;
     if (precision == 0) {
-      return String.valueOf(seconds);
+      return String.valueOf(seconds) + "\n";
     }
     long millis = timestamp.elapsedMillis % 1000;
     String fractional = String.format("%03d", Long.valueOf(millis));
@@ -192,6 +206,6 @@ public final class TimestampsAction implements Action {
     } else if (precision > 3) {
       fractional += StringUtils.repeat("0", precision - 3);
     }
-    return String.valueOf(seconds) + "." + fractional;
+    return String.valueOf(seconds) + "." + fractional + "\n";
   }
 }
