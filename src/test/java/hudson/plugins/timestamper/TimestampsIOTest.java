@@ -37,10 +37,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 /**
  * Unit test for the {@link TimestampsIO} class.
@@ -84,13 +88,19 @@ public class TimestampsIOTest {
    */
   @Test
   public void testReadFromStart() throws Exception {
-    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
-    List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
-    for (int i = 0; i < timestamps.size(); i++) {
-      timestampsRead.add(reader.next());
-    }
-    assertThat(timestampsRead, is(timestamps));
-    assertThat(reader.next(), is(nullValue()));
+    readTimestamps(Functions.<TimestampsIO.Reader> identity());
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testReadFromStartWithSerialization() throws Exception {
+    readTimestamps(new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
+      public TimestampsIO.Reader apply(TimestampsIO.Reader reader) {
+        return (TimestampsIO.Reader) SerializationUtils.clone(reader);
+      }
+    });
   }
 
   /**
@@ -161,5 +171,19 @@ public class TimestampsIOTest {
     } finally {
       writer.close();
     }
+  }
+
+  private void readTimestamps(
+      Function<TimestampsIO.Reader, TimestampsIO.Reader> readerTransformer)
+      throws Exception {
+    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+    List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
+    for (int i = 0; i < timestamps.size(); i++) {
+      reader = readerTransformer.apply(reader);
+      timestampsRead.add(reader.next());
+    }
+    assertThat(timestampsRead, is(timestamps));
+    reader = readerTransformer.apply(reader);
+    assertThat(reader.next(), is(nullValue()));
   }
 }
