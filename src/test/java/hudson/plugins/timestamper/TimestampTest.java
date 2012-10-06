@@ -32,6 +32,7 @@ import hudson.model.Run;
 import hudson.tasks._ant.AntTargetNote;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -47,6 +48,7 @@ import org.junit.Test;
  * 
  * @author Steven G. Brown
  */
+@SuppressWarnings("boxing")
 public class TimestampTest {
 
   private static final String FORMAT_ONE = "HH:mm:ss";
@@ -78,6 +80,16 @@ public class TimestampTest {
   @Before
   public void setUp() {
     timestampFormat = FORMAT_ONE;
+  }
+
+  /**
+   */
+  @Test
+  public void testConstructor() {
+    Timestamp timestamp = new Timestamp(1, 2);
+    assertThat(
+        Arrays.asList(timestamp.elapsedMillis, timestamp.millisSinceEpoch),
+        is(Arrays.asList(1l, 2l)));
   }
 
   /**
