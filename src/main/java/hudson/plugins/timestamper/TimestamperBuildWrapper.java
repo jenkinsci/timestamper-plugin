@@ -39,8 +39,8 @@ import java.io.OutputStream;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * Build wrapper that decorates the build's logger to insert a
- * {@link TimestampNote} on each output line.
+ * Build wrapper that decorates the build's logger to record time-stamps as each
+ * line is logged.
  * 
  * @author Steven G. Brown
  * @since 1.0
@@ -63,6 +63,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
       BuildListener listener) throws IOException, InterruptedException {
     // Jenkins requires this method to be overridden.
     return new Environment() {
+      // No tear down behaviour or additional environment variables.
     };
   }
 
