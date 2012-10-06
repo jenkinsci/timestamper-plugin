@@ -41,8 +41,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.Closeables;
+import com.google.common.io.Files;
 
 /**
  * Allows the time-stamps for a build to be written to disk and read back again.
@@ -188,7 +188,7 @@ public class TimestampsIO {
     private void writeBufferTo(File file) throws IOException {
       FileOutputStream outputStream = outputStreams.get(file);
       if (outputStream == null) {
-        FileUtils.forceMkdir(file.getParentFile());
+        Files.createParentDirs(file);
         outputStream = new FileOutputStream(file);
         outputStreams.put(file, outputStream);
       }
@@ -202,7 +202,7 @@ public class TimestampsIO {
      */
     void close() {
       for (FileOutputStream outputStream : outputStreams.values()) {
-        IOUtils.closeQuietly(outputStream);
+        Closeables.closeQuietly(outputStream);
       }
     }
   }
@@ -281,7 +281,7 @@ public class TimestampsIO {
           }
         }
       } finally {
-        IOUtils.closeQuietly(logInputStream);
+        Closeables.closeQuietly(logInputStream);
       }
     }
 
@@ -345,7 +345,7 @@ public class TimestampsIO {
         long shift = readVarint(byteReader);
         timeShifts.put(Long.valueOf(entry), Long.valueOf(shift));
       } finally {
-        IOUtils.closeQuietly(inputStream);
+        Closeables.closeQuietly(inputStream);
       }
       return timeShifts;
     }

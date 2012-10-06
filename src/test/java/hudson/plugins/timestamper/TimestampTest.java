@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -129,7 +130,8 @@ public class TimestampTest {
    */
   @Test
   public void testHashcodeAndEquals() {
-    EqualsVerifier.forClass(Timestamp.class).verify();
+    EqualsVerifier.forClass(Timestamp.class)
+        .suppress(Warning.STRICT_INHERITANCE).verify();
   }
 
   private MarkupText markup(String text, long millisSinceEpoch) {

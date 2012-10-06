@@ -29,9 +29,9 @@ import hudson.model.Descriptor;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 
-import org.codehaus.plexus.util.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 
 /**
@@ -74,7 +74,7 @@ public class TimestamperConfig extends GlobalConfiguration implements Settings {
    * @return the time-stamp format
    */
   public String getTimestampFormat() {
-    return StringUtils.defaultString(timestampFormat, DEFAULT_TIMESTAMP_FORMAT);
+    return Objects.firstNonNull(timestampFormat, DEFAULT_TIMESTAMP_FORMAT);
   }
 
   /**

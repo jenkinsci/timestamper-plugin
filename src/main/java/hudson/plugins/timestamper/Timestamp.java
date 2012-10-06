@@ -27,9 +27,9 @@ import hudson.MarkupText;
 
 import java.util.Date;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.FastDateFormat;
+
+import com.google.common.base.Objects;
 
 /**
  * A time-stamp, consisting of the elapsed time and the clock time.
@@ -96,10 +96,8 @@ public final class Timestamp {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    result = 37 * result + (int) (elapsedMillis ^ (elapsedMillis >>> 32));
-    result = 37 * result + (int) (millisSinceEpoch ^ (millisSinceEpoch >>> 32));
-    return result;
+    return Objects.hashCode(Long.valueOf(elapsedMillis),
+        Long.valueOf(millisSinceEpoch));
   }
 
   /**
@@ -120,8 +118,7 @@ public final class Timestamp {
    */
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("elapsedMillis", elapsedMillis)
-        .append("millisSinceEpoch", millisSinceEpoch).toString();
+    return Objects.toStringHelper(this).add("elapsedMillis", elapsedMillis)
+        .add("millisSinceEpoch", millisSinceEpoch).toString();
   }
 }

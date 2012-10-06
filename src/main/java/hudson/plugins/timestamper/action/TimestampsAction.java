@@ -37,10 +37,11 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+
+import com.google.common.base.Strings;
+import com.google.common.io.Closeables;
 
 /**
  * Action which serves a page of timestamps. The format of this page will not
@@ -142,7 +143,7 @@ public final class TimestampsAction implements Action {
     if ("nanoseconds".equalsIgnoreCase(precision)) {
       return 9;
     }
-    if (StringUtils.isNotEmpty(precision)) {
+    if (!Strings.isNullOrEmpty(precision)) {
       try {
         int intPrecision = Integer.parseInt(precision);
         if (intPrecision < 0) {
@@ -190,7 +191,7 @@ public final class TimestampsAction implements Action {
         }
       }
     } finally {
-      IOUtils.closeQuietly(dataInputStream);
+      Closeables.closeQuietly(dataInputStream);
     }
   }
 
@@ -204,7 +205,7 @@ public final class TimestampsAction implements Action {
     if (precision <= 3) {
       fractional = fractional.substring(0, precision);
     } else if (precision > 3) {
-      fractional += StringUtils.repeat("0", precision - 3);
+      fractional += Strings.repeat("0", precision - 3);
     }
     return String.valueOf(seconds) + "." + fractional + "\n";
   }
