@@ -39,7 +39,11 @@ import java.util.TimeZone;
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Supplier;
@@ -49,11 +53,18 @@ import com.google.common.base.Supplier;
  * 
  * @author Steven G. Brown
  */
+@SuppressWarnings("boxing")
+@PrepareForTest(Run.class)
 public class TimestampNoteTest {
 
   private static final String FORMAT = "HH:mm:ss";
 
   private static final String OTHER_FORMAT = "HHmmss";
+
+  /**
+   */
+  @Rule
+  public PowerMockRule powerMockRule = new PowerMockRule();
 
   private TimeZone systemDefaultTimeZone;
 
@@ -73,6 +84,17 @@ public class TimestampNoteTest {
   @After
   public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
+  }
+
+  /**
+   */
+  @Test
+  public void testGetTimestamp() {
+    Run<?, ?> build = PowerMockito.mock(Run.class);
+    when(build.getTimeInMillis()).thenReturn(1l);
+
+    TimestampNote note = new TimestampNote(3);
+    assertThat(note.getTimestamp(build), is(new Timestamp(2, 3)));
   }
 
   /**
