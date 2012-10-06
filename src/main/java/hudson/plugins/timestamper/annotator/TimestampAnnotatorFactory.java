@@ -47,7 +47,7 @@ public final class TimestampAnnotatorFactory extends
    */
   @Override
   public ConsoleAnnotator<Object> newInstance(Object context) {
-    String timestampFormat = TimestamperConfig.get().getTimestampFormat();
+    String timestampFormat = TimestamperConfig.settings().getTimestampFormat();
     long offset = getOffset(Stapler.getCurrentRequest());
     return new TimestampAnnotator(timestampFormat, offset);
   }

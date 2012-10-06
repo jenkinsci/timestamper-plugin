@@ -26,6 +26,7 @@ package hudson.plugins.timestamper;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
@@ -36,14 +37,19 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.jvnet.hudson.test.HudsonTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.powermock.reflect.Whitebox;
+
+import com.google.common.base.Supplier;
 
 /**
  * Unit test for the {@link TimestampNote} class.
  * 
  * @author Steven G. Brown
  */
-public class TimestampNoteTest extends HudsonTestCase {
+public class TimestampNoteTest {
 
   private static final String FORMAT = "HH:mm:ss";
 
@@ -52,26 +58,26 @@ public class TimestampNoteTest extends HudsonTestCase {
   private TimeZone systemDefaultTimeZone;
 
   /**
+   * @throws Exception
    */
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() throws Exception {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    TimestamperConfig.get().setTimestampFormat(FORMAT);
+    setTimestampFormat(FORMAT);
   }
 
   /**
    */
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
+  @After
+  public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
   }
 
   /**
    */
+  @Test
   public void testTimestampNote_DefaultFormat() {
     assertThat(annotate("line", new TimestampNote(0)),
         is(timestamp(0) + "line"));
@@ -79,14 +85,16 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testTimestampNote_NonDefaultFormat() {
-    TimestamperConfig.get().setTimestampFormat(OTHER_FORMAT);
+    setTimestampFormat(OTHER_FORMAT);
     assertThat(annotate("line", new TimestampNote(0)),
         is(timestamp(0) + "line"));
   }
 
   /**
    */
+  @Test
   public void testSerialization_DefaultFormat() {
     assertThat(annotate("line", serialize(new TimestampNote(0))),
         is(timestamp(0) + "line"));
@@ -94,14 +102,16 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testSerialization_NonDefaultFormat() {
-    TimestamperConfig.get().setTimestampFormat(OTHER_FORMAT);
+    setTimestampFormat(OTHER_FORMAT);
     assertThat(annotate("line", serialize(new TimestampNote(0))),
         is(timestamp(0) + "line"));
   }
 
   /**
    */
+  @Test
   public void testTimestampThenAntTargetNote() {
     assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
         is(timestamp(0) + "<b class=ant-target>target</b>:"));
@@ -109,9 +119,22 @@ public class TimestampNoteTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testAntTargetNoteThenTimestamp() {
     assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
         is(timestamp(0) + "<b class=ant-target>target</b>:"));
+  }
+
+  private void setTimestampFormat(final String timestampFormat) {
+    Whitebox.setInternalState(TimestamperConfig.class, Supplier.class,
+        new Supplier<Settings>() {
+
+          public Settings get() {
+            Settings settings = mock(Settings.class);
+            when(settings.getTimestampFormat()).thenReturn(timestampFormat);
+            return settings;
+          }
+        });
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -129,8 +152,8 @@ public class TimestampNoteTest extends HudsonTestCase {
   }
 
   private String timestamp(long millisSinceEpoch) {
-    TimestamperConfig config = TimestamperConfig.get();
-    return new SimpleDateFormat(config.getTimestampFormat()).format(new Date(
+    Settings settings = TimestamperConfig.settings();
+    return new SimpleDateFormat(settings.getTimestampFormat()).format(new Date(
         millisSinceEpoch));
   }
 }

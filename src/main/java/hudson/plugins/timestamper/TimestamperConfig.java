@@ -31,6 +31,8 @@ import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
 
+import com.google.common.base.Supplier;
+
 /**
  * Global configuration for the Timestamper plugin, as shown on the Jenkins
  * Configure System page.
@@ -39,7 +41,14 @@ import org.kohsuke.stapler.StaplerRequest;
  * @since 1.3
  */
 @Extension
-public class TimestamperConfig extends GlobalConfiguration {
+public class TimestamperConfig extends GlobalConfiguration implements Settings {
+
+  private static Supplier<Settings> settingsSupplier = new Supplier<Settings>() {
+
+    public Settings get() {
+      return GlobalConfiguration.all().get(TimestamperConfig.class);
+    }
+  };
 
   /**
    * The default time-stamp format.
@@ -59,9 +68,9 @@ public class TimestamperConfig extends GlobalConfiguration {
   }
 
   /**
-   * Get the timestamp format.
+   * Get the time-stamp format.
    * 
-   * @return the timestamp format
+   * @return the time-stamp format
    */
   public String getTimestampFormat() {
     return timestampFormat == null ? DEFAULT_TIMESTAMP_FORMAT
@@ -69,10 +78,10 @@ public class TimestamperConfig extends GlobalConfiguration {
   }
 
   /**
-   * Set the timestamp format.
+   * Set the time-stamp format.
    * 
    * @param timestampFormat
-   *          the timestamp format in SimpleDateFormat pattern.
+   *          the time-stamp format in SimpleDateFormat pattern.
    */
   public void setTimestampFormat(String timestampFormat) {
     this.timestampFormat = timestampFormat;
@@ -92,9 +101,9 @@ public class TimestamperConfig extends GlobalConfiguration {
   /**
    * Get the currently configured global Timestamper settings.
    * 
-   * @return the Timestamper global config
+   * @return the Timestamper settings
    */
-  public static TimestamperConfig get() {
-    return GlobalConfiguration.all().get(TimestamperConfig.class);
+  public static Settings settings() {
+    return settingsSupplier.get();
   }
 }

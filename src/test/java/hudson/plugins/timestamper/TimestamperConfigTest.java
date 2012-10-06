@@ -26,22 +26,53 @@ package hudson.plugins.timestamper;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import hudson.util.XStream2;
+import jenkins.model.Jenkins;
 
-import org.jvnet.hudson.test.HudsonTestCase;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 
 /**
  * Test for the {@link TimestamperConfig} class.
  * 
  * @author Steven G. Brown
  */
-public class TimestamperConfigTest extends HudsonTestCase {
+@PrepareForTest(Jenkins.class)
+public class TimestamperConfigTest {
 
   private static final String customTimestampFormat = "HH:mm:ss "
       + TimestamperConfigTest.class.getSimpleName();
 
   /**
    */
+  @Rule
+  public PowerMockRule powerMockRule = new PowerMockRule();
+
+  /**
+   */
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
+
+  /**
+   */
+  @Before
+  public void setUp() {
+    Jenkins jenkins = mock(Jenkins.class);
+    when(jenkins.getRootDir()).thenReturn(folder.getRoot());
+    PowerMockito.mockStatic(Jenkins.class);
+    when(Jenkins.getInstance()).thenReturn(jenkins);
+  }
+
+  /**
+   */
+  @Test
   public void testDefaultTimestampFormat() {
     assertThat(new TimestamperConfig().getTimestampFormat(),
         containsString("HH:mm:ss"));
@@ -49,6 +80,7 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testSetTimestampFormat() {
     TimestamperConfig config = new TimestamperConfig();
     config.setTimestampFormat(customTimestampFormat);
@@ -57,6 +89,7 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testSetTimestampFormatEmpty() {
     TimestamperConfig config = new TimestamperConfig();
     config.setTimestampFormat("");
@@ -65,6 +98,7 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testToXmlDefault() {
     TimestamperConfig config = new TimestamperConfig();
     assertThat(toXml(config), is(defaultXml()));
@@ -72,6 +106,7 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testToXmlCustomFormat() {
     TimestamperConfig config = new TimestamperConfig();
     config.setTimestampFormat(customTimestampFormat);
@@ -80,6 +115,7 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testFromXmlDefault() {
     TimestamperConfig config = fromXml(defaultXml());
     String defaultTimestampFormat = new TimestamperConfig()
@@ -89,6 +125,7 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testFromXmlCustomFormat() {
     TimestamperConfig config = fromXml(xml(customTimestampFormat));
     assertThat(config.getTimestampFormat(), is(customTimestampFormat));
@@ -96,6 +133,7 @@ public class TimestamperConfigTest extends HudsonTestCase {
 
   /**
    */
+  @Test
   public void testFromXmlEmptyFormat() {
     TimestamperConfig config = fromXml(xml(""));
     assertThat(config.getTimestampFormat(), is(""));

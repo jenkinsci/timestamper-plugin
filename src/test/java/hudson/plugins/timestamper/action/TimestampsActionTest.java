@@ -29,6 +29,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import hudson.PluginManager;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampNote;
 
@@ -37,19 +38,33 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import jenkins.model.Jenkins;
+
 import org.apache.commons.io.input.NullInputStream;
-import org.jvnet.hudson.test.HudsonTestCase;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
+import org.powermock.reflect.Whitebox;
 
 /**
  * Unit test for the {@link TimestampsAction} class.
  * 
  * @author Steven G. Brown
  */
-public class TimestampsActionTest extends HudsonTestCase {
+@PrepareForTest(Jenkins.class)
+public class TimestampsActionTest {
+
+  /**
+   */
+  @Rule
+  public PowerMockRule powerMockRule = new PowerMockRule();
 
   private Run<?, ?> build;
 
@@ -64,12 +79,10 @@ public class TimestampsActionTest extends HudsonTestCase {
   private StaplerResponse response;
 
   /**
-   * {@inheritDoc}
+   * @throws Exception
    */
-  @Override
+  @Before
   public void setUp() throws Exception {
-    super.setUp();
-
     build = mock(Run.class);
     when(build.getLogInputStream()).thenReturn(new NullInputStream(0));
     action = new TimestampsAction(build);
@@ -86,11 +99,19 @@ public class TimestampsActionTest extends HudsonTestCase {
     }).when(writer).write(anyString());
     response = mock(StaplerResponse.class);
     when(response.getWriter()).thenReturn(writer);
+
+    // Need to mock Jenkins to read the console notes.
+    Jenkins jenkins = mock(Jenkins.class);
+    PluginManager pluginManager = mock(PluginManager.class);
+    Whitebox.setInternalState(jenkins, PluginManager.class, pluginManager);
+    PowerMockito.mockStatic(Jenkins.class);
+    when(Jenkins.getInstance()).thenReturn(jenkins);
   }
 
   /**
    * @throws Exception
    */
+  @Test
   public void testNoLogFile() throws Exception {
     action.doIndex(request, response);
     assertThat(written.toString(), is(""));
@@ -99,6 +120,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesDefaultPrecision() throws Exception {
     writeConsoleWithNotes();
     action.doIndex(request, response);
@@ -109,6 +131,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesDefaultZeroPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("0");
@@ -119,6 +142,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesDefaultSecondsPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("seconds");
@@ -129,6 +153,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesOnePrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("1");
@@ -140,6 +165,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesTwoPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("2");
@@ -151,6 +177,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesThreePrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("3");
@@ -162,6 +189,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesMillisecondsPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("milliseconds");
@@ -173,6 +201,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesSixPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("6");
@@ -184,6 +213,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesMicrosecondsPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("microseconds");
@@ -195,6 +225,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesNanosecondsPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("nanoseconds");
@@ -206,6 +237,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesEmptyPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("");
@@ -217,6 +249,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesNegativePrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("-1");
@@ -228,6 +261,7 @@ public class TimestampsActionTest extends HudsonTestCase {
   /**
    * @throws Exception
    */
+  @Test
   public void testReadConsoleNotesInvalidPrecision() throws Exception {
     writeConsoleWithNotes();
     when(request.getParameter("precision")).thenReturn("invalid");
