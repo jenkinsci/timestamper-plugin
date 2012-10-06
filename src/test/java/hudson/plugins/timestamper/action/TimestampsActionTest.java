@@ -32,11 +32,17 @@ import static org.mockito.Mockito.when;
 import hudson.PluginManager;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampNote;
+import hudson.plugins.timestamper.TimestampsIO;
+import hudson.plugins.timestamper.action.TimestampsActionTest.NoLogFileTest;
+import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampNotesTest;
+import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampWriterTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import jenkins.model.Jenkins;
 
@@ -44,6 +50,10 @@ import org.apache.commons.io.input.NullInputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.invocation.InvocationOnMock;
@@ -58,229 +68,277 @@ import org.powermock.reflect.Whitebox;
  * 
  * @author Steven G. Brown
  */
-@PrepareForTest(Jenkins.class)
+@RunWith(Suite.class)
+@SuiteClasses({ NoLogFileTest.class, TimestampNotesTest.class,
+    TimestampWriterTest.class })
+@SuppressWarnings("boxing")
 public class TimestampsActionTest {
 
-  /**
-   */
-  @Rule
-  public PowerMockRule powerMockRule = new PowerMockRule();
-
-  private Run<?, ?> build;
-
-  private TimestampsAction action;
-
-  private StaplerRequest request;
-
-  private StringBuilder written;
-
-  private PrintWriter writer;
-
-  private StaplerResponse response;
+  static final List<Long> millisSinceEpochToWrite = Arrays.asList(0l, 1l, 10l,
+      100l, 1000l, 10000l);
 
   /**
-   * @throws Exception
    */
-  @Before
-  public void setUp() throws Exception {
-    build = mock(Run.class);
-    when(build.getLogInputStream()).thenReturn(new NullInputStream(0));
-    action = new TimestampsAction(build);
-    request = mock(StaplerRequest.class);
+  @PrepareForTest(Jenkins.class)
+  public static abstract class SetUp {
 
-    written = new StringBuilder();
-    writer = mock(PrintWriter.class);
-    doAnswer(new Answer<Void>() {
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        String arg = (String) invocation.getArguments()[0];
-        written.append(arg);
-        return null;
-      }
-    }).when(writer).write(anyString());
-    response = mock(StaplerResponse.class);
-    when(response.getWriter()).thenReturn(writer);
+    /**
+     */
+    @Rule
+    public PowerMockRule powerMockRule = new PowerMockRule();
 
-    // Need to mock Jenkins to read the console notes.
-    Jenkins jenkins = mock(Jenkins.class);
-    PluginManager pluginManager = mock(PluginManager.class);
-    Whitebox.setInternalState(jenkins, PluginManager.class, pluginManager);
-    PowerMockito.mockStatic(Jenkins.class);
-    when(Jenkins.getInstance()).thenReturn(jenkins);
-  }
+    /**
+     */
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testNoLogFile() throws Exception {
-    action.doIndex(request, response);
-    assertThat(written.toString(), is(""));
-  }
+    Run<?, ?> build;
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesDefaultPrecision() throws Exception {
-    writeConsoleWithNotes();
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
+    TimestampsAction action;
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesDefaultZeroPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("0");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
-  }
+    StaplerRequest request;
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesDefaultSecondsPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("seconds");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
-  }
+    StringBuilder written;
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesOnePrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("1");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.0\n" + "0.0\n" + "0.1\n" + "1.0\n"
-        + "10.0\n"));
-  }
+    PrintWriter writer;
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesTwoPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("2");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.00\n" + "0.01\n" + "0.10\n" + "1.00\n"
-        + "10.00\n"));
-  }
+    StaplerResponse response;
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesThreePrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("3");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
+    /**
+     * @throws Exception
+     */
+    @Before
+    public void setUp() throws Exception {
+      build = mock(Run.class);
+      when(build.getRootDir()).thenReturn(folder.getRoot());
+      when(build.getLogInputStream()).thenReturn(new NullInputStream(0));
+      action = new TimestampsAction(build);
+      request = mock(StaplerRequest.class);
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesMillisecondsPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("milliseconds");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
+      written = new StringBuilder();
+      writer = mock(PrintWriter.class);
+      doAnswer(new Answer<Void>() {
+        public Void answer(InvocationOnMock invocation) throws Throwable {
+          String arg = (String) invocation.getArguments()[0];
+          written.append(arg);
+          return null;
+        }
+      }).when(writer).write(anyString());
+      response = mock(StaplerResponse.class);
+      when(response.getWriter()).thenReturn(writer);
 
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesSixPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("6");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001000\n" + "0.010000\n"
-        + "0.100000\n" + "1.000000\n" + "10.000000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesMicrosecondsPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("microseconds");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001000\n" + "0.010000\n"
-        + "0.100000\n" + "1.000000\n" + "10.000000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesNanosecondsPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("nanoseconds");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001000000\n" + "0.010000000\n"
-        + "0.100000000\n" + "1.000000000\n" + "10.000000000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesEmptyPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesNegativePrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("-1");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testReadConsoleNotesInvalidPrecision() throws Exception {
-    writeConsoleWithNotes();
-    when(request.getParameter("precision")).thenReturn("invalid");
-    action.doIndex(request, response);
-    assertThat(written.toString(), is("0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
-
-  private void writeConsoleWithNotes() throws IOException {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    long millisSinceEpoch = 1;
-    for (int i = 0; i < 5; i++) {
-      TimestampNote timestampNote = new TimestampNote(millisSinceEpoch);
-      timestampNote.encodeTo(outputStream);
-      outputStream.write('a' + i);
-      millisSinceEpoch *= 10;
+      // Need to mock Jenkins to read the console notes.
+      Jenkins jenkins = mock(Jenkins.class);
+      PluginManager pluginManager = mock(PluginManager.class);
+      Whitebox.setInternalState(jenkins, PluginManager.class, pluginManager);
+      PowerMockito.mockStatic(Jenkins.class);
+      when(Jenkins.getInstance()).thenReturn(jenkins);
     }
-    byte[] consoleLog = outputStream.toByteArray();
-    when(build.getLogInputStream()).thenReturn(
-        new ByteArrayInputStream(consoleLog));
+  }
+
+  /**
+   */
+  public static abstract class ReadTimestampsTests extends SetUp {
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsDefaultPrecision() throws Exception {
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
+          + "0.100\n" + "1.000\n" + "10.000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsDefaultZeroPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("0");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n"
+          + "10\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsDefaultSecondsPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("seconds");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n"
+          + "10\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsOnePrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("1");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.0\n" + "0.0\n" + "0.0\n" + "0.1\n"
+          + "1.0\n" + "10.0\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsTwoPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("2");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.00\n" + "0.00\n" + "0.01\n"
+          + "0.10\n" + "1.00\n" + "10.00\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsThreePrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("3");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
+          + "0.100\n" + "1.000\n" + "10.000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsMillisecondsPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("milliseconds");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
+          + "0.100\n" + "1.000\n" + "10.000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsSixPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("6");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000000\n" + "0.001000\n"
+          + "0.010000\n" + "0.100000\n" + "1.000000\n" + "10.000000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsMicrosecondsPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("microseconds");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000000\n" + "0.001000\n"
+          + "0.010000\n" + "0.100000\n" + "1.000000\n" + "10.000000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsNanosecondsPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("nanoseconds");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000000000\n" + "0.001000000\n"
+          + "0.010000000\n" + "0.100000000\n" + "1.000000000\n"
+          + "10.000000000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsEmptyPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
+          + "0.100\n" + "1.000\n" + "10.000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsNegativePrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("-1");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
+          + "0.100\n" + "1.000\n" + "10.000\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testReadTimestampsInvalidPrecision() throws Exception {
+      when(request.getParameter("precision")).thenReturn("invalid");
+      action.doIndex(request, response);
+      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
+          + "0.100\n" + "1.000\n" + "10.000\n"));
+    }
+  }
+
+  /**
+   */
+  public static class NoLogFileTest extends SetUp {
+
+    /**
+     * @throws Exception
+     */
+    @Test
+    public void testNoLogFile() throws Exception {
+      action.doIndex(request, response);
+      assertThat(written.toString(), is(""));
+    }
+  }
+
+  /**
+   */
+  public static class TimestampNotesTest extends ReadTimestampsTests {
+
+    /**
+     * @throws Exception
+     */
+    @Before
+    public void writeTimestamps() throws Exception {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      int i = 0;
+      for (long millisSinceEpoch : millisSinceEpochToWrite) {
+        TimestampNote timestampNote = new TimestampNote(millisSinceEpoch);
+        timestampNote.encodeTo(outputStream);
+        outputStream.write('a' + i);
+        i++;
+      }
+      byte[] consoleLog = outputStream.toByteArray();
+      when(build.getLogInputStream()).thenReturn(
+          new ByteArrayInputStream(consoleLog));
+    }
+  }
+
+  /**
+   */
+  public static class TimestampWriterTest extends ReadTimestampsTests {
+
+    /**
+     * @throws Exception
+     */
+    @Before
+    public void writeTimestamps() throws Exception {
+      TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+      try {
+        for (long millisSinceEpoch : millisSinceEpochToWrite) {
+          writer.write(TimeUnit.MILLISECONDS.toNanos(millisSinceEpoch),
+              millisSinceEpoch, 1);
+        }
+      } finally {
+        writer.close();
+      }
+    }
   }
 }

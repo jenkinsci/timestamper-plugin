@@ -70,7 +70,7 @@ public class TimestampsIO {
   /**
    * Writer for time-stamps.
    */
-  static class Writer {
+  public static class Writer {
 
     private final File timestampsFile;
 
@@ -101,7 +101,7 @@ public class TimestampsIO {
      * 
      * @param build
      */
-    Writer(Run<?, ?> build) {
+    public Writer(Run<?, ?> build) {
       this.timestampsFile = timestampsFile(build);
       this.timeShiftsFile = timeShiftsFile(build);
       this.previousCurrentTimeMillis = build.getTimeInMillis();
@@ -118,7 +118,7 @@ public class TimestampsIO {
      *          the number of times to write the time-stamp
      * @throws IOException
      */
-    void write(long nanoTime, long currentTimeMillis, int times)
+    public void write(long nanoTime, long currentTimeMillis, int times)
         throws IOException {
       if (times < 1) {
         return;
@@ -200,7 +200,7 @@ public class TimestampsIO {
     /**
      * Close this writer.
      */
-    void close() {
+    public void close() {
       for (FileOutputStream outputStream : outputStreams.values()) {
         Closeables.closeQuietly(outputStream);
       }
