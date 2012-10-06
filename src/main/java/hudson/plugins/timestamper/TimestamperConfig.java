@@ -29,12 +29,13 @@ import hudson.model.Descriptor;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 
+import org.codehaus.plexus.util.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Supplier;
 
 /**
- * Global configuration for the Timestamper plugin, as shown on the Jenkins
+ * Global configuration for the Timestamper plug-in, as shown on the Jenkins
  * Configure System page.
  * 
  * @author Frederik Fromm
@@ -61,7 +62,7 @@ public class TimestamperConfig extends GlobalConfiguration implements Settings {
   private String timestampFormat;
 
   /**
-   * Constructor
+   * Constructor.
    */
   public TimestamperConfig() {
     load();
@@ -73,15 +74,14 @@ public class TimestamperConfig extends GlobalConfiguration implements Settings {
    * @return the time-stamp format
    */
   public String getTimestampFormat() {
-    return timestampFormat == null ? DEFAULT_TIMESTAMP_FORMAT
-        : this.timestampFormat;
+    return StringUtils.defaultString(timestampFormat, DEFAULT_TIMESTAMP_FORMAT);
   }
 
   /**
    * Set the time-stamp format.
    * 
    * @param timestampFormat
-   *          the time-stamp format in SimpleDateFormat pattern.
+   *          the time-stamp format in SimpleDateFormat pattern
    */
   public void setTimestampFormat(String timestampFormat) {
     this.timestampFormat = timestampFormat;
