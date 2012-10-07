@@ -77,25 +77,21 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
     }
     Run<?, ?> build = (Run<?, ?>) context;
 
-    Timestamp timestamp = null;
     try {
       if (timestampsReader == null) {
         timestampsReader = new TimestampsIO.Reader(build);
-        timestampsReader.find(consoleFilePointer(build, offset), build);
-        return this;
+        return markup(text,
+            timestampsReader.find(consoleFilePointer(build), build));
       }
-      timestamp = timestampsReader.next();
+      Timestamp timestamp = timestampsReader.next();
+      if (timestamp != null) {
+        return markup(text, timestamp);
+      }
     } catch (IOException ex) {
       LOGGER.log(Level.WARNING,
           "Error reading timestamps for " + build.getFullDisplayName(), ex);
     }
-
-    if (timestamp == null) {
-      // No more time-stamps or an error.
-      return null;
-    }
-    timestamp.markup(text, timestampFormat);
-    return this;
+    return null;
   }
 
   /**
@@ -103,15 +99,29 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
    * 
    * @param build
    *          the build
-   * @param offset
-   *          the offset
    * @return the console log pointer
    */
-  private static long consoleFilePointer(Run<?, ?> build, long offset) {
+  private long consoleFilePointer(Run<?, ?> build) {
     long start = offset;
     if (offset < 0) {
       start = build.getLogFile().length() + offset;
     }
     return start;
+  }
+
+  /**
+   * Add a time-stamp to the given text.
+   * 
+   * @param text
+   *          the text to modify
+   * @param timestamp
+   *          the time-stamp
+   * @return {@code this}
+   */
+  private TimestampAnnotator markup(MarkupText text, Timestamp timestamp) {
+    if (timestamp != null) {
+      timestamp.markup(text, timestampFormat);
+    }
+    return this;
   }
 }
