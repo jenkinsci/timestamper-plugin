@@ -209,6 +209,14 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
      * {@inheritDoc}
      */
     @Override
+    public void flush() throws IOException {
+      delegate.flush();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void close() throws IOException {
       super.close();
       delegate.close();
