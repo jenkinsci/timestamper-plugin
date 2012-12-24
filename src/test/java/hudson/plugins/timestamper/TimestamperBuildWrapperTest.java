@@ -25,19 +25,25 @@ package hudson.plugins.timestamper;
 
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import hudson.model.AbstractBuild;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Test for the {@link TimestamperBuildWrapper} class.
@@ -49,13 +55,24 @@ public class TimestamperBuildWrapperTest {
 
   private static final char NEWLINE = 0x0A;
 
+  /**
+   */
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
+
   private TimestamperBuildWrapper buildWrapper;
 
   private AbstractBuild<?, ?> build;
 
   private OutputStream outputStream;
 
+  private OutputStream decoratedOutputStream;
+
   private byte[] data;
+
+  private byte[] dataTwoLines;
+
+  private TimestampsIO.Reader reader;
 
   /**
    */
@@ -63,8 +80,12 @@ public class TimestamperBuildWrapperTest {
   public void setUp() {
     buildWrapper = new TimestamperBuildWrapper();
     build = mock(AbstractBuild.class);
+    when(build.getRootDir()).thenReturn(folder.getRoot());
     outputStream = mock(OutputStream.class);
+    decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
     data = new byte[] { 'a', (byte) NEWLINE };
+    dataTwoLines = new byte[] { 'a', (byte) NEWLINE, 'b', (byte) NEWLINE };
+    reader = new TimestampsIO.Reader(build);
   }
 
   /**
@@ -93,8 +114,6 @@ public class TimestamperBuildWrapperTest {
    */
   @Test
   public void testPassThrough() throws Exception {
-    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build,
-        outputStream);
     decoratedOutputStream.write(data);
     verify(outputStream).write(data);
     decoratedOutputStream.write(data, 0, 1);
@@ -105,5 +124,86 @@ public class TimestamperBuildWrapperTest {
     verify(outputStream).flush();
     decoratedOutputStream.close();
     verify(outputStream).close();
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteIntOneCharacter() throws Exception {
+    decoratedOutputStream.write('a');
+    assertThat(timestamps(), hasSize(1));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteIntOneLine() throws Exception {
+    decoratedOutputStream.write('a');
+    decoratedOutputStream.write(NEWLINE);
+    assertThat(timestamps(), hasSize(1));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteIntTwoLines() throws Exception {
+    decoratedOutputStream.write('a');
+    decoratedOutputStream.write(NEWLINE);
+    decoratedOutputStream.write('b');
+    assertThat(timestamps(), hasSize(2));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteByteArray() throws Exception {
+    decoratedOutputStream.write(data);
+    assertThat(timestamps(), hasSize(1));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteByteArrayTwoLines() throws Exception {
+    decoratedOutputStream.write(dataTwoLines);
+    List<Timestamp> timestamps = timestamps();
+    assertThat(timestamps, hasSize(2));
+    assertThat(timestamps.get(0), is(timestamps.get(1)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteByteArraySegment() throws Exception {
+    decoratedOutputStream.write(dataTwoLines, 0, data.length);
+    assertThat(timestamps(), hasSize(1));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteByteArraySegmentTwoLines() throws Exception {
+    decoratedOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
+    List<Timestamp> timestamps = timestamps();
+    assertThat(timestamps, hasSize(2));
+    assertThat(timestamps.get(0), is(timestamps.get(1)));
+  }
+
+  private List<Timestamp> timestamps() throws Exception {
+    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    while (true) {
+      Timestamp t = reader.next();
+      if (t == null) {
+        return timestamps;
+      }
+      timestamps.add(t);
+    }
   }
 }
