@@ -138,9 +138,27 @@ public class TimestampAnnotatorTest {
    * @throws Exception
    */
   @Test
+  public void testAnnotateNegativeOffset() throws Exception {
+    writeTimestamps();
+    assertThat(annotateNegativeOffset(offset, false), is(result));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
   public void testAnnotateWithSerialization() throws Exception {
     writeTimestamps();
     assertThat(annotate(offset, true), is(result));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testAnnotateNegativeOffsetWithSerialization() throws Exception {
+    writeTimestamps();
+    assertThat(annotateNegativeOffset(offset, true), is(result));
   }
 
   /**
@@ -154,8 +172,24 @@ public class TimestampAnnotatorTest {
   /**
    */
   @Test
+  public void testNoTimestampsNegativeOffset() {
+    List<String> annotated = annotateNegativeOffset(offset, false);
+    assertThat(annotated, is(resultNoTimestamps().subList(0, annotated.size())));
+  }
+
+  /**
+   */
+  @Test
   public void testNoTimestampsWithSerialization() {
     List<String> annotated = annotate(offset, true);
+    assertThat(annotated, is(resultNoTimestamps().subList(0, annotated.size())));
+  }
+
+  /**
+   */
+  @Test
+  public void testNoTimestampsNegativeOffsetWithSerialization() {
+    List<String> annotated = annotateNegativeOffset(offset, true);
     assertThat(annotated, is(resultNoTimestamps().subList(0, annotated.size())));
   }
 
@@ -170,9 +204,24 @@ public class TimestampAnnotatorTest {
     }
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings("rawtypes")
   private List<String> annotate(int offset, boolean serializeAnnotator) {
     ConsoleAnnotator annotator = new TimestampAnnotator(timestampFormat, offset);
+    return annotate(offset, annotator, serializeAnnotator);
+  }
+
+  @SuppressWarnings("rawtypes")
+  private List<String> annotateNegativeOffset(int offset,
+      boolean serializeAnnotator) {
+    long negativeOffset = offset - build.getLogFile().length();
+    ConsoleAnnotator annotator = new TimestampAnnotator(timestampFormat,
+        negativeOffset);
+    return annotate(offset, annotator, serializeAnnotator);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private List<String> annotate(int offset, ConsoleAnnotator annotator,
+      boolean serializeAnnotator) {
     List<String> result = new ArrayList<String>();
     while (annotator != null && offset < consoleLogLines.size()) {
       MarkupText markupText = new MarkupText(consoleLogLines.get(offset));
