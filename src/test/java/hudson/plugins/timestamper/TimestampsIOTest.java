@@ -45,6 +45,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 /**
  * Unit test for the {@link TimestampsIO} class.
@@ -65,6 +66,12 @@ public class TimestampsIOTest {
   private static final List<Timestamp> timestamps = Collections
       .unmodifiableList(Arrays.asList(timestampOne, timestampTwo,
           timestampThree));
+
+  private static final Function<TimestampsIO.Reader, TimestampsIO.Reader> serializeReader = new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
+    public TimestampsIO.Reader apply(TimestampsIO.Reader reader) {
+      return (TimestampsIO.Reader) SerializationUtils.clone(reader);
+    }
+  };
 
   /**
    */
@@ -100,12 +107,39 @@ public class TimestampsIOTest {
   @Test
   public void testReadFromStartWithSerialization() throws Exception {
     writeTimestamps();
-    Function<TimestampsIO.Reader, TimestampsIO.Reader> transformer = new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
-      public TimestampsIO.Reader apply(TimestampsIO.Reader reader) {
-        return (TimestampsIO.Reader) SerializationUtils.clone(reader);
+    assertThat(readAllTimestamps(build, serializeReader), is(timestamps));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testReadFromStartWhileWriting() throws Exception {
+    testReadFromStartWhileWriting(Functions.<TimestampsIO.Reader> identity());
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testReadFromStartWhileWritingWithSerialization() throws Exception {
+    testReadFromStartWhileWriting(serializeReader);
+  }
+
+  private void testReadFromStartWhileWriting(
+      Function<TimestampsIO.Reader, TimestampsIO.Reader> readerTransformer)
+      throws Exception {
+    TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+    try {
+      TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+      for (Timestamp timestamp : timestamps) {
+        writeTimestamp(timestamp, writer);
+        reader = readerTransformer.apply(reader);
+        assertThat(reader.next(), is(timestamp));
       }
-    };
-    assertThat(readAllTimestamps(build, transformer), is(timestamps));
+    } finally {
+      writer.close();
+    }
   }
 
   /**
@@ -171,15 +205,20 @@ public class TimestampsIOTest {
 
   private void writeTimestamps() throws Exception {
     TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
-    long startNanos = 100;
     try {
       for (Timestamp timestamp : timestamps) {
-        long nanoTime = TimeUnit.MILLISECONDS.toNanos(timestamp.elapsedMillis)
-            + startNanos;
-        writer.write(nanoTime, timestamp.millisSinceEpoch, 1);
+        writeTimestamp(timestamp, writer);
       }
     } finally {
       writer.close();
     }
+  }
+
+  private void writeTimestamp(Timestamp timestamp, TimestampsIO.Writer writer)
+      throws Exception {
+    long startNanos = 100;
+    long nanoTime = TimeUnit.MILLISECONDS.toNanos(timestamp.elapsedMillis)
+        + startNanos;
+    writer.write(nanoTime, timestamp.millisSinceEpoch, 1);
   }
 }

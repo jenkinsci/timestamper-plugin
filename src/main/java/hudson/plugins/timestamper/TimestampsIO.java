@@ -227,9 +227,21 @@ public class TimestampsIO {
     private final File timeShiftsFile;
 
     /**
-     * Time shifts for each entry.
+     * Last known length of the {@link #timeShiftsFile}. This value is used to
+     * detect whether the file has changed. This is sufficient because the file
+     * never shrinks; new data is always appended to the end of the file.
+     * <p>
+     * Transient: after serializing, the {@link #timeShiftsFile} will be
+     * re-read.
      */
-    private Map<Long, Long> timeShifts;
+    private transient long timeShiftsFileLength;
+
+    /**
+     * Cache of the time shifts for each entry.
+     * <p>
+     * Transient: derived from the contents of {@link #timeShiftsFile}.
+     */
+    private transient Map<Long, Long> timeShifts;
 
     /**
      * Create a time-stamps reader for the given build.
@@ -307,9 +319,7 @@ public class TimestampsIO {
         long elapsedMillisDiff = readVarint(byteReader);
         elapsedMillis += elapsedMillisDiff;
 
-        if (timeShifts == null) {
-          timeShifts = readTimeShifts();
-        }
+        timeShifts = readTimeShifts();
         if (timeShifts.containsKey(Long.valueOf(entry))) {
           millisSinceEpoch += timeShifts.get(Long.valueOf(entry)).longValue();
         } else {
@@ -328,6 +338,10 @@ public class TimestampsIO {
       if (!timeShiftsFile.isFile()) {
         return Collections.emptyMap();
       }
+      if (timeShiftsFile.length() == timeShiftsFileLength) {
+        return timeShifts;
+      }
+      timeShiftsFileLength = timeShiftsFile.length();
       final BufferedInputStream inputStream = new BufferedInputStream(
           new FileInputStream(timeShiftsFile));
       ByteReader byteReader = new ByteReader() {
