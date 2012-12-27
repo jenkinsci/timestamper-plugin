@@ -41,6 +41,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 /**
  * Build wrapper that decorates the build's logger to record time-stamps as each
  * line is logged.
+ * <p>
+ * Note: The Configuration Slicing Plugin depends on this class.
  * 
  * @author Steven G. Brown
  * @since 1.0
