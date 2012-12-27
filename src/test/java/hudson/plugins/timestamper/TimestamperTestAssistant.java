@@ -67,7 +67,7 @@ public class TimestamperTestAssistant {
       throws Exception {
     TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
     List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10000; i++) {
       reader = readerTransformer.apply(reader);
       Timestamp timestamp = reader.next();
       if (timestamp == null) {

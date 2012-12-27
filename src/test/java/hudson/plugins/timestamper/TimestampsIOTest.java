@@ -24,6 +24,9 @@
 package hudson.plugins.timestamper;
 
 import static hudson.plugins.timestamper.TimestamperTestAssistant.readAllTimestamps;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -43,6 +46,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -93,10 +97,14 @@ public class TimestampsIOTest {
    */
   @Before
   public void setUp() throws Exception {
+    prepareMockBuild(timestamps.size());
+  }
+
+  private void prepareMockBuild(int numberOfTimestamps) throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    consoleLog = new byte[timestamps.size() * 2];
-    for (int line = 0; line < timestamps.size(); line++) {
+    consoleLog = new byte[numberOfTimestamps * 2];
+    for (int line = 0; line < numberOfTimestamps; line++) {
       consoleLog[line * 2] = 0x61;
       consoleLog[line * 2 + 1] = 0x0A;
     }
@@ -160,6 +168,27 @@ public class TimestampsIOTest {
     } finally {
       writer.close();
     }
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteSameTimestampManyTimes() throws Exception {
+    int bufferSize = Whitebox.getField(TimestampsIO.class, "BUFFER_SIZE")
+        .getInt(null);
+    int numberOfTimestamps = bufferSize + 1000; // larger than the buffer
+    prepareMockBuild(2000);
+    Timestamp timestamp = new Timestamp(10000, 10000);
+    TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+    try {
+      writeTimestamp(timestamp, numberOfTimestamps, writer);
+    } finally {
+      writer.close();
+    }
+    List<Timestamp> readTimestamps = readAllTimestamps(build);
+    assertThat(readTimestamps, everyItem(equalTo(new Timestamp(0, 10000))));
+    assertThat(readTimestamps, hasSize(numberOfTimestamps));
   }
 
   /**

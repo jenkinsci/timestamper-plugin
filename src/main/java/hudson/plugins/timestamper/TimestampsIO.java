@@ -69,6 +69,8 @@ public class TimestampsIO {
     return new File(timestamperDir(build), "timeshifts");
   }
 
+  private static final int BUFFER_SIZE = 1024;
+
   /**
    * Writer for time-stamps.
    */
@@ -85,7 +87,7 @@ public class TimestampsIO {
     /**
      * Buffer that is used to store Varints prior to writing to a file.
      */
-    private final byte[] buffer = new byte[1024];
+    private final byte[] buffer = new byte[BUFFER_SIZE];
 
     /**
      * Current offset into the {@link #buffer}.
