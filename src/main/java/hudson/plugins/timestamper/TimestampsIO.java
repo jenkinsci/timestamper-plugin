@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.mutable.MutableLong;
+
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
@@ -321,7 +323,7 @@ public class TimestampsIO {
 
         timeShifts = readTimeShifts();
         if (timeShifts.containsKey(Long.valueOf(entry))) {
-          millisSinceEpoch += timeShifts.get(Long.valueOf(entry)).longValue();
+          millisSinceEpoch = timeShifts.get(Long.valueOf(entry)).longValue();
         } else {
           millisSinceEpoch += elapsedMillisDiff;
         }
@@ -344,20 +346,24 @@ public class TimestampsIO {
       timeShiftsFileLength = timeShiftsFile.length();
       final BufferedInputStream inputStream = new BufferedInputStream(
           new FileInputStream(timeShiftsFile));
+      final MutableLong bytesRead = new MutableLong();
       ByteReader byteReader = new ByteReader() {
         public byte readByte() throws IOException {
           int b = inputStream.read();
           if (b == -1) {
             throw new EOFException();
           }
+          bytesRead.increment();
           return (byte) b;
         }
       };
       Map<Long, Long> timeShifts = new HashMap<Long, Long>();
       try {
-        long entry = readVarint(byteReader);
-        long shift = readVarint(byteReader);
-        timeShifts.put(Long.valueOf(entry), Long.valueOf(shift));
+        while (bytesRead.longValue() < timeShiftsFileLength) {
+          long entry = readVarint(byteReader);
+          long shift = readVarint(byteReader);
+          timeShifts.put(Long.valueOf(entry), Long.valueOf(shift));
+        }
       } finally {
         Closeables.closeQuietly(inputStream);
       }

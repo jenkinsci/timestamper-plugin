@@ -57,15 +57,18 @@ public class TimestampsIOTest {
   // start
   private static final Timestamp timestampOne = new Timestamp(0, 0);
 
-  // time shift
+  // time shift into future
   private static final Timestamp timestampTwo = new Timestamp(500, 10000);
 
   // no time shift
   private static final Timestamp timestampThree = new Timestamp(1500, 11000);
 
+  // time shift into past
+  private static final Timestamp timestampFour = new Timestamp(2000, 10000);
+
   private static final List<Timestamp> timestamps = Collections
       .unmodifiableList(Arrays.asList(timestampOne, timestampTwo,
-          timestampThree));
+          timestampThree, timestampFour));
 
   private static final Function<TimestampsIO.Reader, TimestampsIO.Reader> serializeReader = new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
     public TimestampsIO.Reader apply(TimestampsIO.Reader reader) {
@@ -80,6 +83,8 @@ public class TimestampsIOTest {
 
   private Run<?, ?> build;
 
+  private byte[] consoleLog;
+
   /**
    * @throws Exception
    */
@@ -87,7 +92,11 @@ public class TimestampsIOTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    byte[] consoleLog = new byte[] { 0x61, 0x0A, 0x61, 0x0A, 0x61, 0x0A };
+    consoleLog = new byte[timestamps.size() * 2];
+    for (int line = 0; line < timestamps.size(); line++) {
+      consoleLog[line * 2] = 0x61;
+      consoleLog[line * 2 + 1] = 0x0A;
+    }
     when(build.getLogInputStream()).thenReturn(
         new ByteArrayInputStream(consoleLog));
   }
@@ -187,7 +196,7 @@ public class TimestampsIOTest {
   public void testFindPastEnd() throws Exception {
     writeTimestamps();
     TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
-    assertThat(reader.find(5, build), is(nullValue()));
+    assertThat(reader.find(consoleLog.length - 1, build), is(nullValue()));
     assertThat(reader.next(), is(nullValue()));
   }
 
