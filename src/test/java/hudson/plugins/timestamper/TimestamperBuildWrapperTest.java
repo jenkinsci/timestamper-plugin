@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
+import static hudson.plugins.timestamper.TimestamperTestAssistant.readAllTimestamps;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
@@ -35,7 +36,6 @@ import hudson.model.AbstractBuild;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -72,8 +72,6 @@ public class TimestamperBuildWrapperTest {
 
   private byte[] dataTwoLines;
 
-  private TimestampsIO.Reader reader;
-
   /**
    */
   @Before
@@ -85,7 +83,6 @@ public class TimestamperBuildWrapperTest {
     decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
     data = new byte[] { 'a', (byte) NEWLINE };
     dataTwoLines = new byte[] { 'a', (byte) NEWLINE, 'b', (byte) NEWLINE };
-    reader = new TimestampsIO.Reader(build);
   }
 
   /**
@@ -132,7 +129,7 @@ public class TimestamperBuildWrapperTest {
   @Test
   public void testWriteIntOneCharacter() throws Exception {
     decoratedOutputStream.write('a');
-    assertThat(timestamps(), hasSize(1));
+    assertThat(readAllTimestamps(build), hasSize(1));
   }
 
   /**
@@ -142,7 +139,7 @@ public class TimestamperBuildWrapperTest {
   public void testWriteIntOneLine() throws Exception {
     decoratedOutputStream.write('a');
     decoratedOutputStream.write(NEWLINE);
-    assertThat(timestamps(), hasSize(1));
+    assertThat(readAllTimestamps(build), hasSize(1));
   }
 
   /**
@@ -153,7 +150,7 @@ public class TimestamperBuildWrapperTest {
     decoratedOutputStream.write('a');
     decoratedOutputStream.write(NEWLINE);
     decoratedOutputStream.write('b');
-    assertThat(timestamps(), hasSize(2));
+    assertThat(readAllTimestamps(build), hasSize(2));
   }
 
   /**
@@ -162,7 +159,7 @@ public class TimestamperBuildWrapperTest {
   @Test
   public void testWriteByteArray() throws Exception {
     decoratedOutputStream.write(data);
-    assertThat(timestamps(), hasSize(1));
+    assertThat(readAllTimestamps(build), hasSize(1));
   }
 
   /**
@@ -171,7 +168,7 @@ public class TimestamperBuildWrapperTest {
   @Test
   public void testWriteByteArrayTwoLines() throws Exception {
     decoratedOutputStream.write(dataTwoLines);
-    List<Timestamp> timestamps = timestamps();
+    List<Timestamp> timestamps = readAllTimestamps(build);
     assertThat(timestamps, hasSize(2));
     assertThat(timestamps.get(0), is(timestamps.get(1)));
   }
@@ -182,7 +179,7 @@ public class TimestamperBuildWrapperTest {
   @Test
   public void testWriteByteArraySegment() throws Exception {
     decoratedOutputStream.write(dataTwoLines, 0, data.length);
-    assertThat(timestamps(), hasSize(1));
+    assertThat(readAllTimestamps(build), hasSize(1));
   }
 
   /**
@@ -191,19 +188,8 @@ public class TimestamperBuildWrapperTest {
   @Test
   public void testWriteByteArraySegmentTwoLines() throws Exception {
     decoratedOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
-    List<Timestamp> timestamps = timestamps();
+    List<Timestamp> timestamps = readAllTimestamps(build);
     assertThat(timestamps, hasSize(2));
     assertThat(timestamps.get(0), is(timestamps.get(1)));
-  }
-
-  private List<Timestamp> timestamps() throws Exception {
-    List<Timestamp> timestamps = new ArrayList<Timestamp>();
-    while (true) {
-      Timestamp t = reader.next();
-      if (t == null) {
-        return timestamps;
-      }
-      timestamps.add(t);
-    }
   }
 }

@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
+import static hudson.plugins.timestamper.TimestamperTestAssistant.readAllTimestamps;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -44,7 +45,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.google.common.base.Function;
-import com.google.common.base.Functions;
 
 /**
  * Unit test for the {@link TimestampsIO} class.
@@ -53,10 +53,13 @@ import com.google.common.base.Functions;
  */
 public class TimestampsIOTest {
 
+  // start
   private static final Timestamp timestampOne = new Timestamp(0, 0);
 
+  // time shift
   private static final Timestamp timestampTwo = new Timestamp(500, 10000);
 
+  // no time shift
   private static final Timestamp timestampThree = new Timestamp(1500, 11000);
 
   private static final List<Timestamp> timestamps = Collections
@@ -80,7 +83,6 @@ public class TimestampsIOTest {
     byte[] consoleLog = new byte[] { 0x61, 0x0A, 0x61, 0x0A, 0x61, 0x0A };
     when(build.getLogInputStream()).thenReturn(
         new ByteArrayInputStream(consoleLog));
-    writeTimestamps();
   }
 
   /**
@@ -88,7 +90,8 @@ public class TimestampsIOTest {
    */
   @Test
   public void testReadFromStart() throws Exception {
-    readTimestamps(Functions.<TimestampsIO.Reader> identity());
+    writeTimestamps();
+    assertThat(readAllTimestamps(build), is(timestamps));
   }
 
   /**
@@ -96,11 +99,13 @@ public class TimestampsIOTest {
    */
   @Test
   public void testReadFromStartWithSerialization() throws Exception {
-    readTimestamps(new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
+    writeTimestamps();
+    Function<TimestampsIO.Reader, TimestampsIO.Reader> transformer = new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
       public TimestampsIO.Reader apply(TimestampsIO.Reader reader) {
         return (TimestampsIO.Reader) SerializationUtils.clone(reader);
       }
-    });
+    };
+    assertThat(readAllTimestamps(build, transformer), is(timestamps));
   }
 
   /**
@@ -108,6 +113,7 @@ public class TimestampsIOTest {
    */
   @Test
   public void testFindTimestampOne() throws Exception {
+    writeTimestamps();
     testFind(0);
   }
 
@@ -116,6 +122,7 @@ public class TimestampsIOTest {
    */
   @Test
   public void testFindTimestampTwo() throws Exception {
+    writeTimestamps();
     testFind(2);
   }
 
@@ -124,6 +131,7 @@ public class TimestampsIOTest {
    */
   @Test
   public void testFindTimestampThree() throws Exception {
+    writeTimestamps();
     testFind(4);
   }
 
@@ -132,6 +140,7 @@ public class TimestampsIOTest {
    */
   @Test
   public void testFindWithinTimestampTwo() throws Exception {
+    writeTimestamps();
     TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
     assertThat(reader.find(3, build), is(nullValue()));
     assertThat(reader.next(), is(timestampThree));
@@ -142,6 +151,7 @@ public class TimestampsIOTest {
    */
   @Test
   public void testFindPastEnd() throws Exception {
+    writeTimestamps();
     TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
     assertThat(reader.find(5, build), is(nullValue()));
     assertThat(reader.next(), is(nullValue()));
@@ -171,19 +181,5 @@ public class TimestampsIOTest {
     } finally {
       writer.close();
     }
-  }
-
-  private void readTimestamps(
-      Function<TimestampsIO.Reader, TimestampsIO.Reader> readerTransformer)
-      throws Exception {
-    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
-    List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
-    for (int i = 0; i < timestamps.size(); i++) {
-      reader = readerTransformer.apply(reader);
-      timestampsRead.add(reader.next());
-    }
-    assertThat(timestampsRead, is(timestamps));
-    reader = readerTransformer.apply(reader);
-    assertThat(reader.next(), is(nullValue()));
   }
 }
