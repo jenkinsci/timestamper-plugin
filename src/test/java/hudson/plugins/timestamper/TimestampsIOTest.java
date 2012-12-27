@@ -63,12 +63,15 @@ public class TimestampsIOTest {
   // no time shift
   private static final Timestamp timestampThree = new Timestamp(1500, 11000);
 
+  // duplicate of time-stamp three
+  private static final Timestamp timestampFour = timestampThree;
+
   // time shift into past
-  private static final Timestamp timestampFour = new Timestamp(2000, 10000);
+  private static final Timestamp timestampFive = new Timestamp(2000, 10000);
 
   private static final List<Timestamp> timestamps = Collections
       .unmodifiableList(Arrays.asList(timestampOne, timestampTwo,
-          timestampThree, timestampFour));
+          timestampThree, timestampFour, timestampFive));
 
   private static final Function<TimestampsIO.Reader, TimestampsIO.Reader> serializeReader = new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
     public TimestampsIO.Reader apply(TimestampsIO.Reader reader) {
@@ -139,13 +142,21 @@ public class TimestampsIOTest {
       Function<TimestampsIO.Reader, TimestampsIO.Reader> readerTransformer)
       throws Exception {
     TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
     try {
-      TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
-      for (Timestamp timestamp : timestamps) {
-        writeTimestamp(timestamp, writer);
-        reader = readerTransformer.apply(reader);
-        assertThat(reader.next(), is(timestamp));
-      }
+      writeTimestamp(timestampOne, 1, writer);
+      reader = readerTransformer.apply(reader);
+      assertThat(reader.next(), is(timestampOne));
+      writeTimestamp(timestampTwo, 1, writer);
+      reader = readerTransformer.apply(reader);
+      assertThat(reader.next(), is(timestampTwo));
+      writeTimestamp(timestampThree, 2, writer);
+      reader = readerTransformer.apply(reader);
+      assertThat(reader.next(), is(timestampThree));
+      assertThat(reader.next(), is(timestampFour));
+      writeTimestamp(timestampFive, 1, writer);
+      reader = readerTransformer.apply(reader);
+      assertThat(reader.next(), is(timestampFive));
     } finally {
       writer.close();
     }
@@ -215,19 +226,20 @@ public class TimestampsIOTest {
   private void writeTimestamps() throws Exception {
     TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
     try {
-      for (Timestamp timestamp : timestamps) {
-        writeTimestamp(timestamp, writer);
-      }
+      writeTimestamp(timestampOne, 1, writer);
+      writeTimestamp(timestampTwo, 1, writer);
+      writeTimestamp(timestampThree, 2, writer);
+      writeTimestamp(timestampFive, 1, writer);
     } finally {
       writer.close();
     }
   }
 
-  private void writeTimestamp(Timestamp timestamp, TimestampsIO.Writer writer)
-      throws Exception {
+  private void writeTimestamp(Timestamp timestamp, int times,
+      TimestampsIO.Writer writer) throws Exception {
     long startNanos = 100;
     long nanoTime = TimeUnit.MILLISECONDS.toNanos(timestamp.elapsedMillis)
         + startNanos;
-    writer.write(nanoTime, timestamp.millisSinceEpoch, 1);
+    writer.write(nanoTime, timestamp.millisSinceEpoch, times);
   }
 }
