@@ -100,8 +100,8 @@ public final class TimestampNote extends ConsoleNote<Object> {
       Run<?, ?> build = (Run<?, ?>) context;
       Timestamp timestamp = getTimestamp(build);
       String timestampFormat = TimestamperConfig.settings()
-          .getTimestampFormat();
-      timestamp.markup(text, timestampFormat);
+          .getSystemTimeFormat();
+      timestamp.markupSystemTime(text, timestampFormat);
     }
     return null;
   }

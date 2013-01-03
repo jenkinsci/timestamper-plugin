@@ -27,6 +27,7 @@ import hudson.MarkupText;
 
 import java.util.Date;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 
 import com.google.common.base.Objects;
@@ -76,19 +77,39 @@ public final class Timestamp {
   }
 
   /**
-   * Format this time-stamp and insert it into the given text.
+   * Format this time-stamp and insert it into the given text as the system
+   * clock time.
    * 
    * @param text
    *          the text to modify
    * @param timestampFormat
    *          the time-stamp format
    */
-  public void markup(MarkupText text, String timestampFormat) {
+  public void markupSystemTime(MarkupText text, String timestampFormat) {
     String formattedDate = FastDateFormat.getInstance(timestampFormat).format(
         new Date(millisSinceEpoch));
+    markup(text, formattedDate);
+  }
+
+  /**
+   * Format this time-stamp and insert it into the given text as the elapsed
+   * time.
+   * 
+   * @param text
+   *          the text to modify
+   * @param timestampFormat
+   *          the time-stamp format
+   */
+  public void markupElapsedTime(MarkupText text, String timestampFormat) {
+    String formattedDate = DurationFormatUtils.formatDuration(elapsedMillis,
+        timestampFormat);
+    markup(text, formattedDate);
+  }
+
+  private void markup(MarkupText text, String timestampString) {
     // Add as end tag, which will be inserted prior to tags added by other
     // console notes (e.g. AntTargetNote).
-    text.addMarkup(0, 0, "", formattedDate);
+    text.addMarkup(0, 0, "", timestampString);
   }
 
   /**

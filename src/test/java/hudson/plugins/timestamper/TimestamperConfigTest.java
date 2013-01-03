@@ -29,6 +29,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.util.XStream2;
+
+import java.util.Arrays;
+
 import jenkins.model.Jenkins;
 
 import org.junit.Before;
@@ -47,7 +50,10 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
 @PrepareForTest(Jenkins.class)
 public class TimestamperConfigTest {
 
-  private static final String customTimestampFormat = "HH:mm:ss "
+  private static final String customSystemTimeFormat = "HH:mm:ss "
+      + TimestamperConfigTest.class.getSimpleName();
+
+  private static final String customElapsedTimeFormat = "ss.S "
       + TimestamperConfigTest.class.getSimpleName();
 
   /**
@@ -73,7 +79,7 @@ public class TimestamperConfigTest {
   /**
    */
   @Test
-  public void testDefaultTimestampFormat() {
+  public void testDefaultSystemTimeFormat() {
     assertThat(new TimestamperConfig().getTimestampFormat(),
         containsString("HH:mm:ss"));
   }
@@ -81,19 +87,45 @@ public class TimestamperConfigTest {
   /**
    */
   @Test
-  public void testSetTimestampFormat() {
-    TimestamperConfig config = new TimestamperConfig();
-    config.setTimestampFormat(customTimestampFormat);
-    assertThat(config.getTimestampFormat(), is(customTimestampFormat));
+  public void testDefaultElapsedTimeFormat() {
+    assertThat(new TimestamperConfig().getElapsedTimeFormat(),
+        containsString("HH:mm:ss.S"));
   }
 
   /**
    */
   @Test
-  public void testSetTimestampFormatEmpty() {
+  public void testSetSystemTimeFormat() {
+    TimestamperConfig config = new TimestamperConfig();
+    config.setTimestampFormat(customSystemTimeFormat);
+    assertThat(config.getTimestampFormat(), is(customSystemTimeFormat));
+  }
+
+  /**
+   */
+  @Test
+  public void testSetElapsedTimeFormat() {
+    TimestamperConfig config = new TimestamperConfig();
+    config.setElapsedTimeFormat(customElapsedTimeFormat);
+    assertThat(config.getElapsedTimeFormat(), is(customElapsedTimeFormat));
+  }
+
+  /**
+   */
+  @Test
+  public void testSetSystemTimeFormatEmpty() {
     TimestamperConfig config = new TimestamperConfig();
     config.setTimestampFormat("");
     assertThat(config.getTimestampFormat(), is(""));
+  }
+
+  /**
+   */
+  @Test
+  public void testSetElapsedTimeFormatEmpty() {
+    TimestamperConfig config = new TimestamperConfig();
+    config.setElapsedTimeFormat("");
+    assertThat(config.getElapsedTimeFormat(), is(""));
   }
 
   /**
@@ -107,10 +139,19 @@ public class TimestamperConfigTest {
   /**
    */
   @Test
-  public void testToXmlCustomFormat() {
+  public void testToXmlCustomSystemTimeFormat() {
     TimestamperConfig config = new TimestamperConfig();
-    config.setTimestampFormat(customTimestampFormat);
-    assertThat(toXml(config), is(xml(customTimestampFormat)));
+    config.setTimestampFormat(customSystemTimeFormat);
+    assertThat(toXml(config), is(xml(customSystemTimeFormat, null)));
+  }
+
+  /**
+   */
+  @Test
+  public void testToXmlCustomElapsedTimeFormat() {
+    TimestamperConfig config = new TimestamperConfig();
+    config.setElapsedTimeFormat(customElapsedTimeFormat);
+    assertThat(toXml(config), is(xml(null, customElapsedTimeFormat)));
   }
 
   /**
@@ -118,25 +159,38 @@ public class TimestamperConfigTest {
   @Test
   public void testFromXmlDefault() {
     TimestamperConfig config = fromXml(defaultXml());
-    String defaultTimestampFormat = new TimestamperConfig()
-        .getTimestampFormat();
-    assertThat(config.getTimestampFormat(), is(defaultTimestampFormat));
+    TimestamperConfig defaultConfig = new TimestamperConfig();
+    assertThat(
+        Arrays.asList(config.getTimestampFormat(),
+            config.getElapsedTimeFormat()),
+        is(Arrays.asList(defaultConfig.getTimestampFormat(),
+            defaultConfig.getElapsedTimeFormat())));
   }
 
   /**
    */
   @Test
-  public void testFromXmlCustomFormat() {
-    TimestamperConfig config = fromXml(xml(customTimestampFormat));
-    assertThat(config.getTimestampFormat(), is(customTimestampFormat));
+  public void testFromXmlCustomSystemTimeFormat() {
+    TimestamperConfig config = fromXml(xml(customSystemTimeFormat, null));
+    assertThat(config.getTimestampFormat(), is(customSystemTimeFormat));
+  }
+
+  /**
+   */
+  @Test
+  public void testFromXmlCustomElapsedTimeFormat() {
+    TimestamperConfig config = fromXml(xml(null, customElapsedTimeFormat));
+    assertThat(config.getElapsedTimeFormat(), is(customElapsedTimeFormat));
   }
 
   /**
    */
   @Test
   public void testFromXmlEmptyFormat() {
-    TimestamperConfig config = fromXml(xml(""));
-    assertThat(config.getTimestampFormat(), is(""));
+    TimestamperConfig config = fromXml(xml("", ""));
+    assertThat(
+        Arrays.asList(config.getTimestampFormat(),
+            config.getElapsedTimeFormat()), is(Arrays.asList("", "")));
   }
 
   private String toXml(TimestamperConfig config) {
@@ -155,10 +209,17 @@ public class TimestamperConfigTest {
         + "</hudson.plugins.timestamper.TimestamperConfig>";
   }
 
-  private String xml(String timestampFormat) {
-    return "<hudson.plugins.timestamper.TimestamperConfig>\n"
-        + "  <helpRedirect/>\n" + "  <timestampFormat>" + timestampFormat
-        + "</timestampFormat>\n"
-        + "</hudson.plugins.timestamper.TimestamperConfig>";
+  private String xml(String systemTimeFormat, String elapsedTimeFormat) {
+    String xml = "<hudson.plugins.timestamper.TimestamperConfig>\n"
+        + "  <helpRedirect/>\n";
+    if (systemTimeFormat != null) {
+      xml += "  <timestampFormat>" + systemTimeFormat + "</timestampFormat>\n";
+    }
+    if (elapsedTimeFormat != null) {
+      xml += "  <elapsedTimeFormat>" + elapsedTimeFormat
+          + "</elapsedTimeFormat>\n";
+    }
+    xml += "</hudson.plugins.timestamper.TimestamperConfig>";
+    return xml;
   }
 }

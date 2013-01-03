@@ -1,0 +1,19 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+  <l:ajax>
+    <table class='pane'>
+      <tr>
+        <td class='pane-header'>${%Timestamps}</td>
+      </tr>
+      <tr>
+        <td>
+          <form>
+            <input type="radio" name="timestamps" id="timestamper-systemTime"/>${%System clock time}<br/>
+            <input type="radio" name="timestamps" id="timestamper-elapsedTime"/>${%Elapsed time}<br/>
+            <input type="radio" name="timestamps" id="timestamper-none"/>${%None}<br/>
+          </form>
+        </td>
+      </tr>
+    </table>
+  </l:ajax>
+</j:jelly>

@@ -26,6 +26,7 @@ package hudson.plugins.timestamper.annotator;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
+import hudson.plugins.timestamper.Settings;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestampsIO;
 
@@ -46,25 +47,30 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   private static final Logger LOGGER = Logger
       .getLogger(TimestampAnnotator.class.getName());
 
-  private final String timestampFormat;
+  private final Settings settings;
 
   private final long offset;
+
+  private final TimestampsCookie cookie;
 
   private TimestampsIO.Reader timestampsReader;
 
   /**
    * Create a new {@link TimestampAnnotator}.
    * 
-   * @param timestampFormat
-   *          the time-stamp format
+   * @param settings the current settings
    * @param offset
    *          the offset for viewing the console log. A non-negative offset is
    *          from the start of the file, and a negative offset is back from the
    *          end of the file.
+   * @param cookie
+   *          the current time-stamps cookie
    */
-  TimestampAnnotator(String timestampFormat, long offset) {
-    this.timestampFormat = timestampFormat;
+  TimestampAnnotator(Settings settings, long offset,
+      TimestampsCookie cookie) {
+    this.settings = settings;
     this.offset = offset;
+    this.cookie = cookie;
   }
 
   /**
@@ -120,7 +126,13 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
    */
   private TimestampAnnotator markup(MarkupText text, Timestamp timestamp) {
     if (timestamp != null) {
-      timestamp.markup(text, timestampFormat);
+      if (cookie == TimestampsCookie.SYSTEM) {
+        timestamp.markupSystemTime(text, settings.getSystemTimeFormat());
+      } else if (cookie == TimestampsCookie.ELAPSED) {
+        timestamp.markupElapsedTime(text, settings.getElapsedTimeFormat());
+      } else {
+        throw new IllegalStateException("unexpected cookie: " + cookie);
+      }
     }
     return this;
   }

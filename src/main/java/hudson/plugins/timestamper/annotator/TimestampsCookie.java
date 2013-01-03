@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2012 Steven G. Brown
+ * Copyright (c) 2013 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,53 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.timestamper;
+package hudson.plugins.timestamper.annotator;
 
-import java.io.Serializable;
-
-import javax.annotation.concurrent.Immutable;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * Timestamper plug-in settings.
+ * Possible values for the time-stamps cookie.
  * 
  * @author Steven G. Brown
- * @since 1.4
+ * @since 1.5
  */
-@Immutable
-public final class Settings implements Serializable {
-
-  private static final long serialVersionUID = 1L;
-
-  private final String systemTimeFormat;
-
-  private final String elapsedTimeFormat;
+public enum TimestampsCookie {
 
   /**
-   * Create a new {@link Settings}.
-   * 
-   * @param systemTimeFormat
-   * @param elapsedTimeFormat
+   * Display the system clock time (default).
    */
-  public Settings(String systemTimeFormat, String elapsedTimeFormat) {
-    this.systemTimeFormat = systemTimeFormat;
-    this.elapsedTimeFormat = elapsedTimeFormat;
-  }
+  SYSTEM,
 
   /**
-   * Get the format for displaying the system clock time.
-   * 
-   * @return the system clock time format
+   * Display the elapsed time since the start of the build.
    */
-  public String getSystemTimeFormat() {
-    return systemTimeFormat;
-  }
+  ELAPSED,
 
   /**
-   * Get the format for displaying the elapsed time.
-   * 
-   * @return the elapsed time format
+   * Do not display any time-stamps.
    */
-  public String getElapsedTimeFormat() {
-    return elapsedTimeFormat;
+  NONE;
+
+  /**
+   * Get the value of the cookie from the given HTTP request.
+   * 
+   * @param request
+   *          the HTTP request
+   * @return the cookie
+   */
+  public static TimestampsCookie get(HttpServletRequest request) {
+    for (Cookie cookie : request.getCookies()) {
+      if ("timestamper".equals(cookie.getName())) {
+        try {
+          return TimestampsCookie.valueOf(cookie.getValue().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+          // value not recognised, fall back to the default
+        }
+      }
+    }
+    // default
+    return TimestampsCookie.SYSTEM;
   }
 }

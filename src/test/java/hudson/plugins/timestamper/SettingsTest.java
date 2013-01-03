@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2012 Steven G. Brown
+ * Copyright (c) 2013 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,51 +23,60 @@
  */
 package hudson.plugins.timestamper;
 
-import java.io.Serializable;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-import javax.annotation.concurrent.Immutable;
+import org.apache.commons.lang.SerializationUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * Timestamper plug-in settings.
+ * Unit test for the {@link Settings} class.
  * 
  * @author Steven G. Brown
- * @since 1.4
  */
-@Immutable
-public final class Settings implements Serializable {
+public class SettingsTest {
 
-  private static final long serialVersionUID = 1L;
-
-  private final String systemTimeFormat;
-
-  private final String elapsedTimeFormat;
+  private Settings settings;
 
   /**
-   * Create a new {@link Settings}.
-   * 
-   * @param systemTimeFormat
-   * @param elapsedTimeFormat
    */
-  public Settings(String systemTimeFormat, String elapsedTimeFormat) {
-    this.systemTimeFormat = systemTimeFormat;
-    this.elapsedTimeFormat = elapsedTimeFormat;
+  @Before
+  public void setUp() {
+    settings = new Settings("system", "elapsed");
   }
 
   /**
-   * Get the format for displaying the system clock time.
-   * 
-   * @return the system clock time format
    */
-  public String getSystemTimeFormat() {
-    return systemTimeFormat;
+  @Test
+  public void getSystemTimeFormat() {
+    assertThat(settings.getSystemTimeFormat(), is("system"));
   }
 
   /**
-   * Get the format for displaying the elapsed time.
-   * 
-   * @return the elapsed time format
    */
-  public String getElapsedTimeFormat() {
-    return elapsedTimeFormat;
+  @Test
+  public void serializeThenGetSystemTimeFormat() {
+    settings = serialiseThenDeserialise(settings);
+    assertThat(settings.getSystemTimeFormat(), is("system"));
+  }
+
+  /**
+   */
+  @Test
+  public void getElapsedTimeFormat() {
+    assertThat(settings.getElapsedTimeFormat(), is("elapsed"));
+  }
+
+  /**
+   */
+  @Test
+  public void serializeThenGetElapsedTimeFormat() {
+    settings = serialiseThenDeserialise(settings);
+    assertThat(settings.getElapsedTimeFormat(), is("elapsed"));
+  }
+
+  private Settings serialiseThenDeserialise(Settings settings) {
+    return (Settings) SerializationUtils.clone(settings);
   }
 }

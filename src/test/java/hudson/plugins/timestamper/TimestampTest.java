@@ -31,17 +31,14 @@ import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.tasks._ant.AntTargetNote;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.TimeZone;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -52,16 +49,22 @@ import org.junit.Test;
 @SuppressWarnings("boxing")
 public class TimestampTest {
 
-  private static final String FORMAT_ONE = "HH:mm:ss";
+  private Timestamp timestamp;
 
-  private static final String FORMAT_TWO = "HHmmss";
+  private String systemTimeFormat;
 
-  private static TimeZone systemDefaultTimeZone;
+  private String elapsedTimeFormat;
+
+  private TimeZone systemDefaultTimeZone;
 
   /**
    */
-  @BeforeClass
-  public static void setUpBeforeClass() {
+  @Before
+  public void setUp() {
+    timestamp = new Timestamp(123, 42000);
+    systemTimeFormat = "HH:mm:ss ";
+    elapsedTimeFormat = "ss.S ";
+
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
@@ -69,61 +72,73 @@ public class TimestampTest {
 
   /**
    */
-  @AfterClass
-  public static void tearDownAfterClass() {
+  @After
+  public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
-  }
-
-  private String timestampFormat;
-
-  /**
-   */
-  @Before
-  public void setUp() {
-    timestampFormat = FORMAT_ONE;
   }
 
   /**
    */
   @Test
   public void testConstructor() {
-    Timestamp timestamp = new Timestamp(1, 2);
     assertThat(
         Arrays.asList(timestamp.elapsedMillis, timestamp.millisSinceEpoch),
-        is(Arrays.asList(1l, 2l)));
+        is(Arrays.asList(123l, 42000l)));
   }
 
   /**
    */
   @Test
-  public void testTimestampNote_DefaultFormat() {
-    assertThat(markup("line", 0).toString(true), is(timestamp(0) + "line"));
+  public void testMarkupSystemTime() {
+    assertThat(markupSystemTime("line").toString(true), is("00:00:42 line"));
   }
 
   /**
    */
   @Test
-  public void testTimestampNote_NonDefaultFormat() {
-    timestampFormat = FORMAT_TWO;
-    assertThat(markup("line", 0).toString(true), is(timestamp(0) + "line"));
+  public void testMarkupElapsedTime() {
+    assertThat(markupElapsedTime("line").toString(true), is("00.123 line"));
   }
 
   /**
    */
   @Test
-  public void testTimestampThenAntTargetNote() {
-    assertThat(
-        annotate(markup("target:", 0), new AntTargetNote()).toString(true),
-        is(timestamp(0) + "<b class=ant-target>target</b>:"));
+  public void testMarkupElapsedTimeWithDifferentTimeZone() {
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
+    // unaffected by time zone
+    assertThat(markupElapsedTime("line").toString(true), is("00.123 line"));
   }
 
   /**
    */
   @Test
-  public void testAntTargetNoteThenTimestamp() {
-    assertThat(
-        markup(annotate("target:", new AntTargetNote()), 0).toString(true),
-        is(timestamp(0) + "<b class=ant-target>target</b>:"));
+  public void testMarkupSystemTimeThenAntTargetNote() {
+    assertThat(annotate(markupSystemTime("target:"), new AntTargetNote())
+        .toString(true), is("00:00:42 <b class=ant-target>target</b>:"));
+  }
+
+  /**
+   */
+  @Test
+  public void testMarkupElapsedTimeThenAntTargetNote() {
+    assertThat(annotate(markupElapsedTime("target:"), new AntTargetNote())
+        .toString(true), is("00.123 <b class=ant-target>target</b>:"));
+  }
+
+  /**
+   */
+  @Test
+  public void testAntTargetNoteThenMarkupSystemTime() {
+    assertThat(markupSystemTime(annotate("target:", new AntTargetNote()))
+        .toString(true), is("00:00:42 <b class=ant-target>target</b>:"));
+  }
+
+  /**
+   */
+  @Test
+  public void testAntTargetNoteThenMarkupElapsedTime() {
+    assertThat(markupElapsedTime(annotate("target:", new AntTargetNote()))
+        .toString(true), is("00.123 <b class=ant-target>target</b>:"));
   }
 
   /**
@@ -134,13 +149,21 @@ public class TimestampTest {
         .suppress(Warning.STRICT_INHERITANCE).verify();
   }
 
-  private MarkupText markup(String text, long millisSinceEpoch) {
-    MarkupText markupText = new MarkupText(text);
-    return markup(markupText, millisSinceEpoch);
+  private MarkupText markupSystemTime(String text) {
+    return markupSystemTime(new MarkupText(text));
   }
 
-  private MarkupText markup(MarkupText markupText, long millisSinceEpoch) {
-    new Timestamp(0, millisSinceEpoch).markup(markupText, timestampFormat);
+  private MarkupText markupSystemTime(MarkupText markupText) {
+    timestamp.markupSystemTime(markupText, systemTimeFormat);
+    return markupText;
+  }
+
+  private MarkupText markupElapsedTime(String text) {
+    return markupElapsedTime(new MarkupText(text));
+  }
+
+  private MarkupText markupElapsedTime(MarkupText markupText) {
+    timestamp.markupElapsedTime(markupText, elapsedTimeFormat);
     return markupText;
   }
 
@@ -157,10 +180,5 @@ public class TimestampTest {
       note.annotate(context, markupText, 0);
     }
     return markupText;
-  }
-
-  private String timestamp(long millisSinceEpoch) {
-    return new SimpleDateFormat(timestampFormat).format(new Date(
-        millisSinceEpoch));
   }
 }

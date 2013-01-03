@@ -26,9 +26,13 @@ package hudson.plugins.timestamper;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
+
+import java.text.SimpleDateFormat;
+
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Objects;
@@ -42,24 +46,39 @@ import com.google.common.base.Supplier;
  * @since 1.3
  */
 @Extension
-public class TimestamperConfig extends GlobalConfiguration implements Settings {
+public class TimestamperConfig extends GlobalConfiguration {
 
   private static Supplier<Settings> settingsSupplier = new Supplier<Settings>() {
 
     public Settings get() {
-      return GlobalConfiguration.all().get(TimestamperConfig.class);
+      TimestamperConfig config = GlobalConfiguration.all().get(
+          TimestamperConfig.class);
+      return new Settings(config.getTimestampFormat(),
+          config.getElapsedTimeFormat());
     }
   };
 
   /**
-   * The default time-stamp format.
+   * The default {@link #timestampFormat}.
    */
   private static final String DEFAULT_TIMESTAMP_FORMAT = "'<b>'HH:mm:ss'</b> '";
 
   /**
-   * The chosen time-stamp format, as recognised by SimpleDateFormat.
+   * The default {@link #elapsedTimeFormat}.
+   */
+  private static final String DEFAULT_ELAPSED_TIME_FORMAT = "'<b>'HH:mm:ss.S'</b> '";
+
+  /**
+   * The chosen format for displaying the system clock time, as recognised by
+   * {@link SimpleDateFormat}.
    */
   private String timestampFormat;
+
+  /**
+   * The chosen format for displaying the elapsed time, as recognised by
+   * {@link DurationFormatUtils}.
+   */
+  private String elapsedTimeFormat;
 
   /**
    * Constructor.
@@ -69,22 +88,41 @@ public class TimestamperConfig extends GlobalConfiguration implements Settings {
   }
 
   /**
-   * Get the time-stamp format.
+   * Get the format for displaying the system clock time.
    * 
-   * @return the time-stamp format
+   * @return the system clock time format
    */
   public String getTimestampFormat() {
     return Objects.firstNonNull(timestampFormat, DEFAULT_TIMESTAMP_FORMAT);
   }
 
   /**
-   * Set the time-stamp format.
+   * Set the format for displaying the system clock time.
    * 
    * @param timestampFormat
-   *          the time-stamp format in SimpleDateFormat pattern
+   *          the system clock time format in {@link SimpleDateFormat} pattern
    */
   public void setTimestampFormat(String timestampFormat) {
     this.timestampFormat = timestampFormat;
+  }
+
+  /**
+   * Get the format for displaying the elapsed time.
+   * 
+   * @return the elapsed time format
+   */
+  public String getElapsedTimeFormat() {
+    return Objects.firstNonNull(elapsedTimeFormat, DEFAULT_ELAPSED_TIME_FORMAT);
+  }
+
+  /**
+   * Set the format for displaying the elapsed time.
+   * 
+   * @param elapsedTimeFormat
+   *          the elapsed time format in {@link DurationFormatUtils} pattern
+   */
+  public void setElapsedTimeFormat(String elapsedTimeFormat) {
+    this.elapsedTimeFormat = elapsedTimeFormat;
   }
 
   /**

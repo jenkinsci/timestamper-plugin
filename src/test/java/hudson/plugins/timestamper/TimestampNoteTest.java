@@ -152,9 +152,7 @@ public class TimestampNoteTest {
         new Supplier<Settings>() {
 
           public Settings get() {
-            Settings settings = mock(Settings.class);
-            when(settings.getTimestampFormat()).thenReturn(timestampFormat);
-            return settings;
+            return new Settings(timestampFormat, "");
           }
         });
   }
@@ -175,7 +173,7 @@ public class TimestampNoteTest {
 
   private String timestamp(long millisSinceEpoch) {
     Settings settings = TimestamperConfig.settings();
-    return new SimpleDateFormat(settings.getTimestampFormat()).format(new Date(
-        millisSinceEpoch));
+    return new SimpleDateFormat(settings.getSystemTimeFormat())
+        .format(new Date(millisSinceEpoch));
   }
 }

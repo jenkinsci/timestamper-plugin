@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
+import hudson.plugins.timestamper.Settings;
 import hudson.plugins.timestamper.TimestampsIO;
 
 import java.io.ByteArrayInputStream;
@@ -84,7 +85,7 @@ public class TimestampAnnotatorTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  private final String timestampFormat = "S";
+  private final Settings settings = new Settings("S", "S");
 
   private Run<?, ?> build;
 
@@ -206,7 +207,8 @@ public class TimestampAnnotatorTest {
 
   @SuppressWarnings("rawtypes")
   private List<String> annotate(int offset, boolean serializeAnnotator) {
-    ConsoleAnnotator annotator = new TimestampAnnotator(timestampFormat, offset);
+    ConsoleAnnotator annotator = new TimestampAnnotator(settings, offset,
+        TimestampsCookie.SYSTEM);
     return annotate(offset, annotator, serializeAnnotator);
   }
 
@@ -214,8 +216,8 @@ public class TimestampAnnotatorTest {
   private List<String> annotateNegativeOffset(int offset,
       boolean serializeAnnotator) {
     long negativeOffset = offset - build.getLogFile().length();
-    ConsoleAnnotator annotator = new TimestampAnnotator(timestampFormat,
-        negativeOffset);
+    ConsoleAnnotator annotator = new TimestampAnnotator(settings,
+        negativeOffset, TimestampsCookie.SYSTEM);
     return annotate(offset, annotator, serializeAnnotator);
   }
 
