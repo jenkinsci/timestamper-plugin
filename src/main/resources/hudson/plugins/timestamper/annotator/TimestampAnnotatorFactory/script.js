@@ -1,5 +1,10 @@
 (function() {
 
+// Cookie is renewed each time the page is opened and expires after 2 years
+// http://googleblog.blogspot.com.au/2007/07/cookies-expiring-sooner-to-improve.html
+
+var cookieName = 'timestamper';
+
 function init() {
     var elements = {
         'system': document.getElementById('timestamper-systemTime'),
@@ -7,35 +12,45 @@ function init() {
         'none': document.getElementById('timestamper-none')
     }
 
-    getCookie(elements);
+    elements['system'].checked = true;
+    var cookie = getCookie();
+    var element = elements[cookie];
+    if (element) {
+        element.checked = true;
+        // renew cookie
+        setCookie(cookie);
+    }
 
     for (var key in elements) {
         elements[key].addEventListener('click', function() {
-            setCookie(elements);
+            onClick(elements);
         }, false);
     }
 }
 
-function setCookie(elements) {
+function onClick(elements) {
     for (var key in elements) {
         if (elements[key].checked) {
-            document.cookie = 'timestamper=' + key;
+            setCookie(key);
             document.location.reload();
             return;
         }
     }
 }
 
-function getCookie(elements) {
-    var result = /(?:^|;\\s*)timestamper\s*=\s*([^;]+);/.exec(document.cookie);
-    if (result === null) {
-        elements['system'].checked = true;
-        return;
+function setCookie(cookie) {
+    var d = new Date();
+    d.setTime(d.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
+    document.cookie = cookieName + '=' + cookie + ";expires=" + d.toGMTString();
+}
+
+function getCookie() {
+    var re = RegExp('(?:^|;\\s*)' + cookieName + '\s*=\s*([^;]+);');
+    var match = re.exec(document.cookie);
+    if (match) {
+        return match[1];
     }
-    var element = elements[result[1]];
-    if (element) {
-        element.checked = true;
-    }
+    return null;
 }
 
 new Ajax.Updater(
