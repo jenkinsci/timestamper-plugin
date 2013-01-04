@@ -3,7 +3,7 @@
 // Cookie is renewed each time the page is opened and expires after 2 years
 // http://googleblog.blogspot.com.au/2007/07/cookies-expiring-sooner-to-improve.html
 
-var cookieName = 'timestamper';
+var cookieName = 'jenkins-timestamper';
 
 function init() {
     var elements = {

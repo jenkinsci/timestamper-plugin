@@ -91,6 +91,6 @@ public class TimestampsCookieTest {
   }
 
   private Cookie[] cookie(String value) {
-    return new Cookie[] { new Cookie("timestamper", value) };
+    return new Cookie[] { new Cookie("jenkins-timestamper", value) };
   }
 }

@@ -58,7 +58,7 @@ enum TimestampsCookie {
    */
   static TimestampsCookie get(HttpServletRequest request) {
     for (Cookie cookie : request.getCookies()) {
-      if ("timestamper".equals(cookie.getName())) {
+      if ("jenkins-timestamper".equals(cookie.getName())) {
         try {
           return TimestampsCookie.valueOf(cookie.getValue().toUpperCase());
         } catch (IllegalArgumentException ex) {
