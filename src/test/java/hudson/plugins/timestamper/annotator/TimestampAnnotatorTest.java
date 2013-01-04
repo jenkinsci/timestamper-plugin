@@ -23,6 +23,8 @@
  */
 package hudson.plugins.timestamper.annotator;
 
+import static hudson.plugins.timestamper.annotator.TimestampsCookie.ELAPSED;
+import static hudson.plugins.timestamper.annotator.TimestampsCookie.SYSTEM;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -70,14 +72,25 @@ public class TimestampAnnotatorTest {
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        { 0, Arrays.asList("0ab<br>", "1cd<br>", "2ef<br>") },
-        { 1, Arrays.asList("b<br>", "1cd<br>", "2ef<br>") },
-        { 2, Arrays.asList("<br>", "1cd<br>", "2ef<br>") },
-        { 3, Arrays.asList("1cd<br>", "2ef<br>") },
-        { 4, Arrays.asList("d<br>", "2ef<br>") },
-        { 5, Arrays.asList("<br>", "2ef<br>") },
-        { 6, Arrays.asList("2ef<br>") }, { 7, Arrays.asList("f<br>") },
-        { 8, Arrays.asList("<br>") } });
+        { 0, SYSTEM, Arrays.asList("0ab<br>", "1cd<br>", "2ef<br>") },
+        { 1, SYSTEM, Arrays.asList("b<br>", "1cd<br>", "2ef<br>") },
+        { 2, SYSTEM, Arrays.asList("<br>", "1cd<br>", "2ef<br>") },
+        { 3, SYSTEM, Arrays.asList("1cd<br>", "2ef<br>") },
+        { 4, SYSTEM, Arrays.asList("d<br>", "2ef<br>") },
+        { 5, SYSTEM, Arrays.asList("<br>", "2ef<br>") },
+        { 6, SYSTEM, Arrays.asList("2ef<br>") },
+        { 7, SYSTEM, Arrays.asList("f<br>") },
+        { 8, SYSTEM, Arrays.asList("<br>") },
+        { 0, ELAPSED,
+            Arrays.asList("0.000ab<br>", "0.001cd<br>", "0.002ef<br>") },
+        { 1, ELAPSED, Arrays.asList("b<br>", "0.001cd<br>", "0.002ef<br>") },
+        { 2, ELAPSED, Arrays.asList("<br>", "0.001cd<br>", "0.002ef<br>") },
+        { 3, ELAPSED, Arrays.asList("0.001cd<br>", "0.002ef<br>") },
+        { 4, ELAPSED, Arrays.asList("d<br>", "0.002ef<br>") },
+        { 5, ELAPSED, Arrays.asList("<br>", "0.002ef<br>") },
+        { 6, ELAPSED, Arrays.asList("0.002ef<br>") },
+        { 7, ELAPSED, Arrays.asList("f<br>") },
+        { 8, ELAPSED, Arrays.asList("<br>") } });
   }
 
   /**
@@ -85,7 +98,7 @@ public class TimestampAnnotatorTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  private final Settings settings = new Settings("S", "S");
+  private final Settings settings = new Settings("S", "s.S");
 
   private Run<?, ?> build;
 
@@ -93,14 +106,19 @@ public class TimestampAnnotatorTest {
 
   private int offset;
 
+  private TimestampsCookie cookie;
+
   private List<String> result;
 
   /**
    * @param offset
+   * @param cookie
    * @param result
    */
-  public TimestampAnnotatorTest(int offset, List<String> result) {
+  public TimestampAnnotatorTest(int offset, TimestampsCookie cookie,
+      List<String> result) {
     this.offset = offset;
+    this.cookie = cookie;
     this.result = new ArrayList<String>(result);
   }
 
@@ -208,7 +226,7 @@ public class TimestampAnnotatorTest {
   @SuppressWarnings("rawtypes")
   private List<String> annotate(int offset, boolean serializeAnnotator) {
     ConsoleAnnotator annotator = new TimestampAnnotator(settings, offset,
-        TimestampsCookie.SYSTEM);
+        cookie);
     return annotate(offset, annotator, serializeAnnotator);
   }
 
@@ -217,7 +235,7 @@ public class TimestampAnnotatorTest {
       boolean serializeAnnotator) {
     long negativeOffset = offset - build.getLogFile().length();
     ConsoleAnnotator annotator = new TimestampAnnotator(settings,
-        negativeOffset, TimestampsCookie.SYSTEM);
+        negativeOffset, cookie);
     return annotate(offset, annotator, serializeAnnotator);
   }
 
@@ -240,10 +258,7 @@ public class TimestampAnnotatorTest {
   private List<String> resultNoTimestamps() {
     List<String> noTimestamps = new ArrayList<String>();
     for (String line : result) {
-      if (line.matches("\\d.*")) {
-        line = line.substring(1, line.length());
-      }
-      noTimestamps.add(line);
+      noTimestamps.add(line.replaceAll("\\d|\\.", ""));
     }
     return noTimestamps;
   }
