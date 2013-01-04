@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Steven G. Brown
  * @since 1.5
  */
-public enum TimestampsCookie {
+enum TimestampsCookie {
 
   /**
    * Display the system clock time (default).
@@ -56,7 +56,7 @@ public enum TimestampsCookie {
    *          the HTTP request
    * @return the cookie
    */
-  public static TimestampsCookie get(HttpServletRequest request) {
+  static TimestampsCookie get(HttpServletRequest request) {
     for (Cookie cookie : request.getCookies()) {
       if ("timestamper".equals(cookie.getName())) {
         try {
