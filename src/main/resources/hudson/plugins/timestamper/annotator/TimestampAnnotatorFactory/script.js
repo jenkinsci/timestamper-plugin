@@ -77,10 +77,24 @@ function getCookie() {
     return null;
 }
 
-new Ajax.Updater(
-    document.getElementById('navigation'),
-    rootURL + "/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings",
-    { insertion: Insertion.After, onComplete: init }
-);
+var settingsInserted = false;
+
+function timestampFound() {
+    if (settingsInserted) {
+        return;
+    }
+    settingsInserted = true;
+    new Ajax.Updater(
+        document.getElementById('navigation'),
+        rootURL + "/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings",
+        { insertion: Insertion.After, onComplete: init }
+    );
+}
+
+Behaviour.register({
+    "span.timestamp" : function(e) {
+        timestampFound(e);
+    }
+});
 
 }());

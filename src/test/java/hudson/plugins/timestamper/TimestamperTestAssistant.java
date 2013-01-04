@@ -39,6 +39,17 @@ import com.google.common.base.Functions;
 public class TimestamperTestAssistant {
 
   /**
+   * Wrap the given time-stamp string in an HTML span element.
+   * 
+   * @param timestampString
+   *          the string to wrap
+   * @return the HTML
+   */
+  public static String span(String timestampString) {
+    return "<span class=\"timestamp\">" + timestampString + "</span>";
+  }
+
+  /**
    * Read all time-stamps for the given build.
    * 
    * @param build

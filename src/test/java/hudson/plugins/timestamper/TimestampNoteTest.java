@@ -173,7 +173,7 @@ public class TimestampNoteTest {
 
   private String timestamp(long millisSinceEpoch) {
     Settings settings = TimestamperConfig.settings();
-    return new SimpleDateFormat(settings.getSystemTimeFormat())
-        .format(new Date(millisSinceEpoch));
+    return TimestamperTestAssistant.span(new SimpleDateFormat(settings
+        .getSystemTimeFormat()).format(new Date(millisSinceEpoch)));
   }
 }

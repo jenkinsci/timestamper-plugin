@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
+import static hudson.plugins.timestamper.TimestamperTestAssistant.span;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -90,14 +91,16 @@ public class TimestampTest {
    */
   @Test
   public void testMarkupSystemTime() {
-    assertThat(markupSystemTime("line").toString(true), is("00:00:42 line"));
+    assertThat(markupSystemTime("line").toString(true), is(span("00:00:42 ")
+        + "line"));
   }
 
   /**
    */
   @Test
   public void testMarkupElapsedTime() {
-    assertThat(markupElapsedTime("line").toString(true), is("00.123 line"));
+    assertThat(markupElapsedTime("line").toString(true), is(span("00.123 ")
+        + "line"));
   }
 
   /**
@@ -106,7 +109,8 @@ public class TimestampTest {
   public void testMarkupElapsedTimeWithDifferentTimeZone() {
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
     // unaffected by time zone
-    assertThat(markupElapsedTime("line").toString(true), is("00.123 line"));
+    assertThat(markupElapsedTime("line").toString(true), is(span("00.123 ")
+        + "line"));
   }
 
   /**
@@ -114,7 +118,8 @@ public class TimestampTest {
   @Test
   public void testMarkupSystemTimeThenAntTargetNote() {
     assertThat(annotate(markupSystemTime("target:"), new AntTargetNote())
-        .toString(true), is("00:00:42 <b class=ant-target>target</b>:"));
+        .toString(true), is(span("00:00:42 ")
+        + "<b class=ant-target>target</b>:"));
   }
 
   /**
@@ -122,7 +127,8 @@ public class TimestampTest {
   @Test
   public void testMarkupElapsedTimeThenAntTargetNote() {
     assertThat(annotate(markupElapsedTime("target:"), new AntTargetNote())
-        .toString(true), is("00.123 <b class=ant-target>target</b>:"));
+        .toString(true),
+        is(span("00.123 ") + "<b class=ant-target>target</b>:"));
   }
 
   /**
@@ -130,7 +136,8 @@ public class TimestampTest {
   @Test
   public void testAntTargetNoteThenMarkupSystemTime() {
     assertThat(markupSystemTime(annotate("target:", new AntTargetNote()))
-        .toString(true), is("00:00:42 <b class=ant-target>target</b>:"));
+        .toString(true), is(span("00:00:42 ")
+        + "<b class=ant-target>target</b>:"));
   }
 
   /**
@@ -138,7 +145,8 @@ public class TimestampTest {
   @Test
   public void testAntTargetNoteThenMarkupElapsedTime() {
     assertThat(markupElapsedTime(annotate("target:", new AntTargetNote()))
-        .toString(true), is("00.123 <b class=ant-target>target</b>:"));
+        .toString(true),
+        is(span("00.123 ") + "<b class=ant-target>target</b>:"));
   }
 
   /**

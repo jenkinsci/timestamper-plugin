@@ -33,6 +33,7 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Settings;
+import hudson.plugins.timestamper.TimestamperTestAssistant;
 import hudson.plugins.timestamper.TimestampsIO;
 
 import java.io.ByteArrayInputStream;
@@ -43,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
@@ -64,6 +66,8 @@ import com.google.common.io.Files;
  */
 @RunWith(Parameterized.class)
 public class TimestampAnnotatorTest {
+
+  private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d|\\.)+");
 
   /**
    * @return parameterised test data
@@ -110,6 +114,8 @@ public class TimestampAnnotatorTest {
 
   private List<String> result;
 
+  private List<String> resultNoTimestamps;
+
   /**
    * @param offset
    * @param cookie
@@ -119,7 +125,17 @@ public class TimestampAnnotatorTest {
       List<String> result) {
     this.offset = offset;
     this.cookie = cookie;
-    this.result = new ArrayList<String>(result);
+
+    this.resultNoTimestamps = new ArrayList<String>();
+    for (String line : result) {
+      resultNoTimestamps.add(NUMBER_PATTERN.matcher(line).replaceAll(""));
+    }
+
+    this.result = new ArrayList<String>(result.size());
+    for (String line : result) {
+      this.result.add(NUMBER_PATTERN.matcher(line).replaceAll(
+          TimestamperTestAssistant.span("$0")));
+    }
   }
 
   /**
@@ -185,7 +201,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestamps() {
     List<String> annotated = annotate(offset, false);
-    assertThat(annotated, is(resultNoTimestamps().subList(0, annotated.size())));
+    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
   }
 
   /**
@@ -193,7 +209,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestampsNegativeOffset() {
     List<String> annotated = annotateNegativeOffset(offset, false);
-    assertThat(annotated, is(resultNoTimestamps().subList(0, annotated.size())));
+    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
   }
 
   /**
@@ -201,7 +217,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestampsWithSerialization() {
     List<String> annotated = annotate(offset, true);
-    assertThat(annotated, is(resultNoTimestamps().subList(0, annotated.size())));
+    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
   }
 
   /**
@@ -209,7 +225,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestampsNegativeOffsetWithSerialization() {
     List<String> annotated = annotateNegativeOffset(offset, true);
-    assertThat(annotated, is(resultNoTimestamps().subList(0, annotated.size())));
+    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
   }
 
   private void writeTimestamps() throws Exception {
@@ -253,13 +269,5 @@ public class TimestampAnnotatorTest {
       offset += 3 - (offset % 3);
     }
     return result;
-  }
-
-  private List<String> resultNoTimestamps() {
-    List<String> noTimestamps = new ArrayList<String>();
-    for (String line : result) {
-      noTimestamps.add(line.replaceAll("\\d|\\.", ""));
-    }
-    return noTimestamps;
   }
 }

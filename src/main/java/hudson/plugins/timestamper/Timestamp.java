@@ -107,9 +107,12 @@ public final class Timestamp {
   }
 
   private void markup(MarkupText text, String timestampString) {
+    // Wrap the time-stamp in a span element, which is used to detect the
+    // time-stamp when inspecting the page with Javascript.
+    String markup = "<span class=\"timestamp\">" + timestampString + "</span>";
     // Add as end tag, which will be inserted prior to tags added by other
     // console notes (e.g. AntTargetNote).
-    text.addMarkup(0, 0, "", timestampString);
+    text.addMarkup(0, 0, "", markup);
   }
 
   /**
