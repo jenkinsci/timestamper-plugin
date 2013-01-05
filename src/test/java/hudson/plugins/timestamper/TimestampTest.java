@@ -23,23 +23,14 @@
  */
 package hudson.plugins.timestamper;
 
-import static hudson.plugins.timestamper.TimestamperTestAssistant.span;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import hudson.MarkupText;
-import hudson.console.ConsoleNote;
-import hudson.model.Run;
-import hudson.tasks._ant.AntTargetNote;
 
 import java.util.Arrays;
-import java.util.TimeZone;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -50,38 +41,11 @@ import org.junit.Test;
 @SuppressWarnings("boxing")
 public class TimestampTest {
 
-  private Timestamp timestamp;
-
-  private String systemTimeFormat;
-
-  private String elapsedTimeFormat;
-
-  private TimeZone systemDefaultTimeZone;
-
-  /**
-   */
-  @Before
-  public void setUp() {
-    timestamp = new Timestamp(123, 42000);
-    systemTimeFormat = "HH:mm:ss ";
-    elapsedTimeFormat = "ss.S ";
-
-    systemDefaultTimeZone = TimeZone.getDefault();
-    // Set the time zone to get consistent results.
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-  }
-
-  /**
-   */
-  @After
-  public void tearDown() {
-    TimeZone.setDefault(systemDefaultTimeZone);
-  }
-
   /**
    */
   @Test
   public void testConstructor() {
+    Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(
         Arrays.asList(timestamp.elapsedMillis, timestamp.millisSinceEpoch),
         is(Arrays.asList(123l, 42000l)));
@@ -90,103 +54,8 @@ public class TimestampTest {
   /**
    */
   @Test
-  public void testMarkupSystemTime() {
-    assertThat(markupSystemTime("line").toString(true), is(span("00:00:42 ")
-        + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupElapsedTime() {
-    assertThat(markupElapsedTime("line").toString(true), is(span("00.123 ")
-        + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupElapsedTimeWithDifferentTimeZone() {
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
-    // unaffected by time zone
-    assertThat(markupElapsedTime("line").toString(true), is(span("00.123 ")
-        + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupSystemTimeThenAntTargetNote() {
-    assertThat(annotate(markupSystemTime("target:"), new AntTargetNote())
-        .toString(true), is(span("00:00:42 ")
-        + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupElapsedTimeThenAntTargetNote() {
-    assertThat(annotate(markupElapsedTime("target:"), new AntTargetNote())
-        .toString(true),
-        is(span("00.123 ") + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
-  public void testAntTargetNoteThenMarkupSystemTime() {
-    assertThat(markupSystemTime(annotate("target:", new AntTargetNote()))
-        .toString(true), is(span("00:00:42 ")
-        + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
-  public void testAntTargetNoteThenMarkupElapsedTime() {
-    assertThat(markupElapsedTime(annotate("target:", new AntTargetNote()))
-        .toString(true),
-        is(span("00.123 ") + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
   public void testHashcodeAndEquals() {
     EqualsVerifier.forClass(Timestamp.class)
         .suppress(Warning.STRICT_INHERITANCE).verify();
-  }
-
-  private MarkupText markupSystemTime(String text) {
-    return markupSystemTime(new MarkupText(text));
-  }
-
-  private MarkupText markupSystemTime(MarkupText markupText) {
-    timestamp.markupSystemTime(markupText, systemTimeFormat);
-    return markupText;
-  }
-
-  private MarkupText markupElapsedTime(String text) {
-    return markupElapsedTime(new MarkupText(text));
-  }
-
-  private MarkupText markupElapsedTime(MarkupText markupText) {
-    timestamp.markupElapsedTime(markupText, elapsedTimeFormat);
-    return markupText;
-  }
-
-  @SuppressWarnings("rawtypes")
-  private MarkupText annotate(String text, ConsoleNote... notes) {
-    MarkupText markupText = new MarkupText(text);
-    return annotate(markupText, notes);
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private MarkupText annotate(MarkupText markupText, ConsoleNote... notes) {
-    Object context = mock(Run.class);
-    for (ConsoleNote note : notes) {
-      note.annotate(context, markupText, 0);
-    }
-    return markupText;
   }
 }

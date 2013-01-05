@@ -36,6 +36,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -68,6 +70,8 @@ public class TimestampNoteTest {
 
   private TimeZone systemDefaultTimeZone;
 
+  private String currentSystemTimeFormat;
+
   /**
    * @throws Exception
    */
@@ -76,7 +80,7 @@ public class TimestampNoteTest {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    setTimestampFormat(FORMAT);
+    setSystemTimeFormat(FORMAT);
   }
 
   /**
@@ -109,7 +113,7 @@ public class TimestampNoteTest {
    */
   @Test
   public void testTimestampNote_NonDefaultFormat() {
-    setTimestampFormat(OTHER_FORMAT);
+    setSystemTimeFormat(OTHER_FORMAT);
     assertThat(annotate("line", new TimestampNote(0)),
         is(timestamp(0) + "line"));
   }
@@ -126,7 +130,7 @@ public class TimestampNoteTest {
    */
   @Test
   public void testSerialization_NonDefaultFormat() {
-    setTimestampFormat(OTHER_FORMAT);
+    setSystemTimeFormat(OTHER_FORMAT);
     assertThat(annotate("line", serialize(new TimestampNote(0))),
         is(timestamp(0) + "line"));
   }
@@ -147,14 +151,16 @@ public class TimestampNoteTest {
         is(timestamp(0) + "<b class=ant-target>target</b>:"));
   }
 
-  private void setTimestampFormat(final String timestampFormat) {
+  private void setSystemTimeFormat(final String systemTimeFormat) {
     Whitebox.setInternalState(TimestamperConfig.class, Supplier.class,
-        new Supplier<Settings>() {
+        new Supplier<TimestampFormatter>() {
 
-          public Settings get() {
-            return new Settings(timestampFormat, "");
+          public TimestampFormatter get() {
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            return new TimestampFormatter(systemTimeFormat, "", request);
           }
         });
+    currentSystemTimeFormat = systemTimeFormat;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -172,8 +178,7 @@ public class TimestampNoteTest {
   }
 
   private String timestamp(long millisSinceEpoch) {
-    Settings settings = TimestamperConfig.settings();
-    return TimestamperTestAssistant.span(new SimpleDateFormat(settings
-        .getSystemTimeFormat()).format(new Date(millisSinceEpoch)));
+    return TimestamperTestAssistant.span(new SimpleDateFormat(
+        currentSystemTimeFormat).format(new Date(millisSinceEpoch)));
   }
 }

@@ -26,7 +26,7 @@ package hudson.plugins.timestamper.annotator;
 import hudson.Extension;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
-import hudson.plugins.timestamper.Settings;
+import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperConfig;
 
 import org.kohsuke.stapler.Stapler;
@@ -48,14 +48,9 @@ public final class TimestampAnnotatorFactory extends
    */
   @Override
   public ConsoleAnnotator<Object> newInstance(Object context) {
-    StaplerRequest request = Stapler.getCurrentRequest();
-    TimestampsCookie cookie = TimestampsCookie.get(request);
-    if (cookie == TimestampsCookie.NONE) {
-      return null;
-    }
-    Settings settings = TimestamperConfig.settings();
-    long offset = getOffset(request);
-    return new TimestampAnnotator(settings, offset, cookie);
+    TimestampFormatter formatter = TimestamperConfig.formatter();
+    long offset = getOffset(Stapler.getCurrentRequest());
+    return new TimestampAnnotator(formatter, offset);
   }
 
   /**

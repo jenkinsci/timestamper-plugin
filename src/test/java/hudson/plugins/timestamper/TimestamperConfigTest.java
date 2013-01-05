@@ -80,7 +80,7 @@ public class TimestamperConfigTest {
    */
   @Test
   public void testDefaultSystemTimeFormat() {
-    assertThat(new TimestamperConfig().getTimestampFormat(),
+    assertThat(new TimestamperConfig().getSystemTimeFormat(),
         containsString("HH:mm:ss"));
   }
 
@@ -98,7 +98,7 @@ public class TimestamperConfigTest {
   public void testSetSystemTimeFormat() {
     TimestamperConfig config = new TimestamperConfig();
     config.setTimestampFormat(customSystemTimeFormat);
-    assertThat(config.getTimestampFormat(), is(customSystemTimeFormat));
+    assertThat(config.getSystemTimeFormat(), is(customSystemTimeFormat));
   }
 
   /**
@@ -116,7 +116,7 @@ public class TimestamperConfigTest {
   public void testSetSystemTimeFormatEmpty() {
     TimestamperConfig config = new TimestamperConfig();
     config.setTimestampFormat("");
-    assertThat(config.getTimestampFormat(), is(""));
+    assertThat(config.getSystemTimeFormat(), is(""));
   }
 
   /**
@@ -161,9 +161,9 @@ public class TimestamperConfigTest {
     TimestamperConfig config = fromXml(defaultXml());
     TimestamperConfig defaultConfig = new TimestamperConfig();
     assertThat(
-        Arrays.asList(config.getTimestampFormat(),
+        Arrays.asList(config.getSystemTimeFormat(),
             config.getElapsedTimeFormat()),
-        is(Arrays.asList(defaultConfig.getTimestampFormat(),
+        is(Arrays.asList(defaultConfig.getSystemTimeFormat(),
             defaultConfig.getElapsedTimeFormat())));
   }
 
@@ -172,7 +172,7 @@ public class TimestamperConfigTest {
   @Test
   public void testFromXmlCustomSystemTimeFormat() {
     TimestamperConfig config = fromXml(xml(customSystemTimeFormat, null));
-    assertThat(config.getTimestampFormat(), is(customSystemTimeFormat));
+    assertThat(config.getSystemTimeFormat(), is(customSystemTimeFormat));
   }
 
   /**
@@ -189,7 +189,7 @@ public class TimestamperConfigTest {
   public void testFromXmlEmptyFormat() {
     TimestamperConfig config = fromXml(xml("", ""));
     assertThat(
-        Arrays.asList(config.getTimestampFormat(),
+        Arrays.asList(config.getSystemTimeFormat(),
             config.getElapsedTimeFormat()), is(Arrays.asList("", "")));
   }
 

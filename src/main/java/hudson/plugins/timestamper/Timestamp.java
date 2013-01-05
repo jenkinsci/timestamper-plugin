@@ -23,12 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
-import hudson.MarkupText;
-
-import java.util.Date;
-
-import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.commons.lang.time.FastDateFormat;
+import javax.annotation.concurrent.Immutable;
 
 import com.google.common.base.Objects;
 
@@ -38,6 +33,7 @@ import com.google.common.base.Objects;
  * @author Steven G. Brown
  * @since 1.3.2
  */
+@Immutable
 public final class Timestamp {
 
   /**
@@ -74,45 +70,6 @@ public final class Timestamp {
   public Timestamp(long elapsedMillis, long millisSinceEpoch) {
     this.elapsedMillis = elapsedMillis;
     this.millisSinceEpoch = millisSinceEpoch;
-  }
-
-  /**
-   * Format this time-stamp and insert it into the given text as the system
-   * clock time.
-   * 
-   * @param text
-   *          the text to modify
-   * @param timestampFormat
-   *          the time-stamp format
-   */
-  public void markupSystemTime(MarkupText text, String timestampFormat) {
-    String formattedDate = FastDateFormat.getInstance(timestampFormat).format(
-        new Date(millisSinceEpoch));
-    markup(text, formattedDate);
-  }
-
-  /**
-   * Format this time-stamp and insert it into the given text as the elapsed
-   * time.
-   * 
-   * @param text
-   *          the text to modify
-   * @param timestampFormat
-   *          the time-stamp format
-   */
-  public void markupElapsedTime(MarkupText text, String timestampFormat) {
-    String formattedDate = DurationFormatUtils.formatDuration(elapsedMillis,
-        timestampFormat);
-    markup(text, formattedDate);
-  }
-
-  private void markup(MarkupText text, String timestampString) {
-    // Wrap the time-stamp in a span element, which is used to detect the
-    // time-stamp when inspecting the page with Javascript.
-    String markup = "<span class=\"timestamp\">" + timestampString + "</span>";
-    // Add as end tag, which will be inserted prior to tags added by other
-    // console notes (e.g. AntTargetNote).
-    text.addMarkup(0, 0, "", markup);
   }
 
   /**

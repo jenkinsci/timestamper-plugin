@@ -26,8 +26,8 @@ package hudson.plugins.timestamper.annotator;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
-import hudson.plugins.timestamper.Settings;
 import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestampsIO;
 
 import java.io.IOException;
@@ -47,30 +47,25 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   private static final Logger LOGGER = Logger
       .getLogger(TimestampAnnotator.class.getName());
 
-  private final Settings settings;
+  private final TimestampFormatter formatter;
 
   private final long offset;
-
-  private final TimestampsCookie cookie;
 
   private TimestampsIO.Reader timestampsReader;
 
   /**
    * Create a new {@link TimestampAnnotator}.
    * 
-   * @param settings the current settings
+   * @param formatter
+   *          the time-stamp formatter
    * @param offset
    *          the offset for viewing the console log. A non-negative offset is
    *          from the start of the file, and a negative offset is back from the
    *          end of the file.
-   * @param cookie
-   *          the current time-stamps cookie
    */
-  TimestampAnnotator(Settings settings, long offset,
-      TimestampsCookie cookie) {
-    this.settings = settings;
+  TimestampAnnotator(TimestampFormatter formatter, long offset) {
+    this.formatter = formatter;
     this.offset = offset;
-    this.cookie = cookie;
   }
 
   /**
@@ -126,13 +121,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
    */
   private TimestampAnnotator markup(MarkupText text, Timestamp timestamp) {
     if (timestamp != null) {
-      if (cookie == TimestampsCookie.SYSTEM) {
-        timestamp.markupSystemTime(text, settings.getSystemTimeFormat());
-      } else if (cookie == TimestampsCookie.ELAPSED) {
-        timestamp.markupElapsedTime(text, settings.getElapsedTimeFormat());
-      } else {
-        throw new IllegalStateException("unexpected cookie: " + cookie);
-      }
+      formatter.markup(text, timestamp);
     }
     return this;
   }

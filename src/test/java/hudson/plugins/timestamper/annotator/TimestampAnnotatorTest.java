@@ -23,8 +23,6 @@
  */
 package hudson.plugins.timestamper.annotator;
 
-import static hudson.plugins.timestamper.annotator.TimestampsCookie.ELAPSED;
-import static hudson.plugins.timestamper.annotator.TimestampsCookie.SYSTEM;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,7 +30,7 @@ import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
-import hudson.plugins.timestamper.Settings;
+import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperTestAssistant;
 import hudson.plugins.timestamper.TimestampsIO;
 
@@ -45,6 +43,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
@@ -76,25 +76,14 @@ public class TimestampAnnotatorTest {
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        { 0, SYSTEM, Arrays.asList("0ab<br>", "1cd<br>", "2ef<br>") },
-        { 1, SYSTEM, Arrays.asList("b<br>", "1cd<br>", "2ef<br>") },
-        { 2, SYSTEM, Arrays.asList("<br>", "1cd<br>", "2ef<br>") },
-        { 3, SYSTEM, Arrays.asList("1cd<br>", "2ef<br>") },
-        { 4, SYSTEM, Arrays.asList("d<br>", "2ef<br>") },
-        { 5, SYSTEM, Arrays.asList("<br>", "2ef<br>") },
-        { 6, SYSTEM, Arrays.asList("2ef<br>") },
-        { 7, SYSTEM, Arrays.asList("f<br>") },
-        { 8, SYSTEM, Arrays.asList("<br>") },
-        { 0, ELAPSED,
-            Arrays.asList("0.000ab<br>", "0.001cd<br>", "0.002ef<br>") },
-        { 1, ELAPSED, Arrays.asList("b<br>", "0.001cd<br>", "0.002ef<br>") },
-        { 2, ELAPSED, Arrays.asList("<br>", "0.001cd<br>", "0.002ef<br>") },
-        { 3, ELAPSED, Arrays.asList("0.001cd<br>", "0.002ef<br>") },
-        { 4, ELAPSED, Arrays.asList("d<br>", "0.002ef<br>") },
-        { 5, ELAPSED, Arrays.asList("<br>", "0.002ef<br>") },
-        { 6, ELAPSED, Arrays.asList("0.002ef<br>") },
-        { 7, ELAPSED, Arrays.asList("f<br>") },
-        { 8, ELAPSED, Arrays.asList("<br>") } });
+        { 0, Arrays.asList("0ab<br>", "1cd<br>", "2ef<br>") },
+        { 1, Arrays.asList("b<br>", "1cd<br>", "2ef<br>") },
+        { 2, Arrays.asList("<br>", "1cd<br>", "2ef<br>") },
+        { 3, Arrays.asList("1cd<br>", "2ef<br>") },
+        { 4, Arrays.asList("d<br>", "2ef<br>") },
+        { 5, Arrays.asList("<br>", "2ef<br>") },
+        { 6, Arrays.asList("2ef<br>") }, { 7, Arrays.asList("f<br>") },
+        { 8, Arrays.asList("<br>") } });
   }
 
   /**
@@ -102,38 +91,37 @@ public class TimestampAnnotatorTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  private final Settings settings = new Settings("S", "s.S");
-
   private Run<?, ?> build;
 
   private List<String> consoleLogLines;
 
+  private TimestampFormatter formatter;
+
   private int offset;
 
-  private TimestampsCookie cookie;
+  private List<String> expectedResult;
 
-  private List<String> result;
-
-  private List<String> resultNoTimestamps;
+  private List<String> expectedResultNoTimestamps;
 
   /**
    * @param offset
-   * @param cookie
    * @param result
    */
-  public TimestampAnnotatorTest(int offset, TimestampsCookie cookie,
-      List<String> result) {
-    this.offset = offset;
-    this.cookie = cookie;
+  public TimestampAnnotatorTest(int offset, List<String> result) {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    this.formatter = new TimestampFormatter("S", "", request);
 
-    this.resultNoTimestamps = new ArrayList<String>();
+    this.offset = offset;
+
+    this.expectedResultNoTimestamps = new ArrayList<String>(result.size());
     for (String line : result) {
-      resultNoTimestamps.add(NUMBER_PATTERN.matcher(line).replaceAll(""));
+      expectedResultNoTimestamps.add(NUMBER_PATTERN.matcher(line)
+          .replaceAll(""));
     }
 
-    this.result = new ArrayList<String>(result.size());
+    this.expectedResult = new ArrayList<String>(result.size());
     for (String line : result) {
-      this.result.add(NUMBER_PATTERN.matcher(line).replaceAll(
+      this.expectedResult.add(NUMBER_PATTERN.matcher(line).replaceAll(
           TimestamperTestAssistant.span("$0")));
     }
   }
@@ -166,7 +154,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testAnnotate() throws Exception {
     writeTimestamps();
-    assertThat(annotate(offset, false), is(result));
+    assertThat(annotate(offset, false), is(expectedResult));
   }
 
   /**
@@ -175,7 +163,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testAnnotateNegativeOffset() throws Exception {
     writeTimestamps();
-    assertThat(annotateNegativeOffset(offset, false), is(result));
+    assertThat(annotateNegativeOffset(offset, false), is(expectedResult));
   }
 
   /**
@@ -184,7 +172,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testAnnotateWithSerialization() throws Exception {
     writeTimestamps();
-    assertThat(annotate(offset, true), is(result));
+    assertThat(annotate(offset, true), is(expectedResult));
   }
 
   /**
@@ -193,7 +181,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testAnnotateNegativeOffsetWithSerialization() throws Exception {
     writeTimestamps();
-    assertThat(annotateNegativeOffset(offset, true), is(result));
+    assertThat(annotateNegativeOffset(offset, true), is(expectedResult));
   }
 
   /**
@@ -201,7 +189,8 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestamps() {
     List<String> annotated = annotate(offset, false);
-    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
+    assertThat(annotated,
+        is(expectedResultNoTimestamps.subList(0, annotated.size())));
   }
 
   /**
@@ -209,7 +198,8 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestampsNegativeOffset() {
     List<String> annotated = annotateNegativeOffset(offset, false);
-    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
+    assertThat(annotated,
+        is(expectedResultNoTimestamps.subList(0, annotated.size())));
   }
 
   /**
@@ -217,7 +207,8 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestampsWithSerialization() {
     List<String> annotated = annotate(offset, true);
-    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
+    assertThat(annotated,
+        is(expectedResultNoTimestamps.subList(0, annotated.size())));
   }
 
   /**
@@ -225,7 +216,8 @@ public class TimestampAnnotatorTest {
   @Test
   public void testNoTimestampsNegativeOffsetWithSerialization() {
     List<String> annotated = annotateNegativeOffset(offset, true);
-    assertThat(annotated, is(resultNoTimestamps.subList(0, annotated.size())));
+    assertThat(annotated,
+        is(expectedResultNoTimestamps.subList(0, annotated.size())));
   }
 
   private void writeTimestamps() throws Exception {
@@ -241,8 +233,7 @@ public class TimestampAnnotatorTest {
 
   @SuppressWarnings("rawtypes")
   private List<String> annotate(int offset, boolean serializeAnnotator) {
-    ConsoleAnnotator annotator = new TimestampAnnotator(settings, offset,
-        cookie);
+    ConsoleAnnotator annotator = new TimestampAnnotator(formatter, offset);
     return annotate(offset, annotator, serializeAnnotator);
   }
 
@@ -250,8 +241,8 @@ public class TimestampAnnotatorTest {
   private List<String> annotateNegativeOffset(int offset,
       boolean serializeAnnotator) {
     long negativeOffset = offset - build.getLogFile().length();
-    ConsoleAnnotator annotator = new TimestampAnnotator(settings,
-        negativeOffset, cookie);
+    ConsoleAnnotator annotator = new TimestampAnnotator(formatter,
+        negativeOffset);
     return annotate(offset, annotator, serializeAnnotator);
   }
 

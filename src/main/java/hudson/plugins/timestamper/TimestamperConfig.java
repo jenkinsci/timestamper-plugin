@@ -29,10 +29,13 @@ import hudson.model.Descriptor;
 
 import java.text.SimpleDateFormat;
 
+import javax.servlet.http.HttpServletRequest;
+
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Objects;
@@ -48,13 +51,13 @@ import com.google.common.base.Supplier;
 @Extension
 public class TimestamperConfig extends GlobalConfiguration {
 
-  private static Supplier<Settings> settingsSupplier = new Supplier<Settings>() {
-
-    public Settings get() {
+  private static Supplier<TimestampFormatter> formatterSupplier = new Supplier<TimestampFormatter>() {
+    public TimestampFormatter get() {
       TimestamperConfig config = GlobalConfiguration.all().get(
           TimestamperConfig.class);
-      return new Settings(config.getTimestampFormat(),
-          config.getElapsedTimeFormat());
+      HttpServletRequest request = Stapler.getCurrentRequest();
+      return new TimestampFormatter(config.getSystemTimeFormat(),
+          config.getElapsedTimeFormat(), request);
     }
   };
 
@@ -92,7 +95,7 @@ public class TimestamperConfig extends GlobalConfiguration {
    * 
    * @return the system clock time format
    */
-  public String getTimestampFormat() {
+  public String getSystemTimeFormat() {
     return Objects.firstNonNull(timestampFormat, DEFAULT_TIMESTAMP_FORMAT);
   }
 
@@ -137,11 +140,11 @@ public class TimestamperConfig extends GlobalConfiguration {
   }
 
   /**
-   * Get the currently configured global Timestamper settings.
+   * Get a time-stamp formatter based on the current settings.
    * 
-   * @return the Timestamper settings
+   * @return a time-stamp formatter
    */
-  public static Settings settings() {
-    return settingsSupplier.get();
+  public static TimestampFormatter formatter() {
+    return formatterSupplier.get();
   }
 }
