@@ -65,7 +65,8 @@ function onClick(elements) {
 function setCookie(cookie) {
     var d = new Date();
     d.setTime(d.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    document.cookie = cookieName + '=' + cookie + ";expires=" + d.toGMTString();
+    var attributes = "; path=/; expires=" + d.toGMTString();
+    document.cookie = cookieName + '=' + cookie + attributes;
 }
 
 function getCookie() {
