@@ -23,6 +23,8 @@
  */
 package hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory
 
+def f=namespace(lib.FormTagLib)
+
 table(class:"pane") {
   tr {
     td(class:"pane-header") {
@@ -32,17 +34,11 @@ table(class:"pane") {
   tr {
     td {
       form {
-        input(type:"radio", name:"timestamps", id:"timestamper-systemTime") {
-          raw(_("System clock time"))
-        }
+        f.radio(name:"timestamps", id:"timestamper-systemTime", title:_("System clock time"))
         br()
-        input(type:"radio", name:"timestamps", id:"timestamper-elapsedTime") {
-          raw(_("Elapsed time"))
-        }
+        f.radio(name:"timestamps", id:"timestamper-elapsedTime", title:_("Elapsed time"))
         br()
-        input(type:"radio", name:"timestamps", id:"timestamper-none") {
-          raw(_("None"))
-        }
+        f.radio(name:"timestamps", id:"timestamper-none", title:_("None"))
       }
     }
   }
