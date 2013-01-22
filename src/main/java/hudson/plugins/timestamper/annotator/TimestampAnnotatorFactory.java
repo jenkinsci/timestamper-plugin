@@ -62,12 +62,16 @@ public final class TimestampAnnotatorFactory extends
    * @return the offset in bytes
    */
   private static long getOffset(StaplerRequest request) {
-    String pathInfo = request.getPathInfo();
-    if (pathInfo.endsWith("/consoleFull")) {
+    String path = request.getPathInfo();
+    if (path == null) {
+      // JENKINS-16438
+      path = request.getServletPath();
+    }
+    if (path.endsWith("/consoleFull")) {
       // Displaying the full log of a completed build.
       return 0;
     }
-    if (pathInfo.endsWith("/console")) {
+    if (path.endsWith("/console")) {
       // Displaying the tail of the log of a completed build.
       // This duplicates code found in /hudson/model/Run/console.jelly
       // TODO: Ask Jenkins for the console tail size instead.
