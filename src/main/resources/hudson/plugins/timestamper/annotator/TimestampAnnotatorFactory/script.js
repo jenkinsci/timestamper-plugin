@@ -46,9 +46,9 @@ function init() {
     }
 
     for (var key in elements) {
-        elements[key].addEventListener('click', function() {
+        elements[key].observe('click', function() {
             onClick(elements);
-        }, false);
+        });
     }
 }
 
