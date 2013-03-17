@@ -67,6 +67,12 @@ public final class TimestampFormatter implements Serializable {
    */
   public TimestampFormatter(String systemTimeFormat, String elapsedTimeFormat,
       HttpServletRequest request) {
+    if (request == null) {
+      // JENKINS-16778: The request can be null when the slave goes off-line.
+      formatTimestamp = null;
+      return;
+    }
+
     String cookieValue = null;
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
@@ -97,6 +103,9 @@ public final class TimestampFormatter implements Serializable {
    *          the time-stamp to format
    */
   public void markup(MarkupText text, Timestamp timestamp) {
+    if (formatTimestamp == null) {
+      return;
+    }
     String timestampString = formatTimestamp.apply(timestamp);
     // Wrap the time-stamp in a span element, which is used to detect the
     // time-stamp when inspecting the page with Javascript.

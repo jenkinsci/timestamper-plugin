@@ -35,8 +35,6 @@ import hudson.tasks._ant.AntTargetNote;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
@@ -64,33 +62,47 @@ public class TimestampFormatterTest {
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        { Collections.singletonList("system"), "00:00:42 ", "08:00:42 " },
-        { Collections.singletonList("elapsed"), "00.123 ", "00.123 " },
-        { Collections.singletonList("none"), "", "" },
-        { Collections.emptyList(), "00:00:42 ", "08:00:42 " },
-        { null, "00:00:42 ", "08:00:42 " } });
+        { request("system"), span("00:00:42 "), span("08:00:42 ") },
+        { request("elapsed"), span("00.123 "), span("00.123 ") },
+        { request("none"), span(""), span("") },
+        { request(), span("00:00:42 "), span("08:00:42 ") },
+        { request((String[]) null), span("00:00:42 "), span("08:00:42 ") },
+        { null, "", "" } });
   }
 
-  private List<String> cookieValues;
+  private static HttpServletRequest request(String... cookieValues) {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    Cookie[] cookies = null;
+    if (cookieValues != null) {
+      cookies = new Cookie[cookieValues.length];
+      for (int i = 0; i < cookieValues.length; i++) {
+        cookies[i] = new Cookie("jenkins-timestamper", cookieValues[i]);
+      }
+    }
+    when(request.getCookies()).thenReturn(cookies);
+    return request;
+  }
 
-  private String timestampString;
+  private HttpServletRequest request;
 
-  private String timestampStringInDifferentTimezone;
+  private String prefix;
+
+  private String prefixInDifferentTimezone;
 
   private TimeZone systemDefaultTimeZone;
 
   private boolean serialize;
 
   /**
-   * @param cookieValues
-   * @param timestampString
-   * @param timestampStringInDifferentTimezone
+   * @param request
+   * @param prefix
+   * @param prefixInDifferentTimezone
    */
-  public TimestampFormatterTest(List<String> cookieValues,
-      String timestampString, String timestampStringInDifferentTimezone) {
-    this.cookieValues = cookieValues;
-    this.timestampString = timestampString;
-    this.timestampStringInDifferentTimezone = timestampStringInDifferentTimezone;
+  public TimestampFormatterTest(HttpServletRequest request, String prefix,
+      String prefixInDifferentTimezone) {
+    this.request = request;
+    this.prefix = prefix;
+    this.prefixInDifferentTimezone = prefixInDifferentTimezone;
   }
 
   /**
@@ -114,8 +126,7 @@ public class TimestampFormatterTest {
    */
   @Test
   public void testMarkup() {
-    assertThat(markup("line").toString(true),
-        is(span(timestampString) + "line"));
+    assertThat(markup("line").toString(true), is(prefix + "line"));
   }
 
   /**
@@ -123,8 +134,7 @@ public class TimestampFormatterTest {
   @Test
   public void testMarkupAfterSerialization() {
     serialize = true;
-    assertThat(markup("line").toString(true),
-        is(span(timestampString) + "line"));
+    assertThat(markup("line").toString(true), is(prefix + "line"));
   }
 
   /**
@@ -132,8 +142,8 @@ public class TimestampFormatterTest {
   @Test
   public void testMarkupElapsedTimeWithDifferentTimeZone() {
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
-    assertThat(markup("line").toString(true),
-        is(span(timestampStringInDifferentTimezone) + "line"));
+    assertThat(markup("line").toString(true), is(prefixInDifferentTimezone
+        + "line"));
   }
 
   /**
@@ -142,8 +152,8 @@ public class TimestampFormatterTest {
   public void testMarkupElapsedTimeWithDifferentTimeZoneAfterSerialization() {
     serialize = true;
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
-    assertThat(markup("line").toString(true),
-        is(span(timestampStringInDifferentTimezone) + "line"));
+    assertThat(markup("line").toString(true), is(prefixInDifferentTimezone
+        + "line"));
   }
 
   /**
@@ -151,7 +161,7 @@ public class TimestampFormatterTest {
   @Test
   public void testMarkupThenAntTargetNote() {
     assertThat(annotate(markup("target:"), new AntTargetNote()).toString(true),
-        is(span(timestampString) + "<b class=ant-target>target</b>:"));
+        is(prefix + "<b class=ant-target>target</b>:"));
   }
 
   /**
@@ -160,7 +170,7 @@ public class TimestampFormatterTest {
   public void testMarkupThenAntTargetNoteAfterSerialization() {
     serialize = true;
     assertThat(annotate(markup("target:"), new AntTargetNote()).toString(true),
-        is(span(timestampString) + "<b class=ant-target>target</b>:"));
+        is(prefix + "<b class=ant-target>target</b>:"));
   }
 
   /**
@@ -168,7 +178,7 @@ public class TimestampFormatterTest {
   @Test
   public void testAntTargetNoteThenMarkup() {
     assertThat(markup(annotate("target:", new AntTargetNote())).toString(true),
-        is(span(timestampString) + "<b class=ant-target>target</b>:"));
+        is(prefix + "<b class=ant-target>target</b>:"));
   }
 
   /**
@@ -177,7 +187,7 @@ public class TimestampFormatterTest {
   public void testAntTargetNoteThenMarkupAfterSerialization() {
     serialize = true;
     assertThat(markup(annotate("target:", new AntTargetNote())).toString(true),
-        is(span(timestampString) + "<b class=ant-target>target</b>:"));
+        is(prefix + "<b class=ant-target>target</b>:"));
   }
 
   private MarkupText markup(String text) {
@@ -185,15 +195,6 @@ public class TimestampFormatterTest {
   }
 
   private MarkupText markup(MarkupText markupText) {
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    Cookie[] cookies = null;
-    if (cookieValues != null) {
-      cookies = new Cookie[cookieValues.size()];
-      for (int i = 0; i < cookieValues.size(); i++) {
-        cookies[i] = new Cookie("jenkins-timestamper", cookieValues.get(i));
-      }
-    }
-    when(request.getCookies()).thenReturn(cookies);
     TimestampFormatter formatter = new TimestampFormatter("HH:mm:ss ", "ss.S ",
         request);
     if (serialize) {
