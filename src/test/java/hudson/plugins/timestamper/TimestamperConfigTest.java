@@ -97,7 +97,7 @@ public class TimestamperConfigTest {
   @Test
   public void testSetSystemTimeFormat() {
     TimestamperConfig config = new TimestamperConfig();
-    config.setTimestampFormat(customSystemTimeFormat);
+    config.setSystemTimeFormat(customSystemTimeFormat);
     assertThat(config.getSystemTimeFormat(), is(customSystemTimeFormat));
   }
 
@@ -115,7 +115,7 @@ public class TimestamperConfigTest {
   @Test
   public void testSetSystemTimeFormatEmpty() {
     TimestamperConfig config = new TimestamperConfig();
-    config.setTimestampFormat("");
+    config.setSystemTimeFormat("");
     assertThat(config.getSystemTimeFormat(), is(""));
   }
 
@@ -141,7 +141,7 @@ public class TimestamperConfigTest {
   @Test
   public void testToXmlCustomSystemTimeFormat() {
     TimestamperConfig config = new TimestamperConfig();
-    config.setTimestampFormat(customSystemTimeFormat);
+    config.setSystemTimeFormat(customSystemTimeFormat);
     assertThat(toXml(config), is(xml(customSystemTimeFormat, null)));
   }
 

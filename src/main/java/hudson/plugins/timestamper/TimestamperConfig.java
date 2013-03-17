@@ -105,7 +105,7 @@ public class TimestamperConfig extends GlobalConfiguration {
    * @param timestampFormat
    *          the system clock time format in {@link SimpleDateFormat} pattern
    */
-  public void setTimestampFormat(String timestampFormat) {
+  public void setSystemTimeFormat(String timestampFormat) {
     this.timestampFormat = timestampFormat;
   }
 
