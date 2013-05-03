@@ -62,6 +62,10 @@ public final class TimestampAnnotatorFactory extends
    * @return the offset in bytes
    */
   private static long getOffset(StaplerRequest request) {
+    // Rare case where a Jenkins slave is put offline, while build job is still running
+    if (null == request) {
+        return 0;
+    }
     String path = request.getPathInfo();
     if (path == null) {
       // JENKINS-16438
