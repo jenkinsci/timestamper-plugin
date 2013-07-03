@@ -25,14 +25,7 @@ package hudson.plugins.timestamper;
 
 import hudson.model.Run;
 
-import java.io.BufferedInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -277,6 +270,7 @@ public class TimestampsIO {
     public Timestamp find(long consoleFilePointerToFind, Run<?, ?> build)
         throws IOException {
       BufferedInputStream logInputStream = null;
+      RandomAccessFile raf = openTimestampsFile();
       try {
         Timestamp found;
         boolean previousNewLine = true;
@@ -291,7 +285,7 @@ public class TimestampsIO {
           for (int i = 0; i < bytesRead; i++) {
             boolean newLine = buffer[i] == 0x0A;
             if (previousNewLine) {
-              found = next();
+              found = next(raf);
             } else {
               found = null;
             }
@@ -304,6 +298,7 @@ public class TimestampsIO {
         }
       } finally {
         Closeables.closeQuietly(logInputStream);
+        closeQuietly(raf);
       }
     }
 
@@ -314,34 +309,47 @@ public class TimestampsIO {
      * @throws IOException
      */
     public Timestamp next() throws IOException {
-      if (!timestampsFile.isFile() || filePointer >= timestampsFile.length()) {
-        return null;
+      RandomAccessFile raf = openTimestampsFile();
+      try {
+        return next(raf);
+      } finally {
+        closeQuietly(raf);
       }
-      final RandomAccessFile raf = new RandomAccessFile(timestampsFile, "r");
+    }
+
+    /**
+     * Read the next time-stamp by using an existing
+     */
+    public Timestamp next(final RandomAccessFile raf) throws IOException {
+      if (raf == null) return null;
       ByteReader byteReader = new ByteReader() {
         public byte readByte() throws IOException {
           return raf.readByte();
         }
       };
-      try {
-        raf.seek(filePointer);
 
-        long elapsedMillisDiff = readVarint(byteReader);
-        elapsedMillis += elapsedMillisDiff;
+      raf.seek(filePointer);
 
-        timeShifts = readTimeShifts();
-        if (timeShifts.containsKey(Long.valueOf(entry))) {
-          millisSinceEpoch = timeShifts.get(Long.valueOf(entry)).longValue();
-        } else {
-          millisSinceEpoch += elapsedMillisDiff;
-        }
+      long elapsedMillisDiff = readVarint(byteReader);
+      elapsedMillis += elapsedMillisDiff;
 
-        filePointer = raf.getFilePointer();
-        entry++;
-        return new Timestamp(elapsedMillis, millisSinceEpoch);
-      } finally {
-        closeQuietly(raf);
+      timeShifts = readTimeShifts();
+      if (timeShifts.containsKey(Long.valueOf(entry))) {
+        millisSinceEpoch = timeShifts.get(Long.valueOf(entry)).longValue();
+      } else {
+        millisSinceEpoch += elapsedMillisDiff;
       }
+
+      filePointer = raf.getFilePointer();
+      entry++;
+      return new Timestamp(elapsedMillis, millisSinceEpoch);
+    }
+
+    private RandomAccessFile openTimestampsFile() throws FileNotFoundException {
+      if (!timestampsFile.isFile() || filePointer >= timestampsFile.length()) {
+        return null;
+      }
+      return new RandomAccessFile(timestampsFile, "r");
     }
 
     private Map<Long, Long> readTimeShifts() throws IOException {
