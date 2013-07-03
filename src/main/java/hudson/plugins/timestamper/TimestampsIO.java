@@ -278,7 +278,7 @@ public class TimestampsIO {
         throws IOException {
       BufferedInputStream logInputStream = null;
       try {
-        Timestamp found = null;
+        Timestamp found;
         boolean previousNewLine = true;
         byte[] buffer = new byte[1024];
         long bytesReadTotal = 0;
@@ -290,7 +290,7 @@ public class TimestampsIO {
           }
           for (int i = 0; i < bytesRead; i++) {
             boolean newLine = buffer[i] == 0x0A;
-            if (previousNewLine && !newLine) {
+            if (previousNewLine) {
               found = next();
             } else {
               found = null;
