@@ -137,13 +137,7 @@ public class TimestampsIO {
       writeVarint(elapsedMillisDiff);
       writeBufferTo(timestampsFile);
       if (times > 1) {
-        Arrays.fill(buffer, (byte) 0);
-        int toWrite = times - 1;
-        while (toWrite > 0) {
-          bufferOffset = Math.min(toWrite, buffer.length);
-          toWrite -= bufferOffset;
-          writeBufferTo(timestampsFile);
-        }
+        writeZero(times - 1);
       }
       previousElapsedMillis = elapsedMillis;
 
@@ -161,6 +155,18 @@ public class TimestampsIO {
       }
 
       entry += times;
+    }
+
+    /**
+     * Write n bytes of 0.
+     */
+    private void writeZero(int n) throws IOException {
+      Arrays.fill(buffer, (byte) 0);
+      while (n > 0) {
+        bufferOffset = Math.min(n, buffer.length);
+        n -= bufferOffset;
+        writeBufferTo(timestampsFile);
+      }
     }
 
     /**
