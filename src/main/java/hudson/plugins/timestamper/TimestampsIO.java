@@ -334,8 +334,8 @@ public class TimestampsIO {
       elapsedMillis += elapsedMillisDiff;
 
       timeShifts = readTimeShifts();
-      if (timeShifts.containsKey(Long.valueOf(entry))) {
-        millisSinceEpoch = timeShifts.get(Long.valueOf(entry)).longValue();
+      if (timeShifts.containsKey(entry)) {
+        millisSinceEpoch = timeShifts.get(entry);
       } else {
         millisSinceEpoch += elapsedMillisDiff;
       }
@@ -378,7 +378,7 @@ public class TimestampsIO {
         while (bytesRead.longValue() < timeShiftsFileLength) {
           long entry = readVarint(byteReader);
           long shift = readVarint(byteReader);
-          timeShifts.put(Long.valueOf(entry), Long.valueOf(shift));
+          timeShifts.put(entry, shift);
         }
       } finally {
         Closeables.closeQuietly(inputStream);
