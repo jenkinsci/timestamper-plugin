@@ -77,8 +77,7 @@ public final class Timestamp {
    */
   @Override
   public int hashCode() {
-    return Objects.hashCode(Long.valueOf(elapsedMillis),
-        Long.valueOf(millisSinceEpoch));
+    return Objects.hashCode(elapsedMillis,millisSinceEpoch);
   }
 
   /**
