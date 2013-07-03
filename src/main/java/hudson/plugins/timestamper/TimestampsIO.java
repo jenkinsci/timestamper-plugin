@@ -413,7 +413,7 @@ public class TimestampsIO {
      * Equivalent to {@link RandomAccessFile#close()}, except any exceptions
      * will be ignored. This is typically used in finally blocks.
      * 
-     * @param input
+     * @param raf
      *          the file to close, may be null or already closed
      */
     private static void closeQuietly(RandomAccessFile raf) {
