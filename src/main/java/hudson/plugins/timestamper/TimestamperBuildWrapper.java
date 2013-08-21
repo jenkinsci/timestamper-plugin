@@ -187,7 +187,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
       writeTimestamps(b, off, len);
-      delegate.write(b, 0, len);
+      delegate.write(b, off, len);
     }
 
     private void writeTimestamps(byte[] b, int off, int len) throws IOException {
