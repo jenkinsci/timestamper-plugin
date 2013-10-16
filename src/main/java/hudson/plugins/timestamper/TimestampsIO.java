@@ -171,23 +171,13 @@ public class TimestampsIO {
     }
 
     /**
-     * Write a value to the {@link #buffer} as a Base 128 Varint. See:
-     * https://developers.google.com/protocol-buffers/docs/encoding#varints
+     * Write a value to the {@link #buffer} as a Base 128 Varint.
      * 
      * @param value
      * @throws IOException
      */
     private void writeVarint(long value) throws IOException {
-      while (true) {
-        if ((value & ~0x7FL) == 0) {
-          buffer[bufferOffset] = (byte) value;
-          bufferOffset++;
-          return;
-        }
-        buffer[bufferOffset] = (byte) (((int) value & 0x7F) | 0x80);
-        bufferOffset++;
-        value >>>= 7;
-      }
+      bufferOffset = Varint.write(value, buffer, bufferOffset);
     }
 
     /**
@@ -331,7 +321,7 @@ public class TimestampsIO {
     private Timestamp next(final RandomAccessFile raf) throws IOException {
       if (raf == null)
         return null;
-      ByteReader byteReader = new ByteReader() {
+      Varint.ByteReader byteReader = new Varint.ByteReader() {
         public byte readByte() throws IOException {
           return raf.readByte();
         }
@@ -339,7 +329,7 @@ public class TimestampsIO {
 
       raf.seek(filePointer);
 
-      long elapsedMillisDiff = readVarint(byteReader);
+      long elapsedMillisDiff = Varint.read(byteReader);
       elapsedMillis += elapsedMillisDiff;
 
       timeShifts = readTimeShifts();
@@ -372,7 +362,7 @@ public class TimestampsIO {
       final BufferedInputStream inputStream = new BufferedInputStream(
           new FileInputStream(timeShiftsFile));
       final MutableLong bytesRead = new MutableLong();
-      ByteReader byteReader = new ByteReader() {
+      Varint.ByteReader byteReader = new Varint.ByteReader() {
         public byte readByte() throws IOException {
           int b = inputStream.read();
           if (b == -1) {
@@ -385,35 +375,14 @@ public class TimestampsIO {
       Map<Long, Long> timeShifts = new HashMap<Long, Long>();
       try {
         while (bytesRead.longValue() < timeShiftsFileLength) {
-          long entry = readVarint(byteReader);
-          long shift = readVarint(byteReader);
+          long entry = Varint.read(byteReader);
+          long shift = Varint.read(byteReader);
           timeShifts.put(entry, shift);
         }
       } finally {
         Closeables.closeQuietly(inputStream);
       }
       return timeShifts;
-    }
-
-    /**
-     * Read a value as a Base 128 Varint. See:
-     * https://developers.google.com/protocol-buffers/docs/encoding#varints
-     * 
-     * @param byteReader
-     * @throws IOException
-     */
-    private long readVarint(ByteReader byteReader) throws IOException {
-      int shift = 0;
-      long result = 0;
-      while (shift < 64) {
-        final byte b = byteReader.readByte();
-        result |= (long) (b & 0x7F) << shift;
-        if ((b & 0x80) == 0) {
-          return result;
-        }
-        shift += 7;
-      }
-      throw new IOException("Malformed varint");
     }
 
     /**
@@ -434,10 +403,6 @@ public class TimestampsIO {
         // ignore
       }
     }
-  }
-
-  private static interface ByteReader {
-    byte readByte() throws IOException;
   }
 
   private TimestampsIO() {
