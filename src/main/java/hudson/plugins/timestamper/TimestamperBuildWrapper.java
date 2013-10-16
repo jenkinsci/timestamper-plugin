@@ -35,6 +35,8 @@ import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -48,6 +50,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @since 1.0
  */
 public final class TimestamperBuildWrapper extends BuildWrapper {
+
+  private static final Logger LOGGER = Logger
+      .getLogger(TimestamperBuildWrapper.class.getName());
 
   /**
    * Create a new {@link TimestamperBuildWrapper}.
@@ -78,7 +83,12 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     if (Boolean.getBoolean(TimestampNote.getSystemProperty())) {
       return new TimestampNotesOutputStream(logger);
     }
-    return new TimestamperOutputStream(logger, build);
+    try {
+      logger = new TimestamperOutputStream(logger, build);
+    } catch (IOException ex) {
+      LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+    }
+    return logger;
   }
 
   /**
@@ -156,8 +166,10 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
      *          the delegate output stream
      * @param build
      *          the build
+     * @throws IOException
      */
-    TimestamperOutputStream(OutputStream delegate, Run<?, ?> build) {
+    TimestamperOutputStream(OutputStream delegate, Run<?, ?> build)
+        throws IOException {
       this.delegate = delegate;
       this.timestampsWriter = new TimestampsIO.Writer(build);
     }

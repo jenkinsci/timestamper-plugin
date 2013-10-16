@@ -77,11 +77,11 @@ public class TimestampsIO {
    */
   public static class Writer {
 
-    private final File timestampsFile;
+    private final FileOutputStream timestampsOutput;
 
     private final File timeShiftsFile;
 
-    private final Map<File, FileOutputStream> outputStreams = new HashMap<File, FileOutputStream>();
+    private FileOutputStream timeShiftsOutput;
 
     private long entry;
 
@@ -100,9 +100,13 @@ public class TimestampsIO {
      * Create a time-stamps writer for the given build.
      * 
      * @param build
+     * @throws IOException
      */
-    public Writer(Run<?, ?> build) {
-      this.timestampsFile = timestampsFile(build);
+    public Writer(Run<?, ?> build) throws IOException {
+      File timestampsFile = timestampsFile(build);
+      Files.createParentDirs(timestampsFile);
+      this.timestampsOutput = new FileOutputStream(timestampsFile);
+
       this.timeShiftsFile = timeShiftsFile(build);
       this.previousCurrentTimeMillis = build.getTimeInMillis();
     }
@@ -130,9 +134,9 @@ public class TimestampsIO {
       }
       long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(nanoTime - startNanos);
       long elapsedMillisDiff = elapsedMillis - previousElapsedMillis;
-      writeVarintsTo(timestampsFile, elapsedMillisDiff);
+      writeVarintsTo(timestampsOutput, elapsedMillisDiff);
       if (times > 1) {
-        writeZero(times - 1);
+        writeZeroTo(timestampsOutput, times - 1);
       }
       previousElapsedMillis = elapsedMillis;
 
@@ -141,7 +145,10 @@ public class TimestampsIO {
       long timeMillisDiff = currentTimeMillis - expectedTimeMillis;
       if (Math.abs(timeMillisDiff) > 1000) {
         LOGGER.log(Level.FINE, "Time shift: " + timeMillisDiff);
-        writeVarintsTo(timeShiftsFile, entry, currentTimeMillis);
+        if (timeShiftsOutput == null) {
+          timeShiftsOutput = new FileOutputStream(timeShiftsFile);
+        }
+        writeVarintsTo(timeShiftsOutput, entry, currentTimeMillis);
         previousCurrentTimeMillis = currentTimeMillis;
       } else {
         previousCurrentTimeMillis = expectedTimeMillis;
@@ -151,58 +158,45 @@ public class TimestampsIO {
     }
 
     /**
-     * Write each value to the given file as a Base 128 Varint.
+     * Write each value to the given output stream as a Base 128 Varint.
      * 
-     * @param file
+     * @param outputStream
      * @param values
      * @throws IOException
      */
-    private void writeVarintsTo(File file, long... values) throws IOException {
+    private void writeVarintsTo(FileOutputStream outputStream, long... values)
+        throws IOException {
       int offset = 0;
       for (long value : values) {
         offset = Varint.write(value, buffer, offset);
       }
-      writeBufferTo(file, offset);
+      outputStream.write(buffer, 0, offset);
+      outputStream.flush();
     }
 
     /**
-     * Write n bytes of 0.
+     * Write n bytes of 0 to the given output stream.
+     * 
+     * @param outputStream
+     * @param n
      */
-    private void writeZero(int n) throws IOException {
+    private void writeZeroTo(FileOutputStream outputStream, int n)
+        throws IOException {
       Arrays.fill(buffer, (byte) 0);
       while (n > 0) {
         int bytesToWrite = Math.min(n, buffer.length);
         n -= bytesToWrite;
-        writeBufferTo(timestampsFile, bytesToWrite);
+        outputStream.write(buffer, 0, bytesToWrite);
+        outputStream.flush();
       }
-    }
-
-    /**
-     * Write the first {@code length} bytes from the {@link #buffer} to the
-     * given file.
-     * 
-     * @param file
-     * @param length
-     * @throws IOException
-     */
-    private void writeBufferTo(File file, int length) throws IOException {
-      FileOutputStream outputStream = outputStreams.get(file);
-      if (outputStream == null) {
-        Files.createParentDirs(file);
-        outputStream = new FileOutputStream(file);
-        outputStreams.put(file, outputStream);
-      }
-      outputStream.write(buffer, 0, length);
-      outputStream.flush();
     }
 
     /**
      * Close this writer.
      */
     public void close() {
-      for (FileOutputStream outputStream : outputStreams.values()) {
-        Closeables.closeQuietly(outputStream);
-      }
+      Closeables.closeQuietly(timestampsOutput);
+      Closeables.closeQuietly(timeShiftsOutput);
     }
   }
 
