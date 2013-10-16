@@ -159,6 +159,16 @@ public class TimestampsIO {
     }
 
     /**
+     * Write a value to the {@link #buffer} as a Base 128 Varint.
+     * 
+     * @param value
+     * @throws IOException
+     */
+    private void writeVarint(long value) throws IOException {
+      bufferOffset = Varint.write(value, buffer, bufferOffset);
+    }
+
+    /**
      * Write n bytes of 0.
      */
     private void writeZero(int n) throws IOException {
@@ -168,16 +178,6 @@ public class TimestampsIO {
         n -= bufferOffset;
         writeBufferTo(timestampsFile);
       }
-    }
-
-    /**
-     * Write a value to the {@link #buffer} as a Base 128 Varint.
-     * 
-     * @param value
-     * @throws IOException
-     */
-    private void writeVarint(long value) throws IOException {
-      bufferOffset = Varint.write(value, buffer, bufferOffset);
     }
 
     /**
