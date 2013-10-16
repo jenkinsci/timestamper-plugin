@@ -105,6 +105,10 @@ public class TimestampsIO {
     public Writer(Run<?, ?> build) throws IOException {
       File timestampsFile = timestampsFile(build);
       Files.createParentDirs(timestampsFile);
+      boolean fileCreated = timestampsFile.createNewFile();
+      if (!fileCreated) {
+        throw new IOException("File already exists: " + timestampsFile);
+      }
       this.timestampsOutput = new FileOutputStream(timestampsFile);
 
       this.timeShiftsFile = timeShiftsFile(build);
