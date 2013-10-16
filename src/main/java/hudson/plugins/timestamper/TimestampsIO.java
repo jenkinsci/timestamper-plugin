@@ -90,11 +90,6 @@ public class TimestampsIO {
      */
     private final byte[] buffer = new byte[BUFFER_SIZE];
 
-    /**
-     * Current offset into the {@link #buffer}.
-     */
-    private int bufferOffset;
-
     private long startNanos;
 
     private long previousElapsedMillis;
@@ -135,8 +130,7 @@ public class TimestampsIO {
       }
       long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(nanoTime - startNanos);
       long elapsedMillisDiff = elapsedMillis - previousElapsedMillis;
-      writeVarint(elapsedMillisDiff);
-      writeBufferTo(timestampsFile);
+      writeVarintsTo(timestampsFile, elapsedMillisDiff);
       if (times > 1) {
         writeZero(times - 1);
       }
@@ -147,9 +141,7 @@ public class TimestampsIO {
       long timeMillisDiff = currentTimeMillis - expectedTimeMillis;
       if (Math.abs(timeMillisDiff) > 1000) {
         LOGGER.log(Level.FINE, "Time shift: " + timeMillisDiff);
-        writeVarint(entry);
-        writeVarint(currentTimeMillis);
-        writeBufferTo(timeShiftsFile);
+        writeVarintsTo(timeShiftsFile, entry, currentTimeMillis);
         previousCurrentTimeMillis = currentTimeMillis;
       } else {
         previousCurrentTimeMillis = expectedTimeMillis;
@@ -159,13 +151,18 @@ public class TimestampsIO {
     }
 
     /**
-     * Write a value to the {@link #buffer} as a Base 128 Varint.
+     * Write each value to the given file as a Base 128 Varint.
      * 
-     * @param value
+     * @param file
+     * @param values
      * @throws IOException
      */
-    private void writeVarint(long value) throws IOException {
-      bufferOffset = Varint.write(value, buffer, bufferOffset);
+    private void writeVarintsTo(File file, long... values) throws IOException {
+      int offset = 0;
+      for (long value : values) {
+        offset = Varint.write(value, buffer, offset);
+      }
+      writeBufferTo(file, offset);
     }
 
     /**
@@ -174,28 +171,29 @@ public class TimestampsIO {
     private void writeZero(int n) throws IOException {
       Arrays.fill(buffer, (byte) 0);
       while (n > 0) {
-        bufferOffset = Math.min(n, buffer.length);
-        n -= bufferOffset;
-        writeBufferTo(timestampsFile);
+        int bytesToWrite = Math.min(n, buffer.length);
+        n -= bytesToWrite;
+        writeBufferTo(timestampsFile, bytesToWrite);
       }
     }
 
     /**
-     * Write the contents of {@link #buffer} to the given file.
+     * Write the first {@code length} bytes from the {@link #buffer} to the
+     * given file.
      * 
      * @param file
+     * @param length
      * @throws IOException
      */
-    private void writeBufferTo(File file) throws IOException {
+    private void writeBufferTo(File file, int length) throws IOException {
       FileOutputStream outputStream = outputStreams.get(file);
       if (outputStream == null) {
         Files.createParentDirs(file);
         outputStream = new FileOutputStream(file);
         outputStreams.put(file, outputStream);
       }
-      outputStream.write(buffer, 0, bufferOffset);
+      outputStream.write(buffer, 0, length);
       outputStream.flush();
-      bufferOffset = 0;
     }
 
     /**
