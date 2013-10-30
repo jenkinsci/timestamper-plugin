@@ -426,8 +426,11 @@ public class TimestampsIO {
     File timestamperDir = new File(Joiner.on(' ').join(args));
     System.out.println("timestamps");
     dump(timestampsFile(timestamperDir), 1, System.out);
-    System.out.println("timeshifts");
-    dump(timeShiftsFile(timestamperDir), 2, System.out);
+    File timeShiftsFile = timeShiftsFile(timestamperDir);
+    if (timeShiftsFile.isFile()) {
+      System.out.println("timeshifts");
+      dump(timeShiftsFile(timestamperDir), 2, System.out);
+    }
   }
 
   private static void dump(File file, int columns, PrintStream output)
