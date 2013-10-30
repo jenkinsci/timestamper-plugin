@@ -23,13 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
-import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.lang.mutable.MutableInt;
-
-import com.google.common.base.Joiner;
-import com.google.common.io.Files;
 
 /**
  * Utility class for reading and writing long values in Base 128 Varint format.
@@ -90,31 +84,5 @@ class Varint {
 
   static interface ByteReader {
     byte readByte() throws IOException;
-  }
-
-  /**
-   * Read Varint values from the file path given by the command-line arguments
-   * and output these values to the console. This is intended only for
-   * debugging. It is not invoked by Jenkins.
-   * 
-   * @param args
-   *          the command-line arguments, expected to contain a file path
-   * @throws IOException
-   */
-  public static void main(String... args) throws IOException {
-    File file = new File(Joiner.on(' ').join(args));
-    final byte[] fileContents = Files.toByteArray(file);
-    final MutableInt offset = new MutableInt();
-    ByteReader byteReader = new ByteReader() {
-
-      public byte readByte() throws IOException {
-        byte next = fileContents[offset.intValue()];
-        offset.increment();
-        return next;
-      }
-    };
-    while (offset.intValue() < fileContents.length) {
-      System.out.println(read(byteReader));
-    }
   }
 }

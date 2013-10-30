@@ -24,6 +24,7 @@
 package hudson.plugins.timestamper;
 
 import hudson.model.Run;
+import hudson.plugins.timestamper.Varint.ByteReader;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;
@@ -32,18 +33,23 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.commons.lang.mutable.MutableLong;
 
+import com.google.common.base.Joiner;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
@@ -62,12 +68,12 @@ public class TimestampsIO {
     return new File(build.getRootDir(), "timestamper");
   }
 
-  private static File timestampsFile(Run<?, ?> build) {
-    return new File(timestamperDir(build), "timestamps");
+  private static File timestampsFile(File timestamperDir) {
+    return new File(timestamperDir, "timestamps");
   }
 
-  private static File timeShiftsFile(Run<?, ?> build) {
-    return new File(timestamperDir(build), "timeshifts");
+  private static File timeShiftsFile(File timestamperDir) {
+    return new File(timestamperDir, "timeshifts");
   }
 
   private static final int BUFFER_SIZE = 1024;
@@ -103,7 +109,8 @@ public class TimestampsIO {
      * @throws IOException
      */
     public Writer(Run<?, ?> build) throws IOException {
-      File timestampsFile = timestampsFile(build);
+      File timestamperDir = timestamperDir(build);
+      File timestampsFile = timestampsFile(timestamperDir);
       Files.createParentDirs(timestampsFile);
       boolean fileCreated = timestampsFile.createNewFile();
       if (!fileCreated) {
@@ -111,7 +118,7 @@ public class TimestampsIO {
       }
       this.timestampsOutput = new FileOutputStream(timestampsFile);
 
-      this.timeShiftsFile = timeShiftsFile(build);
+      this.timeShiftsFile = timeShiftsFile(timestamperDir);
       this.previousCurrentTimeMillis = build.getTimeInMillis();
     }
 
@@ -246,8 +253,9 @@ public class TimestampsIO {
      * @param build
      */
     public Reader(Run<?, ?> build) {
-      this.timestampsFile = timestampsFile(build);
-      this.timeShiftsFile = timeShiftsFile(build);
+      File timestamperDir = timestamperDir(build);
+      this.timestampsFile = timestampsFile(timestamperDir);
+      this.timeShiftsFile = timeShiftsFile(timestamperDir);
       this.millisSinceEpoch = build.getTimeInMillis();
     }
 
@@ -399,6 +407,53 @@ public class TimestampsIO {
         // ignore
       }
     }
+  }
+
+  /**
+   * Read the values from the timestamper directory path given by the
+   * command-line arguments and output these values to the console. This is
+   * intended only for debugging. It is not invoked by Jenkins.
+   * 
+   * @param args
+   *          the command-line arguments, expected to contain a timestamper
+   *          directory path
+   * @throws IOException
+   */
+  public static void main(String... args) throws IOException {
+    if (args.length == 0) {
+      throw new IllegalArgumentException("no command-line arguments");
+    }
+    File timestamperDir = new File(Joiner.on(' ').join(args));
+    System.out.println("timestamps");
+    dump(timestampsFile(timestamperDir), 1, System.out);
+    System.out.println("timeshifts");
+    dump(timeShiftsFile(timestamperDir), 2, System.out);
+  }
+
+  private static void dump(File file, int columns, PrintStream output)
+      throws IOException {
+    final byte[] fileContents = Files.toByteArray(file);
+    final MutableInt offset = new MutableInt();
+    ByteReader byteReader = new ByteReader() {
+
+      public byte readByte() throws IOException {
+        byte next = fileContents[offset.intValue()];
+        offset.increment();
+        return next;
+      }
+    };
+    List<Long> values = new ArrayList<Long>();
+    while (offset.intValue() < fileContents.length) {
+      values.add(Varint.read(byteReader));
+      if (values.size() == columns) {
+        output.println(Joiner.on('\t').join(values));
+        values.clear();
+      }
+    }
+    if (!values.isEmpty()) {
+      output.println(Joiner.on('\t').join(values));
+    }
+    output.println();
   }
 
   private TimestampsIO() {
