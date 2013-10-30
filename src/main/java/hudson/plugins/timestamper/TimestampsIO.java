@@ -147,7 +147,7 @@ public class TimestampsIO {
       long elapsedMillisDiff = elapsedMillis - previousElapsedMillis;
       writeVarintsTo(timestampsOutput, elapsedMillisDiff);
       if (times > 1) {
-        writeZeroTo(timestampsOutput, times - 1);
+        writeZerosTo(timestampsOutput, times - 1);
       }
       previousElapsedMillis = elapsedMillis;
 
@@ -191,7 +191,7 @@ public class TimestampsIO {
      * @param outputStream
      * @param n
      */
-    private void writeZeroTo(FileOutputStream outputStream, int n)
+    private void writeZerosTo(FileOutputStream outputStream, int n)
         throws IOException {
       Arrays.fill(buffer, (byte) 0);
       while (n > 0) {
