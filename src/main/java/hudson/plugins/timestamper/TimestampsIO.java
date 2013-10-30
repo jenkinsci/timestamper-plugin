@@ -429,7 +429,7 @@ public class TimestampsIO {
     File timeShiftsFile = timeShiftsFile(timestamperDir);
     if (timeShiftsFile.isFile()) {
       System.out.println("timeshifts");
-      dump(timeShiftsFile(timestamperDir), 2, System.out);
+      dump(timeShiftsFile, 2, System.out);
     }
   }
 
