@@ -48,7 +48,7 @@ import com.google.common.base.Supplier;
  * @author Frederik Fromm
  */
 @Extension
-public class TimestamperConfig extends GlobalConfiguration {
+public final class TimestamperConfig extends GlobalConfiguration {
 
   private static Supplier<TimestampFormatter> formatterSupplier = new Supplier<TimestampFormatter>() {
     public TimestampFormatter get() {

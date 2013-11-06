@@ -41,7 +41,7 @@ import com.google.common.io.Files;
  * 
  * @author Steven G. Brown
  */
-public class TimestampsWriter {
+public final class TimestampsWriter {
 
   private static final Logger LOGGER = Logger.getLogger(TimestampsWriter.class
       .getName());

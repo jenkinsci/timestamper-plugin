@@ -31,7 +31,7 @@ import java.io.IOException;
  * 
  * @author Steven G. Brown
  */
-class Varint {
+final class Varint {
 
   /**
    * Write a value to the given byte array as a Base 128 Varint. See:

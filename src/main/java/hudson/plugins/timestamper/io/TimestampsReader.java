@@ -54,7 +54,7 @@ import com.google.common.io.Files;
  * 
  * @author Steven G. Brown
  */
-public class TimestampsReader implements Serializable {
+public final class TimestampsReader implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
