@@ -28,7 +28,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestampFormatter;
-import hudson.plugins.timestamper.io.TimestampsIO;
+import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -51,7 +51,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
   private final long offset;
 
-  private TimestampsIO.Reader timestampsReader;
+  private TimestampsReader timestampsReader;
 
   /**
    * Create a new {@link TimestampAnnotator}.
@@ -80,7 +80,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
     try {
       if (timestampsReader == null) {
-        timestampsReader = new TimestampsIO.Reader(build);
+        timestampsReader = new TimestampsReader(build);
         return markup(text,
             timestampsReader.find(consoleFilePointer(build), build));
       }

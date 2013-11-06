@@ -53,7 +53,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 
 /**
- * Unit test for the {@link TimestampsIO} class.
+ * Unit test for the {@link TimestampsReader} and {@link TimestampsWriter}
+ * classes.
  * 
  * @author Steven G. Brown
  */
@@ -78,9 +79,9 @@ public class TimestampsIOTest {
       .unmodifiableList(Arrays.asList(timestampOne, timestampTwo,
           timestampThree, timestampFour, timestampFive));
 
-  private static final Function<TimestampsIO.Reader, TimestampsIO.Reader> serializeReader = new Function<TimestampsIO.Reader, TimestampsIO.Reader>() {
-    public TimestampsIO.Reader apply(TimestampsIO.Reader reader) {
-      return (TimestampsIO.Reader) SerializationUtils.clone(reader);
+  private static final Function<TimestampsReader, TimestampsReader> serializeReader = new Function<TimestampsReader, TimestampsReader>() {
+    public TimestampsReader apply(TimestampsReader reader) {
+      return (TimestampsReader) SerializationUtils.clone(reader);
     }
   };
 
@@ -136,7 +137,7 @@ public class TimestampsIOTest {
    */
   @Test
   public void testReadFromStartWhileWriting() throws Exception {
-    testReadFromStartWhileWriting(Functions.<TimestampsIO.Reader> identity());
+    testReadFromStartWhileWriting(Functions.<TimestampsReader> identity());
   }
 
   /**
@@ -148,10 +149,10 @@ public class TimestampsIOTest {
   }
 
   private void testReadFromStartWhileWriting(
-      Function<TimestampsIO.Reader, TimestampsIO.Reader> readerTransformer)
+      Function<TimestampsReader, TimestampsReader> readerTransformer)
       throws Exception {
-    TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
-    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+    TimestampsWriter writer = new TimestampsWriter(build);
+    TimestampsReader reader = new TimestampsReader(build);
     try {
       writeTimestamp(timestampOne, 1, writer);
       reader = readerTransformer.apply(reader);
@@ -176,12 +177,12 @@ public class TimestampsIOTest {
    */
   @Test
   public void testWriteSameTimestampManyTimes() throws Exception {
-    int bufferSize = Whitebox.getField(TimestampsIO.class, "BUFFER_SIZE")
+    int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE")
         .getInt(null);
     int numberOfTimestamps = bufferSize + 1000; // larger than the buffer
     prepareMockBuild(2000);
     Timestamp timestamp = new Timestamp(10000, 10000);
-    TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+    TimestampsWriter writer = new TimestampsWriter(build);
     try {
       writeTimestamp(timestamp, numberOfTimestamps, writer);
     } finally {
@@ -225,7 +226,7 @@ public class TimestampsIOTest {
   @Test
   public void testFindWithinTimestampTwo() throws Exception {
     writeTimestamps();
-    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+    TimestampsReader reader = new TimestampsReader(build);
     assertThat(reader.find(3, build), is(nullValue()));
     assertThat(reader.next(), is(timestampThree));
   }
@@ -236,13 +237,13 @@ public class TimestampsIOTest {
   @Test
   public void testFindPastEnd() throws Exception {
     writeTimestamps();
-    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+    TimestampsReader reader = new TimestampsReader(build);
     assertThat(reader.find(consoleLog.length - 1, build), is(nullValue()));
     assertThat(reader.next(), is(nullValue()));
   }
 
   private void testFind(long consoleFilePointer) throws Exception {
-    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+    TimestampsReader reader = new TimestampsReader(build);
     List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
     timestampsRead.add(reader.find(consoleFilePointer, build));
     for (int i = 0; i < timestamps.size() - consoleFilePointer / 2 - 1; i++) {
@@ -254,7 +255,7 @@ public class TimestampsIOTest {
   }
 
   private void writeTimestamps() throws Exception {
-    TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+    TimestampsWriter writer = new TimestampsWriter(build);
     try {
       writeTimestamp(timestampOne, 1, writer);
       writeTimestamp(timestampTwo, 1, writer);
@@ -266,7 +267,7 @@ public class TimestampsIOTest {
   }
 
   private void writeTimestamp(Timestamp timestamp, int times,
-      TimestampsIO.Writer writer) throws Exception {
+      TimestampsWriter writer) throws Exception {
     long startNanos = 100;
     long nanoTime = TimeUnit.MILLISECONDS.toNanos(timestamp.elapsedMillis)
         + startNanos;

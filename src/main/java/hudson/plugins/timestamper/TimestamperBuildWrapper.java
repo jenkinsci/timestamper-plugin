@@ -30,7 +30,7 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
-import hudson.plugins.timestamper.io.TimestampsIO;
+import hudson.plugins.timestamper.io.TimestampsWriter;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
@@ -147,7 +147,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     /**
      * Writer for the time-stamps.
      */
-    private final TimestampsIO.Writer timestampsWriter;
+    private final TimestampsWriter timestampsWriter;
 
     /**
      * Byte array that is re-used each time the {@link #write(int)} method is
@@ -172,7 +172,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     TimestamperOutputStream(OutputStream delegate, Run<?, ?> build)
         throws IOException {
       this.delegate = delegate;
-      this.timestampsWriter = new TimestampsIO.Writer(build);
+      this.timestampsWriter = new TimestampsWriter(build);
     }
 
     /**

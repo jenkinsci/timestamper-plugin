@@ -32,7 +32,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperTestAssistant;
-import hudson.plugins.timestamper.io.TimestampsIO;
+import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -221,7 +221,7 @@ public class TimestampAnnotatorTest {
   }
 
   private void writeTimestamps() throws Exception {
-    TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+    TimestampsWriter writer = new TimestampsWriter(build);
     try {
       for (int i = 0; i < 3; i++) {
         writer.write(TimeUnit.MILLISECONDS.toNanos(i), i, 1);

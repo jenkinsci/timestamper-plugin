@@ -8,7 +8,7 @@ import hudson.MarkupText;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperTestAssistant;
-import hudson.plugins.timestamper.io.TimestampsIO;
+import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -59,7 +59,7 @@ public class Jenkins17779Test {
     });
     when(build.getLogFile()).thenReturn(consoleLog);
 
-    TimestampsIO.Writer writer = new TimestampsIO.Writer(build);
+    TimestampsWriter writer = new TimestampsWriter(build);
     try {
       for (int i = 0; i < 10; i++) {
         writer.write(TimeUnit.MILLISECONDS.toNanos(i), i, 1);

@@ -24,7 +24,7 @@
 package hudson.plugins.timestamper;
 
 import hudson.model.Run;
-import hudson.plugins.timestamper.io.TimestampsIO;
+import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class TimestamperTestAssistant {
    */
   public static List<Timestamp> readAllTimestamps(Run<?, ?> build)
       throws Exception {
-    return readAllTimestamps(build, Functions.<TimestampsIO.Reader> identity());
+    return readAllTimestamps(build, Functions.<TimestampsReader> identity());
   }
 
   /**
@@ -75,9 +75,9 @@ public class TimestamperTestAssistant {
    * @throws Exception
    */
   public static List<Timestamp> readAllTimestamps(Run<?, ?> build,
-      Function<TimestampsIO.Reader, TimestampsIO.Reader> readerTransformer)
+      Function<TimestampsReader, TimestampsReader> readerTransformer)
       throws Exception {
-    TimestampsIO.Reader reader = new TimestampsIO.Reader(build);
+    TimestampsReader reader = new TimestampsReader(build);
     List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
     for (int i = 0; i < 10000; i++) {
       reader = readerTransformer.apply(reader);
