@@ -68,6 +68,8 @@ import com.google.common.io.Files;
 @RunWith(Parameterized.class)
 public class TimestampAnnotatorTest {
 
+  private static final char NEWLINE = 0x0A;
+
   private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d|\\.)+");
 
   /**
@@ -132,8 +134,8 @@ public class TimestampAnnotatorTest {
    */
   @Before
   public void setUp() throws Exception {
-    final byte[] consoleLogContents = new byte[] { 'a', 'b', 0x0A, 'c', 'd',
-        0x0A, 'e', 'f', 0x0A };
+    final byte[] consoleLogContents = new byte[] { 'a', 'b', NEWLINE, 'c', 'd',
+        NEWLINE, 'e', 'f', NEWLINE };
     File consoleLog = folder.newFile();
     Files.write(consoleLogContents, consoleLog);
     consoleLogLines = Arrays.asList("ab<br>", "b<br>", "<br>", "cd<br>",

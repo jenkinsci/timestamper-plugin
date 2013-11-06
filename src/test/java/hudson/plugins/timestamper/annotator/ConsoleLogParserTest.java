@@ -43,6 +43,8 @@ import org.junit.rules.TemporaryFolder;
  */
 public class ConsoleLogParserTest {
 
+  private static final char NEWLINE = 0x0A;
+
   /**
    */
   @Rule
@@ -57,7 +59,7 @@ public class ConsoleLogParserTest {
   public void setUp() throws Exception {
     Run<?, ?> build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    byte[] consoleLog = new byte[] { 0x61, 0x0A, 0x61, 0x0A };
+    byte[] consoleLog = new byte[] { 0x61, NEWLINE, 0x61, NEWLINE };
     when(build.getLogInputStream()).thenReturn(
         new ByteArrayInputStream(consoleLog));
     consoleLogParser = new ConsoleLogParser(build);
