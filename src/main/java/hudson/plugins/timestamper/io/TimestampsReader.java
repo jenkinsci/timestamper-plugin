@@ -99,46 +99,19 @@ public final class TimestampsReader implements Serializable {
   }
 
   /**
-   * Skip ahead to the time-stamp for the given console log file pointer.
+   * Skip past the given number of time-stamp entries.
    * 
-   * @param consoleFilePointerToFind
-   *          the console log file pointer
-   * @param build
-   *          the build for the console log
-   * @return the time-stamp found at that location
+   * @param count
+   *          the number of time-stamp entries to skip
    * @throws IOException
    */
-  public Timestamp find(long consoleFilePointerToFind, Run<?, ?> build)
-      throws IOException {
-    BufferedInputStream logInputStream = null;
+  public void skip(int count) throws IOException {
     RandomAccessFile raf = openTimestampsFile();
     try {
-      Timestamp found;
-      boolean previousNewLine = true;
-      byte[] buffer = new byte[1024];
-      long bytesReadTotal = 0;
-      logInputStream = new BufferedInputStream(build.getLogInputStream());
-      while (true) {
-        int bytesRead = logInputStream.read(buffer, 0, buffer.length);
-        if (bytesRead == -1) {
-          return null;
-        }
-        for (int i = 0; i < bytesRead; i++) {
-          boolean newLine = buffer[i] == 0x0A;
-          if (previousNewLine) {
-            found = next(raf);
-          } else {
-            found = null;
-          }
-          previousNewLine = newLine;
-          bytesReadTotal++;
-          if (bytesReadTotal > consoleFilePointerToFind) {
-            return found;
-          }
-        }
+      for (int i = 0; i < count; i++) {
+        next(raf);
       }
     } finally {
-      Closeables.closeQuietly(logInputStream);
       closeQuietly(raf);
     }
   }
@@ -162,8 +135,9 @@ public final class TimestampsReader implements Serializable {
    * Read the next time-stamp by using an existing {@link RandomAccessFile}.
    */
   private Timestamp next(final RandomAccessFile raf) throws IOException {
-    if (raf == null)
+    if (raf == null) {
       return null;
+    }
     Varint.ByteReader byteReader = new Varint.ByteReader() {
       public byte readByte() throws IOException {
         return raf.readByte();

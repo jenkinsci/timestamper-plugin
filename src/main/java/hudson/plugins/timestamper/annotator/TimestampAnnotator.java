@@ -79,9 +79,15 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
     try {
       if (timestampsReader == null) {
+        ConsoleLogParser logParser = new ConsoleLogParser(build);
+        logParser.seek(consoleFilePointer(build));
+        if (logParser.endOfFile()) {
+          return null;
+        }
         timestampsReader = new TimestampsReader(build);
-        return markup(text,
-            timestampsReader.find(consoleFilePointer(build), build));
+        timestampsReader.skip(logParser.getLineNumber());
+        Timestamp timestamp = timestampsReader.next();
+        return markup(text, logParser.atNewLine() ? timestamp : null);
       }
       Timestamp timestamp = timestampsReader.next();
       if (timestamp != null) {

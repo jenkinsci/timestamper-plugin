@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,26 +91,13 @@ public class TimestampsIOTest {
 
   private Run<?, ?> build;
 
-  private byte[] consoleLog;
-
   /**
    * @throws Exception
    */
   @Before
   public void setUp() throws Exception {
-    prepareMockBuild(timestamps.size());
-  }
-
-  private void prepareMockBuild(int numberOfTimestamps) throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    consoleLog = new byte[numberOfTimestamps * 2];
-    for (int line = 0; line < numberOfTimestamps; line++) {
-      consoleLog[line * 2] = 0x61;
-      consoleLog[line * 2 + 1] = 0x0A;
-    }
-    when(build.getLogInputStream()).thenReturn(
-        new ByteArrayInputStream(consoleLog));
   }
 
   /**
@@ -180,7 +166,6 @@ public class TimestampsIOTest {
     int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE")
         .getInt(null);
     int numberOfTimestamps = bufferSize + 1000; // larger than the buffer
-    prepareMockBuild(2000);
     Timestamp timestamp = new Timestamp(10000, 10000);
     TimestampsWriter writer = new TimestampsWriter(build);
     try {
@@ -197,60 +182,48 @@ public class TimestampsIOTest {
    * @throws Exception
    */
   @Test
-  public void testFindTimestampOne() throws Exception {
+  public void testSkipZero() throws Exception {
     writeTimestamps();
-    testFind(0);
+    testSkip(0);
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testFindTimestampTwo() throws Exception {
+  public void testSkipOne() throws Exception {
     writeTimestamps();
-    testFind(2);
+    testSkip(1);
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testFindTimestampThree() throws Exception {
+  public void testSkipTwo() throws Exception {
     writeTimestamps();
-    testFind(4);
+    testSkip(2);
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testFindWithinTimestampTwo() throws Exception {
+  public void testSkipPastEnd() throws Exception {
     writeTimestamps();
     TimestampsReader reader = new TimestampsReader(build);
-    assertThat(reader.find(3, build), is(nullValue()));
-    assertThat(reader.next(), is(timestampThree));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testFindPastEnd() throws Exception {
-    writeTimestamps();
-    TimestampsReader reader = new TimestampsReader(build);
-    assertThat(reader.find(consoleLog.length - 1, build), is(nullValue()));
+    reader.skip(timestamps.size());
     assertThat(reader.next(), is(nullValue()));
   }
 
-  private void testFind(long consoleFilePointer) throws Exception {
+  private void testSkip(int count) throws Exception {
     TimestampsReader reader = new TimestampsReader(build);
     List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
-    timestampsRead.add(reader.find(consoleFilePointer, build));
-    for (int i = 0; i < timestamps.size() - consoleFilePointer / 2 - 1; i++) {
+    reader.skip(count);
+    for (int i = 0; i < timestamps.size() - count; i++) {
       timestampsRead.add(reader.next());
     }
-    assertThat(timestampsRead,
-        is(timestamps.subList((int) consoleFilePointer / 2, timestamps.size())));
+    assertThat(timestampsRead, is(timestamps.subList(count, timestamps.size())));
     assertThat(reader.next(), is(nullValue()));
   }
 
