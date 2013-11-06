@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.timestamper;
+package hudson.plugins.timestamper.io;
 
 import static hudson.plugins.timestamper.TimestamperTestAssistant.readAllTimestamps;
 import static org.hamcrest.Matchers.equalTo;
@@ -33,6 +33,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;

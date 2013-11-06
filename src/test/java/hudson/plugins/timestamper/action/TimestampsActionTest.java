@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 import hudson.PluginManager;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampNote;
-import hudson.plugins.timestamper.TimestampsIO;
 import hudson.plugins.timestamper.action.TimestampsActionTest.NoLogFileTest;
 import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampNotesTest;
 import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampWriterTest;
+import hudson.plugins.timestamper.io.TimestampsIO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

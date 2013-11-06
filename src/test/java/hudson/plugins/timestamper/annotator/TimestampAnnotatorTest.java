@@ -32,7 +32,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperTestAssistant;
-import hudson.plugins.timestamper.TimestampsIO;
+import hudson.plugins.timestamper.io.TimestampsIO;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.timestamper;
+package hudson.plugins.timestamper.io;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

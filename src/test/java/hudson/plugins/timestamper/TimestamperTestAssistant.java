@@ -24,6 +24,7 @@
 package hudson.plugins.timestamper;
 
 import hudson.model.Run;
+import hudson.plugins.timestamper.io.TimestampsIO;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.timestamper;
+package hudson.plugins.timestamper.io;
 
 import hudson.model.Run;
-import hudson.plugins.timestamper.Varint.ByteReader;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.io.Varint.ByteReader;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;
