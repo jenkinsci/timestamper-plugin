@@ -48,7 +48,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * Note: The Configuration Slicing Plugin depends on this class.
  * 
  * @author Steven G. Brown
- * @since 1.0
  */
 public final class TimestamperBuildWrapper extends BuildWrapper {
 

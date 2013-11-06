@@ -38,7 +38,6 @@ import java.util.logging.Logger;
  * Inserts formatted time-stamps into the annotated console output.
  * 
  * @author Steven G. Brown
- * @since 1.4
  */
 public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 

@@ -44,7 +44,6 @@ import hudson.plugins.timestamper.action.TimestampsAction;
  * {@link TimestampsAction} instead.
  * 
  * @author Steven G. Brown
- * @since 1.0
  */
 public final class TimestampNote extends ConsoleNote<Object> {
 

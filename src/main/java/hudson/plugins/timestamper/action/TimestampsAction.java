@@ -56,7 +56,6 @@ import com.google.common.io.Closeables;
  * values "seconds" or "milliseconds".
  * 
  * @author Steven G. Brown
- * @since 1.3.2
  */
 public final class TimestampsAction implements Action {
 

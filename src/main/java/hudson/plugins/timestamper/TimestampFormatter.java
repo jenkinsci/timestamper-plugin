@@ -42,7 +42,6 @@ import com.google.common.base.Function;
  * the current settings.
  * 
  * @author Steven G. Brown
- * @since 1.5
  */
 @Immutable
 public final class TimestampFormatter implements Serializable {

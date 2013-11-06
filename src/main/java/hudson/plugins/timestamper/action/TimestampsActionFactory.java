@@ -35,7 +35,6 @@ import java.util.Collections;
  * Provides the {@link TimestampsAction} for each build page.
  * 
  * @author Steven G. Brown
- * @since 1.3.2
  */
 @Extension
 public final class TimestampsActionFactory extends TransientBuildActionFactory {

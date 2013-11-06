@@ -31,7 +31,6 @@ import com.google.common.base.Objects;
  * A time-stamp, consisting of the elapsed time and the clock time.
  * 
  * @author Steven G. Brown
- * @since 1.3.2
  */
 @Immutable
 public final class Timestamp {

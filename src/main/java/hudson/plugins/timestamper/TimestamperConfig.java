@@ -46,7 +46,6 @@ import com.google.common.base.Supplier;
  * Configure System page.
  * 
  * @author Frederik Fromm
- * @since 1.3
  */
 @Extension
 public class TimestamperConfig extends GlobalConfiguration {

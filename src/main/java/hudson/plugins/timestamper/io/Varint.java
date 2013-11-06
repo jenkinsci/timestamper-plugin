@@ -30,7 +30,6 @@ import java.io.IOException;
  * See: https://developers.google.com/protocol-buffers/docs/encoding#varints
  * 
  * @author Steven G. Brown
- * @since 1.5.8
  */
 class Varint {
 
