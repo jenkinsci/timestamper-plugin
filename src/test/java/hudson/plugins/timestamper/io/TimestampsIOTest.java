@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.io;
 
-import static hudson.plugins.timestamper.TimestamperTestAssistant.readAllTimestamps;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -106,7 +105,7 @@ public class TimestampsIOTest {
   @Test
   public void testReadFromStart() throws Exception {
     writeTimestamps();
-    assertThat(readAllTimestamps(build), is(timestamps));
+    assertThat(readAllTimestamps(), is(timestamps));
   }
 
   /**
@@ -115,7 +114,7 @@ public class TimestampsIOTest {
   @Test
   public void testReadFromStartWithSerialization() throws Exception {
     writeTimestamps();
-    assertThat(readAllTimestamps(build, serializeReader), is(timestamps));
+    assertThat(readAllTimestamps(serializeReader), is(timestamps));
   }
 
   /**
@@ -173,7 +172,7 @@ public class TimestampsIOTest {
     } finally {
       writer.close();
     }
-    List<Timestamp> readTimestamps = readAllTimestamps(build);
+    List<Timestamp> readTimestamps = readAllTimestamps();
     assertThat(readTimestamps, everyItem(equalTo(new Timestamp(0, 10000))));
     assertThat(readTimestamps, hasSize(numberOfTimestamps));
   }
@@ -245,5 +244,27 @@ public class TimestampsIOTest {
     long nanoTime = TimeUnit.MILLISECONDS.toNanos(timestamp.elapsedMillis)
         + startNanos;
     writer.write(nanoTime, timestamp.millisSinceEpoch, times);
+  }
+
+  private List<Timestamp> readAllTimestamps() throws Exception {
+    return readAllTimestamps(Functions.<TimestampsReader> identity());
+  }
+
+  private List<Timestamp> readAllTimestamps(
+      Function<TimestampsReader, TimestampsReader> readerTransformer)
+      throws Exception {
+    TimestampsReader reader = new TimestampsReader(build);
+    List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
+    for (int i = 0; i < 10000; i++) {
+      reader = readerTransformer.apply(reader);
+      Timestamp timestamp = reader.next();
+      if (timestamp == null) {
+        return timestampsRead;
+      }
+      timestampsRead.add(timestamp);
+    }
+    throw new IllegalStateException(
+        "time-stamps do not appear to terminate. read so far: "
+            + timestampsRead);
   }
 }

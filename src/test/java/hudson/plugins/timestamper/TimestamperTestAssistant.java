@@ -23,15 +23,6 @@
  */
 package hudson.plugins.timestamper;
 
-import hudson.model.Run;
-import hudson.plugins.timestamper.io.TimestampsReader;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-
 /**
  * Utility methods for use by the Timestamper unit tests.
  * 
@@ -48,47 +39,5 @@ public class TimestamperTestAssistant {
    */
   public static String span(String timestampString) {
     return "<span class=\"timestamp\">" + timestampString + "</span>";
-  }
-
-  /**
-   * Read all time-stamps for the given build.
-   * 
-   * @param build
-   *          the build to inspect
-   * @return the time-stamps
-   * @throws Exception
-   */
-  public static List<Timestamp> readAllTimestamps(Run<?, ?> build)
-      throws Exception {
-    return readAllTimestamps(build, Functions.<TimestampsReader> identity());
-  }
-
-  /**
-   * Read all time-stamps for the given build.
-   * 
-   * @param build
-   *          the build
-   * @param readerTransformer
-   *          function that will be used to transform the time-stamps reader
-   *          prior to each read operation
-   * @return the time-stamps
-   * @throws Exception
-   */
-  public static List<Timestamp> readAllTimestamps(Run<?, ?> build,
-      Function<TimestampsReader, TimestampsReader> readerTransformer)
-      throws Exception {
-    TimestampsReader reader = new TimestampsReader(build);
-    List<Timestamp> timestampsRead = new ArrayList<Timestamp>();
-    for (int i = 0; i < 10000; i++) {
-      reader = readerTransformer.apply(reader);
-      Timestamp timestamp = reader.next();
-      if (timestamp == null) {
-        return timestampsRead;
-      }
-      timestampsRead.add(timestamp);
-    }
-    throw new IllegalStateException(
-        "time-stamps do not appear to terminate. read so far: "
-            + timestampsRead);
   }
 }
