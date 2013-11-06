@@ -23,20 +23,17 @@
  */
 package hudson.plugins.timestamper;
 
-import static hudson.plugins.timestamper.TimestamperTestAssistant.readAllTimestamps;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.model.AbstractBuild;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.After;
@@ -64,13 +61,7 @@ public class TimestamperBuildWrapperTest {
 
   private AbstractBuild<?, ?> build;
 
-  private OutputStream outputStream;
-
-  private OutputStream decoratedOutputStream;
-
-  private byte[] data;
-
-  private byte[] dataTwoLines;
+  private ByteArrayOutputStream outputStream;
 
   /**
    */
@@ -79,10 +70,7 @@ public class TimestamperBuildWrapperTest {
     buildWrapper = new TimestamperBuildWrapper();
     build = mock(AbstractBuild.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    outputStream = mock(OutputStream.class);
-    decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
-    data = new byte[] { 'a', (byte) NEWLINE };
-    dataTwoLines = new byte[] { 'a', (byte) NEWLINE, 'b', (byte) NEWLINE };
+    outputStream = new ByteArrayOutputStream();
   }
 
   /**
@@ -96,100 +84,23 @@ public class TimestamperBuildWrapperTest {
    * @throws Exception
    */
   @Test
-  public void testTimestampNoteSystemProperty() throws Exception {
-    System.setProperty(TimestampNote.getSystemProperty(), "true");
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+  public void testDecorate() throws Exception {
     OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build,
         outputStream);
+    assertThat(decoratedOutputStream, instanceOf(TimestamperOutputStream.class));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testDecorateWithTimestampNoteSystemProperty() throws Exception {
+    System.setProperty(TimestampNote.getSystemProperty(), "true");
+    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build,
+        outputStream);
+    byte[] data = new byte[] { 'a', (byte) NEWLINE };
     decoratedOutputStream.write(data);
     assertThat(ArrayUtils.toObject(outputStream.toByteArray()),
         is(arrayWithSize(greaterThan(data.length))));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testPassThrough() throws Exception {
-    decoratedOutputStream.write(data);
-    verify(outputStream).write(data);
-    decoratedOutputStream.write(data, 0, 1);
-    verify(outputStream).write(data, 0, 1);
-    decoratedOutputStream.write(42);
-    verify(outputStream).write(42);
-    decoratedOutputStream.flush();
-    verify(outputStream).flush();
-    decoratedOutputStream.close();
-    verify(outputStream).close();
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWriteIntOneCharacter() throws Exception {
-    decoratedOutputStream.write('a');
-    assertThat(readAllTimestamps(build), hasSize(1));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWriteIntOneLine() throws Exception {
-    decoratedOutputStream.write('a');
-    decoratedOutputStream.write(NEWLINE);
-    assertThat(readAllTimestamps(build), hasSize(1));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWriteIntTwoLines() throws Exception {
-    decoratedOutputStream.write('a');
-    decoratedOutputStream.write(NEWLINE);
-    decoratedOutputStream.write('b');
-    assertThat(readAllTimestamps(build), hasSize(2));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWriteByteArray() throws Exception {
-    decoratedOutputStream.write(data);
-    assertThat(readAllTimestamps(build), hasSize(1));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWriteByteArrayTwoLines() throws Exception {
-    decoratedOutputStream.write(dataTwoLines);
-    List<Timestamp> timestamps = readAllTimestamps(build);
-    assertThat(timestamps, hasSize(2));
-    assertThat(timestamps.get(0), is(timestamps.get(1)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWriteByteArraySegment() throws Exception {
-    decoratedOutputStream.write(dataTwoLines, 0, data.length);
-    assertThat(readAllTimestamps(build), hasSize(1));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWriteByteArraySegmentTwoLines() throws Exception {
-    decoratedOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
-    List<Timestamp> timestamps = readAllTimestamps(build);
-    assertThat(timestamps, hasSize(2));
-    assertThat(timestamps.get(0), is(timestamps.get(1)));
   }
 }

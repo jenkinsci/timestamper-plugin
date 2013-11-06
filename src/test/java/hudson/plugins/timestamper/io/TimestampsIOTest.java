@@ -52,7 +52,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 
 /**
- * Unit test for the {@link TimestampsReader} and {@link TimestampsWriter}
+ * Unit test for the {@link TimestampsReader} and {@link TimestampsWriterImpl}
  * classes.
  * 
  * @author Steven G. Brown
@@ -137,7 +137,7 @@ public class TimestampsIOTest {
   private void testReadFromStartWhileWriting(
       Function<TimestampsReader, TimestampsReader> readerTransformer)
       throws Exception {
-    TimestampsWriter writer = new TimestampsWriter(build);
+    TimestampsWriter writer = new TimestampsWriterImpl(build);
     TimestampsReader reader = new TimestampsReader(build);
     try {
       writeTimestamp(timestampOne, 1, writer);
@@ -163,11 +163,11 @@ public class TimestampsIOTest {
    */
   @Test
   public void testWriteSameTimestampManyTimes() throws Exception {
-    int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE")
-        .getInt(null);
+    int bufferSize = Whitebox.getField(TimestampsWriterImpl.class,
+        "BUFFER_SIZE").getInt(null);
     int numberOfTimestamps = bufferSize + 1000; // larger than the buffer
     Timestamp timestamp = new Timestamp(10000, 10000);
-    TimestampsWriter writer = new TimestampsWriter(build);
+    TimestampsWriter writer = new TimestampsWriterImpl(build);
     try {
       writeTimestamp(timestamp, numberOfTimestamps, writer);
     } finally {
@@ -228,7 +228,7 @@ public class TimestampsIOTest {
   }
 
   private void writeTimestamps() throws Exception {
-    TimestampsWriter writer = new TimestampsWriter(build);
+    TimestampsWriter writer = new TimestampsWriterImpl(build);
     try {
       writeTimestamp(timestampOne, 1, writer);
       writeTimestamp(timestampTwo, 1, writer);

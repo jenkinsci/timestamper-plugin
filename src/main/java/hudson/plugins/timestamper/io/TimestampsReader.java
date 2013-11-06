@@ -92,9 +92,9 @@ public final class TimestampsReader implements Serializable {
    * @param build
    */
   public TimestampsReader(Run<?, ?> build) {
-    File timestamperDir = TimestampsWriter.timestamperDir(build);
-    this.timestampsFile = TimestampsWriter.timestampsFile(timestamperDir);
-    this.timeShiftsFile = TimestampsWriter.timeShiftsFile(timestamperDir);
+    File timestamperDir = TimestampsWriterImpl.timestamperDir(build);
+    this.timestampsFile = TimestampsWriterImpl.timestampsFile(timestamperDir);
+    this.timeShiftsFile = TimestampsWriterImpl.timeShiftsFile(timestamperDir);
     this.millisSinceEpoch = build.getTimeInMillis();
   }
 
@@ -237,8 +237,8 @@ public final class TimestampsReader implements Serializable {
     }
     File timestamperDir = new File(Joiner.on(' ').join(args));
     System.out.println("timestamps");
-    dump(TimestampsWriter.timestampsFile(timestamperDir), 1, System.out);
-    File timeShiftsFile = TimestampsWriter.timeShiftsFile(timestamperDir);
+    dump(TimestampsWriterImpl.timestampsFile(timestamperDir), 1, System.out);
+    File timeShiftsFile = TimestampsWriterImpl.timeShiftsFile(timestamperDir);
     if (timeShiftsFile.isFile()) {
       System.out.println("timeshifts");
       dump(timeShiftsFile, 2, System.out);
