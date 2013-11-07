@@ -80,6 +80,7 @@ public final class TimestampsAction implements Action {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getIconFileName() {
     // Do not display this action.
     return null;
@@ -88,6 +89,7 @@ public final class TimestampsAction implements Action {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getDisplayName() {
     // Do not display this action.
     return null;
@@ -96,6 +98,7 @@ public final class TimestampsAction implements Action {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getUrlName() {
     return "timestamps";
   }

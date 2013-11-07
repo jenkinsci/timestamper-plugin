@@ -41,11 +41,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Supplier;
@@ -56,17 +56,13 @@ import com.google.common.base.Supplier;
  * @author Steven G. Brown
  */
 @SuppressWarnings("boxing")
+@RunWith(PowerMockRunner.class)
 @PrepareForTest(Run.class)
 public class TimestampNoteTest {
 
   private static final String FORMAT = "HH:mm:ss";
 
   private static final String OTHER_FORMAT = "HHmmss";
-
-  /**
-   */
-  @Rule
-  public PowerMockRule powerMockRule = new PowerMockRule();
 
   private TimeZone systemDefaultTimeZone;
 
@@ -154,7 +150,7 @@ public class TimestampNoteTest {
   private void setSystemTimeFormat(final String systemTimeFormat) {
     Whitebox.setInternalState(TimestamperConfig.class, Supplier.class,
         new Supplier<TimestampFormatter>() {
-
+          @Override
           public TimestampFormatter get() {
             HttpServletRequest request = mock(HttpServletRequest.class);
             return new TimestampFormatter(systemTimeFormat, "", request);

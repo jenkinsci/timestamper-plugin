@@ -51,6 +51,7 @@ import com.google.common.base.Supplier;
 public final class TimestamperConfig extends GlobalConfiguration {
 
   private static Supplier<TimestampFormatter> formatterSupplier = new Supplier<TimestampFormatter>() {
+    @Override
     public TimestampFormatter get() {
       TimestamperConfig config = GlobalConfiguration.all().get(
           TimestamperConfig.class);

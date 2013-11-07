@@ -196,6 +196,7 @@ public class VarintTest {
     final ByteArrayInputStream input = new ByteArrayInputStream(buffer);
 
     return new Varint.ByteReader() {
+      @Override
       public byte readByte() throws IOException {
         return (byte) input.read();
       }

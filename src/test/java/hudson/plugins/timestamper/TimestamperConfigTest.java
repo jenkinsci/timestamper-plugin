@@ -38,15 +38,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * Test for the {@link TimestamperConfig} class.
  * 
  * @author Steven G. Brown
  */
+@RunWith(PowerMockRunner.class)
 @PrepareForTest(Jenkins.class)
 public class TimestamperConfigTest {
 
@@ -55,11 +57,6 @@ public class TimestamperConfigTest {
 
   private static final String customElapsedTimeFormat = "ss.S "
       + TimestamperConfigTest.class.getSimpleName();
-
-  /**
-   */
-  @Rule
-  public PowerMockRule powerMockRule = new PowerMockRule();
 
   /**
    */
@@ -204,14 +201,11 @@ public class TimestamperConfigTest {
   }
 
   private String defaultXml() {
-    return "<hudson.plugins.timestamper.TimestamperConfig>\n"
-        + "  <helpRedirect/>\n"
-        + "</hudson.plugins.timestamper.TimestamperConfig>";
+    return "<hudson.plugins.timestamper.TimestamperConfig/>";
   }
 
   private String xml(String systemTimeFormat, String elapsedTimeFormat) {
-    String xml = "<hudson.plugins.timestamper.TimestamperConfig>\n"
-        + "  <helpRedirect/>\n";
+    String xml = "<hudson.plugins.timestamper.TimestamperConfig>\n";
     if (systemTimeFormat != null) {
       xml += "  <timestampFormat>" + systemTimeFormat + "</timestampFormat>\n";
     }

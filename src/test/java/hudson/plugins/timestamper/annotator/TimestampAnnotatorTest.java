@@ -144,6 +144,7 @@ public class TimestampAnnotatorTest {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     when(build.getLogInputStream()).thenAnswer(new Answer<InputStream>() {
+      @Override
       public InputStream answer(InvocationOnMock invocation) throws Throwable {
         return new ByteArrayInputStream(consoleLogContents);
       }

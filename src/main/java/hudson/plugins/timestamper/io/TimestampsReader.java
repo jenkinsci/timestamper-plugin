@@ -139,6 +139,7 @@ public final class TimestampsReader implements Serializable {
       return null;
     }
     Varint.ByteReader byteReader = new Varint.ByteReader() {
+      @Override
       public byte readByte() throws IOException {
         return raf.readByte();
       }
@@ -180,6 +181,7 @@ public final class TimestampsReader implements Serializable {
         new FileInputStream(timeShiftsFile));
     final MutableLong bytesRead = new MutableLong();
     Varint.ByteReader byteReader = new Varint.ByteReader() {
+      @Override
       public byte readByte() throws IOException {
         int b = inputStream.read();
         if (b == -1) {
@@ -250,7 +252,7 @@ public final class TimestampsReader implements Serializable {
     final byte[] fileContents = Files.toByteArray(file);
     final MutableInt offset = new MutableInt();
     ByteReader byteReader = new ByteReader() {
-
+      @Override
       public byte readByte() throws IOException {
         byte next = fileContents[offset.intValue()];
         offset.increment();

@@ -102,6 +102,7 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void write(long nanoTime, long currentTimeMillis, int times)
       throws IOException {
     if (times < 1) {
@@ -174,6 +175,7 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void close() throws IOException {
     boolean threw = true;
     try {

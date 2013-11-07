@@ -128,6 +128,7 @@ public final class TimestampFormatter implements Serializable {
       this.systemTimeFormat = systemTimeFormat;
     }
 
+    @Override
     public String apply(Timestamp timestamp) {
       return FastDateFormat.getInstance(systemTimeFormat).format(
           new Date(timestamp.millisSinceEpoch));
@@ -148,6 +149,7 @@ public final class TimestampFormatter implements Serializable {
       this.elapsedTimeFormat = elapsedTimeFormat;
     }
 
+    @Override
     public String apply(Timestamp timestamp) {
       return DurationFormatUtils.formatDuration(timestamp.elapsedMillis,
           elapsedTimeFormat);
@@ -165,6 +167,7 @@ public final class TimestampFormatter implements Serializable {
     EmptyFormatFunction() {
     }
 
+    @Override
     public String apply(Timestamp timestamp) {
       return "";
     }

@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.461</version> <!-- for TransientBuildActionFactory.createFor(Run) method -->
+    <version>1.520</version> <!-- earliest version that requires Java 6 -->
   </parent>
 
   <scm>
@@ -13,27 +13,12 @@
 
   <build>
     <plugins>
-      <!-- Enforce Java 5.0 compatibility. -->
       <plugin>
-        <groupId>org.jvnet</groupId>
-        <artifactId>animal-sniffer</artifactId>
-        <version>1.2</version>
-        <executions>
-          <execution>
-            <id>animal-sniffer</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <configuration>
-              <signature>
-                <groupId>org.jvnet.animal-sniffer</groupId>
-                <artifactId>java1.5</artifactId>
-                <version>1.0</version>
-              </signature>
-            </configuration>
-          </execution>
-        </executions>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -77,12 +62,6 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4-rule-agent</artifactId>
       <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>

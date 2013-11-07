@@ -61,7 +61,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 /**
@@ -80,13 +80,9 @@ public class TimestampsActionTest {
 
   /**
    */
+  @RunWith(PowerMockRunner.class)
   @PrepareForTest(Jenkins.class)
   public static abstract class SetUp {
-
-    /**
-     */
-    @Rule
-    public PowerMockRule powerMockRule = new PowerMockRule();
 
     /**
      */
@@ -119,6 +115,7 @@ public class TimestampsActionTest {
       written = new StringBuilder();
       writer = mock(PrintWriter.class);
       doAnswer(new Answer<Void>() {
+        @Override
         public Void answer(InvocationOnMock invocation) throws Throwable {
           String arg = (String) invocation.getArguments()[0];
           written.append(arg);

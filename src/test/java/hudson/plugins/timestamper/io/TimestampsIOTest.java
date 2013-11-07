@@ -78,6 +78,7 @@ public class TimestampsIOTest {
           timestampThree, timestampFour, timestampFive));
 
   private static final Function<TimestampsReader, TimestampsReader> serializeReader = new Function<TimestampsReader, TimestampsReader>() {
+    @Override
     public TimestampsReader apply(TimestampsReader reader) {
       return (TimestampsReader) SerializationUtils.clone(reader);
     }
