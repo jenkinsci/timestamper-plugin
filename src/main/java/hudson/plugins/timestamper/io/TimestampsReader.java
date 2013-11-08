@@ -25,14 +25,15 @@ package hudson.plugins.timestamper.io;
 
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.io.Varint.ByteReader;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
@@ -42,10 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.mutable.MutableInt;
-import org.apache.commons.lang.mutable.MutableLong;
-
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
@@ -107,12 +106,14 @@ public final class TimestampsReader implements Serializable {
    */
   public void skip(int count) throws IOException {
     RandomAccessFile raf = openTimestampsFile();
+    boolean threw = true;
     try {
       for (int i = 0; i < count; i++) {
         next(raf);
       }
+      threw = false;
     } finally {
-      closeQuietly(raf);
+      Closeables.close(raf, threw);
     }
   }
 
@@ -124,11 +125,15 @@ public final class TimestampsReader implements Serializable {
    */
   public Timestamp next() throws IOException {
     RandomAccessFile raf = openTimestampsFile();
+    Timestamp timestamp;
+    boolean threw = true;
     try {
-      return next(raf);
+      timestamp = next(raf);
+      threw = false;
     } finally {
-      closeQuietly(raf);
+      Closeables.close(raf, threw);
     }
+    return timestamp;
   }
 
   /**
@@ -174,52 +179,44 @@ public final class TimestampsReader implements Serializable {
       return Collections.emptyMap();
     }
     if (timeShiftsFile.length() == timeShiftsFileLength) {
-      return timeShifts;
+      return Objects.firstNonNull(timeShifts,
+          Collections.<Long, Long> emptyMap());
     }
     timeShiftsFileLength = timeShiftsFile.length();
-    final BufferedInputStream inputStream = new BufferedInputStream(
-        new FileInputStream(timeShiftsFile));
-    final MutableLong bytesRead = new MutableLong();
-    Varint.ByteReader byteReader = new Varint.ByteReader() {
-      @Override
-      public byte readByte() throws IOException {
-        int b = inputStream.read();
-        if (b == -1) {
-          throw new EOFException();
-        }
-        bytesRead.increment();
-        return (byte) b;
-      }
-    };
     Map<Long, Long> timeShifts = new HashMap<Long, Long>();
+    BufferedInputStream inputStream = null;
+    boolean threw = true;
     try {
-      while (bytesRead.longValue() < timeShiftsFileLength) {
+      inputStream = new BufferedInputStream(new FileInputStream(timeShiftsFile));
+      InputStreamByteReader byteReader = new InputStreamByteReader(inputStream);
+      while (byteReader.bytesRead < timeShiftsFileLength) {
         long entry = Varint.read(byteReader);
         long shift = Varint.read(byteReader);
         timeShifts.put(entry, shift);
       }
+      threw = false;
     } finally {
-      Closeables.closeQuietly(inputStream);
+      Closeables.close(inputStream, threw);
     }
     return timeShifts;
   }
 
-  /**
-   * Unconditionally close a {@link RandomAccessFile}.
-   * <p>
-   * Equivalent to {@link RandomAccessFile#close()}, except any exceptions will
-   * be ignored. This is typically used in finally blocks.
-   * 
-   * @param raf
-   *          the file to close, may be null or already closed
-   */
-  private static void closeQuietly(RandomAccessFile raf) {
-    try {
-      if (raf != null) {
-        raf.close();
+  private static class InputStreamByteReader implements Varint.ByteReader {
+    InputStream inputStream;
+    long bytesRead;
+
+    InputStreamByteReader(InputStream inputStream) {
+      this.inputStream = inputStream;
+    }
+
+    @Override
+    public byte readByte() throws IOException {
+      int b = inputStream.read();
+      if (b == -1) {
+        throw new EOFException();
       }
-    } catch (IOException ioe) {
-      // ignore
+      bytesRead++;
+      return (byte) b;
     }
   }
 
@@ -250,17 +247,10 @@ public final class TimestampsReader implements Serializable {
   private static void dump(File file, int columns, PrintStream output)
       throws IOException {
     final byte[] fileContents = Files.toByteArray(file);
-    final MutableInt offset = new MutableInt();
-    ByteReader byteReader = new ByteReader() {
-      @Override
-      public byte readByte() throws IOException {
-        byte next = fileContents[offset.intValue()];
-        offset.increment();
-        return next;
-      }
-    };
+    InputStreamByteReader byteReader = new InputStreamByteReader(
+        new ByteArrayInputStream(fileContents));
     List<Long> values = new ArrayList<Long>();
-    while (offset.intValue() < fileContents.length) {
+    while (byteReader.bytesRead < fileContents.length) {
       values.add(Varint.read(byteReader));
       if (values.size() == columns) {
         output.println(Joiner.on('\t').join(values));

@@ -60,7 +60,9 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
     return new File(timestamperDir, "timeshifts");
   }
 
-  private final FileOutputStream timestampsOutput;
+  private final File timestampsFile;
+
+  private FileOutputStream timestampsOutput;
 
   private final File timeShiftsFile;
 
@@ -87,16 +89,15 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
    */
   public TimestampsWriterImpl(Run<?, ?> build) throws IOException {
     File timestamperDir = timestamperDir(build);
-    File timestampsFile = timestampsFile(timestamperDir);
+    this.timestampsFile = timestampsFile(timestamperDir);
+    this.timeShiftsFile = timeShiftsFile(timestamperDir);
+    this.previousCurrentTimeMillis = build.getTimeInMillis();
+
     Files.createParentDirs(timestampsFile);
     boolean fileCreated = timestampsFile.createNewFile();
     if (!fileCreated) {
       throw new IOException("File already exists: " + timestampsFile);
     }
-    this.timestampsOutput = new FileOutputStream(timestampsFile);
-
-    this.timeShiftsFile = timeShiftsFile(timestamperDir);
-    this.previousCurrentTimeMillis = build.getTimeInMillis();
   }
 
   /**
@@ -112,6 +113,9 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
     // Write to time-stamps file.
     if (entry == 0) {
       startNanos = nanoTime;
+    }
+    if (timestampsOutput == null) {
+      timestampsOutput = new FileOutputStream(timestampsFile);
     }
     long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(nanoTime - startNanos);
     long elapsedMillisDiff = elapsedMillis - previousElapsedMillis;

@@ -167,13 +167,16 @@ public final class TimestampsAction implements Action {
 
   private void writeConsoleNotes(PrintWriter writer, int precision)
       throws IOException {
-    DataInputStream dataInputStream = new DataInputStream(
-        new BufferedInputStream(build.getLogInputStream()));
+    DataInputStream dataInputStream = null;
+    boolean threw = true;
     try {
+      dataInputStream = new DataInputStream(new BufferedInputStream(
+          build.getLogInputStream()));
       while (true) {
         dataInputStream.mark(1);
         int currentByte = dataInputStream.read();
         if (currentByte == -1) {
+          threw = false;
           return;
         }
         if (currentByte == ConsoleNote.PREAMBLE[0]) {
@@ -193,7 +196,7 @@ public final class TimestampsAction implements Action {
         }
       }
     } finally {
-      Closeables.closeQuietly(dataInputStream);
+      Closeables.close(dataInputStream, threw);
     }
   }
 

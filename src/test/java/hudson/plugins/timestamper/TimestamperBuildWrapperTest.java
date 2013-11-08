@@ -23,8 +23,8 @@
  */
 package hudson.plugins.timestamper;
 
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,12 +35,13 @@ import hudson.model.AbstractBuild;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import com.google.common.primitives.Bytes;
 
 /**
  * Test for the {@link TimestamperBuildWrapper} class.
@@ -100,7 +101,7 @@ public class TimestamperBuildWrapperTest {
         outputStream);
     byte[] data = new byte[] { 'a', (byte) NEWLINE };
     decoratedOutputStream.write(data);
-    assertThat(ArrayUtils.toObject(outputStream.toByteArray()),
-        is(arrayWithSize(greaterThan(data.length))));
+    assertThat(Bytes.asList(outputStream.toByteArray()),
+        is(hasSize(greaterThan(data.length))));
   }
 }

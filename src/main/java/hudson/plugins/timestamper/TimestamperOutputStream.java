@@ -29,6 +29,8 @@ import hudson.plugins.timestamper.io.TimestampsWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.google.common.io.Closeables;
+
 /**
  * Output stream that records time-stamps into a separate file while inspecting
  * the delegate output stream.
@@ -132,8 +134,12 @@ final class TimestamperOutputStream extends OutputStream {
    */
   @Override
   public void close() throws IOException {
-    super.close();
-    delegate.close();
-    timestampsWriter.close();
+    boolean threw = true;
+    try {
+      Closeables.close(timestampsWriter, false);
+      threw = false;
+    } finally {
+      Closeables.close(delegate, threw);
+    }
   }
 }

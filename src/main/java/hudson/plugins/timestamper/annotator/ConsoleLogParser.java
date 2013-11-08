@@ -65,6 +65,7 @@ final class ConsoleLogParser {
    */
   void seek(long pos) throws IOException {
     InputStream inputStream = null;
+    boolean threw = true;
     try {
       inputStream = new BufferedInputStream(build.getLogInputStream());
       for (long i = 0; i < pos; i++) {
@@ -78,8 +79,9 @@ final class ConsoleLogParser {
           lineNumber++;
         }
       }
+      threw = false;
     } finally {
-      Closeables.closeQuietly(inputStream);
+      Closeables.close(inputStream, threw);
     }
   }
 
