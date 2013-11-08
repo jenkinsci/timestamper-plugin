@@ -47,7 +47,6 @@ import java.util.concurrent.TimeUnit;
 
 import jenkins.model.Jenkins;
 
-import org.apache.commons.io.input.NullInputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -108,7 +107,8 @@ public class TimestampsActionTest {
     public void setUp() throws Exception {
       build = mock(Run.class);
       when(build.getRootDir()).thenReturn(folder.getRoot());
-      when(build.getLogInputStream()).thenReturn(new NullInputStream(0));
+      when(build.getLogInputStream()).thenReturn(
+          new ByteArrayInputStream(new byte[] {}));
       action = new TimestampsAction(build);
       request = mock(StaplerRequest.class);
 
