@@ -6,8 +6,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.model.Run;
-import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperTestAssistant;
+import hudson.plugins.timestamper.format.TimestampFormatter;
+import hudson.plugins.timestamper.format.TimestampFormatterImpl;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 import hudson.plugins.timestamper.io.TimestampsWriterImpl;
 
@@ -80,7 +81,7 @@ public class Jenkins17779Test {
   @Bug(17779)
   public void fastForwardShouldHandleDoubleEmptyLines() throws Exception {
     HttpServletRequest request = mock(HttpServletRequest.class);
-    TimestampFormatter f = new TimestampFormatter("S", "", request);
+    TimestampFormatter f = new TimestampFormatterImpl("S", "", request);
 
     // fast-forward to 'CD' which is line 5
     TimestampAnnotator a = new TimestampAnnotator(f, 6);

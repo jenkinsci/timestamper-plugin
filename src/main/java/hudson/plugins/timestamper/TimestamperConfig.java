@@ -26,6 +26,8 @@ package hudson.plugins.timestamper;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
+import hudson.plugins.timestamper.format.TimestampFormatter;
+import hudson.plugins.timestamper.format.TimestampFormatterImpl;
 
 import java.text.SimpleDateFormat;
 
@@ -56,7 +58,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
       TimestamperConfig config = GlobalConfiguration.all().get(
           TimestamperConfig.class);
       HttpServletRequest request = Stapler.getCurrentRequest();
-      return new TimestampFormatter(config.getSystemTimeFormat(),
+      return new TimestampFormatterImpl(config.getSystemTimeFormat(),
           config.getElapsedTimeFormat(), request);
     }
   };

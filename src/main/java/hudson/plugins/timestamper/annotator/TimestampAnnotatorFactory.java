@@ -26,8 +26,8 @@ package hudson.plugins.timestamper.annotator;
 import hudson.Extension;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
-import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperConfig;
+import hudson.plugins.timestamper.format.TimestampFormatter;
 
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;

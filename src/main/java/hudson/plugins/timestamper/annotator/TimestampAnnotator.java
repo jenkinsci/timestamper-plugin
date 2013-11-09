@@ -27,7 +27,7 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.TimestampFormatter;
+import hudson.plugins.timestamper.format.TimestampFormatter;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;

@@ -28,6 +28,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsAction;
+import hudson.plugins.timestamper.format.TimestampFormatter;
 
 /**
  * Time-stamp note that was inserted into the console note by the Timestamper

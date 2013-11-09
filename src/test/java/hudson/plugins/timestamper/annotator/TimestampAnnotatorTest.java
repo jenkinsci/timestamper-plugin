@@ -30,8 +30,9 @@ import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
-import hudson.plugins.timestamper.TimestampFormatter;
 import hudson.plugins.timestamper.TimestamperTestAssistant;
+import hudson.plugins.timestamper.format.TimestampFormatter;
+import hudson.plugins.timestamper.format.TimestampFormatterImpl;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 import hudson.plugins.timestamper.io.TimestampsWriterImpl;
 
@@ -112,7 +113,7 @@ public class TimestampAnnotatorTest {
    */
   public TimestampAnnotatorTest(int offset, List<String> result) {
     HttpServletRequest request = mock(HttpServletRequest.class);
-    this.formatter = new TimestampFormatter("S", "", request);
+    this.formatter = new TimestampFormatterImpl("S", "", request);
 
     this.offset = offset;
 

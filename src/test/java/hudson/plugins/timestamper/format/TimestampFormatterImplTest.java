@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.timestamper;
+package hudson.plugins.timestamper.format;
 
 import static hudson.plugins.timestamper.TimestamperTestAssistant.span;
 import static org.hamcrest.Matchers.is;
@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
 import hudson.tasks._ant.AntTargetNote;
 
 import java.util.Arrays;
@@ -49,12 +50,12 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- * Unit test for the {@link TimestampFormatter} class.
+ * Unit test for the {@link TimestampFormatterImpl} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
-public class TimestampFormatterTest {
+public class TimestampFormatterImplTest {
 
   /**
    * @return parameterised test data
@@ -98,7 +99,7 @@ public class TimestampFormatterTest {
    * @param prefix
    * @param prefixInDifferentTimezone
    */
-  public TimestampFormatterTest(HttpServletRequest request, String prefix,
+  public TimestampFormatterImplTest(HttpServletRequest request, String prefix,
       String prefixInDifferentTimezone) {
     this.request = request;
     this.prefix = prefix;
@@ -195,8 +196,8 @@ public class TimestampFormatterTest {
   }
 
   private MarkupText markup(MarkupText markupText) {
-    TimestampFormatter formatter = new TimestampFormatter("HH:mm:ss ", "ss.S ",
-        request);
+    TimestampFormatter formatter = new TimestampFormatterImpl("HH:mm:ss ",
+        "ss.S ", request);
     if (serialize) {
       formatter = (TimestampFormatter) SerializationUtils.clone(formatter);
     }

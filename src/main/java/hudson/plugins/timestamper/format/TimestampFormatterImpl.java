@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.timestamper;
+package hudson.plugins.timestamper.format;
 
 import hudson.MarkupText;
+import hudson.plugins.timestamper.Timestamp;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -44,7 +45,7 @@ import com.google.common.base.Function;
  * @author Steven G. Brown
  */
 @Immutable
-public final class TimestampFormatter implements Serializable {
+public final class TimestampFormatterImpl implements TimestampFormatter {
 
   private static final long serialVersionUID = 1L;
 
@@ -55,7 +56,7 @@ public final class TimestampFormatter implements Serializable {
   private final Function<Timestamp, String> formatTimestamp;
 
   /**
-   * Create a new {@link TimestampFormatter}.
+   * Create a new {@link TimestampFormatterImpl}.
    * 
    * @param systemTimeFormat
    *          the system clock time format
@@ -64,8 +65,8 @@ public final class TimestampFormatter implements Serializable {
    * @param request
    *          the current HTTP request
    */
-  public TimestampFormatter(String systemTimeFormat, String elapsedTimeFormat,
-      HttpServletRequest request) {
+  public TimestampFormatterImpl(String systemTimeFormat,
+      String elapsedTimeFormat, HttpServletRequest request) {
     if (request == null) {
       // JENKINS-16778: The request can be null when the slave goes off-line.
       formatTimestamp = null;
@@ -94,13 +95,9 @@ public final class TimestampFormatter implements Serializable {
   }
 
   /**
-   * Format the given time-stamp and add it to the mark-up text.
-   * 
-   * @param text
-   *          the mark-up text
-   * @param timestamp
-   *          the time-stamp to format
+   * {@inheritDoc}
    */
+  @Override
   public void markup(MarkupText text, Timestamp timestamp) {
     if (formatTimestamp == null) {
       return;

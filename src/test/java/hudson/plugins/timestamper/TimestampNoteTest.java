@@ -23,23 +23,18 @@
  */
 package hudson.plugins.timestamper;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.MarkupText;
-import hudson.console.ConsoleNote;
 import hudson.model.Run;
-import hudson.tasks._ant.AntTargetNote;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
-import javax.servlet.http.HttpServletRequest;
+import hudson.plugins.timestamper.format.TimestampFormatter;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,121 +55,72 @@ import com.google.common.base.Supplier;
 @PrepareForTest(Run.class)
 public class TimestampNoteTest {
 
-  private static final String FORMAT = "HH:mm:ss";
+  private Run<?, ?> build;
 
-  private static final String OTHER_FORMAT = "HHmmss";
+  private TimestampNote note;
 
-  private TimeZone systemDefaultTimeZone;
+  private TimestampFormatter formatter;
 
-  private String currentSystemTimeFormat;
+  private MarkupText text;
 
   /**
-   * @throws Exception
    */
   @Before
-  public void setUp() throws Exception {
-    systemDefaultTimeZone = TimeZone.getDefault();
-    // Set the time zone to get consistent results.
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    setSystemTimeFormat(FORMAT);
-  }
+  public void setUp() {
+    build = PowerMockito.mock(Run.class);
+    when(build.getTimeInMillis()).thenReturn(1l);
 
-  /**
-   */
-  @After
-  public void tearDown() {
-    TimeZone.setDefault(systemDefaultTimeZone);
+    note = new TimestampNote(3);
+
+    formatter = mock(TimestampFormatter.class);
+    Whitebox.setInternalState(TimestamperConfig.class, Supplier.class,
+        new Supplier<TimestampFormatter>() {
+          @Override
+          public TimestampFormatter get() {
+            return formatter;
+          }
+        });
+
+    text = new MarkupText("");
   }
 
   /**
    */
   @Test
   public void testGetTimestamp() {
-    Run<?, ?> build = PowerMockito.mock(Run.class);
-    when(build.getTimeInMillis()).thenReturn(1l);
-
-    TimestampNote note = new TimestampNote(3);
     assertThat(note.getTimestamp(build), is(new Timestamp(2, 3)));
   }
 
   /**
    */
   @Test
-  public void testTimestampNote_DefaultFormat() {
-    assertThat(annotate("line", new TimestampNote(0)),
-        is(timestamp(0) + "line"));
+  public void testGetTimestampAfterSerialization() {
+    note = (TimestampNote) SerializationUtils.clone(note);
+    testGetTimestamp();
   }
 
   /**
    */
   @Test
-  public void testTimestampNote_NonDefaultFormat() {
-    setSystemTimeFormat(OTHER_FORMAT);
-    assertThat(annotate("line", new TimestampNote(0)),
-        is(timestamp(0) + "line"));
+  public void testAnnotate() {
+    note.annotate(build, text, 0);
+    verify(formatter).markup(text, new Timestamp(2, 3));
   }
 
   /**
    */
   @Test
-  public void testSerialization_DefaultFormat() {
-    assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is(timestamp(0) + "line"));
+  public void testAnnotateAfterSerialization() {
+    note = (TimestampNote) SerializationUtils.clone(note);
+    testAnnotate();
   }
 
   /**
    */
   @Test
-  public void testSerialization_NonDefaultFormat() {
-    setSystemTimeFormat(OTHER_FORMAT);
-    assertThat(annotate("line", serialize(new TimestampNote(0))),
-        is(timestamp(0) + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testTimestampThenAntTargetNote() {
-    assertThat(annotate("target:", new TimestampNote(0), new AntTargetNote()),
-        is(timestamp(0) + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
-  public void testAntTargetNoteThenTimestamp() {
-    assertThat(annotate("target:", new AntTargetNote(), new TimestampNote(0)),
-        is(timestamp(0) + "<b class=ant-target>target</b>:"));
-  }
-
-  private void setSystemTimeFormat(final String systemTimeFormat) {
-    Whitebox.setInternalState(TimestamperConfig.class, Supplier.class,
-        new Supplier<TimestampFormatter>() {
-          @Override
-          public TimestampFormatter get() {
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            return new TimestampFormatter(systemTimeFormat, "", request);
-          }
-        });
-    currentSystemTimeFormat = systemTimeFormat;
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private String annotate(String text, ConsoleNote... notes) {
-    Object context = mock(Run.class);
-    MarkupText markupText = new MarkupText(text);
-    for (ConsoleNote note : notes) {
-      note.annotate(context, markupText, 0);
-    }
-    return markupText.toString(true);
-  }
-
-  private TimestampNote serialize(TimestampNote note) {
-    return (TimestampNote) SerializationUtils.clone(note);
-  }
-
-  private String timestamp(long millisSinceEpoch) {
-    return TimestamperTestAssistant.span(new SimpleDateFormat(
-        currentSystemTimeFormat).format(new Date(millisSinceEpoch)));
+  public void testAnnotateUnrecognisedContext() {
+    note.annotate(new Object(), text, 0);
+    verify(formatter, never()).markup(any(MarkupText.class),
+        any(Timestamp.class));
   }
 }
