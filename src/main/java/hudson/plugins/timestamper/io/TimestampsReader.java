@@ -27,26 +27,20 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.io.Closeables;
-import com.google.common.io.Files;
 
 /**
  * Read the time-stamps for a build from disk.
@@ -201,7 +195,7 @@ public final class TimestampsReader implements Serializable {
     return timeShifts;
   }
 
-  private static class InputStreamByteReader implements Varint.ByteReader {
+  static class InputStreamByteReader implements Varint.ByteReader {
     InputStream inputStream;
     long bytesRead;
 
@@ -218,48 +212,5 @@ public final class TimestampsReader implements Serializable {
       bytesRead++;
       return (byte) b;
     }
-  }
-
-  /**
-   * Read the values from the timestamper directory path given by the
-   * command-line arguments and output these values to the console. This is
-   * intended only for debugging. It is not invoked by Jenkins.
-   * 
-   * @param args
-   *          the command-line arguments, expected to contain a timestamper
-   *          directory path
-   * @throws IOException
-   */
-  public static void main(String... args) throws IOException {
-    if (args.length == 0) {
-      throw new IllegalArgumentException("no command-line arguments");
-    }
-    File timestamperDir = new File(Joiner.on(' ').join(args));
-    System.out.println("timestamps");
-    dump(TimestampsWriterImpl.timestampsFile(timestamperDir), 1, System.out);
-    File timeShiftsFile = TimestampsWriterImpl.timeShiftsFile(timestamperDir);
-    if (timeShiftsFile.isFile()) {
-      System.out.println("timeshifts");
-      dump(timeShiftsFile, 2, System.out);
-    }
-  }
-
-  private static void dump(File file, int columns, PrintStream output)
-      throws IOException {
-    final byte[] fileContents = Files.toByteArray(file);
-    InputStreamByteReader byteReader = new InputStreamByteReader(
-        new ByteArrayInputStream(fileContents));
-    List<Long> values = new ArrayList<Long>();
-    while (byteReader.bytesRead < fileContents.length) {
-      values.add(Varint.read(byteReader));
-      if (values.size() == columns) {
-        output.println(Joiner.on('\t').join(values));
-        values.clear();
-      }
-    }
-    if (!values.isEmpty()) {
-      output.println(Joiner.on('\t').join(values));
-    }
-    output.println();
   }
 }
