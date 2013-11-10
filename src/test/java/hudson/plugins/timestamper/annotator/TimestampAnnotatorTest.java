@@ -41,7 +41,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
@@ -149,7 +148,7 @@ public class TimestampAnnotatorTest {
     try {
       writer = new TimestampsWriterImpl(build);
       for (int i = 0; i < count; i++) {
-        writer.write(TimeUnit.MILLISECONDS.toNanos(i), i, 1);
+        writer.write(i, 1);
         timestamps.add(new Timestamp(i, i));
       }
       threw = false;

@@ -36,14 +36,11 @@ public interface TimestampsWriter extends Closeable {
   /**
    * Write a time-stamp for a line of the console log.
    * 
-   * @param nanoTime
-   *          {@link System#nanoTime()}
    * @param currentTimeMillis
    *          {@link System#currentTimeMillis()}
    * @param times
    *          the number of times to write the time-stamp
    * @throws IOException
    */
-  public void write(long nanoTime, long currentTimeMillis, int times)
-      throws IOException;
+  public void write(long currentTimeMillis, int times) throws IOException;
 }

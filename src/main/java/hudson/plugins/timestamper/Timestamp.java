@@ -37,24 +37,11 @@ public final class Timestamp {
 
   /**
    * The elapsed time in milliseconds since the start of the build.
-   * <p>
-   * Provided by <a href=
-   * "http://docs.oracle.com/javase/6/docs/api/java/lang/System.html#nanoTime()"
-   * >System.nanoTime()</a>.
-   * <p>
-   * For builds created with the Timestamper plugin prior to version 1.4, the
-   * elapsed time will instead be calculated based on {@link #millisSinceEpoch}
-   * and the start time of the build. In this case, the elapsed time values may
-   * not always be increasing and may be negative.
    */
   public final long elapsedMillis;
 
   /**
    * The clock time in milliseconds since midnight, January 1, 1970 UTC.
-   * <p>
-   * Provided by <a href=
-   * "http://docs.oracle.com/javase/6/docs/api/java/lang/System.html#currentTimeMillis()"
-   * >System.currentTimeMillis()</a>.
    */
   public final long millisSinceEpoch;
 

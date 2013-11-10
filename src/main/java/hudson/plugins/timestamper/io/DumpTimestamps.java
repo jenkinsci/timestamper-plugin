@@ -57,7 +57,7 @@ public final class DumpTimestamps {
     File timestamperDir = new File(Joiner.on(' ').join(args));
     System.out.println("timestamps");
     dump(TimestampsWriterImpl.timestampsFile(timestamperDir), 1, System.out);
-    File timeShiftsFile = TimestampsWriterImpl.timeShiftsFile(timestamperDir);
+    File timeShiftsFile = TimestampsReader.timeShiftsFile(timestamperDir);
     if (timeShiftsFile.isFile()) {
       System.out.println("timeshifts");
       dump(timeShiftsFile, 2, System.out);

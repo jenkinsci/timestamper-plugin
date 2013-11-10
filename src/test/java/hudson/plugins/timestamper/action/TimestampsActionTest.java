@@ -43,7 +43,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import jenkins.model.Jenkins;
 
@@ -331,8 +330,7 @@ public class TimestampsActionTest {
       TimestampsWriter writer = new TimestampsWriterImpl(build);
       try {
         for (long millisSinceEpoch : millisSinceEpochToWrite) {
-          writer.write(TimeUnit.MILLISECONDS.toNanos(millisSinceEpoch),
-              millisSinceEpoch, 1);
+          writer.write(millisSinceEpoch, 1);
         }
       } finally {
         writer.close();

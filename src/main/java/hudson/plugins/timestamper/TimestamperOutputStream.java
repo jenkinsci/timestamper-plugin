@@ -115,9 +115,8 @@ final class TimestamperOutputStream extends OutputStream {
     }
 
     if (lineStartCount > 0) {
-      long nanoTime = System.nanoTime();
       long currentTimeMillis = System.currentTimeMillis();
-      timestampsWriter.write(nanoTime, currentTimeMillis, lineStartCount);
+      timestampsWriter.write(currentTimeMillis, lineStartCount);
     }
   }
 

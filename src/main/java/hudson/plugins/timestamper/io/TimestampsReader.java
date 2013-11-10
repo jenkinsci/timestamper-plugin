@@ -51,6 +51,10 @@ public final class TimestampsReader implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  static File timeShiftsFile(File timestamperDir) {
+    return new File(timestamperDir, "timeshifts");
+  }
+
   private final File timestampsFile;
 
   private long filePointer;
@@ -87,7 +91,7 @@ public final class TimestampsReader implements Serializable {
   public TimestampsReader(Run<?, ?> build) {
     File timestamperDir = TimestampsWriterImpl.timestamperDir(build);
     this.timestampsFile = TimestampsWriterImpl.timestampsFile(timestamperDir);
-    this.timeShiftsFile = TimestampsWriterImpl.timeShiftsFile(timestamperDir);
+    this.timeShiftsFile = timeShiftsFile(timestamperDir);
     this.millisSinceEpoch = build.getTimeInMillis();
   }
 
@@ -134,7 +138,7 @@ public final class TimestampsReader implements Serializable {
    * Read the next time-stamp by using an existing {@link RandomAccessFile}.
    */
   private Timestamp next(final RandomAccessFile raf) throws IOException {
-    if (raf == null) {
+    if (raf == null || filePointer >= timestampsFile.length()) {
       return null;
     }
     Varint.ByteReader byteReader = new Varint.ByteReader() {
@@ -162,7 +166,7 @@ public final class TimestampsReader implements Serializable {
   }
 
   private RandomAccessFile openTimestampsFile() throws FileNotFoundException {
-    if (!timestampsFile.isFile() || filePointer >= timestampsFile.length()) {
+    if (!timestampsFile.isFile()) {
       return null;
     }
     return new RandomAccessFile(timestampsFile, "r");

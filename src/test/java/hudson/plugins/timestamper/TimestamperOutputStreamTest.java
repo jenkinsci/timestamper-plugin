@@ -102,7 +102,7 @@ public class TimestamperOutputStreamTest {
   @Test
   public void testWriteIntOneCharacter() throws Exception {
     timestamperOutputStream.write('a');
-    verify(writer).write(anyLong(), anyLong(), eq(1));
+    verify(writer).write(anyLong(), eq(1));
   }
 
   /**
@@ -112,7 +112,7 @@ public class TimestamperOutputStreamTest {
   public void testWriteIntOneLine() throws Exception {
     timestamperOutputStream.write('a');
     timestamperOutputStream.write(NEWLINE);
-    verify(writer).write(anyLong(), anyLong(), eq(1));
+    verify(writer).write(anyLong(), eq(1));
   }
 
   /**
@@ -123,7 +123,7 @@ public class TimestamperOutputStreamTest {
     timestamperOutputStream.write('a');
     timestamperOutputStream.write(NEWLINE);
     timestamperOutputStream.write('b');
-    verify(writer, times(2)).write(anyLong(), anyLong(), eq(1));
+    verify(writer, times(2)).write(anyLong(), eq(1));
   }
 
   /**
@@ -132,7 +132,7 @@ public class TimestamperOutputStreamTest {
   @Test
   public void testWriteByteArray() throws Exception {
     timestamperOutputStream.write(data);
-    verify(writer).write(anyLong(), anyLong(), eq(1));
+    verify(writer).write(anyLong(), eq(1));
   }
 
   /**
@@ -141,7 +141,7 @@ public class TimestamperOutputStreamTest {
   @Test
   public void testWriteByteArrayTwoLines() throws Exception {
     timestamperOutputStream.write(dataTwoLines);
-    verify(writer).write(anyLong(), anyLong(), eq(2));
+    verify(writer).write(anyLong(), eq(2));
   }
 
   /**
@@ -150,7 +150,7 @@ public class TimestamperOutputStreamTest {
   @Test
   public void testWriteByteArraySegment() throws Exception {
     timestamperOutputStream.write(dataTwoLines, 0, data.length);
-    verify(writer).write(anyLong(), anyLong(), eq(1));
+    verify(writer).write(anyLong(), eq(1));
   }
 
   /**
@@ -159,6 +159,6 @@ public class TimestamperOutputStreamTest {
   @Test
   public void testWriteByteArraySegmentTwoLines() throws Exception {
     timestamperOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
-    verify(writer).write(anyLong(), anyLong(), eq(2));
+    verify(writer).write(anyLong(), eq(2));
   }
 }

@@ -29,9 +29,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
@@ -43,9 +40,6 @@ import com.google.common.io.Files;
  */
 public final class TimestampsWriterImpl implements TimestampsWriter {
 
-  private static final Logger LOGGER = Logger
-      .getLogger(TimestampsWriterImpl.class.getName());
-
   private static final int BUFFER_SIZE = 1024;
 
   static File timestamperDir(Run<?, ?> build) {
@@ -56,28 +50,16 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
     return new File(timestamperDir, "timestamps");
   }
 
-  static File timeShiftsFile(File timestamperDir) {
-    return new File(timestamperDir, "timeshifts");
-  }
-
   private final File timestampsFile;
 
   private FileOutputStream timestampsOutput;
-
-  private final File timeShiftsFile;
-
-  private FileOutputStream timeShiftsOutput;
-
-  private long entry;
 
   /**
    * Buffer that is used to store Varints prior to writing to a file.
    */
   private final byte[] buffer = new byte[BUFFER_SIZE];
 
-  private long startNanos;
-
-  private long previousElapsedMillis;
+  private long buildStartTime;
 
   private long previousCurrentTimeMillis;
 
@@ -90,8 +72,8 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
   public TimestampsWriterImpl(Run<?, ?> build) throws IOException {
     File timestamperDir = timestamperDir(build);
     this.timestampsFile = timestampsFile(timestamperDir);
-    this.timeShiftsFile = timeShiftsFile(timestamperDir);
-    this.previousCurrentTimeMillis = build.getTimeInMillis();
+    this.buildStartTime = build.getTimeInMillis();
+    this.previousCurrentTimeMillis = buildStartTime;
 
     Files.createParentDirs(timestampsFile);
     boolean fileCreated = timestampsFile.createNewFile();
@@ -104,42 +86,21 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
    * {@inheritDoc}
    */
   @Override
-  public void write(long nanoTime, long currentTimeMillis, int times)
-      throws IOException {
+  public void write(long currentTimeMillis, int times) throws IOException {
     if (times < 1) {
       return;
     }
+    long elapsedMillis = currentTimeMillis - previousCurrentTimeMillis;
+    previousCurrentTimeMillis = currentTimeMillis;
 
-    // Write to time-stamps file.
-    if (entry == 0) {
-      startNanos = nanoTime;
-    }
+    // Write to the time-stamps file.
     if (timestampsOutput == null) {
       timestampsOutput = new FileOutputStream(timestampsFile);
     }
-    long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(nanoTime - startNanos);
-    long elapsedMillisDiff = elapsedMillis - previousElapsedMillis;
-    writeVarintsTo(timestampsOutput, elapsedMillisDiff);
+    writeVarintsTo(timestampsOutput, elapsedMillis);
     if (times > 1) {
       writeZerosTo(timestampsOutput, times - 1);
     }
-    previousElapsedMillis = elapsedMillis;
-
-    // Write to time shifts file.
-    long expectedTimeMillis = previousCurrentTimeMillis + elapsedMillisDiff;
-    long timeMillisDiff = currentTimeMillis - expectedTimeMillis;
-    if (Math.abs(timeMillisDiff) > 1000) {
-      LOGGER.log(Level.FINE, "Time shift: " + timeMillisDiff);
-      if (timeShiftsOutput == null) {
-        timeShiftsOutput = new FileOutputStream(timeShiftsFile);
-      }
-      writeVarintsTo(timeShiftsOutput, entry, currentTimeMillis);
-      previousCurrentTimeMillis = currentTimeMillis;
-    } else {
-      previousCurrentTimeMillis = expectedTimeMillis;
-    }
-
-    entry += times;
   }
 
   /**
@@ -181,12 +142,6 @@ public final class TimestampsWriterImpl implements TimestampsWriter {
    */
   @Override
   public void close() throws IOException {
-    boolean threw = true;
-    try {
-      Closeables.close(timestampsOutput, false);
-      threw = false;
-    } finally {
-      Closeables.close(timeShiftsOutput, threw);
-    }
+    Closeables.close(timestampsOutput, false);
   }
 }
