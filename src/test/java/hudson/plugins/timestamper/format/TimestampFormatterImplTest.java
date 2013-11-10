@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.format;
 
-import static hudson.plugins.timestamper.TimestamperTestAssistant.span;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -82,6 +81,10 @@ public class TimestampFormatterImplTest {
     }
     when(request.getCookies()).thenReturn(cookies);
     return request;
+  }
+
+  private static String span(String timestampString) {
+    return "<span class=\"timestamp\">" + timestampString + "</span>";
   }
 
   private HttpServletRequest request;

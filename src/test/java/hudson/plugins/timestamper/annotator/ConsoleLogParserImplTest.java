@@ -77,6 +77,8 @@ public class ConsoleLogParserImplTest {
 
   private Run<?, ?> build;
 
+  private int logLength;
+
   /**
    * @throws Exception
    */
@@ -84,11 +86,13 @@ public class ConsoleLogParserImplTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    byte[] consoleLog = new byte[] { 0x61, NEWLINE, 0x61, NEWLINE };
+    byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE,
+        0x61, NEWLINE };
+    logLength = consoleLog.length;
     when(build.getLogInputStream()).thenReturn(
         new ByteArrayInputStream(consoleLog));
     AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
-    when(logText.length()).thenReturn((long) consoleLog.length);
+    when(logText.length()).thenReturn((long) logLength);
     when(build.getLogText()).thenReturn(logText);
   }
 
@@ -121,7 +125,7 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekEnd() throws Exception {
-    assertThat(seek(4), is(resultWith(lineNumber(2), atNewLine())));
+    assertThat(seek(logLength), is(resultWith(lineNumber(5), atNewLine())));
   }
 
   /**
@@ -129,7 +133,8 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekPastEnd() throws Exception {
-    assertThat(seek(5), is(resultWith(lineNumber(2), atNewLine(), endOfFile())));
+    assertThat(seek(logLength + 1),
+        is(resultWith(lineNumber(5), atNewLine(), endOfFile())));
   }
 
   /**
@@ -137,7 +142,7 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekStartNegative() throws Exception {
-    assertThat(seek(-4), is(resultWith(lineNumber(0), atNewLine())));
+    assertThat(seek(-logLength), is(resultWith(lineNumber(0), atNewLine())));
   }
 
   /**
@@ -145,7 +150,7 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekWithinLineNegative() throws Exception {
-    assertThat(seek(-3), is(resultWith(lineNumber(0))));
+    assertThat(seek(1 - logLength), is(resultWith(lineNumber(0))));
   }
 
   /**
@@ -153,7 +158,7 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekPastStartNegative() throws Exception {
-    assertThat(seek(-5), is(resultWith(lineNumber(0), atNewLine())));
+    assertThat(seek(-logLength - 1), is(resultWith(lineNumber(0), atNewLine())));
   }
 
   private ConsoleLogParserImpl.Result seek(long pos) throws Exception {
