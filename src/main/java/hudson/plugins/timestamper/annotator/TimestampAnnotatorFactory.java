@@ -49,7 +49,8 @@ public final class TimestampAnnotatorFactory extends
   public ConsoleAnnotator<Object> newInstance(Object context) {
     TimestampFormatter formatter = TimestamperConfig.formatter();
     long offset = getOffset(Stapler.getCurrentRequest());
-    return new TimestampAnnotator(formatter, offset);
+    ConsoleLogParser logParser = new ConsoleLogParserImpl(offset);
+    return new TimestampAnnotator(formatter, logParser);
   }
 
   /**

@@ -48,7 +48,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
   private final TimestampFormatter formatter;
 
-  private final long offset;
+  private final ConsoleLogParser logParser;
 
   private TimestampsReader timestampsReader;
 
@@ -57,14 +57,12 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
    * 
    * @param formatter
    *          the time-stamp formatter
-   * @param offset
-   *          the offset for viewing the console log. A non-negative offset is
-   *          from the start of the file, and a negative offset is back from the
-   *          end of the file.
+   * @param logParser
+   *          the console log parser
    */
-  TimestampAnnotator(TimestampFormatter formatter, long offset) {
+  TimestampAnnotator(TimestampFormatter formatter, ConsoleLogParser logParser) {
     this.formatter = formatter;
-    this.offset = offset;
+    this.logParser = logParser;
   }
 
   /**
@@ -79,15 +77,14 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
     try {
       if (timestampsReader == null) {
-        ConsoleLogParser logParser = new ConsoleLogParser(build);
-        logParser.seek(consoleFilePointer(build));
-        if (logParser.endOfFile()) {
+        ConsoleLogParserImpl.Result logPosition = logParser.seek(build);
+        if (logPosition.endOfFile) {
           return null;
         }
         timestampsReader = new TimestampsReader(build);
-        timestampsReader.skip(logParser.getLineNumber());
+        timestampsReader.skip(logPosition.lineNumber);
         Timestamp timestamp = timestampsReader.next();
-        return markup(text, logParser.atNewLine() ? timestamp : null);
+        return markup(text, logPosition.atNewLine ? timestamp : null);
       }
       Timestamp timestamp = timestampsReader.next();
       if (timestamp != null) {
@@ -98,21 +95,6 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
           "Error reading timestamps for " + build.getFullDisplayName(), ex);
     }
     return null;
-  }
-
-  /**
-   * Get the console file pointer from the offset.
-   * 
-   * @param build
-   *          the build
-   * @return the console log pointer
-   */
-  private long consoleFilePointer(Run<?, ?> build) {
-    long start = offset;
-    if (offset < 0) {
-      start = build.getLogFile().length() + offset;
-    }
-    return start;
   }
 
   /**

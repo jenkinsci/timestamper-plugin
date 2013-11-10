@@ -84,14 +84,15 @@ public class Jenkins17779Test {
     TimestampFormatter f = new TimestampFormatterImpl("S", "", request);
 
     // fast-forward to 'CD' which is line 5
-    TimestampAnnotator a = new TimestampAnnotator(f, 6);
+    TimestampAnnotator a = new TimestampAnnotator(f,
+        new ConsoleLogParserImpl(6));
     MarkupText text = new MarkupText("CD");
     a.annotate(build, text);
     assertThat(text.toString(true), is(TimestamperTestAssistant.span("4")
         + "CD"));
 
     // should get the same result if we go line by line
-    a = new TimestampAnnotator(f, 0);
+    a = new TimestampAnnotator(f, new ConsoleLogParserImpl(0));
     for (int i = 0; i < 5; i++) {
       text = new MarkupText("CD");
       a.annotate(build, text);

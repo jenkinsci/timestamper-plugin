@@ -25,84 +25,50 @@ package hudson.plugins.timestamper.annotator;
 
 import hudson.model.Run;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Serializable;
 
-import com.google.common.base.Preconditions;
-import com.google.common.io.Closeables;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * Utility class that is able to parse the console log file of a build.
+ * Parser that is able to find a position in the console log file of a build.
  * 
  * @author Steven G. Brown
  */
-final class ConsoleLogParser {
-
-  private final Run<?, ?> build;
-
-  private int lineNumber;
-
-  private boolean atNewLine = true;
-
-  private boolean endOfFile;
-
-  /**
-   * Create a console log parser for a build.
-   * 
-   * @param build
-   */
-  ConsoleLogParser(Run<?, ?> build) {
-    this.build = Preconditions.checkNotNull(build);
-  }
+interface ConsoleLogParser extends Serializable {
 
   /**
    * Skip to a position in the console log file.
    * 
-   * @param pos
-   *          the position, measured in bytes from the beginning of the file
+   * @param build
+   *          the build to inspect
+   * @return the result
    * @throws IOException
    */
-  void seek(long pos) throws IOException {
-    InputStream inputStream = null;
-    boolean threw = true;
-    try {
-      inputStream = new BufferedInputStream(build.getLogInputStream());
-      for (long i = 0; i < pos; i++) {
-        int value = inputStream.read();
-        if (value == -1) {
-          endOfFile = true;
-          return;
-        }
-        atNewLine = value == 0x0A;
-        if (atNewLine) {
-          lineNumber++;
-        }
-      }
-      threw = false;
-    } finally {
-      Closeables.close(inputStream, threw);
+  Result seek(Run<?, ?> build) throws IOException;
+
+  static final class Result {
+
+    /**
+     * The current line number, starting at line zero.
+     */
+    int lineNumber;
+
+    /**
+     * Whether the last-read character was a new line.
+     */
+    boolean atNewLine;
+
+    /**
+     * Whether the position is past the end of the file.
+     */
+    boolean endOfFile;
+
+    @Override
+    public String toString() {
+      return ReflectionToStringBuilder.toString(this,
+          ToStringStyle.SHORT_PREFIX_STYLE);
     }
-  }
-
-  /**
-   * @return the current line number, starting at line zero
-   */
-  int getLineNumber() {
-    return lineNumber;
-  }
-
-  /**
-   * @return whether the last-read character was a new line
-   */
-  boolean atNewLine() {
-    return atNewLine;
-  }
-
-  /**
-   * @return whether the last {@link #seek(long)} went past the end of the file
-   */
-  boolean endOfFile() {
-    return endOfFile;
   }
 }

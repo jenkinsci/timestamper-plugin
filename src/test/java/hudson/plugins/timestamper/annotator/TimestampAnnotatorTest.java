@@ -30,23 +30,18 @@ import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
-import hudson.plugins.timestamper.TimestamperTestAssistant;
+import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormatter;
-import hudson.plugins.timestamper.format.TimestampFormatterImpl;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 import hudson.plugins.timestamper.io.TimestampsWriterImpl;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
@@ -55,11 +50,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import com.google.common.io.Files;
+import com.google.common.io.Closeables;
 
 /**
  * Unit test for the {@link TimestampAnnotator} class.
@@ -69,26 +63,19 @@ import com.google.common.io.Files;
 @RunWith(Parameterized.class)
 public class TimestampAnnotatorTest {
 
-  private static final char NEWLINE = 0x0A;
-
-  private static final Pattern NUMBER_PATTERN = Pattern.compile("(\\d|\\.)+");
-
   /**
    * @return parameterised test data
    */
   @SuppressWarnings("boxing")
   @Parameters
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        { 0, Arrays.asList("0ab<br>", "1cd<br>", "2ef<br>") },
-        { 1, Arrays.asList("b<br>", "1cd<br>", "2ef<br>") },
-        { 2, Arrays.asList("<br>", "1cd<br>", "2ef<br>") },
-        { 3, Arrays.asList("1cd<br>", "2ef<br>") },
-        { 4, Arrays.asList("d<br>", "2ef<br>") },
-        { 5, Arrays.asList("<br>", "2ef<br>") },
-        { 6, Arrays.asList("2ef<br>") }, { 7, Arrays.asList("f<br>") },
-        { 8, Arrays.asList("<br>") } });
+    return Arrays.asList(new Object[] { false }, new Object[] { true });
   }
+
+  /**
+   */
+  @Parameter
+  public boolean serialize;
 
   /**
    */
@@ -97,173 +84,117 @@ public class TimestampAnnotatorTest {
 
   private Run<?, ?> build;
 
-  private List<String> consoleLogLines;
+  private static ConsoleLogParserImpl.Result logPosition;
 
-  private TimestampFormatter formatter;
-
-  private int offset;
-
-  private List<String> expectedResult;
-
-  private List<String> expectedResultNoTimestamps;
-
-  /**
-   * @param offset
-   * @param result
-   */
-  public TimestampAnnotatorTest(int offset, List<String> result) {
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    this.formatter = new TimestampFormatterImpl("S", "", request);
-
-    this.offset = offset;
-
-    this.expectedResultNoTimestamps = new ArrayList<String>(result.size());
-    for (String line : result) {
-      expectedResultNoTimestamps.add(NUMBER_PATTERN.matcher(line)
-          .replaceAll(""));
-    }
-
-    this.expectedResult = new ArrayList<String>(result.size());
-    for (String line : result) {
-      this.expectedResult.add(NUMBER_PATTERN.matcher(line).replaceAll(
-          TimestamperTestAssistant.span("$0")));
-    }
-  }
+  private static List<Timestamp> capturedTimestamps;
 
   /**
    * @throws Exception
    */
   @Before
   public void setUp() throws Exception {
-    final byte[] consoleLogContents = new byte[] { 'a', 'b', NEWLINE, 'c', 'd',
-        NEWLINE, 'e', 'f', NEWLINE };
-    File consoleLog = folder.newFile();
-    Files.write(consoleLogContents, consoleLog);
-    consoleLogLines = Arrays.asList("ab<br>", "b<br>", "<br>", "cd<br>",
-        "d<br>", "<br>", "ef<br>", "f<br>", "<br>");
-
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    when(build.getLogInputStream()).thenAnswer(new Answer<InputStream>() {
-      @Override
-      public InputStream answer(InvocationOnMock invocation) throws Throwable {
-        return new ByteArrayInputStream(consoleLogContents);
-      }
-    });
-    when(build.getLogFile()).thenReturn(consoleLog);
+
+    logPosition = new ConsoleLogParserImpl.Result();
+    capturedTimestamps = new ArrayList<Timestamp>();
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testAnnotate() throws Exception {
-    writeTimestamps();
-    assertThat(annotate(offset, false), is(expectedResult));
+  public void testStartOfLogFile() throws Exception {
+    List<Timestamp> timestamps = writeTimestamps(2);
+    logPosition.lineNumber = 0;
+    logPosition.atNewLine = true;
+    assertThat(annotate(), is(timestamps));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testAnnotateNegativeOffset() throws Exception {
-    writeTimestamps();
-    assertThat(annotateNegativeOffset(offset, false), is(expectedResult));
+  public void testWithinFirstLine() throws Exception {
+    List<Timestamp> timestamps = writeTimestamps(2);
+    logPosition.lineNumber = 0;
+    logPosition.atNewLine = false;
+    assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testAnnotateWithSerialization() throws Exception {
-    writeTimestamps();
-    assertThat(annotate(offset, true), is(expectedResult));
+  public void testNextLine() throws Exception {
+    List<Timestamp> timestamps = writeTimestamps(2);
+    logPosition.lineNumber = 1;
+    logPosition.atNewLine = true;
+    assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testAnnotateNegativeOffsetWithSerialization() throws Exception {
-    writeTimestamps();
-    assertThat(annotateNegativeOffset(offset, true), is(expectedResult));
+  public void testEndOfLogFile() throws Exception {
+    logPosition.endOfFile = true;
+    assertThat(annotate(), is(Collections.<Timestamp> emptyList()));
   }
 
-  /**
-   */
-  @Test
-  public void testNoTimestamps() {
-    List<String> annotated = annotate(offset, false);
-    assertThat(annotated,
-        is(expectedResultNoTimestamps.subList(0, annotated.size())));
-  }
-
-  /**
-   */
-  @Test
-  public void testNoTimestampsNegativeOffset() {
-    List<String> annotated = annotateNegativeOffset(offset, false);
-    assertThat(annotated,
-        is(expectedResultNoTimestamps.subList(0, annotated.size())));
-  }
-
-  /**
-   */
-  @Test
-  public void testNoTimestampsWithSerialization() {
-    List<String> annotated = annotate(offset, true);
-    assertThat(annotated,
-        is(expectedResultNoTimestamps.subList(0, annotated.size())));
-  }
-
-  /**
-   */
-  @Test
-  public void testNoTimestampsNegativeOffsetWithSerialization() {
-    List<String> annotated = annotateNegativeOffset(offset, true);
-    assertThat(annotated,
-        is(expectedResultNoTimestamps.subList(0, annotated.size())));
-  }
-
-  private void writeTimestamps() throws Exception {
-    TimestampsWriter writer = new TimestampsWriterImpl(build);
+  private List<Timestamp> writeTimestamps(int count) throws Exception {
+    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    TimestampsWriter writer = null;
+    boolean threw = true;
     try {
-      for (int i = 0; i < 3; i++) {
+      writer = new TimestampsWriterImpl(build);
+      for (int i = 0; i < count; i++) {
         writer.write(TimeUnit.MILLISECONDS.toNanos(i), i, 1);
+        timestamps.add(new Timestamp(i, i));
       }
+      threw = false;
     } finally {
-      writer.close();
+      Closeables.close(writer, threw);
     }
+    return timestamps;
   }
 
-  @SuppressWarnings("rawtypes")
-  private List<String> annotate(int offset, boolean serializeAnnotator) {
-    ConsoleAnnotator annotator = new TimestampAnnotator(formatter, offset);
-    return annotate(offset, annotator, serializeAnnotator);
-  }
-
-  @SuppressWarnings("rawtypes")
-  private List<String> annotateNegativeOffset(int offset,
-      boolean serializeAnnotator) {
-    long negativeOffset = offset - build.getLogFile().length();
-    ConsoleAnnotator annotator = new TimestampAnnotator(formatter,
-        negativeOffset);
-    return annotate(offset, annotator, serializeAnnotator);
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private List<String> annotate(int offset, ConsoleAnnotator annotator,
-      boolean serializeAnnotator) {
-    List<String> result = new ArrayList<String>();
-    while (annotator != null && offset < consoleLogLines.size()) {
-      MarkupText markupText = new MarkupText(consoleLogLines.get(offset));
-      if (serializeAnnotator) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private List<Timestamp> annotate() throws Exception {
+    MockTimestampFormatter formatter = new MockTimestampFormatter();
+    ConsoleLogParser logParser = new MockConsoleLogParser();
+    ConsoleAnnotator annotator = new TimestampAnnotator(formatter, logParser);
+    int iterations = 0;
+    while (annotator != null) {
+      if (serialize) {
         annotator = (ConsoleAnnotator) SerializationUtils.clone(annotator);
       }
-      annotator = annotator.annotate(build, markupText);
-      result.add(markupText.toString(false).replace("&lt;", "<"));
-      offset += 3 - (offset % 3);
+      annotator = annotator.annotate(build, mock(MarkupText.class));
+      iterations++;
+      if (iterations > 100) {
+        throw new AssertionError("annotator is not terminating");
+      }
     }
-    return result;
+    return capturedTimestamps;
+  }
+
+  private static class MockTimestampFormatter implements TimestampFormatter {
+
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public void markup(MarkupText text, Timestamp timestamp) {
+      capturedTimestamps.add(timestamp);
+    }
+  }
+
+  private static class MockConsoleLogParser implements ConsoleLogParser {
+
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public Result seek(Run<?, ?> build) throws IOException {
+      return logPosition;
+    }
   }
 }
