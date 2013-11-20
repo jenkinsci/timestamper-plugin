@@ -23,15 +23,65 @@
  */
 package hudson.plugins.timestamper.io;
 
+import hudson.model.Run;
+
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+
+import com.google.common.io.Closeables;
+import com.google.common.io.Files;
 
 /**
  * Write the time-stamps for a build to disk.
  * 
  * @author Steven G. Brown
  */
-public interface TimestampsWriter extends Closeable {
+public class TimestampsWriter implements Closeable {
+
+  private static final int BUFFER_SIZE = 1024;
+
+  static File timestamperDir(Run<?, ?> build) {
+    return new File(build.getRootDir(), "timestamper");
+  }
+
+  static File timestampsFile(File timestamperDir) {
+    return new File(timestamperDir, "timestamps");
+  }
+
+  private final File timestampsFile;
+
+  private FileOutputStream timestampsOutput;
+
+  /**
+   * Buffer that is used to store Varints prior to writing to a file.
+   */
+  private final byte[] buffer = new byte[BUFFER_SIZE];
+
+  private long buildStartTime;
+
+  private long previousCurrentTimeMillis;
+
+  /**
+   * Create a time-stamps writer for the given build.
+   * 
+   * @param build
+   * @throws IOException
+   */
+  public TimestampsWriter(Run<?, ?> build) throws IOException {
+    File timestamperDir = timestamperDir(build);
+    this.timestampsFile = timestampsFile(timestamperDir);
+    this.buildStartTime = build.getTimeInMillis();
+    this.previousCurrentTimeMillis = buildStartTime;
+
+    Files.createParentDirs(timestampsFile);
+    boolean fileCreated = timestampsFile.createNewFile();
+    if (!fileCreated) {
+      throw new IOException("File already exists: " + timestampsFile);
+    }
+  }
 
   /**
    * Write a time-stamp for a line of the console log.
@@ -42,5 +92,62 @@ public interface TimestampsWriter extends Closeable {
    *          the number of times to write the time-stamp
    * @throws IOException
    */
-  public void write(long currentTimeMillis, int times) throws IOException;
+  public void write(long currentTimeMillis, int times) throws IOException {
+    if (times < 1) {
+      return;
+    }
+    long elapsedMillis = currentTimeMillis - previousCurrentTimeMillis;
+    previousCurrentTimeMillis = currentTimeMillis;
+
+    // Write to the time-stamps file.
+    if (timestampsOutput == null) {
+      timestampsOutput = new FileOutputStream(timestampsFile);
+    }
+    writeVarintsTo(timestampsOutput, elapsedMillis);
+    if (times > 1) {
+      writeZerosTo(timestampsOutput, times - 1);
+    }
+  }
+
+  /**
+   * Write each value to the given output stream as a Base 128 Varint.
+   * 
+   * @param outputStream
+   * @param values
+   * @throws IOException
+   */
+  private void writeVarintsTo(FileOutputStream outputStream, long... values)
+      throws IOException {
+    int offset = 0;
+    for (long value : values) {
+      offset = Varint.write(value, buffer, offset);
+    }
+    outputStream.write(buffer, 0, offset);
+    outputStream.flush();
+  }
+
+  /**
+   * Write n bytes of 0 to the given output stream.
+   * 
+   * @param outputStream
+   * @param n
+   */
+  private void writeZerosTo(FileOutputStream outputStream, int n)
+      throws IOException {
+    Arrays.fill(buffer, (byte) 0);
+    while (n > 0) {
+      int bytesToWrite = Math.min(n, buffer.length);
+      n -= bytesToWrite;
+      outputStream.write(buffer, 0, bytesToWrite);
+      outputStream.flush();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() throws IOException {
+    Closeables.close(timestampsOutput, false);
+  }
 }

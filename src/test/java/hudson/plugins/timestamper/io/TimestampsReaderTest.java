@@ -178,13 +178,13 @@ public class TimestampsReaderTest {
   }
 
   private void writeTimestamps(List<Integer> timestampData) throws Exception {
-    File timestamperDir = TimestampsWriterImpl.timestamperDir(build);
-    File timestampsFile = TimestampsWriterImpl.timestampsFile(timestamperDir);
+    File timestamperDir = TimestampsWriter.timestamperDir(build);
+    File timestampsFile = TimestampsWriter.timestampsFile(timestamperDir);
     writeToFile(timestampData, timestampsFile);
   }
 
   private void writeTimeShifts(List<Integer> timeShiftData) throws Exception {
-    File timestamperDir = TimestampsWriterImpl.timestamperDir(build);
+    File timestamperDir = TimestampsWriter.timestamperDir(build);
     File timeShiftsFile = TimestampsReader.timeShiftsFile(timestamperDir);
     writeToFile(timeShiftData, timeShiftsFile);
   }

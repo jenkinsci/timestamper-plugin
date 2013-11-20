@@ -40,7 +40,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * Test for integration between the {@link TimestampsReader} and
- * {@link TimestampsWriterImpl} classes.
+ * {@link TimestampsWriter} classes.
  * 
  * @author Steven G. Brown
  */
@@ -70,7 +70,7 @@ public class TimestampsIOTest {
    */
   @Test
   public void testReadFromStartWhileWriting() throws Exception {
-    TimestampsWriter writer = new TimestampsWriterImpl(build);
+    TimestampsWriter writer = new TimestampsWriter(build);
     TimestampsReader reader = new TimestampsReader(build);
     try {
       writer.write(2, 1);

@@ -49,11 +49,11 @@ import org.powermock.reflect.Whitebox;
 import com.google.common.io.Files;
 
 /**
- * Unit test for the {@link TimestampsWriterImpl} class.
+ * Unit test for the {@link TimestampsWriter} class.
  * 
  * @author Steven G. Brown
  */
-public class TimestampsWriterImplTest {
+public class TimestampsWriterTest {
 
   /**
    */
@@ -62,7 +62,7 @@ public class TimestampsWriterImplTest {
 
   private Run<?, ?> build;
 
-  private TimestampsWriterImpl timestampsWriter;
+  private TimestampsWriter timestampsWriter;
 
   /**
    * @throws Exception
@@ -71,7 +71,7 @@ public class TimestampsWriterImplTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    timestampsWriter = new TimestampsWriterImpl(build);
+    timestampsWriter = new TimestampsWriter(build);
   }
 
   /**
@@ -129,8 +129,8 @@ public class TimestampsWriterImplTest {
    */
   @Test
   public void testWriteSameTimestampManyTimes() throws Exception {
-    int bufferSize = Whitebox.getField(TimestampsWriterImpl.class,
-        "BUFFER_SIZE").getInt(null);
+    int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE")
+        .getInt(null);
     int times = bufferSize + 1000; // larger than the buffer
     timestampsWriter.write(10000, times);
     List<Integer> writtenTimestampData = writtenTimestampData();
@@ -141,8 +141,8 @@ public class TimestampsWriterImplTest {
   }
 
   private List<Integer> writtenTimestampData() throws Exception {
-    File timestamperDir = TimestampsWriterImpl.timestamperDir(build);
-    File timestampsFile = TimestampsWriterImpl.timestampsFile(timestamperDir);
+    File timestamperDir = TimestampsWriter.timestamperDir(build);
+    File timestampsFile = TimestampsWriter.timestampsFile(timestamperDir);
     byte[] fileContents = Files.toByteArray(timestampsFile);
     TimestampsReader.InputStreamByteReader byteReader = new TimestampsReader.InputStreamByteReader(
         new ByteArrayInputStream(fileContents));

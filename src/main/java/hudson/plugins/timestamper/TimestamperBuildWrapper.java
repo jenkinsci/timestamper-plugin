@@ -30,7 +30,6 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.plugins.timestamper.io.TimestampsWriter;
-import hudson.plugins.timestamper.io.TimestampsWriterImpl;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 
@@ -84,7 +83,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
       return new TimestampNotesOutputStream(logger);
     }
     try {
-      TimestampsWriter timestampsWriter = new TimestampsWriterImpl(build);
+      TimestampsWriter timestampsWriter = new TimestampsWriter(build);
       logger = new TimestamperOutputStream(logger, timestampsWriter);
     } catch (IOException ex) {
       LOGGER.log(Level.WARNING, ex.getMessage(), ex);

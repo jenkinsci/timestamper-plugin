@@ -33,7 +33,6 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 import hudson.plugins.timestamper.io.TimestampsWriter;
-import hudson.plugins.timestamper.io.TimestampsWriterImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -146,7 +145,7 @@ public class TimestampAnnotatorTest {
     TimestampsWriter writer = null;
     boolean threw = true;
     try {
-      writer = new TimestampsWriterImpl(build);
+      writer = new TimestampsWriter(build);
       for (int i = 0; i < count; i++) {
         writer.write(i, 1);
         timestamps.add(new Timestamp(i, i));

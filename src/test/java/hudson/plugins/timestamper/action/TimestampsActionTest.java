@@ -36,7 +36,6 @@ import hudson.plugins.timestamper.action.TimestampsActionTest.NoLogFileTest;
 import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampNotesTest;
 import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampWriterTest;
 import hudson.plugins.timestamper.io.TimestampsWriter;
-import hudson.plugins.timestamper.io.TimestampsWriterImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -327,7 +326,7 @@ public class TimestampsActionTest {
      */
     @Before
     public void writeTimestamps() throws Exception {
-      TimestampsWriter writer = new TimestampsWriterImpl(build);
+      TimestampsWriter writer = new TimestampsWriter(build);
       try {
         for (long millisSinceEpoch : millisSinceEpochToWrite) {
           writer.write(millisSinceEpoch, 1);
