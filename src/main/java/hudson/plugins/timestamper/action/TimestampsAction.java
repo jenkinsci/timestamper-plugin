@@ -34,6 +34,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,10 +119,15 @@ public final class TimestampsAction implements Action {
 
     TimestampsReader reader = new TimestampsReader(build);
     boolean timestampsFound = false;
-    Timestamp timestamp;
-    while ((timestamp = reader.next()) != null) {
+    while (true) {
+      List<Timestamp> timestamps = reader.read(1000);
+      if (timestamps.isEmpty()) {
+        break;
+      }
       timestampsFound = true;
-      writer.write(formatTimestamp(timestamp, precision));
+      for (Timestamp timestamp : timestamps) {
+        writer.write(formatTimestamp(timestamp, precision));
+      }
     }
 
     if (!timestampsFound) {

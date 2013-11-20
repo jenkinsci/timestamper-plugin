@@ -83,10 +83,10 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
         }
         timestampsReader = new TimestampsReader(build);
         timestampsReader.skip(logPosition.lineNumber);
-        Timestamp timestamp = timestampsReader.next();
+        Timestamp timestamp = timestampsReader.read();
         return markup(text, logPosition.atNewLine ? timestamp : null);
       }
-      Timestamp timestamp = timestampsReader.next();
+      Timestamp timestamp = timestampsReader.read();
       if (timestamp != null) {
         return markup(text, timestamp);
       }

@@ -49,7 +49,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.google.common.io.Closeables;
+import com.google.common.primitives.Ints;
 
 /**
  * Unit test for the {@link TimestampsReader} class.
@@ -64,13 +67,23 @@ public class TimestampsReaderTest {
    */
   @Parameters
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[] { false }, new Object[] { true });
+    List<Object[]> parameters = new ArrayList<Object[]>();
+    for (int numToRead : Ints.asList(1, 2, 3, 10)) {
+      parameters.add(new Object[] { false, numToRead });
+      parameters.add(new Object[] { true, numToRead });
+    }
+    return parameters;
   }
 
   /**
    */
-  @Parameter
+  @Parameter(0)
   public boolean serialize;
+
+  /**
+   */
+  @Parameter(1)
+  public int numToRead;
 
   /**
    */
@@ -214,11 +227,18 @@ public class TimestampsReaderTest {
         timestampsReader = (TimestampsReader) SerializationUtils
             .clone(timestampsReader);
       }
-      Timestamp timestamp = timestampsReader.next();
-      if (timestamp == null) {
+      Collection<Timestamp> next;
+      if (numToRead == 1) {
+        next = Collections2.filter(
+            Collections.singletonList(timestampsReader.read()),
+            Predicates.notNull());
+      } else {
+        next = timestampsReader.read(numToRead);
+      }
+      if (next.isEmpty()) {
         return timestamps;
       }
-      timestamps.add(timestamp);
+      timestamps.addAll(next);
       iterations++;
       if (iterations > 10000) {
         throw new IllegalStateException(

@@ -33,12 +33,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
@@ -94,12 +98,64 @@ public final class TimestampsReader implements Serializable {
    * @throws IOException
    */
   public void skip(int count) throws IOException {
-    InputStream inputStream = null;
+    read(count, null);
+  }
+
+  /**
+   * Read the next time-stamp.
+   * 
+   * @return the next time-stamp, or {@code null} if there are no more to read
+   * @throws IOException
+   */
+  public Timestamp read() throws IOException {
+    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    read(1, timestamps);
+    return Iterators.getOnlyElement(timestamps.iterator(), null);
+  }
+
+  /**
+   * Read several time-stamps.
+   * 
+   * @param count
+   *          the number of time-stamps to read
+   * @return a list containing {@code count} time-stamps, or fewer if there are
+   *         no more to read
+   * @throws IOException
+   */
+  public List<Timestamp> read(int count) throws IOException {
+    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    read(count, timestamps);
+    return ImmutableList.copyOf(timestamps);
+  }
+
+  /**
+   * Read up to {@code count} time-stamps and add them to the given list.
+   * 
+   * @param count
+   *          the number of time-stamps to read
+   * @param timestamps
+   *          the list that will contain the time-stamps, may be {@code null}
+   * @throws IOException
+   */
+  private void read(int count, List<Timestamp> timestamps) throws IOException {
+    if (count < 1 || !timestampsFile.isFile()) {
+      return;
+    }
+    if (timeShifts == null) {
+      timeShifts = readTimeShifts();
+    }
+    InputStream inputStream = new FileInputStream(timestampsFile);
     boolean threw = true;
     try {
-      inputStream = openTimestampsStream();
-      for (int i = 0; i < count; i++) {
-        next(inputStream);
+      ByteStreams.skipFully(inputStream, filePointer);
+      inputStream = new BufferedInputStream(inputStream);
+      int i = 0;
+      while (i < count && filePointer < timestampsFile.length()) {
+        Timestamp timestamp = readNext(inputStream);
+        if (timestamps != null) {
+          timestamps.add(timestamp);
+        }
+        i++;
       }
       threw = false;
     } finally {
@@ -108,58 +164,21 @@ public final class TimestampsReader implements Serializable {
   }
 
   /**
-   * Read the next time-stamp.
+   * Read the next time-stamp from the given input stream.
    * 
+   * @param inputStream
    * @return the next time-stamp
-   * @throws IOException
    */
-  public Timestamp next() throws IOException {
-    InputStream inputStream = null;
-    Timestamp timestamp;
-    boolean threw = true;
-    try {
-      inputStream = openTimestampsStream();
-      timestamp = next(inputStream);
-      threw = false;
-    } finally {
-      Closeables.close(inputStream, threw);
-    }
-    return timestamp;
-  }
-
-  /**
-   * Read the next time-stamp by using an existing {@link InputStream}.
-   */
-  private Timestamp next(InputStream inputStream) throws IOException {
-    if (inputStream == null || filePointer >= timestampsFile.length()) {
-      return null;
-    }
+  private Timestamp readNext(InputStream inputStream) throws IOException {
     InputStreamByteReader byteReader = new InputStreamByteReader(inputStream);
     long elapsedMillisDiff = Varint.read(byteReader);
 
     elapsedMillis += elapsedMillisDiff;
-    millisSinceEpoch += elapsedMillisDiff;
-    applyTimeShift();
+    millisSinceEpoch = Objects.firstNonNull(timeShifts.get(entry),
+        millisSinceEpoch + elapsedMillisDiff);
     filePointer += byteReader.bytesRead;
     entry++;
     return new Timestamp(elapsedMillis, millisSinceEpoch);
-  }
-
-  private InputStream openTimestampsStream() throws IOException {
-    if (!timestampsFile.isFile()) {
-      return null;
-    }
-    InputStream inputStream = new FileInputStream(timestampsFile);
-    ByteStreams.skipFully(inputStream, filePointer);
-    return inputStream;
-  }
-
-  private void applyTimeShift() throws IOException {
-    if (timeShifts == null) {
-      timeShifts = readTimeShifts();
-    }
-    millisSinceEpoch = Objects.firstNonNull(timeShifts.get(entry),
-        millisSinceEpoch);
   }
 
   private Map<Long, Long> readTimeShifts() throws IOException {
