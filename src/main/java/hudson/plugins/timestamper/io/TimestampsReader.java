@@ -30,16 +30,15 @@ import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Objects;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
 /**
@@ -103,15 +102,16 @@ public final class TimestampsReader implements Serializable {
    * @throws IOException
    */
   public void skip(int count) throws IOException {
-    RandomAccessFile raf = openTimestampsFile();
+    InputStream inputStream = null;
     boolean threw = true;
     try {
+      inputStream = openTimestampsStream();
       for (int i = 0; i < count; i++) {
-        next(raf);
+        next(inputStream);
       }
       threw = false;
     } finally {
-      Closeables.close(raf, threw);
+      Closeables.close(inputStream, threw);
     }
   }
 
@@ -122,33 +122,27 @@ public final class TimestampsReader implements Serializable {
    * @throws IOException
    */
   public Timestamp next() throws IOException {
-    RandomAccessFile raf = openTimestampsFile();
+    InputStream inputStream = null;
     Timestamp timestamp;
     boolean threw = true;
     try {
-      timestamp = next(raf);
+      inputStream = openTimestampsStream();
+      timestamp = next(inputStream);
       threw = false;
     } finally {
-      Closeables.close(raf, threw);
+      Closeables.close(inputStream, threw);
     }
     return timestamp;
   }
 
   /**
-   * Read the next time-stamp by using an existing {@link RandomAccessFile}.
+   * Read the next time-stamp by using an existing {@link InputStream}.
    */
-  private Timestamp next(final RandomAccessFile raf) throws IOException {
-    if (raf == null || filePointer >= timestampsFile.length()) {
+  private Timestamp next(InputStream inputStream) throws IOException {
+    if (inputStream == null || filePointer >= timestampsFile.length()) {
       return null;
     }
-    Varint.ByteReader byteReader = new Varint.ByteReader() {
-      @Override
-      public byte readByte() throws IOException {
-        return raf.readByte();
-      }
-    };
-
-    raf.seek(filePointer);
+    InputStreamByteReader byteReader = new InputStreamByteReader(inputStream);
 
     long elapsedMillisDiff = Varint.read(byteReader);
     elapsedMillis += elapsedMillisDiff;
@@ -160,16 +154,18 @@ public final class TimestampsReader implements Serializable {
       millisSinceEpoch += elapsedMillisDiff;
     }
 
-    filePointer = raf.getFilePointer();
+    filePointer += byteReader.bytesRead;
     entry++;
     return new Timestamp(elapsedMillis, millisSinceEpoch);
   }
 
-  private RandomAccessFile openTimestampsFile() throws FileNotFoundException {
+  private InputStream openTimestampsStream() throws IOException {
     if (!timestampsFile.isFile()) {
       return null;
     }
-    return new RandomAccessFile(timestampsFile, "r");
+    InputStream inputStream = new FileInputStream(timestampsFile);
+    ByteStreams.skipFully(inputStream, filePointer);
+    return inputStream;
   }
 
   private Map<Long, Long> readTimeShifts() throws IOException {
