@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
@@ -65,15 +66,6 @@ public final class TimestampsReader implements Serializable {
   private long entry;
 
   private final File timeShiftsFile;
-
-  /**
-   * Last known length of the {@link #timeShiftsFile}. This value is used to
-   * detect whether the file has changed. This is sufficient because the file
-   * never shrinks; new data is always appended to the end of the file.
-   * <p>
-   * Transient: after serializing, the {@link #timeShiftsFile} will be re-read.
-   */
-  private transient long timeShiftsFileLength;
 
   /**
    * Cache of the time shifts for each entry.
@@ -143,17 +135,11 @@ public final class TimestampsReader implements Serializable {
       return null;
     }
     InputStreamByteReader byteReader = new InputStreamByteReader(inputStream);
-
     long elapsedMillisDiff = Varint.read(byteReader);
+
     elapsedMillis += elapsedMillisDiff;
-
-    timeShifts = readTimeShifts();
-    if (timeShifts.containsKey(entry)) {
-      millisSinceEpoch = timeShifts.get(entry);
-    } else {
-      millisSinceEpoch += elapsedMillisDiff;
-    }
-
+    millisSinceEpoch += elapsedMillisDiff;
+    applyTimeShift();
     filePointer += byteReader.bytesRead;
     entry++;
     return new Timestamp(elapsedMillis, millisSinceEpoch);
@@ -168,22 +154,25 @@ public final class TimestampsReader implements Serializable {
     return inputStream;
   }
 
+  private void applyTimeShift() throws IOException {
+    if (timeShifts == null) {
+      timeShifts = readTimeShifts();
+    }
+    millisSinceEpoch = Objects.firstNonNull(timeShifts.get(entry),
+        millisSinceEpoch);
+  }
+
   private Map<Long, Long> readTimeShifts() throws IOException {
     if (!timeShiftsFile.isFile()) {
       return Collections.emptyMap();
     }
-    if (timeShiftsFile.length() == timeShiftsFileLength) {
-      return Objects.firstNonNull(timeShifts,
-          Collections.<Long, Long> emptyMap());
-    }
-    timeShiftsFileLength = timeShiftsFile.length();
     Map<Long, Long> timeShifts = new HashMap<Long, Long>();
     BufferedInputStream inputStream = null;
     boolean threw = true;
     try {
       inputStream = new BufferedInputStream(new FileInputStream(timeShiftsFile));
       InputStreamByteReader byteReader = new InputStreamByteReader(inputStream);
-      while (byteReader.bytesRead < timeShiftsFileLength) {
+      while (byteReader.bytesRead < timeShiftsFile.length()) {
         long entry = Varint.read(byteReader);
         long shift = Varint.read(byteReader);
         timeShifts.put(entry, shift);
@@ -192,7 +181,7 @@ public final class TimestampsReader implements Serializable {
     } finally {
       Closeables.close(inputStream, threw);
     }
-    return timeShifts;
+    return ImmutableMap.copyOf(timeShifts);
   }
 
   static class InputStreamByteReader implements Varint.ByteReader {
