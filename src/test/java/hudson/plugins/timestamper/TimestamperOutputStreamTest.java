@@ -66,10 +66,9 @@ public class TimestamperOutputStreamTest {
   private byte[] dataTwoLines;
 
   /**
-   * @throws Exception
    */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     build = mock(AbstractBuild.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     delegate = mock(OutputStream.class);

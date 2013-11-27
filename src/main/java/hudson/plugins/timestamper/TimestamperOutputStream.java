@@ -68,10 +68,9 @@ final class TimestamperOutputStream extends OutputStream {
    * @param timestampsWriter
    *          will be used by this output stream to write the time-stamps and
    *          closed when the {@link #close()} method is called
-   * @throws IOException
    */
   TimestamperOutputStream(OutputStream delegate,
-      TimestampsWriter timestampsWriter) throws IOException {
+      TimestampsWriter timestampsWriter) {
     this.delegate = checkNotNull(delegate);
     this.timestampsWriter = checkNotNull(timestampsWriter);
   }
