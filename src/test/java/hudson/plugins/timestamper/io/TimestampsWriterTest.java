@@ -34,10 +34,13 @@ import hudson.model.Run;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +49,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 /**
@@ -62,6 +66,12 @@ public class TimestampsWriterTest {
 
   private Run<?, ?> build;
 
+  private File timestamperDir;
+
+  private File timestampsFile;
+
+  private File timestampsHashFile;
+
   private TimestampsWriter timestampsWriter;
 
   /**
@@ -71,7 +81,10 @@ public class TimestampsWriterTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    timestampsWriter = new TimestampsWriter(build);
+    timestamperDir = TimestampsWriter.timestamperDir(build);
+    timestampsFile = TimestampsWriter.timestampsFile(timestamperDir);
+    timestampsHashFile = new File(timestamperDir, timestampsFile.getName()
+        + ".SHA-1");
   }
 
   /**
@@ -87,6 +100,7 @@ public class TimestampsWriterTest {
    */
   @Test
   public void testWriteIncreasing() throws Exception {
+    timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(1, 1);
     timestampsWriter.write(2, 1);
     timestampsWriter.write(3, 1);
@@ -98,6 +112,7 @@ public class TimestampsWriterTest {
    */
   @Test
   public void testWriteDecreasing() throws Exception {
+    timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(3, 1);
     timestampsWriter.write(2, 1);
     timestampsWriter.write(1, 1);
@@ -109,6 +124,7 @@ public class TimestampsWriterTest {
    */
   @Test
   public void testWriteZeroTimes() throws Exception {
+    timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(0, 0);
     assertThat(writtenTimestampData(), is(Collections.<Integer> emptyList()));
   }
@@ -118,6 +134,7 @@ public class TimestampsWriterTest {
    */
   @Test
   public void testWriteSeveralTimes() throws Exception {
+    timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(1, 1);
     timestampsWriter.write(6, 4);
     timestampsWriter.write(7, 1);
@@ -132,6 +149,7 @@ public class TimestampsWriterTest {
     int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE")
         .getInt(null);
     int times = bufferSize + 1000; // larger than the buffer
+    timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(10000, times);
     List<Integer> writtenTimestampData = writtenTimestampData();
     assertThat(writtenTimestampData.get(0), is(10000));
@@ -140,9 +158,39 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData, hasSize(times));
   }
 
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testHashFile() throws Exception {
+    MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+    timestampsWriter = new TimestampsWriter(build, sha1);
+    timestampsWriter.write(1, 1);
+    timestampsWriter.write(2, 1);
+    timestampsWriter.write(3, 1);
+    timestampsWriter.close();
+
+    byte[] fileContents = Files.toByteArray(timestampsFile);
+    byte[] expectedHash = MessageDigest.getInstance("SHA-1").digest(
+        fileContents);
+    assertThat(Files.toString(timestampsHashFile, Charsets.US_ASCII).trim(),
+        is(DatatypeConverter.printHexBinary(expectedHash).toLowerCase()));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testNoHashFile() throws Exception {
+    timestampsWriter = new TimestampsWriter(build);
+    timestampsWriter.write(1, 1);
+    timestampsWriter.write(2, 1);
+    timestampsWriter.write(3, 1);
+    timestampsWriter.close();
+    assertThat(timestamperDir.listFiles(), is(new File[] { timestampsFile }));
+  }
+
   private List<Integer> writtenTimestampData() throws Exception {
-    File timestamperDir = TimestampsWriter.timestamperDir(build);
-    File timestampsFile = TimestampsWriter.timestampsFile(timestamperDir);
     byte[] fileContents = Files.toByteArray(timestampsFile);
     TimestampsReader.InputStreamByteReader byteReader = new TimestampsReader.InputStreamByteReader(
         new ByteArrayInputStream(fileContents));

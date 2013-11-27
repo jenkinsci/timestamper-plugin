@@ -27,10 +27,15 @@ import hudson.model.Run;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.util.Arrays;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
@@ -53,7 +58,9 @@ public class TimestampsWriter implements Closeable {
 
   private final File timestampsFile;
 
-  private FileOutputStream timestampsOutput;
+  private final MessageDigest timestampsDigest;
+
+  private OutputStream timestampsOutput;
 
   /**
    * Buffer that is used to store Varints prior to writing to a file.
@@ -71,10 +78,23 @@ public class TimestampsWriter implements Closeable {
    * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
+    this(build, null);
+  }
+
+  /**
+   * Create a time-stamps writer for the given build.
+   * 
+   * @param build
+   * @param digest
+   * @throws IOException
+   */
+  public TimestampsWriter(Run<?, ?> build, MessageDigest digest)
+      throws IOException {
     File timestamperDir = timestamperDir(build);
     this.timestampsFile = timestampsFile(timestamperDir);
     this.buildStartTime = build.getTimeInMillis();
     this.previousCurrentTimeMillis = buildStartTime;
+    this.timestampsDigest = digest;
 
     Files.createParentDirs(timestampsFile);
     boolean fileCreated = timestampsFile.createNewFile();
@@ -101,12 +121,26 @@ public class TimestampsWriter implements Closeable {
 
     // Write to the time-stamps file.
     if (timestampsOutput == null) {
-      timestampsOutput = new FileOutputStream(timestampsFile);
+      timestampsOutput = openTimestampsStream();
     }
     writeVarintsTo(timestampsOutput, elapsedMillis);
     if (times > 1) {
       writeZerosTo(timestampsOutput, times - 1);
     }
+  }
+
+  /**
+   * Open an output stream for writing to the time-stamps file.
+   * 
+   * @return the output stream
+   * @throws FileNotFoundException
+   */
+  private OutputStream openTimestampsStream() throws FileNotFoundException {
+    OutputStream outputStream = new FileOutputStream(timestampsFile);
+    if (timestampsDigest != null) {
+      outputStream = new DigestOutputStream(outputStream, timestampsDigest);
+    }
+    return outputStream;
   }
 
   /**
@@ -116,7 +150,7 @@ public class TimestampsWriter implements Closeable {
    * @param values
    * @throws IOException
    */
-  private void writeVarintsTo(FileOutputStream outputStream, long... values)
+  private void writeVarintsTo(OutputStream outputStream, long... values)
       throws IOException {
     int offset = 0;
     for (long value : values) {
@@ -132,7 +166,7 @@ public class TimestampsWriter implements Closeable {
    * @param outputStream
    * @param n
    */
-  private void writeZerosTo(FileOutputStream outputStream, int n)
+  private void writeZerosTo(OutputStream outputStream, int n)
       throws IOException {
     Arrays.fill(buffer, (byte) 0);
     while (n > 0) {
@@ -149,5 +183,15 @@ public class TimestampsWriter implements Closeable {
   @Override
   public void close() throws IOException {
     Closeables.close(timestampsOutput, false);
+    if (timestampsDigest != null) {
+      StringBuilder hash = new StringBuilder();
+      for (byte b : timestampsDigest.digest()) {
+        hash.append(String.format("%02x", b));
+      }
+      hash.append("\n");
+      File digestFile = new File(timestampsFile.getParent(),
+          timestampsFile.getName() + "." + timestampsDigest.getAlgorithm());
+      Files.write(hash.toString(), digestFile, Charsets.US_ASCII);
+    }
   }
 }

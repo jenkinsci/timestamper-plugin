@@ -35,6 +35,8 @@ import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,8 +84,14 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     if (Boolean.getBoolean(TimestampNote.getSystemProperty())) {
       return new TimestampNotesOutputStream(logger);
     }
+    MessageDigest digest = null;
     try {
-      TimestampsWriter timestampsWriter = new TimestampsWriter(build);
+      digest = MessageDigest.getInstance("SHA-1");
+    } catch (NoSuchAlgorithmException ex) {
+      LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+    }
+    try {
+      TimestampsWriter timestampsWriter = new TimestampsWriter(build, digest);
       logger = new TimestamperOutputStream(logger, timestampsWriter);
     } catch (IOException ex) {
       LOGGER.log(Level.WARNING, ex.getMessage(), ex);
