@@ -34,6 +34,7 @@ import hudson.model.Run;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
 
@@ -63,6 +65,11 @@ public class TimestampsWriterTest {
    */
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
+
+  /**
+   */
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private Run<?, ?> build;
 
@@ -188,6 +195,16 @@ public class TimestampsWriterTest {
     timestampsWriter.write(3, 1);
     timestampsWriter.close();
     assertThat(timestamperDir.listFiles(), is(new File[] { timestampsFile }));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testOnlyOneWriterPerBuild() throws Exception {
+    timestampsWriter = new TimestampsWriter(build);
+    thrown.expect(IOException.class);
+    timestampsWriter = new TimestampsWriter(build);
   }
 
   private List<Integer> writtenTimestampData() throws Exception {
