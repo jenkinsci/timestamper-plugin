@@ -73,7 +73,8 @@ public class TimestamperOutputStreamTest {
     when(build.getRootDir()).thenReturn(folder.getRoot());
     delegate = mock(OutputStream.class);
     writer = mock(TimestampsWriter.class);
-    timestamperOutputStream = new TimestamperOutputStream(delegate, writer);
+    timestamperOutputStream = new TimestamperOutputStream(build, delegate,
+        writer);
     data = new byte[] { 'a', (byte) NEWLINE };
     dataTwoLines = new byte[] { 'a', (byte) NEWLINE, 'b', (byte) NEWLINE };
   }

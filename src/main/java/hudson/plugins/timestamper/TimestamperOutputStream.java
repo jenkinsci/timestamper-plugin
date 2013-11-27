@@ -24,12 +24,13 @@
 package hudson.plugins.timestamper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import hudson.model.Run;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import com.google.common.io.Closeables;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Output stream that records time-stamps into a separate file while inspecting
@@ -38,6 +39,14 @@ import com.google.common.io.Closeables;
  * @author Steven G. Brown
  */
 final class TimestamperOutputStream extends OutputStream {
+
+  private static final Logger LOGGER = Logger
+      .getLogger(TimestamperOutputStream.class.getName());
+
+  /**
+   * The build in progress.
+   */
+  private final Run<?, ?> build;
 
   /**
    * The delegate output stream.
@@ -61,16 +70,24 @@ final class TimestamperOutputStream extends OutputStream {
   private int previousCharacter = -1;
 
   /**
+   * Set to {@code true} when an error occurs while writing the time-stamps.
+   */
+  private boolean writeError;
+
+  /**
    * Create a new {@link TimestamperOutputStream}.
    * 
+   * @param build
+   *          the build in progress
    * @param delegate
    *          the delegate output stream
    * @param timestampsWriter
    *          will be used by this output stream to write the time-stamps and
    *          closed when the {@link #close()} method is called
    */
-  TimestamperOutputStream(OutputStream delegate,
+  TimestamperOutputStream(Run<?, ?> build, OutputStream delegate,
       TimestampsWriter timestampsWriter) {
+    this.build = checkNotNull(build);
     this.delegate = checkNotNull(delegate);
     this.timestampsWriter = checkNotNull(timestampsWriter);
   }
@@ -103,7 +120,7 @@ final class TimestamperOutputStream extends OutputStream {
     delegate.write(b, off, len);
   }
 
-  private void writeTimestamps(byte[] b, int off, int len) throws IOException {
+  private void writeTimestamps(byte[] b, int off, int len) {
     byte newlineCharacter = (byte) 0x0A;
     int lineStartCount = 0;
     for (int i = off; i < off + len; i++) {
@@ -113,9 +130,15 @@ final class TimestamperOutputStream extends OutputStream {
       previousCharacter = b[i];
     }
 
-    if (lineStartCount > 0) {
+    if (lineStartCount > 0 && !writeError) {
       long currentTimeMillis = System.currentTimeMillis();
-      timestampsWriter.write(currentTimeMillis, lineStartCount);
+      try {
+        timestampsWriter.write(currentTimeMillis, lineStartCount);
+      } catch (IOException ex) {
+        writeError = true;
+        LOGGER.log(Level.WARNING,
+            "Error writing timestamps for " + build.getFullDisplayName(), ex);
+      }
     }
   }
 
@@ -132,12 +155,12 @@ final class TimestamperOutputStream extends OutputStream {
    */
   @Override
   public void close() throws IOException {
-    boolean threw = true;
     try {
-      Closeables.close(timestampsWriter, false);
-      threw = false;
-    } finally {
-      Closeables.close(delegate, threw);
+      timestampsWriter.close();
+    } catch (IOException ex) {
+      LOGGER.log(Level.WARNING, ex.getMessage(), ex);
     }
+
+    delegate.close();
   }
 }

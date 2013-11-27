@@ -92,7 +92,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     }
     try {
       TimestampsWriter timestampsWriter = new TimestampsWriter(build, digest);
-      logger = new TimestamperOutputStream(logger, timestampsWriter);
+      logger = new TimestamperOutputStream(build, logger, timestampsWriter);
     } catch (IOException ex) {
       LOGGER.log(Level.WARNING, ex.getMessage(), ex);
     }
