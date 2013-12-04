@@ -64,10 +64,9 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
   public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
     result.atNewLine = true;
-    InputStream inputStream = null;
+    InputStream inputStream = new BufferedInputStream(build.getLogInputStream());
     boolean threw = true;
     try {
-      inputStream = new BufferedInputStream(build.getLogInputStream());
       long posFromStart = pos;
       if (pos < 0) {
         posFromStart = build.getLogText().length() + pos;

@@ -23,12 +23,14 @@
  */
 package hudson.plugins.timestamper.format;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.MarkupText;
 import hudson.plugins.timestamper.Timestamp;
 
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +55,7 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
    * Function that converts a time-stamp to a formatted string representation of
    * that time-stamp.
    */
+  @CheckForNull
   private final Function<Timestamp, String> formatTimestamp;
 
   /**
@@ -67,6 +70,7 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
    */
   public TimestampFormatterImpl(String systemTimeFormat,
       String elapsedTimeFormat, HttpServletRequest request) {
+
     if (request == null) {
       // JENKINS-16778: The request can be null when the slave goes off-line.
       formatTimestamp = null;
@@ -122,7 +126,7 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
     private final String systemTimeFormat;
 
     SystemTimeFormatFunction(String systemTimeFormat) {
-      this.systemTimeFormat = systemTimeFormat;
+      this.systemTimeFormat = checkNotNull(systemTimeFormat);
     }
 
     @Override
@@ -143,7 +147,7 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
     private final String elapsedTimeFormat;
 
     ElapsedTimeFormatFunction(String elapsedTimeFormat) {
-      this.elapsedTimeFormat = elapsedTimeFormat;
+      this.elapsedTimeFormat = checkNotNull(elapsedTimeFormat);
     }
 
     @Override

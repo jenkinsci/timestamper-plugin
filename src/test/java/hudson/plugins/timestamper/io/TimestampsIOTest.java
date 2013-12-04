@@ -38,6 +38,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.google.common.base.Optional;
+
 /**
  * Test for integration between the {@link TimestampsReader} and
  * {@link TimestampsWriter} classes.
@@ -74,14 +76,14 @@ public class TimestampsIOTest {
     TimestampsReader reader = new TimestampsReader(build);
     try {
       writer.write(2, 1);
-      assertThat(reader.read(), is(new Timestamp(1, 2)));
+      assertThat(reader.read(), is(Optional.of(new Timestamp(1, 2))));
       writer.write(3, 1);
-      assertThat(reader.read(), is(new Timestamp(2, 3)));
+      assertThat(reader.read(), is(Optional.of(new Timestamp(2, 3))));
       writer.write(4, 2);
-      assertThat(reader.read(), is(new Timestamp(3, 4)));
-      assertThat(reader.read(), is(new Timestamp(3, 4)));
+      assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
+      assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
       writer.write(5, 1);
-      assertThat(reader.read(), is(new Timestamp(4, 5)));
+      assertThat(reader.read(), is(Optional.of(new Timestamp(4, 5))));
     } finally {
       writer.close();
     }

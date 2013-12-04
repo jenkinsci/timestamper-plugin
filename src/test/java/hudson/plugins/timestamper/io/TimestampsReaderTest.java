@@ -49,8 +49,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
 import com.google.common.io.Closeables;
 import com.google.common.primitives.Ints;
 
@@ -198,7 +196,7 @@ public class TimestampsReaderTest {
 
   private void writeTimeShifts(List<Integer> timeShiftData) throws Exception {
     File timestamperDir = TimestampsWriter.timestamperDir(build);
-    File timeShiftsFile = TimestampsReader.timeShiftsFile(timestamperDir);
+    File timeShiftsFile = TimeShiftsReader.timeShiftsFile(timestamperDir);
     writeToFile(timeShiftData, timeShiftsFile);
   }
 
@@ -229,9 +227,7 @@ public class TimestampsReaderTest {
       }
       Collection<Timestamp> next;
       if (numToRead == 1) {
-        next = Collections2.filter(
-            Collections.singletonList(timestampsReader.read()),
-            Predicates.notNull());
+        next = timestampsReader.read().asSet();
       } else {
         next = timestampsReader.read(numToRead);
       }

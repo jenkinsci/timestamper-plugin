@@ -29,6 +29,8 @@ import hudson.console.ConsoleAnnotatorFactory;
 import hudson.plugins.timestamper.TimestamperConfig;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 
+import javax.annotation.CheckForNull;
+
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -61,10 +63,9 @@ public final class TimestampAnnotatorFactory extends
    * @param request
    * @return the offset in bytes
    */
-  private static long getOffset(StaplerRequest request) {
-    // Rare case where a Jenkins slave is put offline, while build job is still
-    // running
-    if (null == request) {
+  private static long getOffset(@CheckForNull StaplerRequest request) {
+    if (request == null) {
+      // JENKINS-16778: The request can be null when the slave goes off-line.
       return 0;
     }
     String path = request.getPathInfo();

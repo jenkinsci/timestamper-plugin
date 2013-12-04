@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.console.LineTransformationOutputStream;
@@ -41,6 +42,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import com.google.common.base.Optional;
 
 /**
  * Build wrapper that decorates the build's logger to record time-stamps as each
@@ -84,9 +87,9 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
     if (Boolean.getBoolean(TimestampNote.getSystemProperty())) {
       return new TimestampNotesOutputStream(logger);
     }
-    MessageDigest digest = null;
+    Optional<MessageDigest> digest = Optional.absent();
     try {
-      digest = MessageDigest.getInstance("SHA-1");
+      digest = Optional.of(MessageDigest.getInstance("SHA-1"));
     } catch (NoSuchAlgorithmException ex) {
       LOGGER.log(Level.WARNING, ex.getMessage(), ex);
     }
@@ -118,7 +121,7 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
      *          the delegate output stream
      */
     TimestampNotesOutputStream(OutputStream delegate) {
-      this.delegate = delegate;
+      this.delegate = checkNotNull(delegate);
     }
 
     /**

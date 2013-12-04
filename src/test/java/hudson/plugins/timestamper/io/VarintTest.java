@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -134,7 +134,8 @@ public class VarintTest {
    */
   @Theory
   public void testReadSingleVarint(VarintValue value) throws Exception {
-    long readValue = Varint.read(byteReader(value.varintEncoding));
+    long readValue = Varint
+        .read(new ByteArrayInputStream(value.varintEncoding));
     assertThat(readValue, is(value.value));
   }
 
@@ -162,11 +163,11 @@ public class VarintTest {
   @Theory
   public void testReadTwoVarints(VarintValue valueOne, VarintValue valueTwo)
       throws Exception {
-    Varint.ByteReader byteReader = byteReader(Bytes.concat(
+    InputStream inputStream = new ByteArrayInputStream(Bytes.concat(
         valueOne.varintEncoding, valueTwo.varintEncoding));
-    long readValueOne = Varint.read(byteReader);
+    long readValueOne = Varint.read(inputStream);
     assertThat("first value", readValueOne, is(valueOne.value));
-    long readValueTwo = Varint.read(byteReader);
+    long readValueTwo = Varint.read(inputStream);
     assertThat("second value", readValueTwo, is(valueTwo.value));
   }
 
@@ -190,16 +191,5 @@ public class VarintTest {
       bytes.add(Byte.valueOf((byte) Integer.parseInt(byteString, 2)));
     }
     return Bytes.toArray(bytes);
-  }
-
-  private Varint.ByteReader byteReader(final byte[] buffer) {
-    final ByteArrayInputStream input = new ByteArrayInputStream(buffer);
-
-    return new Varint.ByteReader() {
-      @Override
-      public byte readByte() throws IOException {
-        return (byte) input.read();
-      }
-    };
   }
 }

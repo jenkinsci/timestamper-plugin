@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper.action;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.console.ConsoleNote;
 import hudson.model.Action;
 import hudson.model.Run;
@@ -75,7 +76,7 @@ public final class TimestampsAction implements Action {
    *          the build to inspect
    */
   TimestampsAction(Run<?, ?> build) {
-    this.build = build;
+    this.build = checkNotNull(build);
   }
 
   /**
@@ -83,8 +84,7 @@ public final class TimestampsAction implements Action {
    */
   @Override
   public String getIconFileName() {
-    // Do not display this action.
-    return null;
+    return null; // do not display this action
   }
 
   /**
@@ -92,8 +92,7 @@ public final class TimestampsAction implements Action {
    */
   @Override
   public String getDisplayName() {
-    // Do not display this action.
-    return null;
+    return null; // do not display this action
   }
 
   /**
@@ -173,11 +172,10 @@ public final class TimestampsAction implements Action {
 
   private void writeConsoleNotes(PrintWriter writer, int precision)
       throws IOException {
-    DataInputStream dataInputStream = null;
+    DataInputStream dataInputStream = new DataInputStream(
+        new BufferedInputStream(build.getLogInputStream()));
     boolean threw = true;
     try {
-      dataInputStream = new DataInputStream(new BufferedInputStream(
-          build.getLogInputStream()));
       while (true) {
         dataInputStream.mark(1);
         int currentByte = dataInputStream.read();

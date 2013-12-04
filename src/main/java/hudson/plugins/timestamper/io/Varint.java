@@ -23,7 +23,9 @@
  */
 package hudson.plugins.timestamper.io;
 
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Utility class for reading and writing long values in Base 128 Varint format.
@@ -60,15 +62,19 @@ final class Varint {
    * Read a value as a Base 128 Varint. See:
    * https://developers.google.com/protocol-buffers/docs/encoding#varints
    * 
-   * @param byteReader
+   * @param inputStream
    * @return the value
    * @throws IOException
    */
-  static long read(ByteReader byteReader) throws IOException {
+  static long read(InputStream inputStream) throws IOException {
     int shift = 0;
     long result = 0;
     while (shift < 64) {
-      final byte b = byteReader.readByte();
+      final int value = inputStream.read();
+      if (value == -1) {
+        throw new EOFException();
+      }
+      final byte b = (byte) value;
       result |= (long) (b & 0x7F) << shift;
       if ((b & 0x80) == 0) {
         return result;
@@ -79,9 +85,5 @@ final class Varint {
   }
 
   private Varint() {
-  }
-
-  static interface ByteReader {
-    byte readByte() throws IOException;
   }
 }

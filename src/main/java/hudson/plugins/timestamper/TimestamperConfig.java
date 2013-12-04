@@ -31,6 +31,7 @@ import hudson.plugins.timestamper.format.TimestampFormatterImpl;
 
 import java.text.SimpleDateFormat;
 
+import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 
 import jenkins.model.GlobalConfiguration;
@@ -77,12 +78,14 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * The chosen format for displaying the system clock time, as recognised by
    * {@link SimpleDateFormat}.
    */
+  @CheckForNull
   private String timestampFormat;
 
   /**
    * The chosen format for displaying the elapsed time, as recognised by
    * {@link DurationFormatUtils}.
    */
+  @CheckForNull
   private String elapsedTimeFormat;
 
   /**
@@ -107,7 +110,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @param timestampFormat
    *          the system clock time format in {@link SimpleDateFormat} pattern
    */
-  public void setSystemTimeFormat(String timestampFormat) {
+  public void setSystemTimeFormat(@CheckForNull String timestampFormat) {
     this.timestampFormat = timestampFormat;
   }
 
@@ -126,7 +129,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @param elapsedTimeFormat
    *          the elapsed time format in {@link DurationFormatUtils} pattern
    */
-  public void setElapsedTimeFormat(String elapsedTimeFormat) {
+  public void setElapsedTimeFormat(@CheckForNull String elapsedTimeFormat) {
     this.elapsedTimeFormat = elapsedTimeFormat;
   }
 

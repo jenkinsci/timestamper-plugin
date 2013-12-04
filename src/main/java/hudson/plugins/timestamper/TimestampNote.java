@@ -102,6 +102,6 @@ public final class TimestampNote extends ConsoleNote<Object> {
       Timestamp timestamp = getTimestamp(build);
       formatter.markup(text, timestamp);
     }
-    return null;
+    return null; // each time-stamp note affects one line only
   }
 }

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Joiner;
+import com.google.common.io.CountingInputStream;
 import com.google.common.io.Files;
 
 /**
@@ -57,7 +58,7 @@ public final class DumpTimestamps {
     File timestamperDir = new File(Joiner.on(' ').join(args));
     System.out.println("timestamps");
     dump(TimestampsWriter.timestampsFile(timestamperDir), 1, System.out);
-    File timeShiftsFile = TimestampsReader.timeShiftsFile(timestamperDir);
+    File timeShiftsFile = TimeShiftsReader.timeShiftsFile(timestamperDir);
     if (timeShiftsFile.isFile()) {
       System.out.println("timeshifts");
       dump(timeShiftsFile, 2, System.out);
@@ -67,11 +68,11 @@ public final class DumpTimestamps {
   private static void dump(File file, int columns, PrintStream output)
       throws IOException {
     final byte[] fileContents = Files.toByteArray(file);
-    TimestampsReader.InputStreamByteReader byteReader = new TimestampsReader.InputStreamByteReader(
+    CountingInputStream inputStream = new CountingInputStream(
         new ByteArrayInputStream(fileContents));
     List<Long> values = new ArrayList<Long>();
-    while (byteReader.bytesRead < fileContents.length) {
-      values.add(Varint.read(byteReader));
+    while (inputStream.getCount() < fileContents.length) {
+      values.add(Varint.read(inputStream));
       if (values.size() == columns) {
         output.println(Joiner.on('\t').join(values));
         values.clear();

@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper.io;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Run;
 
 import java.io.Closeable;
@@ -35,7 +36,10 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
+import javax.annotation.CheckForNull;
+
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
@@ -58,8 +62,9 @@ public class TimestampsWriter implements Closeable {
 
   private final File timestampsFile;
 
-  private final MessageDigest timestampsDigest;
+  private final Optional<MessageDigest> timestampsDigest;
 
+  @CheckForNull
   private OutputStream timestampsOutput;
 
   /**
@@ -78,7 +83,7 @@ public class TimestampsWriter implements Closeable {
    * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
-    this(build, null);
+    this(build, Optional.<MessageDigest> absent());
   }
 
   /**
@@ -86,15 +91,16 @@ public class TimestampsWriter implements Closeable {
    * 
    * @param build
    * @param digest
+   *          (optional)
    * @throws IOException
    */
-  public TimestampsWriter(Run<?, ?> build, MessageDigest digest)
+  public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest)
       throws IOException {
     File timestamperDir = timestamperDir(build);
     this.timestampsFile = timestampsFile(timestamperDir);
     this.buildStartTime = build.getTimeInMillis();
     this.previousCurrentTimeMillis = buildStartTime;
-    this.timestampsDigest = digest;
+    this.timestampsDigest = checkNotNull(digest);
 
     Files.createParentDirs(timestampsFile);
     boolean fileCreated = timestampsFile.createNewFile();
@@ -137,8 +143,9 @@ public class TimestampsWriter implements Closeable {
    */
   private OutputStream openTimestampsStream() throws FileNotFoundException {
     OutputStream outputStream = new FileOutputStream(timestampsFile);
-    if (timestampsDigest != null) {
-      outputStream = new DigestOutputStream(outputStream, timestampsDigest);
+    if (timestampsDigest.isPresent()) {
+      outputStream = new DigestOutputStream(outputStream,
+          timestampsDigest.get());
     }
     return outputStream;
   }
@@ -183,15 +190,19 @@ public class TimestampsWriter implements Closeable {
   @Override
   public void close() throws IOException {
     Closeables.close(timestampsOutput, false);
-    if (timestampsDigest != null) {
-      StringBuilder hash = new StringBuilder();
-      for (byte b : timestampsDigest.digest()) {
-        hash.append(String.format("%02x", b));
-      }
-      hash.append("\n");
-      File digestFile = new File(timestampsFile.getParent(),
-          timestampsFile.getName() + "." + timestampsDigest.getAlgorithm());
-      Files.write(hash.toString(), digestFile, Charsets.US_ASCII);
+    if (timestampsDigest.isPresent()) {
+      writeDigest(timestampsDigest.get());
     }
+  }
+
+  private void writeDigest(MessageDigest timestampsDigest) throws IOException {
+    StringBuilder hash = new StringBuilder();
+    for (byte b : timestampsDigest.digest()) {
+      hash.append(String.format("%02x", b));
+    }
+    hash.append("\n");
+    File digestFile = new File(timestampsFile.getParent(),
+        timestampsFile.getName() + "." + timestampsDigest.getAlgorithm());
+    Files.write(hash.toString(), digestFile, Charsets.US_ASCII);
   }
 }

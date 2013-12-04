@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper.annotator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
@@ -33,6 +34,10 @@ import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.CheckForNull;
+
+import com.google.common.base.Optional;
 
 /**
  * Inserts formatted time-stamps into the annotated console output.
@@ -50,6 +55,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
   private final ConsoleLogParser logParser;
 
+  @CheckForNull
   private TimestampsReader timestampsReader;
 
   /**
@@ -61,8 +67,8 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
    *          the console log parser
    */
   TimestampAnnotator(TimestampFormatter formatter, ConsoleLogParser logParser) {
-    this.formatter = formatter;
-    this.logParser = logParser;
+    this.formatter = checkNotNull(formatter);
+    this.logParser = checkNotNull(logParser);
   }
 
   /**
@@ -71,7 +77,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   @Override
   public ConsoleAnnotator<Object> annotate(Object context, MarkupText text) {
     if (!(context instanceof Run<?, ?>)) {
-      return null;
+      return null; // do not annotate the following lines
     }
     Run<?, ?> build = (Run<?, ?>) context;
 
@@ -79,37 +85,25 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
       if (timestampsReader == null) {
         ConsoleLogParserImpl.Result logPosition = logParser.seek(build);
         if (logPosition.endOfFile) {
-          return null;
+          return null; // do not annotate the following lines
         }
         timestampsReader = new TimestampsReader(build);
         timestampsReader.skip(logPosition.lineNumber);
-        Timestamp timestamp = timestampsReader.read();
-        return markup(text, logPosition.atNewLine ? timestamp : null);
+        Optional<Timestamp> timestamp = timestampsReader.read();
+        if (logPosition.atNewLine && timestamp.isPresent()) {
+          formatter.markup(text, timestamp.get());
+        }
+        return this;
       }
-      Timestamp timestamp = timestampsReader.read();
-      if (timestamp != null) {
-        return markup(text, timestamp);
+      Optional<Timestamp> timestamp = timestampsReader.read();
+      if (timestamp.isPresent()) {
+        formatter.markup(text, timestamp.get());
+        return this;
       }
     } catch (IOException ex) {
       LOGGER.log(Level.WARNING,
           "Error reading timestamps for " + build.getFullDisplayName(), ex);
     }
-    return null;
-  }
-
-  /**
-   * Add a time-stamp to the given text.
-   * 
-   * @param text
-   *          the text to modify
-   * @param timestamp
-   *          the time-stamp
-   * @return {@code this}
-   */
-  private TimestampAnnotator markup(MarkupText text, Timestamp timestamp) {
-    if (timestamp != null) {
-      formatter.markup(text, timestamp);
-    }
-    return this;
+    return null; // do not annotate the following lines
   }
 }

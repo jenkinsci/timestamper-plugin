@@ -52,6 +52,8 @@ import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
+import com.google.common.io.CountingInputStream;
 import com.google.common.io.Files;
 
 /**
@@ -171,7 +173,7 @@ public class TimestampsWriterTest {
   @Test
   public void testHashFile() throws Exception {
     MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-    timestampsWriter = new TimestampsWriter(build, sha1);
+    timestampsWriter = new TimestampsWriter(build, Optional.of(sha1));
     timestampsWriter.write(1, 1);
     timestampsWriter.write(2, 1);
     timestampsWriter.write(3, 1);
@@ -209,11 +211,11 @@ public class TimestampsWriterTest {
 
   private List<Integer> writtenTimestampData() throws Exception {
     byte[] fileContents = Files.toByteArray(timestampsFile);
-    TimestampsReader.InputStreamByteReader byteReader = new TimestampsReader.InputStreamByteReader(
+    CountingInputStream inputStream = new CountingInputStream(
         new ByteArrayInputStream(fileContents));
     List<Integer> timestampData = new ArrayList<Integer>();
-    while (byteReader.bytesRead < fileContents.length) {
-      timestampData.add((int) Varint.read(byteReader));
+    while (inputStream.getCount() < fileContents.length) {
+      timestampData.add((int) Varint.read(inputStream));
     }
     return timestampData;
   }
