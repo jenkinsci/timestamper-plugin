@@ -30,6 +30,9 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsAction;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
+
 /**
  * Time-stamp note that was inserted into the console note by the Timestamper
  * plugin prior to version 1.4.
@@ -96,9 +99,11 @@ public final class TimestampNote extends ConsoleNote<Object> {
   @Override
   public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
       int charPos) {
-    if (context instanceof Run<?, ?>) {
+    StaplerRequest request = Stapler.getCurrentRequest();
+    // JENKINS-16778: The request can be null when the slave goes off-line.
+    if (context instanceof Run<?, ?> && request != null) {
       Run<?, ?> build = (Run<?, ?>) context;
-      TimestampFormatter formatter = TimestamperConfig.formatter();
+      TimestampFormatter formatter = TimestamperConfig.formatter(request);
       Timestamp timestamp = getTimestamp(build);
       formatter.markup(text, timestamp);
     }

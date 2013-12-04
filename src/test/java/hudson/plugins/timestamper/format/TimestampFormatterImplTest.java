@@ -46,6 +46,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
@@ -66,8 +67,7 @@ public class TimestampFormatterImplTest {
         { request("elapsed"), span("00.123 "), span("00.123 ") },
         { request("none"), span(""), span("") },
         { request(), span("00:00:42 "), span("08:00:42 ") },
-        { request((String[]) null), span("00:00:42 "), span("08:00:42 ") },
-        { null, "", "" } });
+        { request((String[]) null), span("00:00:42 "), span("08:00:42 ") } });
   }
 
   private static HttpServletRequest request(String... cookieValues) {
@@ -87,27 +87,24 @@ public class TimestampFormatterImplTest {
     return "<span class=\"timestamp\">" + timestampString + "</span>";
   }
 
-  private HttpServletRequest request;
+  /**
+   */
+  @Parameter(0)
+  public HttpServletRequest request;
 
-  private String prefix;
+  /**
+   */
+  @Parameter(1)
+  public String prefix;
 
-  private String prefixInDifferentTimezone;
+  /**
+   */
+  @Parameter(2)
+  public String prefixInDifferentTimezone;
 
   private TimeZone systemDefaultTimeZone;
 
   private boolean serialize;
-
-  /**
-   * @param request
-   * @param prefix
-   * @param prefixInDifferentTimezone
-   */
-  public TimestampFormatterImplTest(HttpServletRequest request, String prefix,
-      String prefixInDifferentTimezone) {
-    this.request = request;
-    this.prefix = prefix;
-    this.prefixInDifferentTimezone = prefixInDifferentTimezone;
-  }
 
   /**
    */

@@ -30,7 +30,6 @@ import hudson.plugins.timestamper.Timestamp;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +54,6 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
    * Function that converts a time-stamp to a formatted string representation of
    * that time-stamp.
    */
-  @CheckForNull
   private final Function<Timestamp, String> formatTimestamp;
 
   /**
@@ -70,12 +68,6 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
    */
   public TimestampFormatterImpl(String systemTimeFormat,
       String elapsedTimeFormat, HttpServletRequest request) {
-
-    if (request == null) {
-      // JENKINS-16778: The request can be null when the slave goes off-line.
-      formatTimestamp = null;
-      return;
-    }
 
     String cookieValue = null;
     Cookie[] cookies = request.getCookies();
@@ -103,9 +95,6 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
    */
   @Override
   public void markup(MarkupText text, Timestamp timestamp) {
-    if (formatTimestamp == null) {
-      return;
-    }
     String timestampString = formatTimestamp.apply(timestamp);
     // Wrap the time-stamp in a span element, which is used to detect the
     // time-stamp when inspecting the page with Javascript.

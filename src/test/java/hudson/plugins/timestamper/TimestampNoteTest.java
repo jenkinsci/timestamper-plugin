@@ -38,12 +38,15 @@ import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kohsuke.stapler.RequestImpl;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.google.common.base.Supplier;
+import com.google.common.base.Function;
 
 /**
  * Unit test for the {@link TimestampNote} class.
@@ -64,24 +67,30 @@ public class TimestampNoteTest {
   private MarkupText text;
 
   /**
+   * @throws Exception
    */
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     build = PowerMockito.mock(Run.class);
     when(build.getTimeInMillis()).thenReturn(1l);
 
     note = new TimestampNote(3);
 
     formatter = mock(TimestampFormatter.class);
-    Whitebox.setInternalState(TimestamperConfig.class, Supplier.class,
-        new Supplier<TimestampFormatter>() {
+    Whitebox.setInternalState(TimestamperConfig.class, Function.class,
+        new Function<StaplerRequest, TimestampFormatter>() {
           @Override
-          public TimestampFormatter get() {
+          public TimestampFormatter apply(StaplerRequest input) {
             return formatter;
           }
         });
 
     text = new MarkupText("");
+
+    @SuppressWarnings("unchecked")
+    ThreadLocal<RequestImpl> currentRequest = (ThreadLocal<RequestImpl>) Whitebox
+        .getField(Stapler.class, "CURRENT_REQUEST").get(null);
+    currentRequest.set(mock(RequestImpl.class));
   }
 
   /**

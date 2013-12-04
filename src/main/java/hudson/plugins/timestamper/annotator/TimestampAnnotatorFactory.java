@@ -29,8 +29,6 @@ import hudson.console.ConsoleAnnotatorFactory;
 import hudson.plugins.timestamper.TimestamperConfig;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 
-import javax.annotation.CheckForNull;
-
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -49,8 +47,13 @@ public final class TimestampAnnotatorFactory extends
    */
   @Override
   public ConsoleAnnotator<Object> newInstance(Object context) {
-    TimestampFormatter formatter = TimestamperConfig.formatter();
-    long offset = getOffset(Stapler.getCurrentRequest());
+    StaplerRequest request = Stapler.getCurrentRequest();
+    // JENKINS-16778: The request can be null when the slave goes off-line.
+    if (request == null) {
+      return null; // do not annotate
+    }
+    TimestampFormatter formatter = TimestamperConfig.formatter(request);
+    long offset = getOffset(request);
     ConsoleLogParser logParser = new ConsoleLogParserImpl(offset);
     return new TimestampAnnotator(formatter, logParser);
   }
@@ -63,11 +66,7 @@ public final class TimestampAnnotatorFactory extends
    * @param request
    * @return the offset in bytes
    */
-  private static long getOffset(@CheckForNull StaplerRequest request) {
-    if (request == null) {
-      // JENKINS-16778: The request can be null when the slave goes off-line.
-      return 0;
-    }
+  private static long getOffset(StaplerRequest request) {
     String path = request.getPathInfo();
     if (path == null) {
       // JENKINS-16438
