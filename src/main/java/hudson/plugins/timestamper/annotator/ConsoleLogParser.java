@@ -28,8 +28,7 @@ import hudson.model.Run;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import com.google.common.base.Objects;
 
 /**
  * Parser that is able to find a position in the console log file of a build.
@@ -65,10 +64,34 @@ interface ConsoleLogParser extends Serializable {
      */
     boolean endOfFile;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(lineNumber, atNewLine, endOfFile);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof ConsoleLogParser.Result) {
+        ConsoleLogParser.Result other = (ConsoleLogParser.Result) obj;
+        return lineNumber == other.lineNumber && atNewLine == other.atNewLine
+            && endOfFile == other.endOfFile;
+      }
+      return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
-      return ReflectionToStringBuilder.toString(this,
-          ToStringStyle.SHORT_PREFIX_STYLE);
+      return Objects.toStringHelper(this).add("lineNumber", lineNumber)
+          .add("atNewLine", atNewLine).add("endOfFile", endOfFile).toString();
     }
   }
 }

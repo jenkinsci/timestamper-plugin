@@ -35,9 +35,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.hamcrest.CustomMatcher;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -101,7 +98,10 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekStart() throws Exception {
-    assertThat(seek(0), is(resultWith(lineNumber(0), atNewLine())));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 0;
+    result.atNewLine = true;
+    assertThat(seek(0), is(result));
   }
 
   /**
@@ -109,7 +109,9 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekWithinLine() throws Exception {
-    assertThat(seek(1), is(resultWith(lineNumber(0))));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 0;
+    assertThat(seek(1), is(result));
   }
 
   /**
@@ -117,7 +119,10 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekNextLine() throws Exception {
-    assertThat(seek(2), is(resultWith(lineNumber(1), atNewLine())));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 1;
+    result.atNewLine = true;
+    assertThat(seek(2), is(result));
   }
 
   /**
@@ -125,7 +130,10 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekEnd() throws Exception {
-    assertThat(seek(logLength), is(resultWith(lineNumber(5), atNewLine())));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 5;
+    result.atNewLine = true;
+    assertThat(seek(logLength), is(result));
   }
 
   /**
@@ -133,8 +141,11 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekPastEnd() throws Exception {
-    assertThat(seek(logLength + 1),
-        is(resultWith(lineNumber(5), atNewLine(), endOfFile())));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 5;
+    result.atNewLine = true;
+    result.endOfFile = true;
+    assertThat(seek(logLength + 1), is(result));
   }
 
   /**
@@ -142,7 +153,10 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekStartNegative() throws Exception {
-    assertThat(seek(-logLength), is(resultWith(lineNumber(0), atNewLine())));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 0;
+    result.atNewLine = true;
+    assertThat(seek(-logLength), is(result));
   }
 
   /**
@@ -150,7 +164,9 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekWithinLineNegative() throws Exception {
-    assertThat(seek(1 - logLength), is(resultWith(lineNumber(0))));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 0;
+    assertThat(seek(1 - logLength), is(result));
   }
 
   /**
@@ -158,7 +174,10 @@ public class ConsoleLogParserImplTest {
    */
   @Test
   public void testSeekPastStartNegative() throws Exception {
-    assertThat(seek(-logLength - 1), is(resultWith(lineNumber(0), atNewLine())));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 0;
+    result.atNewLine = true;
+    assertThat(seek(-logLength - 1), is(result));
   }
 
   private ConsoleLogParserImpl.Result seek(long pos) throws Exception {
@@ -167,51 +186,5 @@ public class ConsoleLogParserImplTest {
       parser = (ConsoleLogParserImpl) SerializationUtils.clone(parser);
     }
     return parser.seek(build);
-  }
-
-  private static Matcher<ConsoleLogParserImpl.Result> resultWith(
-      ResultProperty... properties) {
-    final ConsoleLogParserImpl.Result expectedResult = new ConsoleLogParserImpl.Result();
-    for (ResultProperty property : properties) {
-      property.set(expectedResult);
-    }
-    return new CustomMatcher<ConsoleLogParserImpl.Result>(
-        expectedResult.toString()) {
-      @Override
-      public boolean matches(Object item) {
-        return EqualsBuilder.reflectionEquals(item, expectedResult);
-      }
-    };
-  }
-
-  private static interface ResultProperty {
-    void set(ConsoleLogParserImpl.Result result);
-  }
-
-  private static ResultProperty lineNumber(final int lineNumber) {
-    return new ResultProperty() {
-      @Override
-      public void set(ConsoleLogParserImpl.Result result) {
-        result.lineNumber = lineNumber;
-      }
-    };
-  }
-
-  private static ResultProperty atNewLine() {
-    return new ResultProperty() {
-      @Override
-      public void set(ConsoleLogParserImpl.Result result) {
-        result.atNewLine = true;
-      }
-    };
-  }
-
-  private static ResultProperty endOfFile() {
-    return new ResultProperty() {
-      @Override
-      public void set(ConsoleLogParserImpl.Result result) {
-        result.endOfFile = true;
-      }
-    };
   }
 }
