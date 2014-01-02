@@ -23,6 +23,8 @@
  */
 package hudson.plugins.timestamper.io;
 
+import hudson.model.Run;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,10 +52,6 @@ class TimeShiftsReader implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  static File timeShiftsFile(File timestamperDir) {
-    return new File(timestamperDir, "timeshifts");
-  }
-
   private final File timeShiftsFile;
 
   /**
@@ -64,8 +62,8 @@ class TimeShiftsReader implements Serializable {
   @CheckForNull
   private transient Map<Long, Long> timeShifts;
 
-  TimeShiftsReader(File timestamperDir) {
-    this.timeShiftsFile = timeShiftsFile(timestamperDir);
+  TimeShiftsReader(Run<?, ?> build) {
+    this.timeShiftsFile = TimestamperPaths.timeShiftsFile(build);
   }
 
   /**

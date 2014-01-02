@@ -75,8 +75,6 @@ public class TimestampsWriterTest {
 
   private Run<?, ?> build;
 
-  private File timestamperDir;
-
   private File timestampsFile;
 
   private File timestampsHashFile;
@@ -90,10 +88,9 @@ public class TimestampsWriterTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    timestamperDir = TimestampsWriter.timestamperDir(build);
-    timestampsFile = TimestampsWriter.timestampsFile(timestamperDir);
-    timestampsHashFile = new File(timestamperDir, timestampsFile.getName()
-        + ".SHA-1");
+    timestampsFile = TimestamperPaths.timestampsFile(build);
+    timestampsHashFile = new File(timestampsFile.getParent(),
+        timestampsFile.getName() + ".SHA-1");
   }
 
   /**
@@ -196,7 +193,8 @@ public class TimestampsWriterTest {
     timestampsWriter.write(2, 1);
     timestampsWriter.write(3, 1);
     timestampsWriter.close();
-    assertThat(timestamperDir.listFiles(), is(new File[] { timestampsFile }));
+    assertThat(timestampsHashFile.getParentFile().listFiles(),
+        is(new File[] { timestampsFile }));
   }
 
   /**

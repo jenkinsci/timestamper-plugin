@@ -26,7 +26,6 @@ package hudson.plugins.timestamper.io;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,32 +55,33 @@ public final class DumpTimestamps {
       throw new IllegalArgumentException("no command-line arguments");
     }
     File timestamperDir = new File(Joiner.on(' ').join(args));
-    System.out.println("timestamps");
-    dump(TimestampsWriter.timestampsFile(timestamperDir), 1, System.out);
-    File timeShiftsFile = TimeShiftsReader.timeShiftsFile(timestamperDir);
-    if (timeShiftsFile.isFile()) {
-      System.out.println("timeshifts");
-      dump(timeShiftsFile, 2, System.out);
-    }
+    dump(timestamperDir, "timestamps", 1);
+    System.out.println();
+    dump(timestamperDir, "timeshifts", 2);
   }
 
-  private static void dump(File file, int columns, PrintStream output)
+  private static void dump(File parent, String filename, int columns)
       throws IOException {
-    final byte[] fileContents = Files.toByteArray(file);
+    System.out.println(filename);
+    File file = new File(parent, filename);
+    if (!file.isFile()) {
+      System.out.println("(none)");
+      return;
+    }
+    byte[] fileContents = Files.toByteArray(file);
     CountingInputStream inputStream = new CountingInputStream(
         new ByteArrayInputStream(fileContents));
     List<Long> values = new ArrayList<Long>();
     while (inputStream.getCount() < fileContents.length) {
       values.add(Varint.read(inputStream));
       if (values.size() == columns) {
-        output.println(Joiner.on('\t').join(values));
+        System.out.println(Joiner.on('\t').join(values));
         values.clear();
       }
     }
     if (!values.isEmpty()) {
-      output.println(Joiner.on('\t').join(values));
+      System.out.println(Joiner.on('\t').join(values));
     }
-    output.println();
   }
 
   private DumpTimestamps() {

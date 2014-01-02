@@ -69,9 +69,8 @@ public final class TimestampsReader implements Serializable {
    * @param build
    */
   public TimestampsReader(Run<?, ?> build) {
-    File timestamperDir = TimestampsWriter.timestamperDir(build);
-    this.timestampsFile = TimestampsWriter.timestampsFile(timestamperDir);
-    this.timeShiftsReader = new TimeShiftsReader(timestamperDir);
+    this.timestampsFile = TimestamperPaths.timestampsFile(build);
+    this.timeShiftsReader = new TimeShiftsReader(build);
     this.millisSinceEpoch = build.getTimeInMillis();
   }
 

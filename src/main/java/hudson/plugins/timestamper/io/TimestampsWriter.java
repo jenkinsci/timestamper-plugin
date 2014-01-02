@@ -52,14 +52,6 @@ public class TimestampsWriter implements Closeable {
 
   private static final int BUFFER_SIZE = 1024;
 
-  static File timestamperDir(Run<?, ?> build) {
-    return new File(build.getRootDir(), "timestamper");
-  }
-
-  static File timestampsFile(File timestamperDir) {
-    return new File(timestamperDir, "timestamps");
-  }
-
   private final File timestampsFile;
 
   private final Optional<MessageDigest> timestampsDigest;
@@ -96,8 +88,7 @@ public class TimestampsWriter implements Closeable {
    */
   public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest)
       throws IOException {
-    File timestamperDir = timestamperDir(build);
-    this.timestampsFile = timestampsFile(timestamperDir);
+    this.timestampsFile = TimestamperPaths.timestampsFile(build);
     this.buildStartTime = build.getTimeInMillis();
     this.previousCurrentTimeMillis = buildStartTime;
     this.timestampsDigest = checkNotNull(digest);
