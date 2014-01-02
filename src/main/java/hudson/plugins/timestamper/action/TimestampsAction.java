@@ -154,19 +154,19 @@ public final class TimestampsAction implements Action {
       try {
         int intPrecision = Integer.parseInt(precision);
         if (intPrecision < 0) {
-          unrecognisedPrecision(precision);
+          logUnrecognisedPrecision(precision);
         } else {
           return intPrecision;
         }
       } catch (NumberFormatException ex) {
-        unrecognisedPrecision(precision);
+        logUnrecognisedPrecision(precision);
       }
     }
     // Default precision.
     return 3;
   }
 
-  private void unrecognisedPrecision(String precision) {
+  private void logUnrecognisedPrecision(String precision) {
     LOGGER.log(Level.WARNING, "Unrecognised precision: " + precision);
   }
 
