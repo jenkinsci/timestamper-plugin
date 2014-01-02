@@ -68,6 +68,7 @@ public class TimestamperBuildWrapperTest {
    */
   @Before
   public void setUp() {
+    System.clearProperty(TimestampNote.getSystemProperty());
     buildWrapper = new TimestamperBuildWrapper();
     build = mock(AbstractBuild.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
