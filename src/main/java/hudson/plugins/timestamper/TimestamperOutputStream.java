@@ -157,6 +157,10 @@ final class TimestamperOutputStream extends OutputStream {
   public void close() throws IOException {
     try {
       timestampsWriter.close();
+
+      if (!writeError) {
+        timestampsWriter.writeDigest();
+      }
     } catch (IOException ex) {
       LOGGER.log(Level.WARNING, ex.getMessage(), ex);
     }

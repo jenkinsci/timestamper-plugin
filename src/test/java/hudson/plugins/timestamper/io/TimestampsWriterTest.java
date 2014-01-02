@@ -174,6 +174,7 @@ public class TimestampsWriterTest {
     timestampsWriter.write(1, 1);
     timestampsWriter.write(2, 1);
     timestampsWriter.write(3, 1);
+    timestampsWriter.writeDigest();
     timestampsWriter.close();
 
     byte[] fileContents = Files.toByteArray(timestampsFile);
@@ -192,6 +193,7 @@ public class TimestampsWriterTest {
     timestampsWriter.write(1, 1);
     timestampsWriter.write(2, 1);
     timestampsWriter.write(3, 1);
+    timestampsWriter.writeDigest();
     timestampsWriter.close();
     assertThat(timestampsHashFile.getParentFile().listFiles(),
         is(new File[] { timestampsFile }));

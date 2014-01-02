@@ -23,15 +23,19 @@
  */
 package hudson.plugins.timestamper;
 
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.model.AbstractBuild;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 import org.junit.Before;
@@ -188,5 +192,46 @@ public class TimestamperOutputStreamTest {
   public void testWriteByteArraySegmentTwoLines() throws Exception {
     timestamperOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
     verify(writer).write(anyLong(), eq(2));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testNoWritesAfterError() throws Exception {
+    doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
+    timestamperOutputStream.write(data);
+    timestamperOutputStream.write(data);
+    verify(writer, times(1)).write(anyLong(), anyInt());
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWriteDigest() throws Exception {
+    timestamperOutputStream.close();
+    verify(writer).writeDigest();
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testNoDigestAfterWriteError() throws Exception {
+    doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
+    timestamperOutputStream.write(data);
+    timestamperOutputStream.close();
+    verify(writer, never()).writeDigest();
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testNoDigestAfterCloseError() throws Exception {
+    doThrow(new IOException()).when(writer).close();
+    timestamperOutputStream.close();
+    verify(writer, never()).writeDigest();
   }
 }

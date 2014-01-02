@@ -176,11 +176,11 @@ public class TimestampsWriter implements Closeable {
   }
 
   /**
-   * {@inheritDoc}
+   * Write a time-stamps digest file for the build.
+   * 
+   * @throws IOException
    */
-  @Override
-  public void close() throws IOException {
-    Closeables.close(timestampsOutput, false);
+  public void writeDigest() throws IOException {
     if (timestampsDigest.isPresent()) {
       writeDigest(timestampsDigest.get());
     }
@@ -195,5 +195,13 @@ public class TimestampsWriter implements Closeable {
     File digestFile = new File(timestampsFile.getParent(),
         timestampsFile.getName() + "." + timestampsDigest.getAlgorithm());
     Files.write(hash.toString(), digestFile, Charsets.US_ASCII);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void close() throws IOException {
+    Closeables.close(timestampsOutput, false);
   }
 }
