@@ -133,7 +133,7 @@ public final class TimestampsAction implements Action {
       writeConsoleNotes(writer, precision);
     }
 
-    response.getWriter().flush();
+    writer.flush();
   }
 
   private int getPrecision(StaplerRequest request) {
