@@ -83,15 +83,43 @@ public class TimestamperOutputStreamTest {
    * @throws Exception
    */
   @Test
-  public void testPassThrough() throws Exception {
+  public void testPassThroughWriteByteArray() throws Exception {
     timestamperOutputStream.write(data);
     verify(delegate).write(data);
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testPassThroughWriteByteArrayWithOffset() throws Exception {
     timestamperOutputStream.write(data, 0, 1);
     verify(delegate).write(data, 0, 1);
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testPassThroughWriteByte() throws Exception {
     timestamperOutputStream.write(42);
     verify(delegate).write(42);
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testPassThroughFlush() throws Exception {
     timestamperOutputStream.flush();
     verify(delegate).flush();
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testPassThroughClose() throws Exception {
     timestamperOutputStream.close();
     verify(delegate).close();
   }
