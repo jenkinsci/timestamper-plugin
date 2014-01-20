@@ -5,6 +5,14 @@
     <artifactId>plugin</artifactId>
     <version>1.520</version> <!-- earliest version that requires Java 6 -->
   </parent>
+  
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>http://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
