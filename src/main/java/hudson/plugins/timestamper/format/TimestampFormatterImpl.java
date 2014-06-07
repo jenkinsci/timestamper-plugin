@@ -29,6 +29,7 @@ import hudson.plugins.timestamper.Timestamp;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.annotation.concurrent.Immutable;
 import javax.servlet.http.Cookie;
@@ -38,6 +39,7 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 
 /**
  * Formats a time-stamp to be displayed in the console log page, according to
@@ -63,11 +65,14 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
    *          the system clock time format
    * @param elapsedTimeFormat
    *          the elapsed time format
+   * @param timeZoneId
+   *          the configured time zone identifier
    * @param request
    *          the current HTTP request
    */
   public TimestampFormatterImpl(String systemTimeFormat,
-      String elapsedTimeFormat, HttpServletRequest request) {
+      String elapsedTimeFormat, Optional<String> timeZoneId,
+      HttpServletRequest request) {
 
     String cookieValue = null;
     Cookie[] cookies = request.getCookies();
@@ -86,7 +91,13 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
       formatTimestamp = new EmptyFormatFunction();
     } else {
       // "system", no cookie, or unrecognised cookie
-      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat);
+      TimeZone timeZone = null;
+      if (timeZoneId.isPresent()) {
+        timeZone = TimeZone.getTimeZone(timeZoneId.get());
+      }
+      FastDateFormat format = FastDateFormat.getInstance(systemTimeFormat,
+          timeZone);
+      formatTimestamp = new SystemTimeFormatFunction(format);
     }
   }
 
@@ -112,16 +123,15 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
 
     private static final long serialVersionUID = 1L;
 
-    private final String systemTimeFormat;
+    private final FastDateFormat format;
 
-    SystemTimeFormatFunction(String systemTimeFormat) {
-      this.systemTimeFormat = checkNotNull(systemTimeFormat);
+    SystemTimeFormatFunction(FastDateFormat format) {
+      this.format = checkNotNull(format);
     }
 
     @Override
     public String apply(Timestamp timestamp) {
-      return FastDateFormat.getInstance(systemTimeFormat).format(
-          new Date(timestamp.millisSinceEpoch));
+      return format.format(new Date(timestamp.millisSinceEpoch));
     }
   }
 

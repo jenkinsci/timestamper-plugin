@@ -49,6 +49,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.common.base.Optional;
+
 /**
  * Unit test for the {@link TimestampFormatterImpl} class.
  * 
@@ -160,6 +162,23 @@ public class TimestampFormatterImplTest {
   /**
    */
   @Test
+  public void testMarkupElapsedTimeWithConfiguredTimeZone() {
+    assertThat(markup("line", "GMT+8").toString(true),
+        is(prefixInDifferentTimezone + "line"));
+  }
+
+  /**
+   */
+  @Test
+  public void testMarkupElapsedTimeWithConfiguredTimeZoneAfterSerialization() {
+    serialize = true;
+    assertThat(markup("line", "GMT+8").toString(true),
+        is(prefixInDifferentTimezone + "line"));
+  }
+
+  /**
+   */
+  @Test
   public void testMarkupThenAntTargetNote() {
     assertThat(annotate(markup("target:"), new AntTargetNote()).toString(true),
         is(prefix + "<b class=ant-target>target</b>:"));
@@ -192,12 +211,20 @@ public class TimestampFormatterImplTest {
   }
 
   private MarkupText markup(String text) {
-    return markup(new MarkupText(text));
+    return markup(new MarkupText(text), Optional.<String> absent());
+  }
+
+  private MarkupText markup(String text, String timeZoneId) {
+    return markup(new MarkupText(text), Optional.of(timeZoneId));
   }
 
   private MarkupText markup(MarkupText markupText) {
+    return markup(markupText, Optional.<String> absent());
+  }
+
+  private MarkupText markup(MarkupText markupText, Optional<String> timeZoneId) {
     TimestampFormatter formatter = new TimestampFormatterImpl("HH:mm:ss ",
-        "ss.S ", request);
+        "ss.S ", timeZoneId, request);
     if (serialize) {
       formatter = (TimestampFormatter) SerializationUtils.clone(formatter);
     }
