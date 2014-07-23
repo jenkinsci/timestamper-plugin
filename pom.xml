@@ -51,7 +51,7 @@
 
   <artifactId>timestamper</artifactId>
   <packaging>hpi</packaging>
-  <version>1.5.13-SNAPSHOT</version>
+  <version>1.5.13</version>
   <name>Timestamper</name>
   <description>Adds timestamps to the Console Output</description>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Timestamper</url>
