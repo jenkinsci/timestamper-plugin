@@ -91,6 +91,10 @@ function timestampFound() {
     if (null == element) {
         // for < 1.572 we need to use 'navigation'
         element = document.getElementById('navigation');
+        if (null == element) {
+            // element not found, so return to avoid an error (JENKINS-23867)
+            return;
+        }
     }
 
     new Ajax.Updater(
