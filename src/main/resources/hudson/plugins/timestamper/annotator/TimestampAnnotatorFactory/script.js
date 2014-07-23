@@ -85,8 +85,16 @@ function timestampFound() {
         return;
     }
     settingsInserted = true;
+
+    // for div layout in >= 1.572 we need to use 'side-panel-content'
+    var element = document.getElementById('side-panel-content');
+    if (null == element) {
+        // for < 1.572 we need to use 'navigation'
+        element = document.getElementById('navigation');
+    }
+
     new Ajax.Updater(
-        document.getElementById('navigation'),
+        element,
         rootURL + "/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings",
         { insertion: Insertion.After, onComplete: init }
     );
