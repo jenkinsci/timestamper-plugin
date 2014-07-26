@@ -42,7 +42,6 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 
 /**
  * Global configuration for the Timestamper plug-in, as shown on the Jenkins
@@ -59,12 +58,8 @@ public final class TimestamperConfig extends GlobalConfiguration {
     public TimestampFormatter apply(@Nonnull StaplerRequest request) {
       TimestamperConfig config = GlobalConfiguration.all().get(
           TimestamperConfig.class);
-      // This System property is used to configure the time zone.
-      // See the "Change time zone" Jenkins wiki page.
-      Optional<String> timeZoneId = Optional.fromNullable(System
-          .getProperty("org.apache.commons.jelly.tags.fmt.timeZone"));
       return new TimestampFormatterImpl(config.getSystemTimeFormat(),
-          config.getElapsedTimeFormat(), timeZoneId, request);
+          config.getElapsedTimeFormat(), request);
     }
   };
 

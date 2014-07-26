@@ -39,7 +39,6 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 
 /**
  * Formats a time-stamp to be displayed in the console log page, according to
@@ -51,6 +50,12 @@ import com.google.common.base.Optional;
 public final class TimestampFormatterImpl implements TimestampFormatter {
 
   private static final long serialVersionUID = 1L;
+
+  /**
+   * This System property is used to configure the time zone. See the
+   * "Change time zone" Jenkins wiki page.
+   */
+  static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
 
   /**
    * Function that converts a time-stamp to a formatted string representation of
@@ -65,14 +70,11 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
    *          the system clock time format
    * @param elapsedTimeFormat
    *          the elapsed time format
-   * @param timeZoneId
-   *          the configured time zone identifier
    * @param request
    *          the current HTTP request
    */
   public TimestampFormatterImpl(String systemTimeFormat,
-      String elapsedTimeFormat, Optional<String> timeZoneId,
-      HttpServletRequest request) {
+      String elapsedTimeFormat, HttpServletRequest request) {
 
     String cookieValue = null;
     Cookie[] cookies = request.getCookies();
@@ -91,13 +93,7 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
       formatTimestamp = new EmptyFormatFunction();
     } else {
       // "system", no cookie, or unrecognised cookie
-      TimeZone timeZone = null;
-      if (timeZoneId.isPresent()) {
-        timeZone = TimeZone.getTimeZone(timeZoneId.get());
-      }
-      FastDateFormat format = FastDateFormat.getInstance(systemTimeFormat,
-          timeZone);
-      formatTimestamp = new SystemTimeFormatFunction(format);
+      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat);
     }
   }
 
@@ -123,14 +119,19 @@ public final class TimestampFormatterImpl implements TimestampFormatter {
 
     private static final long serialVersionUID = 1L;
 
-    private final FastDateFormat format;
+    private final String systemTimeFormat;
 
-    SystemTimeFormatFunction(FastDateFormat format) {
-      this.format = checkNotNull(format);
+    SystemTimeFormatFunction(String systemTimeFormat) {
+      this.systemTimeFormat = checkNotNull(systemTimeFormat);
     }
 
     @Override
     public String apply(Timestamp timestamp) {
+      String timeZoneId = System.getProperty(TIME_ZONE_PROPERTY);
+      TimeZone timeZone = (timeZoneId == null ? null : TimeZone
+          .getTimeZone(timeZoneId));
+      FastDateFormat format = FastDateFormat.getInstance(systemTimeFormat,
+          timeZone);
       return format.format(new Date(timestamp.millisSinceEpoch));
     }
   }

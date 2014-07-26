@@ -49,8 +49,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.common.base.Optional;
-
 /**
  * Unit test for the {@link TimestampFormatterImpl} class.
  * 
@@ -115,6 +113,7 @@ public class TimestampFormatterImplTest {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+    System.clearProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY);
     serialize = false;
   }
 
@@ -123,6 +122,7 @@ public class TimestampFormatterImplTest {
   @After
   public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
+    System.clearProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY);
   }
 
   /**
@@ -211,20 +211,25 @@ public class TimestampFormatterImplTest {
   }
 
   private MarkupText markup(String text) {
-    return markup(new MarkupText(text), Optional.<String> absent());
+    return markup(text, null);
   }
 
   private MarkupText markup(String text, String timeZoneId) {
-    return markup(new MarkupText(text), Optional.of(timeZoneId));
+    return markup(new MarkupText(text), timeZoneId);
   }
 
   private MarkupText markup(MarkupText markupText) {
-    return markup(markupText, Optional.<String> absent());
+    return markup(markupText, null);
   }
 
-  private MarkupText markup(MarkupText markupText, Optional<String> timeZoneId) {
+  private MarkupText markup(MarkupText markupText, String timeZoneId) {
+    if (timeZoneId != null) {
+      System.setProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY, timeZoneId);
+    } else {
+      System.clearProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY);
+    }
     TimestampFormatter formatter = new TimestampFormatterImpl("HH:mm:ss ",
-        "ss.S ", timeZoneId, request);
+        "ss.S ", request);
     if (serialize) {
       formatter = (TimestampFormatter) SerializationUtils.clone(formatter);
     }
