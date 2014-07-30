@@ -41,6 +41,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Read the time-shifts for a build from disk.
  * <p>
@@ -60,6 +62,7 @@ class TimeShiftsReader implements Serializable {
    * Transient: derived from the contents of {@link #timeShiftsFile}.
    */
   @CheckForNull
+  @SuppressFBWarnings("SE_TRANSIENT_FIELD_NOT_RESTORED")
   private transient Map<Long, Long> timeShifts;
 
   TimeShiftsReader(Run<?, ?> build) {

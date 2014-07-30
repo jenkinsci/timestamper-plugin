@@ -31,6 +31,7 @@ import hudson.plugins.timestamper.TimestamperConfig;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -160,7 +161,7 @@ public class TimestampFormatter {
     }
 
     @Override
-    public String apply(Timestamp timestamp) {
+    public String apply(@Nonnull Timestamp timestamp) {
       return format.format(new Date(timestamp.millisSinceEpoch));
     }
   }
@@ -178,7 +179,7 @@ public class TimestampFormatter {
     }
 
     @Override
-    public String apply(Timestamp timestamp) {
+    public String apply(@Nonnull Timestamp timestamp) {
       return DurationFormatUtils.formatDuration(timestamp.elapsedMillis,
           elapsedTimeFormat);
     }
@@ -194,7 +195,7 @@ public class TimestampFormatter {
     }
 
     @Override
-    public String apply(Timestamp timestamp) {
+    public String apply(@Nonnull Timestamp timestamp) {
       return "";
     }
   }
