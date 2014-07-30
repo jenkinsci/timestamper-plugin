@@ -51,23 +51,21 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   private static final Logger LOGGER = Logger
       .getLogger(TimestampAnnotator.class.getName());
 
-  private final TimestampFormatter formatter;
-
   private final ConsoleLogParser logParser;
 
   @CheckForNull
   private TimestampsReader timestampsReader;
 
+  @CheckForNull
+  private transient TimestampFormatter formatter;
+
   /**
    * Create a new {@link TimestampAnnotator}.
    * 
-   * @param formatter
-   *          the time-stamp formatter
    * @param logParser
    *          the console log parser
    */
-  TimestampAnnotator(TimestampFormatter formatter, ConsoleLogParser logParser) {
-    this.formatter = checkNotNull(formatter);
+  TimestampAnnotator(ConsoleLogParser logParser) {
     this.logParser = checkNotNull(logParser);
   }
 
@@ -91,13 +89,13 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
         timestampsReader.skip(logPosition.lineNumber);
         Optional<Timestamp> timestamp = timestampsReader.read();
         if (logPosition.atNewLine && timestamp.isPresent()) {
-          formatter.markup(text, timestamp.get());
+          markup(text, timestamp.get());
         }
         return this;
       }
       Optional<Timestamp> timestamp = timestampsReader.read();
       if (timestamp.isPresent()) {
-        formatter.markup(text, timestamp.get());
+        markup(text, timestamp.get());
         return this;
       }
     } catch (IOException ex) {
@@ -105,5 +103,12 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
           "Error reading timestamps for " + build.getFullDisplayName(), ex);
     }
     return null; // do not annotate the following lines
+  }
+
+  private void markup(MarkupText text, Timestamp timestamp) {
+    if (formatter == null) {
+      formatter = TimestampFormatter.get();
+    }
+    formatter.markup(text, timestamp);
   }
 }

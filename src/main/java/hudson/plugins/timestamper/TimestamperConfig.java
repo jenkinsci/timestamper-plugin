@@ -26,13 +26,10 @@ package hudson.plugins.timestamper;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
-import hudson.plugins.timestamper.format.TimestampFormatter;
-import hudson.plugins.timestamper.format.TimestampFormatterImpl;
 
 import java.text.SimpleDateFormat;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
@@ -40,7 +37,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
 
 /**
@@ -51,17 +47,6 @@ import com.google.common.base.Objects;
  */
 @Extension
 public final class TimestamperConfig extends GlobalConfiguration {
-
-  private static Function<StaplerRequest, TimestampFormatter> timestampFormatterProvider = new Function<StaplerRequest, TimestampFormatter>() {
-
-    @Override
-    public TimestampFormatter apply(@Nonnull StaplerRequest request) {
-      TimestamperConfig config = GlobalConfiguration.all().get(
-          TimestamperConfig.class);
-      return new TimestampFormatterImpl(config.getSystemTimeFormat(),
-          config.getElapsedTimeFormat(), request);
-    }
-  };
 
   /**
    * The default {@link #timestampFormat}.
@@ -141,16 +126,5 @@ public final class TimestamperConfig extends GlobalConfiguration {
     req.bindJSON(this, json);
     save();
     return true;
-  }
-
-  /**
-   * Get a time-stamp formatter based on the current settings.
-   * 
-   * @param request
-   *          the current stapler request
-   * @return a time-stamp formatter
-   */
-  public static TimestampFormatter formatter(StaplerRequest request) {
-    return timestampFormatterProvider.apply(request);
   }
 }

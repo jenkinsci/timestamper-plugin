@@ -25,6 +25,8 @@ package hudson.plugins.timestamper.annotator;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.MarkupText;
@@ -50,7 +52,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.powermock.reflect.Whitebox;
 
+import com.google.common.base.Supplier;
 import com.google.common.io.Closeables;
 
 /**
@@ -159,9 +165,9 @@ public class TimestampAnnotatorTest {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private List<Timestamp> annotate() throws Exception {
-    MockTimestampFormatter formatter = new MockTimestampFormatter();
     ConsoleLogParser logParser = new MockConsoleLogParser();
-    ConsoleAnnotator annotator = new TimestampAnnotator(formatter, logParser);
+    ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
+    captureFormattedTimestamps();
     int iterations = 0;
     while (annotator != null) {
       if (serialize) {
@@ -176,14 +182,24 @@ public class TimestampAnnotatorTest {
     return capturedTimestamps;
   }
 
-  private static class MockTimestampFormatter implements TimestampFormatter {
+  private void captureFormattedTimestamps() {
+    final TimestampFormatter formatter = mock(TimestampFormatter.class);
+    doAnswer(new Answer<Void>() {
 
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public void markup(MarkupText text, Timestamp timestamp) {
-      capturedTimestamps.add(timestamp);
-    }
+      @Override
+      public Void answer(InvocationOnMock invocation) throws Throwable {
+        Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
+        capturedTimestamps.add(timestamp);
+        return null;
+      }
+    }).when(formatter).markup(any(MarkupText.class), any(Timestamp.class));
+    Whitebox.setInternalState(TimestampFormatter.class, Supplier.class,
+        new Supplier<TimestampFormatter>() {
+          @Override
+          public TimestampFormatter get() {
+            return formatter;
+          }
+        });
   }
 
   private static class MockConsoleLogParser implements ConsoleLogParser {

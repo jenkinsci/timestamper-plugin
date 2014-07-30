@@ -38,15 +38,12 @@ import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kohsuke.stapler.RequestImpl;
-import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 
 /**
  * Unit test for the {@link TimestampNote} class.
@@ -77,20 +74,15 @@ public class TimestampNoteTest {
     note = new TimestampNote(3);
 
     formatter = mock(TimestampFormatter.class);
-    Whitebox.setInternalState(TimestamperConfig.class, Function.class,
-        new Function<StaplerRequest, TimestampFormatter>() {
+    Whitebox.setInternalState(TimestampFormatter.class,
+        new Supplier<TimestampFormatter>() {
           @Override
-          public TimestampFormatter apply(StaplerRequest input) {
+          public TimestampFormatter get() {
             return formatter;
           }
         });
 
     text = new MarkupText("");
-
-    @SuppressWarnings("unchecked")
-    ThreadLocal<RequestImpl> currentRequest = (ThreadLocal<RequestImpl>) Whitebox
-        .getField(Stapler.class, "CURRENT_REQUEST").get(null);
-    currentRequest.set(mock(RequestImpl.class));
   }
 
   /**

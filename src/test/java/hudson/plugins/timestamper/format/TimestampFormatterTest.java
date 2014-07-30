@@ -40,7 +40,6 @@ import java.util.TimeZone;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,13 +48,15 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.common.base.Optional;
+
 /**
- * Unit test for the {@link TimestampFormatterImpl} class.
+ * Unit test for the {@link TimestampFormatter} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
-public class TimestampFormatterImplTest {
+public class TimestampFormatterTest {
 
   /**
    * @return parameterised test data
@@ -67,7 +68,8 @@ public class TimestampFormatterImplTest {
         { request("elapsed"), span("00.123 "), span("00.123 ") },
         { request("none"), span(""), span("") },
         { request(), span("00:00:42 "), span("08:00:42 ") },
-        { request((String[]) null), span("00:00:42 "), span("08:00:42 ") } });
+        { request((String[]) null), span("00:00:42 "), span("08:00:42 ") },
+        { null, span("00:00:42 "), span("08:00:42 ") } });
   }
 
   private static HttpServletRequest request(String... cookieValues) {
@@ -104,8 +106,6 @@ public class TimestampFormatterImplTest {
 
   private TimeZone systemDefaultTimeZone;
 
-  private boolean serialize;
-
   /**
    */
   @Before
@@ -113,8 +113,6 @@ public class TimestampFormatterImplTest {
     systemDefaultTimeZone = TimeZone.getDefault();
     // Set the time zone to get consistent results.
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    System.clearProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY);
-    serialize = false;
   }
 
   /**
@@ -122,7 +120,6 @@ public class TimestampFormatterImplTest {
   @After
   public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
-    System.clearProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY);
   }
 
   /**
@@ -135,25 +132,7 @@ public class TimestampFormatterImplTest {
   /**
    */
   @Test
-  public void testMarkupAfterSerialization() {
-    serialize = true;
-    assertThat(markup("line").toString(true), is(prefix + "line"));
-  }
-
-  /**
-   */
-  @Test
   public void testMarkupElapsedTimeWithDifferentTimeZone() {
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
-    assertThat(markup("line").toString(true), is(prefixInDifferentTimezone
-        + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupElapsedTimeWithDifferentTimeZoneAfterSerialization() {
-    serialize = true;
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
     assertThat(markup("line").toString(true), is(prefixInDifferentTimezone
         + "line"));
@@ -170,15 +149,6 @@ public class TimestampFormatterImplTest {
   /**
    */
   @Test
-  public void testMarkupElapsedTimeWithConfiguredTimeZoneAfterSerialization() {
-    serialize = true;
-    assertThat(markup("line", "GMT+8").toString(true),
-        is(prefixInDifferentTimezone + "line"));
-  }
-
-  /**
-   */
-  @Test
   public void testMarkupThenAntTargetNote() {
     assertThat(annotate(markup("target:"), new AntTargetNote()).toString(true),
         is(prefix + "<b class=ant-target>target</b>:"));
@@ -187,25 +157,7 @@ public class TimestampFormatterImplTest {
   /**
    */
   @Test
-  public void testMarkupThenAntTargetNoteAfterSerialization() {
-    serialize = true;
-    assertThat(annotate(markup("target:"), new AntTargetNote()).toString(true),
-        is(prefix + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
   public void testAntTargetNoteThenMarkup() {
-    assertThat(markup(annotate("target:", new AntTargetNote())).toString(true),
-        is(prefix + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
-  public void testAntTargetNoteThenMarkupAfterSerialization() {
-    serialize = true;
     assertThat(markup(annotate("target:", new AntTargetNote())).toString(true),
         is(prefix + "<b class=ant-target>target</b>:"));
   }
@@ -223,16 +175,8 @@ public class TimestampFormatterImplTest {
   }
 
   private MarkupText markup(MarkupText markupText, String timeZoneId) {
-    if (timeZoneId != null) {
-      System.setProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY, timeZoneId);
-    } else {
-      System.clearProperty(TimestampFormatterImpl.TIME_ZONE_PROPERTY);
-    }
-    TimestampFormatter formatter = new TimestampFormatterImpl("HH:mm:ss ",
-        "ss.S ", request);
-    if (serialize) {
-      formatter = (TimestampFormatter) SerializationUtils.clone(formatter);
-    }
+    TimestampFormatter formatter = new TimestampFormatter("HH:mm:ss ", "ss.S ",
+        Optional.fromNullable(request), Optional.fromNullable(timeZoneId));
     formatter.markup(markupText, new Timestamp(123, 42000));
     return markupText;
   }

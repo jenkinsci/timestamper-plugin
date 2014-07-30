@@ -26,8 +26,6 @@ package hudson.plugins.timestamper.annotator;
 import hudson.Extension;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
-import hudson.plugins.timestamper.TimestamperConfig;
-import hudson.plugins.timestamper.format.TimestampFormatter;
 
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
@@ -52,10 +50,9 @@ public final class TimestampAnnotatorFactory extends
     if (request == null) {
       return null; // do not annotate
     }
-    TimestampFormatter formatter = TimestamperConfig.formatter(request);
     long offset = getOffset(request);
     ConsoleLogParser logParser = new ConsoleLogParserImpl(offset);
-    return new TimestampAnnotator(formatter, logParser);
+    return new TimestampAnnotator(logParser);
   }
 
   /**
