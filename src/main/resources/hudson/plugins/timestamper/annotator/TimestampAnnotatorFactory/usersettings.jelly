@@ -34,6 +34,8 @@ THE SOFTWARE.
           <form>
             <input type="radio" name="timestamps" id="timestamper-systemTime">${%System clock time}</input>
             <br/>
+            <input type="radio" name="timestamps" id="timestamper-localTime">${%Local clock time}</input>
+            <br/>
             <input type="radio" name="timestamps" id="timestamper-elapsedTime">${%Elapsed time}</input>
             <br/>
             <input type="radio" name="timestamps" id="timestamper-none">${%None}</input>
