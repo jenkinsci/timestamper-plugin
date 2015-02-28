@@ -36,10 +36,11 @@ function init() {
         'elapsed': document.getElementById('timestamper-elapsedTime'),
         'none': document.getElementById('timestamper-none')
     }
-
+	elements['local'].checked = false;
     elements['system'].checked = true;
     var cookie = getCookie();
     var element = elements[cookie];
+
     if (element) {
         element.checked = true;
         // renew cookie
@@ -56,6 +57,10 @@ function init() {
 }
 
 function onClick(elements) {
+	if(elements['elapsed'].checked || elements['none'].checked)
+	{
+        elements['local'].checked = false;
+    }
     for (var key in elements) {
         if (elements[key].checked) {
             setCookie(key);
