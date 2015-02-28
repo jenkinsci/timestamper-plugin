@@ -123,7 +123,6 @@ public class TimestampFormatter {
         }
       }
     }
-
     
     if ("elapsed".equalsIgnoreCase(cookieValue)) {
       formatTimestamp = new ElapsedTimeFormatFunction(elapsedTimeFormat);
@@ -132,7 +131,6 @@ public class TimestampFormatter {
     } 
     else if ("local".equalsIgnoreCase(cookieValue))
     {
-    	// "local", no cookie, or unrecognised cookie
     	if(offset == null)
     	{
     		offset = "0";
