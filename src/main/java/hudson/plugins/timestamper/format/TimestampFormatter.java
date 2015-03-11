@@ -30,6 +30,7 @@ import hudson.plugins.timestamper.TimestamperConfig;
 
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.Cookie;
@@ -130,9 +131,9 @@ public class TimestampFormatter {
       if (offset == null) {
         offset = "0";
       }
-      Optional<String> localTimeZoneId = adaptTimeZoneId(offset);
+      String localTimeZoneId = convertOffsetToTimeZoneId(offset);
       formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
-          localTimeZoneId);
+          Optional.of(localTimeZoneId));
     } else {
       // "system", no cookie, or unrecognised cookie
       formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
@@ -140,11 +141,12 @@ public class TimestampFormatter {
     }
   }
 
-  private Optional<String> adaptTimeZoneId(String offset) {
-    String[] timeZones = TimeZone.getAvailableIDs(Integer.parseInt(offset)
-        * (-1));
-    Optional<String> timeZoneId = Optional.of(timeZones[0]);
-    return timeZoneId;
+  private String convertOffsetToTimeZoneId(String offset) {
+    long minutes = TimeUnit.MILLISECONDS.toMinutes(Integer.parseInt(offset));
+    // Reverse sign due to return value of the Date.getTimezoneOffset function.
+    String sign = minutes > 0 ? "-" : "+";
+    return String.format("GMT%s%02d:%02d", sign, Math.abs(minutes / 60),
+        Math.abs(minutes % 60));
   }
 
   /**
