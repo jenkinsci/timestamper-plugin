@@ -134,6 +134,7 @@ public class TimestampFormatter {
       formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
           localTimeZoneId);
     } else {
+      // "system", no cookie, or unrecognised cookie
       formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
           timeZoneId);
     }
