@@ -112,43 +112,38 @@ public class TimestampFormatter {
             break;
           }
         }
-        
-        for (Cookie cookie : cookies)
-        {
-            if ("jenkins-timestamper-offset".equals(cookie.getName()))
-            {
-                offset = cookie.getValue();
-                break;
-            }
+
+        for (Cookie cookie : cookies) {
+          if ("jenkins-timestamper-offset".equals(cookie.getName())) {
+            offset = cookie.getValue();
+            break;
+          }
         }
       }
     }
-    
+
     if ("elapsed".equalsIgnoreCase(cookieValue)) {
       formatTimestamp = new ElapsedTimeFormatFunction(elapsedTimeFormat);
     } else if ("none".equalsIgnoreCase(cookieValue)) {
       formatTimestamp = new EmptyFormatFunction();
-    } 
-    else if ("local".equalsIgnoreCase(cookieValue))
-    {
-    	if(offset == null)
-    	{
-    		offset = "0";
-    	}
-    	Optional<String> localTimeZoneId = adaptTimeZoneId(offset);
-    	formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat, localTimeZoneId);
-    }
-    else
-    {
-        formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat, timeZoneId);
+    } else if ("local".equalsIgnoreCase(cookieValue)) {
+      if (offset == null) {
+        offset = "0";
+      }
+      Optional<String> localTimeZoneId = adaptTimeZoneId(offset);
+      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
+          localTimeZoneId);
+    } else {
+      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
+          timeZoneId);
     }
   }
-  
-  private Optional<String> adaptTimeZoneId(String offset)
-  {
-	  String [] timeZones = TimeZone.getAvailableIDs(Integer.parseInt(offset) * (-1));
-	  Optional<String> timeZoneId = Optional.of(timeZones[0]);
-	  return timeZoneId;
+
+  private Optional<String> adaptTimeZoneId(String offset) {
+    String[] timeZones = TimeZone.getAvailableIDs(Integer.parseInt(offset)
+        * (-1));
+    Optional<String> timeZoneId = Optional.of(timeZones[0]);
+    return timeZoneId;
   }
 
   /**
@@ -168,7 +163,6 @@ public class TimestampFormatter {
     // console notes (e.g. AntTargetNote).
     text.addMarkup(0, 0, "", markup);
   }
-    
 
   /**
    * Function that converts a time-stamp to the system clock time format.

@@ -36,7 +36,7 @@ function init() {
         'elapsed': document.getElementById('timestamper-elapsedTime'),
         'none': document.getElementById('timestamper-none')
     }
-	elements['local'].checked = false;
+    elements['local'].checked = false;
     elements['system'].checked = true;
     var cookie = getCookie();
     var element = elements[cookie];
@@ -57,8 +57,7 @@ function init() {
 }
 
 function onClick(elements) {
-	if(elements['elapsed'].checked || elements['none'].checked)
-	{
+    if(elements['elapsed'].checked || elements['none'].checked) {
         elements['local'].checked = false;
     }
     for (var key in elements) {
@@ -70,16 +69,14 @@ function onClick(elements) {
     }
 }
 
-function setOffsetCookie()
-{
+function setOffsetCookie() {
     var currentDate = new Date();
     var offset = currentDate.getTimezoneOffset();
     var offsetMS = offset * 60 * 1000;
-    
+
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
     var attributes = "; path=/; expires=" + currentDate.toGMTString();
     document.cookie = cookieName + '-offset=' + offsetMS.toString() + attributes;
-    
 }
 
 function setCookie(cookie) {
