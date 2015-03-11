@@ -36,6 +36,8 @@ import hudson.tasks._ant.AntTargetNote;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -58,30 +60,56 @@ import com.google.common.base.Optional;
 @RunWith(Parameterized.class)
 public class TimestampFormatterTest {
 
+  private static final long HALF_HOUR = TimeUnit.MINUTES.toMillis(30);
+
+  private static final long ONE_HOUR = TimeUnit.HOURS.toMillis(1);
+
   /**
    * @return parameterised test data
    */
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        { request("system"), span("00:00:42 "), span("08:00:42 ") },
-        { request("elapsed"), span("00.123 "), span("00.123 ") },
-        { request("none"), span(""), span("") },
+        // system
+        { request("jenkins-timestamper=system"), span("00:00:42 "),
+            span("08:00:42 ") },
+        // local (system with browser time zone)
+        { request("jenkins-timestamper=local", "jenkins-timestamper-offset=0"),
+            span("00:00:42 "), span("00:00:42 ") },
+        {
+            request("jenkins-timestamper=local", "jenkins-timestamper-offset="
+                + HALF_HOUR), span("23:30:42 "), span("23:30:42 ") },
+        {
+            request("jenkins-timestamper=local", "jenkins-timestamper-offset="
+                + ONE_HOUR), span("23:00:42 "), span("23:00:42 ") },
+        {
+            request("jenkins-timestamper=local", "jenkins-timestamper-offset=-"
+                + HALF_HOUR), span("00:30:42 "), span("00:30:42 ") },
+        {
+            request("jenkins-timestamper=local", "jenkins-timestamper-offset=-"
+                + ONE_HOUR), span("01:00:42 "), span("01:00:42 ") },
+        // elapsed
+        { request("jenkins-timestamper=elapsed"), span("00.123 "),
+            span("00.123 ") },
+        // none
+        { request("jenkins-timestamper=none"), span(""), span("") },
+        // other
         { request(), span("00:00:42 "), span("08:00:42 ") },
         { request((String[]) null), span("00:00:42 "), span("08:00:42 ") },
         { null, span("00:00:42 "), span("08:00:42 ") } });
   }
 
-  private static HttpServletRequest request(String... cookieValues) {
+  private static HttpServletRequest request(String... cookies) {
     HttpServletRequest request = mock(HttpServletRequest.class);
-    Cookie[] cookies = null;
-    if (cookieValues != null) {
-      cookies = new Cookie[cookieValues.length];
-      for (int i = 0; i < cookieValues.length; i++) {
-        cookies[i] = new Cookie("jenkins-timestamper", cookieValues[i]);
+    Cookie[] requestCookies = null;
+    if (cookies != null) {
+      requestCookies = new Cookie[cookies.length];
+      for (int i = 0; i < cookies.length; i++) {
+        String[] nameAndValue = cookies[i].split(Pattern.quote("="), 2);
+        requestCookies[i] = new Cookie(nameAndValue[0], nameAndValue[1]);
       }
     }
-    when(request.getCookies()).thenReturn(cookies);
+    when(request.getCookies()).thenReturn(requestCookies);
     return request;
   }
 
@@ -102,7 +130,7 @@ public class TimestampFormatterTest {
   /**
    */
   @Parameter(2)
-  public String prefixInDifferentTimezone;
+  public String prefixWithDifferentJenkinsTimezone;
 
   private TimeZone systemDefaultTimeZone;
 
@@ -132,18 +160,18 @@ public class TimestampFormatterTest {
   /**
    */
   @Test
-  public void testMarkupElapsedTimeWithDifferentTimeZone() {
+  public void testMarkupWithDifferentTimeZone() {
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
-    assertThat(markup("line").toString(true), is(prefixInDifferentTimezone
-        + "line"));
+    assertThat(markup("line").toString(true),
+        is(prefixWithDifferentJenkinsTimezone + "line"));
   }
 
   /**
    */
   @Test
-  public void testMarkupElapsedTimeWithConfiguredTimeZone() {
+  public void testMarkupWithConfiguredTimeZone() {
     assertThat(markup("line", "GMT+8").toString(true),
-        is(prefixInDifferentTimezone + "line"));
+        is(prefixWithDifferentJenkinsTimezone + "line"));
   }
 
   /**
