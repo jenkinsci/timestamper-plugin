@@ -32,9 +32,9 @@ import java.io.File;
  * 
  * @author Steven G. Brown
  */
-class TimestamperPaths {
+public class TimestamperPaths {
 
-  static File timestampsFile(Run<?, ?> build) {
+  public static File timestampsFile(Run<?, ?> build) {
     File timestamperDir = timestamperDir(build);
     return new File(timestamperDir, "timestamps");
   }

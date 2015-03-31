@@ -24,7 +24,6 @@
 package hudson.plugins.timestamper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.model.Run;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.IOException;
@@ -42,11 +41,6 @@ final class TimestamperOutputStream extends OutputStream {
 
   private static final Logger LOGGER = Logger
       .getLogger(TimestamperOutputStream.class.getName());
-
-  /**
-   * The build in progress.
-   */
-  private final Run<?, ?> build;
 
   /**
    * The delegate output stream.
@@ -77,17 +71,13 @@ final class TimestamperOutputStream extends OutputStream {
   /**
    * Create a new {@link TimestamperOutputStream}.
    * 
-   * @param build
-   *          the build in progress
    * @param delegate
    *          the delegate output stream
    * @param timestampsWriter
    *          will be used by this output stream to write the time-stamps and
    *          closed when the {@link #close()} method is called
    */
-  TimestamperOutputStream(Run<?, ?> build, OutputStream delegate,
-      TimestampsWriter timestampsWriter) {
-    this.build = checkNotNull(build);
+  TimestamperOutputStream(OutputStream delegate, TimestampsWriter timestampsWriter) {
     this.delegate = checkNotNull(delegate);
     this.timestampsWriter = checkNotNull(timestampsWriter);
   }
@@ -137,7 +127,7 @@ final class TimestamperOutputStream extends OutputStream {
       } catch (IOException ex) {
         writeError = true;
         LOGGER.log(Level.WARNING,
-            "Error writing timestamps for " + build.getFullDisplayName(), ex);
+            "Error writing timestamps", ex);
       }
     }
   }
