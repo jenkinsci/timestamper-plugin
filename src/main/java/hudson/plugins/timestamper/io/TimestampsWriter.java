@@ -98,6 +98,10 @@ public class TimestampsWriter implements Closeable {
     this.timestampsDigest = checkNotNull(digest);
 
     Files.createParentDirs(timestampsFile);
+    boolean fileCreated = timestampsFile.createNewFile();
+    if (!fileCreated) {
+      throw new IOException("File already exists: " + timestampsFile);
+    }
   }
 
   /**
@@ -133,9 +137,7 @@ public class TimestampsWriter implements Closeable {
    * @throws FileNotFoundException
    */
   private OutputStream openTimestampsStream() throws FileNotFoundException {
-      // TODO if timestampsDigest.isPresent() && timestampsFile.isFile() then seed w/ existing content
-      // (But it seems nothing is actually verifying the digest anyway?)
-    OutputStream outputStream = new FileOutputStream(timestampsFile, true);
+    OutputStream outputStream = new FileOutputStream(timestampsFile);
     if (timestampsDigest.isPresent()) {
       outputStream = new DigestOutputStream(outputStream,
           timestampsDigest.get());

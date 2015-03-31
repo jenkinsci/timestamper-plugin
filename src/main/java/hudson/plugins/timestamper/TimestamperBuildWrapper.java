@@ -87,13 +87,15 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
         private static final long serialVersionUID = 1;
         private final File timestampsFile;
         private final long buildStartTime;
+        private final boolean useTimestampNotes;
         ConsoleLogFilterImpl(Run<?,?> build) {
             this.timestampsFile = TimestamperPaths.timestampsFile(build);
             this.buildStartTime = build.getTimeInMillis();
+            useTimestampNotes = !(build instanceof AbstractBuild) || Boolean.getBoolean(TimestampNote.getSystemProperty());
         }
         @SuppressWarnings("rawtypes")
         @Override public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger) throws IOException, InterruptedException {
-            if (Boolean.getBoolean(TimestampNote.getSystemProperty())) {
+            if (useTimestampNotes) {
                 return new TimestampNotesOutputStream(logger);
             }
             Optional<MessageDigest> digest = Optional.absent();
