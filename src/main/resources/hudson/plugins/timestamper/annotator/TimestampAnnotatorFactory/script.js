@@ -87,7 +87,7 @@ function setCookie(cookie) {
 }
 
 function getCookie() {
-    var re = RegExp('(?:^|;\\s*)' + cookieName + '\s*=\s*([^;]+)');
+    var re = RegExp('(?:^|;\\s*)' + cookieName + '\\s*=\\s*([^;]+)');
     var match = re.exec(document.cookie);
     if (match) {
         return match[1];
