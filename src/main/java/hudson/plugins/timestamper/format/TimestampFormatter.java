@@ -102,14 +102,19 @@ public class TimestampFormatter {
       Optional<? extends HttpServletRequest> request,
       Optional<String> timeZoneId) {
 
-    String cookieValue = null;
+    String mode = null;
+    Boolean local = null;
     String offset = null;
     if (request.isPresent()) {
       Cookie[] cookies = request.get().getCookies();
       if (cookies != null) {
         for (Cookie cookie : cookies) {
-          if (cookieValue == null && "jenkins-timestamper".equals(cookie.getName())) {
-            cookieValue = cookie.getValue();
+          if (mode == null && "jenkins-timestamper".equals(cookie.getName())) {
+            mode = cookie.getValue();
+          }
+
+          if (local == null && "jenkins-timestamper-local".equals(cookie.getName())) {
+            local = Boolean.valueOf(cookie.getValue());
           }
 
           if (offset == null && "jenkins-timestamper-offset".equals(cookie.getName())) {
@@ -119,21 +124,24 @@ public class TimestampFormatter {
       }
     }
 
-    if ("elapsed".equalsIgnoreCase(cookieValue)) {
+    if ("elapsed".equalsIgnoreCase(mode)) {
       formatTimestamp = new ElapsedTimeFormatFunction(elapsedTimeFormat);
-    } else if ("none".equalsIgnoreCase(cookieValue)) {
+    } else if ("none".equalsIgnoreCase(mode)) {
       formatTimestamp = new EmptyFormatFunction();
-    } else if ("local".equalsIgnoreCase(cookieValue)) {
-      if (offset == null) {
-        offset = "0";
-      }
-      String localTimeZoneId = convertOffsetToTimeZoneId(offset);
-      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
-          Optional.of(localTimeZoneId));
     } else {
-      // "system", no cookie, or unrecognised cookie
-      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
-          timeZoneId);
+      // "system"
+      if (local != null && local.booleanValue()) {
+        if (offset == null) {
+          offset = "0";
+        }
+        String localTimeZoneId = convertOffsetToTimeZoneId(offset);
+        formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
+            Optional.of(localTimeZoneId));
+      } else {
+        // no cookie, or unrecognised cookie
+        formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
+            timeZoneId);
+      }
     }
   }
 

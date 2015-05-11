@@ -30,44 +30,74 @@
 var cookieName = 'jenkins-timestamper';
 
 function init() {
-    var elements = {
-        'local': document.getElementById('timestamper-localTime'),
+    // Only one of these modes can be checked at a time.
+    var modes = {
         'system': document.getElementById('timestamper-systemTime'),
         'elapsed': document.getElementById('timestamper-elapsedTime'),
         'none': document.getElementById('timestamper-none')
-    }
-    elements['local'].checked = false;
-    elements['system'].checked = true;
-    var cookie = getCookie();
-    var element = elements[cookie];
+    };
 
-    if (element) {
-        element.checked = true;
-        // renew cookie
-        setCookie(cookie);
+    // Any combination of these options can be checked at a time (but some may be disabled depending on the mode).
+    var options = {
+        'local': document.getElementById('timestamper-localTime')
+    };
+
+    // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
+    var mode = getCookie() || 'system';
+    if (mode == 'local') {
+        options[mode].checked = true;
+        mode = 'system';
     }
+    modes[mode].checked = true;
+
+    // Renew the cookie.
+    setCookie(mode);
+
+    // Set the click handler.
+    for (mode in modes) {
+        modes[mode].observe('click', function() {
+            onModeClick(modes);
+        });
+    }
+
+    // Set the options from cookies or initialize them.
+    for (var option in options) {
+        var value = getCookie(option) || 'false';
+        options[option].checked = (value === 'true');
+
+        // Renew the cookie.
+        setCookie(value, option);
+
+        // Set the click handler.
+        options[option].observe('click', function() {
+            onOptionClick(options);
+        });
+    }
+
+    // Disable invalid options depending on the mode.
+    options['local'].disabled = !modes['system'].checked;
 
     var offsetMS = new Date().getTimezoneOffset() * 60 * 1000;
     setCookie(offsetMS.toString(), 'offset');
-
-    for (var key in elements) {
-        elements[key].observe('click', function() {
-            onClick(elements);
-        });
-    }
 }
 
-function onClick(elements) {
-    if (elements['elapsed'].checked || elements['none'].checked) {
-        elements['local'].checked = false;
-    }
-    for (var key in elements) {
-        if (elements[key].checked) {
-            setCookie(key);
-            document.location.reload();
-            return;
+function onModeClick(modes) {
+    for (var mode in modes) {
+        if (modes[mode].checked) {
+            setCookie(mode);
+            break;
         }
     }
+
+    document.location.reload();
+}
+
+function onOptionClick(options) {
+    for (var option in options) {
+        setCookie(options[option].checked ? 'true' : 'false', option);
+    }
+
+    document.location.reload();
 }
 
 function setCookie(value, suffix) {
