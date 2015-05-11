@@ -47,7 +47,8 @@ function init() {
         setCookie(cookie);
     }
 
-    setOffsetCookie();
+    var offsetMS = new Date().getTimezoneOffset() * 60 * 1000;
+    setCookie(offsetMS.toString(), 'offset');
 
     for (var key in elements) {
         elements[key].observe('click', function() {
@@ -69,25 +70,25 @@ function onClick(elements) {
     }
 }
 
-function setOffsetCookie() {
-    var currentDate = new Date();
-    var offset = currentDate.getTimezoneOffset();
-    var offsetMS = offset * 60 * 1000;
+function setCookie(value, suffix) {
+    var name = cookieName;
+    if (typeof(suffix) !== 'undefined') {
+        name += '-' + suffix;
+    }
 
+    var currentDate = new Date();
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
     var attributes = '; path=/; expires=' + currentDate.toGMTString();
-    document.cookie = cookieName + '-offset=' + offsetMS.toString() + attributes;
+    document.cookie = name + '=' + value + attributes;
 }
 
-function setCookie(cookie) {
-    var d = new Date();
-    d.setTime(d.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = '; path=/; expires=' + d.toGMTString();
-    document.cookie = cookieName + '=' + cookie + attributes;
-}
+function getCookie(suffix) {
+    var name = cookieName;
+    if (typeof(suffix) !== 'undefined') {
+        name += '-' + suffix;
+    }
 
-function getCookie() {
-    var re = new RegExp('(?:^|;\\s*)' + cookieName + '\\s*=\\s*([^;]+)');
+    var re = new RegExp('(?:^|;\\s*)' + name + '\\s*=\\s*([^;]+)');
     var match = re.exec(document.cookie);
     if (match) {
         return match[1];
