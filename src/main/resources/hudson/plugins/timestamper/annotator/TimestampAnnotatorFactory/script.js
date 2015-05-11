@@ -57,7 +57,7 @@ function init() {
 }
 
 function onClick(elements) {
-    if(elements['elapsed'].checked || elements['none'].checked) {
+    if (elements['elapsed'].checked || elements['none'].checked) {
         elements['local'].checked = false;
     }
     for (var key in elements) {
