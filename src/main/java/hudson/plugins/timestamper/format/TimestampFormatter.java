@@ -108,16 +108,12 @@ public class TimestampFormatter {
       Cookie[] cookies = request.get().getCookies();
       if (cookies != null) {
         for (Cookie cookie : cookies) {
-          if ("jenkins-timestamper".equals(cookie.getName())) {
+          if (cookieValue == null && "jenkins-timestamper".equals(cookie.getName())) {
             cookieValue = cookie.getValue();
-            break;
           }
-        }
 
-        for (Cookie cookie : cookies) {
-          if ("jenkins-timestamper-offset".equals(cookie.getName())) {
+          if (offset == null && "jenkins-timestamper-offset".equals(cookie.getName())) {
             offset = cookie.getValue();
-            break;
           }
         }
       }
