@@ -75,14 +75,14 @@ function setOffsetCookie() {
     var offsetMS = offset * 60 * 1000;
 
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = "; path=/; expires=" + currentDate.toGMTString();
+    var attributes = '; path=/; expires=' + currentDate.toGMTString();
     document.cookie = cookieName + '-offset=' + offsetMS.toString() + attributes;
 }
 
 function setCookie(cookie) {
     var d = new Date();
     d.setTime(d.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = "; path=/; expires=" + d.toGMTString();
+    var attributes = '; path=/; expires=' + d.toGMTString();
     document.cookie = cookieName + '=' + cookie + attributes;
 }
 
@@ -116,13 +116,13 @@ function timestampFound() {
 
     new Ajax.Updater(
         element,
-        rootURL + "/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings",
+        rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings',
         { insertion: Insertion.After, onComplete: init }
     );
 }
 
 Behaviour.register({
-    "span.timestamp" : function(e) {
+    'span.timestamp' : function(e) {
         timestampFound(e);
     }
 });
