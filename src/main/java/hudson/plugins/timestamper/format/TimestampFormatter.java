@@ -129,19 +129,16 @@ public class TimestampFormatter {
     } else if ("none".equalsIgnoreCase(mode)) {
       formatTimestamp = new EmptyFormatFunction();
     } else {
-      // "system"
+      // "system", no mode cookie, or unrecognised mode cookie
       if (local != null && local.booleanValue()) {
         if (offset == null) {
           offset = "0";
         }
         String localTimeZoneId = convertOffsetToTimeZoneId(offset);
-        formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
-            Optional.of(localTimeZoneId));
-      } else {
-        // no cookie, or unrecognised cookie
-        formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
-            timeZoneId);
+        timeZoneId = Optional.of(localTimeZoneId);
       }
+      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
+          timeZoneId);
     }
   }
 
