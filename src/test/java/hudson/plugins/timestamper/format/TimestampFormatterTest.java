@@ -74,19 +74,19 @@ public class TimestampFormatterTest {
         { request("jenkins-timestamper=system"), span("00:00:42 "),
             span("08:00:42 ") },
         // local (system with browser time zone)
-        { request("jenkins-timestamper=local", "jenkins-timestamper-offset=0"),
+        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"),
             span("00:00:42 "), span("00:00:42 ") },
         {
-            request("jenkins-timestamper=local", "jenkins-timestamper-offset="
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset="
                 + HALF_HOUR), span("23:30:42 "), span("23:30:42 ") },
         {
-            request("jenkins-timestamper=local", "jenkins-timestamper-offset="
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset="
                 + ONE_HOUR), span("23:00:42 "), span("23:00:42 ") },
         {
-            request("jenkins-timestamper=local", "jenkins-timestamper-offset=-"
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-"
                 + HALF_HOUR), span("00:30:42 "), span("00:30:42 ") },
         {
-            request("jenkins-timestamper=local", "jenkins-timestamper-offset=-"
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-"
                 + ONE_HOUR), span("01:00:42 "), span("01:00:42 ") },
         // elapsed
         { request("jenkins-timestamper=elapsed"), span("00.123 "),
