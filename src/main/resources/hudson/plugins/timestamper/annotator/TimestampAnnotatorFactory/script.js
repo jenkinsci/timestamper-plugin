@@ -57,7 +57,7 @@ function init() {
 }
 
 function onClick(elements) {
-    if(elements['elapsed'].checked || elements['none'].checked) {
+    if (elements['elapsed'].checked || elements['none'].checked) {
         elements['local'].checked = false;
     }
     for (var key in elements) {
@@ -75,19 +75,19 @@ function setOffsetCookie() {
     var offsetMS = offset * 60 * 1000;
 
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = "; path=/; expires=" + currentDate.toGMTString();
+    var attributes = '; path=/; expires=' + currentDate.toGMTString();
     document.cookie = cookieName + '-offset=' + offsetMS.toString() + attributes;
 }
 
 function setCookie(cookie) {
     var d = new Date();
     d.setTime(d.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = "; path=/; expires=" + d.toGMTString();
+    var attributes = '; path=/; expires=' + d.toGMTString();
     document.cookie = cookieName + '=' + cookie + attributes;
 }
 
 function getCookie() {
-    var re = RegExp('(?:^|;\\s*)' + cookieName + '\s*=\s*([^;]+)');
+    var re = new RegExp('(?:^|;\\s*)' + cookieName + '\\s*=\\s*([^;]+)');
     var match = re.exec(document.cookie);
     if (match) {
         return match[1];
@@ -116,13 +116,13 @@ function timestampFound() {
 
     new Ajax.Updater(
         element,
-        rootURL + "/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings",
+        rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings',
         { insertion: Insertion.After, onComplete: init }
     );
 }
 
 Behaviour.register({
-    "span.timestamp" : function(e) {
+    'span.timestamp' : function(e) {
         timestampFound(e);
     }
 });
