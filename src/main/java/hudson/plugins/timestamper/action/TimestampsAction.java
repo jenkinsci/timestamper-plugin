@@ -210,7 +210,7 @@ public final class TimestampsAction implements Action {
       return String.valueOf(seconds) + "\n";
     }
     long millis = timestamp.elapsedMillis % 1000;
-    String fractional = String.format("%03d", Long.valueOf(millis));
+    String fractional = String.format("%03d", millis);
     if (precision <= 3) {
       fractional = fractional.substring(0, precision);
     } else if (precision > 3) {

@@ -30,64 +30,95 @@
 var cookieName = 'jenkins-timestamper';
 
 function init() {
-    var elements = {
-        'local': document.getElementById('timestamper-localTime'),
+    // Only one of these modes can be checked at a time.
+    var modes = {
         'system': document.getElementById('timestamper-systemTime'),
         'elapsed': document.getElementById('timestamper-elapsedTime'),
         'none': document.getElementById('timestamper-none')
+    };
+
+    // Any combination of these options can be checked at a time (but some may be disabled depending on the mode).
+    var options = {
+        'local': document.getElementById('timestamper-localTime')
+    };
+
+    // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
+    var mode = getCookie() || 'system';
+    if (mode == 'local') {
+        options[mode].checked = true;
+        mode = 'system';
     }
-    elements['local'].checked = false;
-    elements['system'].checked = true;
-    var cookie = getCookie();
-    var element = elements[cookie];
+    modes[mode].checked = true;
 
-    if (element) {
-        element.checked = true;
-        // renew cookie
-        setCookie(cookie);
-    }
+    // Renew the cookie.
+    setCookie(mode);
 
-    setOffsetCookie();
-
-    for (var key in elements) {
-        elements[key].observe('click', function() {
-            onClick(elements);
+    // Set the click handler.
+    for (mode in modes) {
+        modes[mode].observe('click', function() {
+            onModeClick(modes);
         });
     }
+
+    // Set the options from cookies or initialize them.
+    for (var option in options) {
+        var value = getCookie(option) || 'false';
+        options[option].checked = (value === 'true');
+
+        // Renew the cookie.
+        setCookie(value, option);
+
+        // Set the click handler.
+        options[option].observe('click', function() {
+            onOptionClick(options);
+        });
+    }
+
+    // Disable invalid options depending on the mode.
+    options['local'].disabled = !modes['system'].checked;
+
+    var offsetMS = new Date().getTimezoneOffset() * 60 * 1000;
+    setCookie(offsetMS.toString(), 'offset');
 }
 
-function onClick(elements) {
-    if(elements['elapsed'].checked || elements['none'].checked) {
-        elements['local'].checked = false;
-    }
-    for (var key in elements) {
-        if (elements[key].checked) {
-            setCookie(key);
-            document.location.reload();
-            return;
+function onModeClick(modes) {
+    for (var mode in modes) {
+        if (modes[mode].checked) {
+            setCookie(mode);
+            break;
         }
     }
+
+    document.location.reload();
 }
 
-function setOffsetCookie() {
+function onOptionClick(options) {
+    for (var option in options) {
+        setCookie(options[option].checked ? 'true' : 'false', option);
+    }
+
+    document.location.reload();
+}
+
+function setCookie(value, suffix) {
+    var name = cookieName;
+    if (typeof(suffix) !== 'undefined') {
+        name += '-' + suffix;
+    }
+
     var currentDate = new Date();
-    var offset = currentDate.getTimezoneOffset();
-    var offsetMS = offset * 60 * 1000;
-
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = "; path=/; expires=" + currentDate.toGMTString();
-    document.cookie = cookieName + '-offset=' + offsetMS.toString() + attributes;
+    var attributes = '; path=/; expires=' + currentDate.toGMTString();
+    document.cookie = name + '=' + value + attributes;
 }
 
-function setCookie(cookie) {
-    var d = new Date();
-    d.setTime(d.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = "; path=/; expires=" + d.toGMTString();
-    document.cookie = cookieName + '=' + cookie + attributes;
-}
+function getCookie(suffix) {
+    var name = cookieName;
+    if (typeof(suffix) !== 'undefined') {
+        name += '-' + suffix;
+    }
 
-function getCookie() {
-    var re = RegExp('(?:^|;\\s*)' + cookieName + '\s*=\s*([^;]+)');
+    var re = new RegExp('(?:^|;\\s*)' + name + '\\s*=\\s*([^;]+)');
     var match = re.exec(document.cookie);
     if (match) {
         return match[1];
@@ -116,13 +147,13 @@ function timestampFound() {
 
     new Ajax.Updater(
         element,
-        rootURL + "/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings",
+        rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings',
         { insertion: Insertion.After, onComplete: init }
     );
 }
 
 Behaviour.register({
-    "span.timestamp" : function(e) {
+    'span.timestamp' : function(e) {
         timestampFound(e);
     }
 });
