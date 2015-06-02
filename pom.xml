@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.607</version> <!-- TODO SimpleBuildWrapper-JENKINS-27392 branch -->
+    <version>1.609.1</version>
   </parent>
   
   <licenses>
@@ -77,26 +77,6 @@
   </properties>
 
   <dependencies>
-        <dependency> <!-- TODO SimpleBuildWrapper-JENKINS-27392 branch @ 804588a81ae7c87b2b0230018a58f00cac50a2f8 -->
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-core</artifactId>
-            <version>1.608-20150331.155258-2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-war</artifactId>
-            <version>1.608-20150331.155326-2</version>
-            <type>war</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-war</artifactId>
-            <version>1.608-20150331.155326-2</version>
-            <classifier>war-for-test</classifier>
-            <scope>test</scope>
-        </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
