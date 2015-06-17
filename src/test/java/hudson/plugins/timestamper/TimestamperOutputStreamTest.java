@@ -31,17 +31,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import hudson.model.AbstractBuild;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 /**
  * Unit test for the TimestamperOutputStream class.
@@ -51,13 +47,6 @@ import org.junit.rules.TemporaryFolder;
 public class TimestamperOutputStreamTest {
 
   private static final char NEWLINE = 0x0A;
-
-  /**
-   */
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
-
-  private AbstractBuild<?, ?> build;
 
   private OutputStream delegate;
 
@@ -73,11 +62,9 @@ public class TimestamperOutputStreamTest {
    */
   @Before
   public void setUp() {
-    build = mock(AbstractBuild.class);
-    when(build.getRootDir()).thenReturn(folder.getRoot());
     delegate = mock(OutputStream.class);
     writer = mock(TimestampsWriter.class);
-    timestamperOutputStream = new TimestamperOutputStream(build, delegate,
+    timestamperOutputStream = new TimestamperOutputStream(delegate,
         writer);
     data = new byte[] { 'a', (byte) NEWLINE };
     dataTwoLines = new byte[] { 'a', (byte) NEWLINE, 'b', (byte) NEWLINE };

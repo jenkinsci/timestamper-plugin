@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.520</version> <!-- earliest version that requires Java 6 -->
+    <version>1.609.1</version>
   </parent>
   
   <licenses>

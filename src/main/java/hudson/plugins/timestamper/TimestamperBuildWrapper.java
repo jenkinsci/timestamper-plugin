@@ -27,7 +27,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.console.LineTransformationOutputStream;
-import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.plugins.timestamper.io.TimestampsWriter;
@@ -44,6 +43,15 @@ import java.util.logging.Logger;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.google.common.base.Optional;
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.console.ConsoleLogFilter;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.plugins.timestamper.io.TimestamperPaths;
+import java.io.File;
+import java.io.Serializable;
+import jenkins.tasks.SimpleBuildWrapper;
 
 /**
  * Build wrapper that decorates the build's logger to record time-stamps as each
@@ -53,7 +61,7 @@ import com.google.common.base.Optional;
  * 
  * @author Steven G. Brown
  */
-public final class TimestamperBuildWrapper extends BuildWrapper {
+public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
 
   private static final Logger LOGGER = Logger
       .getLogger(TimestamperBuildWrapper.class.getName());
@@ -68,39 +76,43 @@ public final class TimestamperBuildWrapper extends BuildWrapper {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("rawtypes")
-  @Override
-  public Environment setUp(AbstractBuild build, Launcher launcher,
-      BuildListener listener) throws IOException, InterruptedException {
-    // Jenkins requires this method to be overridden.
-    return new Environment() {
-      // No tear down behaviour or additional environment variables.
-    };
+  @Override public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
+        // nothing to do
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("rawtypes")
-  @Override
-  public OutputStream decorateLogger(AbstractBuild build, OutputStream logger) {
-    if (Boolean.getBoolean(TimestampNote.getSystemProperty())) {
-      return new TimestampNotesOutputStream(logger);
-    }
-    Optional<MessageDigest> digest = Optional.absent();
-    try {
-      digest = Optional.of(MessageDigest.getInstance("SHA-1"));
-    } catch (NoSuchAlgorithmException ex) {
-      LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-    }
-    try {
-      TimestampsWriter timestampsWriter = new TimestampsWriter(build, digest);
-      logger = new TimestamperOutputStream(build, logger, timestampsWriter);
-    } catch (IOException ex) {
-      LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-    }
-    return logger;
+    @Override public ConsoleLogFilter createLoggerDecorator(Run<?,?> build) {
+        return new ConsoleLogFilterImpl(build);
   }
+    private static class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
+        private static final long serialVersionUID = 1;
+        private final File timestampsFile;
+        private final long buildStartTime;
+        private final boolean useTimestampNotes;
+        ConsoleLogFilterImpl(Run<?,?> build) {
+            this.timestampsFile = TimestamperPaths.timestampsFile(build);
+            this.buildStartTime = build.getTimeInMillis();
+            useTimestampNotes = !(build instanceof AbstractBuild) || Boolean.getBoolean(TimestampNote.getSystemProperty());
+        }
+        @SuppressWarnings("rawtypes")
+        @Override public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger) throws IOException, InterruptedException {
+            if (useTimestampNotes) {
+                return new TimestampNotesOutputStream(logger);
+            }
+            Optional<MessageDigest> digest = Optional.absent();
+            try {
+                digest = Optional.of(MessageDigest.getInstance("SHA-1"));
+            } catch (NoSuchAlgorithmException ex) {
+                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+            }
+            try {
+                TimestampsWriter timestampsWriter = new TimestampsWriter(timestampsFile, buildStartTime, digest);
+                logger = new TimestamperOutputStream(logger, timestampsWriter);
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+            }
+            return logger;
+        }
+    }
 
   /**
    * Output stream that writes each line to the provided delegate output stream
