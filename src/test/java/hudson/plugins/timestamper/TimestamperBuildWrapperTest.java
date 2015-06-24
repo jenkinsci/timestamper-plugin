@@ -23,10 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,8 +38,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.google.common.primitives.Bytes;
-
 /**
  * Test for the {@link TimestamperBuildWrapper} class.
  * 
@@ -50,8 +45,6 @@ import com.google.common.primitives.Bytes;
  */
 @SuppressWarnings("boxing")
 public class TimestamperBuildWrapperTest {
-
-  private static final char NEWLINE = 0x0A;
 
   /**
    */
@@ -100,9 +93,7 @@ public class TimestamperBuildWrapperTest {
     System.setProperty(TimestampNote.getSystemProperty(), "true");
     OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build,
         outputStream);
-    byte[] data = new byte[] { 'a', (byte) NEWLINE };
-    decoratedOutputStream.write(data);
-    assertThat(Bytes.asList(outputStream.toByteArray()),
-        is(hasSize(greaterThan(data.length))));
+    assertThat(decoratedOutputStream,
+        instanceOf(TimestampNotesOutputStream.class));
   }
 }

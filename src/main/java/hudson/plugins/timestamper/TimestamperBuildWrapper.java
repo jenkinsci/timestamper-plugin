@@ -23,10 +23,8 @@
  */
 package hudson.plugins.timestamper;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.console.LineTransformationOutputStream;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.plugins.timestamper.io.TimestampsWriter;
@@ -120,47 +118,6 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
         LOGGER.log(Level.WARNING, ex.getMessage(), ex);
       }
       return logger;
-    }
-  }
-
-  /**
-   * Output stream that writes each line to the provided delegate output stream
-   * after inserting a {@link TimestampNote}.
-   */
-  private static class TimestampNotesOutputStream extends
-      LineTransformationOutputStream {
-
-    /**
-     * The delegate output stream.
-     */
-    private final OutputStream delegate;
-
-    /**
-     * Create a new {@link TimestampNotesOutputStream}.
-     * 
-     * @param delegate
-     *          the delegate output stream
-     */
-    TimestampNotesOutputStream(OutputStream delegate) {
-      this.delegate = checkNotNull(delegate);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void eol(byte[] b, int len) throws IOException {
-      new TimestampNote(System.currentTimeMillis()).encodeTo(delegate);
-      delegate.write(b, 0, len);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void close() throws IOException {
-      super.close();
-      delegate.close();
     }
   }
 
