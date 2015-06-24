@@ -64,8 +64,6 @@ public class TimestampsWriter implements Closeable {
    */
   private final byte[] buffer = new byte[BUFFER_SIZE];
 
-  private long buildStartTime;
-
   private long previousCurrentTimeMillis;
 
   /**
@@ -93,7 +91,6 @@ public class TimestampsWriter implements Closeable {
 
   public TimestampsWriter(File timestampsFile, long buildStartTime, Optional<MessageDigest> digest) throws IOException {
     this.timestampsFile = timestampsFile;
-    this.buildStartTime = buildStartTime;
     this.previousCurrentTimeMillis = buildStartTime;
     this.timestampsDigest = checkNotNull(digest);
 
