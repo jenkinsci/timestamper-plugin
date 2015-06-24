@@ -25,11 +25,12 @@ package hudson.plugins.timestamper.action;
 
 import hudson.Extension;
 import hudson.model.Action;
-import hudson.model.TransientBuildActionFactory;
 import hudson.model.Run;
 
 import java.util.Collection;
 import java.util.Collections;
+
+import jenkins.model.TransientActionFactory;
 
 /**
  * Provides the {@link TimestampsAction} for each build page.
@@ -37,14 +38,22 @@ import java.util.Collections;
  * @author Steven G. Brown
  */
 @Extension
-public final class TimestampsActionFactory extends TransientBuildActionFactory {
+@SuppressWarnings("rawtypes")
+public final class TimestampsActionFactory extends TransientActionFactory<Run> {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Collection<? extends Action> createFor(
-      @SuppressWarnings("rawtypes") Run target) {
+  public Class<Run> type() {
+    return Run.class;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Collection<? extends Action> createFor(Run target) {
     return Collections.singleton(new TimestampsAction(target));
   }
 }
