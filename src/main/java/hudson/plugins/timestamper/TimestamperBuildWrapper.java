@@ -76,43 +76,52 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
   /**
    * {@inheritDoc}
    */
-  @Override public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
-        // nothing to do
+  @Override
+  public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
+    // nothing to do
   }
 
-    @Override public ConsoleLogFilter createLoggerDecorator(Run<?,?> build) {
-        return new ConsoleLogFilterImpl(build);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ConsoleLogFilter createLoggerDecorator(Run<?,?> build) {
+    return new ConsoleLogFilterImpl(build);
   }
-    private static class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
-        private static final long serialVersionUID = 1;
-        private final File timestampsFile;
-        private final long buildStartTime;
-        private final boolean useTimestampNotes;
-        ConsoleLogFilterImpl(Run<?,?> build) {
-            this.timestampsFile = TimestamperPaths.timestampsFile(build);
-            this.buildStartTime = build.getTimeInMillis();
-            useTimestampNotes = !(build instanceof AbstractBuild) || Boolean.getBoolean(TimestampNote.getSystemProperty());
-        }
-        @SuppressWarnings("rawtypes")
-        @Override public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger) throws IOException, InterruptedException {
-            if (useTimestampNotes) {
-                return new TimestampNotesOutputStream(logger);
-            }
-            Optional<MessageDigest> digest = Optional.absent();
-            try {
-                digest = Optional.of(MessageDigest.getInstance("SHA-1"));
-            } catch (NoSuchAlgorithmException ex) {
-                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-            }
-            try {
-                TimestampsWriter timestampsWriter = new TimestampsWriter(timestampsFile, buildStartTime, digest);
-                logger = new TimestamperOutputStream(logger, timestampsWriter);
-            } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-            }
-            return logger;
-        }
+
+  private static class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
+    private static final long serialVersionUID = 1;
+    private final File timestampsFile;
+    private final long buildStartTime;
+    private final boolean useTimestampNotes;
+
+    ConsoleLogFilterImpl(Run<?,?> build) {
+      this.timestampsFile = TimestamperPaths.timestampsFile(build);
+      this.buildStartTime = build.getTimeInMillis();
+      useTimestampNotes = !(build instanceof AbstractBuild) || Boolean.getBoolean(TimestampNote.getSystemProperty());
     }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger) throws IOException, InterruptedException {
+      if (useTimestampNotes) {
+        return new TimestampNotesOutputStream(logger);
+      }
+      Optional<MessageDigest> digest = Optional.absent();
+      try {
+        digest = Optional.of(MessageDigest.getInstance("SHA-1"));
+      } catch (NoSuchAlgorithmException ex) {
+        LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+      }
+      try {
+        TimestampsWriter timestampsWriter = new TimestampsWriter(timestampsFile, buildStartTime, digest);
+        logger = new TimestamperOutputStream(logger, timestampsWriter);
+      } catch (IOException ex) {
+        LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+      }
+      return logger;
+    }
+  }
 
   /**
    * Output stream that writes each line to the provided delegate output stream
