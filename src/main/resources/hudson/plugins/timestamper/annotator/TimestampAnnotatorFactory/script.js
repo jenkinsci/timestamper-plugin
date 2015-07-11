@@ -134,11 +134,11 @@ function timestampFound() {
     }
     settingsInserted = true;
 
-    // for div layout in >= 1.572 we need to use 'side-panel-content'
+    // Jenkins 1.608 displays the side panel widgets in 'side-panel-content'
     var element = document.getElementById('side-panel-content');
     if (null == element) {
-        // for < 1.572 we need to use 'navigation'
-        element = document.getElementById('navigation');
+        // Jenkins 1.619 has no 'side-panel-content', it displays the widgets in 'side-panel' 
+        element = document.getElementById('side-panel');
         if (null == element) {
             // element not found, so return to avoid an error (JENKINS-23867)
             return;
