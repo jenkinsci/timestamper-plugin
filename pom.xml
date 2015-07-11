@@ -17,7 +17,7 @@
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/timestamper-plugin.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>timestamper-1.7.1</tag>
   </scm>
 
   <build>
@@ -66,7 +66,7 @@
 
   <artifactId>timestamper</artifactId>
   <packaging>hpi</packaging>
-  <version>1.7.1-SNAPSHOT</version>
+  <version>1.7.1</version>
   <name>Timestamper</name>
   <description>Adds timestamps to the Console Output</description>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Timestamper</url>
