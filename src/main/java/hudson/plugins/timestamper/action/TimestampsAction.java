@@ -213,7 +213,7 @@ public final class TimestampsAction implements Action {
     String fractional = String.format("%03d", millis);
     if (precision <= 3) {
       fractional = fractional.substring(0, precision);
-    } else if (precision > 3) {
+    } else {
       fractional += Strings.repeat("0", precision - 3);
     }
     return String.valueOf(seconds) + "." + fractional + "\n";
