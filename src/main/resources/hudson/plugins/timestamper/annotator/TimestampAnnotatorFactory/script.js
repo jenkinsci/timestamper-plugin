@@ -148,7 +148,7 @@ function timestampFound() {
     new Ajax.Updater(
         element,
         rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory/usersettings',
-        { insertion: Insertion.After, onComplete: init }
+        { insertion: Insertion.Bottom, onComplete: init }
     );
 }
 
