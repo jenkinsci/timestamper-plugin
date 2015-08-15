@@ -108,7 +108,7 @@ function setCookie(value, suffix) {
 
     var currentDate = new Date();
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = '; path=/; expires=' + currentDate.toGMTString();
+    var attributes = '; path=' + rootURL + '; expires=' + currentDate.toGMTString();
     document.cookie = name + '=' + value + attributes;
 }
 
