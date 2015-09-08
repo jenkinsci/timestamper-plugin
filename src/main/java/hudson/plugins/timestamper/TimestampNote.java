@@ -23,12 +23,17 @@
  */
 package hudson.plugins.timestamper;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsAction;
 import hudson.plugins.timestamper.format.TimestampFormatter;
+import jenkins.model.GlobalConfiguration;
 
 /**
  * Time-stamp note that was inserted into the console note by the Timestamper
@@ -61,6 +66,10 @@ public final class TimestampNote extends ConsoleNote<Object> {
    */
   public static String getSystemProperty() {
     return "timestamper-consolenotes";
+  }
+
+  public static String getUsePlainSystemProperty() {
+    return "timestamper-consolenotes-plain";
   }
 
   /**
@@ -103,5 +112,12 @@ public final class TimestampNote extends ConsoleNote<Object> {
       formatter.markup(text, timestamp);
     }
     return null; // each time-stamp note affects one line only
+  }
+
+  public void plain(OutputStream out) throws IOException {
+    TimestamperConfig config = GlobalConfiguration.all().get(TimestamperConfig.class);
+    String format = config.getSystemTimeFormat();
+    SimpleDateFormat df = new SimpleDateFormat(format);
+    out.write(df.format(millisSinceEpoch).getBytes());
   }
 }
