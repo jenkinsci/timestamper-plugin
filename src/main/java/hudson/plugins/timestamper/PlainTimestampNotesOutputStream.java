@@ -26,13 +26,15 @@ package hudson.plugins.timestamper;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 /**
  * Output stream that writes each line to the provided delegate output stream
  * after inserting a {@link TimestampNote} as plain text.
  */
 class PlainTimestampNotesOutputStream extends TimestampNotesOutputStream {
 
-  PlainTimestampNotesOutputStream(OutputStream delegate) {
+  PlainTimestampNotesOutputStream(@NonNull OutputStream delegate) {
     super(delegate);
   }
 
