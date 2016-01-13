@@ -42,6 +42,12 @@ function init() {
         'local': document.getElementById('timestamper-localTime')
     };
 
+    // Delete cookies added with the wrong path by Timestamper 1.7.2. See JENKINS-32074.
+    var attributes = '; path=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    document.cookie = 'jenkins-timestamper=' + attributes;
+    document.cookie = 'jenkins-timestamper-local=' + attributes;
+    document.cookie = 'jenkins-timestamper-offset=' + attributes;
+
     // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
     var mode = getCookie() || 'system';
     if (mode == 'local') {
@@ -106,9 +112,13 @@ function setCookie(value, suffix) {
         name += '-' + suffix;
     }
 
+    var path = '/';
+    if (rootURL) {
+        path = rootURL;
+    }
     var currentDate = new Date();
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = '; path=' + rootURL + '; expires=' + currentDate.toGMTString();
+    var attributes = '; path=' + path + '; expires=' + currentDate.toGMTString();
     document.cookie = name + '=' + value + attributes;
 }
 
