@@ -205,8 +205,11 @@ public class TimestampFormatter {
 
     @Override
     public String apply(@Nonnull Timestamp timestamp) {
-      return DurationFormatUtils.formatDuration(timestamp.elapsedMillis,
-          elapsedTimeFormat);
+      if (timestamp.elapsedMillisKnown) {
+        return DurationFormatUtils.formatDuration(timestamp.elapsedMillis,
+            elapsedTimeFormat);
+      }
+      return "";
     }
   }
 

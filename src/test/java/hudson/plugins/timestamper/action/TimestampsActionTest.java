@@ -306,7 +306,7 @@ public class TimestampsActionTest {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       int i = 0;
       for (long millisSinceEpoch : millisSinceEpochToWrite) {
-        TimestampNote timestampNote = new TimestampNote(millisSinceEpoch);
+        TimestampNote timestampNote = new TimestampNote(0, millisSinceEpoch);
         timestampNote.encodeTo(outputStream);
         outputStream.write('a' + i);
         i++;

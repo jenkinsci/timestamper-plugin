@@ -58,7 +58,7 @@ public class TimestampNotesOutputStreamTest {
   public void setUp() {
     delegateOutputStream = new ByteArrayOutputStream();
     timestampNotesOutputStream = new TimestampNotesOutputStream(
-        delegateOutputStream);
+        delegateOutputStream, 0);
   }
 
   /**

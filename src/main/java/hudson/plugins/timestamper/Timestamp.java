@@ -41,6 +41,11 @@ public final class Timestamp {
   public final long elapsedMillis;
 
   /**
+   * Whether the elapsed time is known.
+   */
+  public final boolean elapsedMillisKnown;
+
+  /**
    * The clock time in milliseconds since midnight, January 1, 1970 UTC.
    */
   public final long millisSinceEpoch;
@@ -54,7 +59,20 @@ public final class Timestamp {
    *          the clock time in milliseconds since midnight, January 1, 1970 UTC
    */
   public Timestamp(long elapsedMillis, long millisSinceEpoch) {
-    this.elapsedMillis = elapsedMillis;
+    this(Long.valueOf(elapsedMillis), millisSinceEpoch);
+  }
+
+  /**
+   * Create a {@link Timestamp}.
+   * 
+   * @param elapsedMillis
+   *          the elapsed time in milliseconds since the start of the build (null if unknown)
+   * @param millisSinceEpoch
+   *          the clock time in milliseconds since midnight, January 1, 1970 UTC
+   */
+  public Timestamp(Long elapsedMillis, long millisSinceEpoch) {
+    this.elapsedMillis = (elapsedMillis == null ? 0 : elapsedMillis);
+    this.elapsedMillisKnown = (elapsedMillis != null);
     this.millisSinceEpoch = millisSinceEpoch;
   }
 
@@ -63,7 +81,8 @@ public final class Timestamp {
    */
   @Override
   public int hashCode() {
-    return Objects.hashCode(elapsedMillis, millisSinceEpoch);
+    return Objects
+        .hashCode(elapsedMillis, elapsedMillisKnown, millisSinceEpoch);
   }
 
   /**
@@ -74,6 +93,7 @@ public final class Timestamp {
     if (obj instanceof Timestamp) {
       Timestamp other = (Timestamp) obj;
       return elapsedMillis == other.elapsedMillis
+          && elapsedMillisKnown == other.elapsedMillisKnown
           && millisSinceEpoch == other.millisSinceEpoch;
     }
     return false;
@@ -84,7 +104,8 @@ public final class Timestamp {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("elapsedMillis", elapsedMillis)
+    return Objects.toStringHelper(this)
+        .add("elapsedMillis", elapsedMillisKnown ? elapsedMillis : "(unknown)")
         .add("millisSinceEpoch", millisSinceEpoch).toString();
   }
 }

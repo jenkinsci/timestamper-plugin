@@ -64,6 +64,13 @@ public final class TimestampNote extends ConsoleNote<Object> {
   }
 
   /**
+   * The elapsed time in milliseconds since the start of the build.
+   * 
+   * @since 1.7.4
+   */
+  private final Long elapsedMillis;
+
+  /**
    * Milliseconds since the epoch.
    */
   private final long millisSinceEpoch;
@@ -71,10 +78,13 @@ public final class TimestampNote extends ConsoleNote<Object> {
   /**
    * Create a new {@link TimestampNote}.
    * 
+   * @param elapsedMillis
+   *          the elapsed time in milliseconds since the start of the build
    * @param millisSinceEpoch
    *          milliseconds since the epoch
    */
-  public TimestampNote(long millisSinceEpoch) {
+  public TimestampNote(long elapsedMillis, long millisSinceEpoch) {
+    this.elapsedMillis = elapsedMillis;
     this.millisSinceEpoch = millisSinceEpoch;
   }
 
@@ -86,8 +96,7 @@ public final class TimestampNote extends ConsoleNote<Object> {
    * @return the time-stamp
    */
   public Timestamp getTimestamp(Run<?, ?> build) {
-    long elapsedMillis = millisSinceEpoch - build.getTimeInMillis();
-    return new Timestamp(elapsedMillis, millisSinceEpoch);
+    return getTimestamp((Object) build);
   }
 
   /**
@@ -96,12 +105,20 @@ public final class TimestampNote extends ConsoleNote<Object> {
   @Override
   public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
       int charPos) {
-    if (context instanceof Run<?, ?>) {
-      Run<?, ?> build = (Run<?, ?>) context;
-      TimestampFormatter formatter = TimestampFormatter.get();
-      Timestamp timestamp = getTimestamp(build);
-      formatter.markup(text, timestamp);
-    }
+    TimestampFormatter formatter = TimestampFormatter.get();
+    Timestamp timestamp = getTimestamp(context);
+    formatter.markup(text, timestamp);
     return null; // each time-stamp note affects one line only
+  }
+
+  private Timestamp getTimestamp(Object context) {
+    if (context instanceof Run<?, ?>) {
+      // The elapsed time can be determined by using the build start time
+      Run<?, ?> build = (Run<?, ?>) context;
+      long buildStartTime = build.getTimeInMillis();
+      return new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+    }
+    // Use the elapsed time recorded in this console note, if known
+    return new Timestamp(elapsedMillis, millisSinceEpoch);
   }
 }

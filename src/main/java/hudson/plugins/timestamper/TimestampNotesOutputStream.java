@@ -43,13 +43,21 @@ class TimestampNotesOutputStream extends LineTransformationOutputStream {
   private final OutputStream delegate;
 
   /**
+   * The build start time.
+   */
+  private final long buildStartTime;
+
+  /**
    * Create a new {@link TimestampNotesOutputStream}.
    * 
    * @param delegate
    *          the delegate output stream
+   * @param buildStartTime
+   *          the build start time
    */
-  TimestampNotesOutputStream(OutputStream delegate) {
+  TimestampNotesOutputStream(OutputStream delegate, long buildStartTime) {
     this.delegate = checkNotNull(delegate);
+    this.buildStartTime = buildStartTime;
   }
 
   /**
@@ -57,7 +65,8 @@ class TimestampNotesOutputStream extends LineTransformationOutputStream {
    */
   @Override
   protected void eol(byte[] b, int len) throws IOException {
-    new TimestampNote(System.currentTimeMillis()).encodeTo(delegate);
+    long now = System.currentTimeMillis();
+    new TimestampNote(now - buildStartTime, now).encodeTo(delegate);
     delegate.write(b, 0, len);
   }
 

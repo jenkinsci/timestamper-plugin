@@ -103,7 +103,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
     @Override
     public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger) throws IOException, InterruptedException {
       if (useTimestampNotes) {
-        return new TimestampNotesOutputStream(logger);
+        return new TimestampNotesOutputStream(logger, buildStartTime);
       }
       Optional<MessageDigest> digest = Optional.absent();
       try {

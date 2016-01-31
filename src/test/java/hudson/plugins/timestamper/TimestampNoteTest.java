@@ -25,9 +25,7 @@ package hudson.plugins.timestamper;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.MarkupText;
@@ -63,15 +61,21 @@ public class TimestampNoteTest {
 
   private MarkupText text;
 
+  private final long BUILD_START = 1;
+
+  private final long NOTE_ELAPSED = 4;
+
+  private final long TIME = 3;
+
   /**
    * @throws Exception
    */
   @Before
   public void setUp() throws Exception {
     build = PowerMockito.mock(Run.class);
-    when(build.getTimeInMillis()).thenReturn(1l);
+    when(build.getTimeInMillis()).thenReturn(BUILD_START);
 
-    note = new TimestampNote(3);
+    note = new TimestampNote(NOTE_ELAPSED, TIME);
 
     formatter = mock(TimestampFormatter.class);
     Whitebox.setInternalState(TimestampFormatter.class,
@@ -89,13 +93,14 @@ public class TimestampNoteTest {
    */
   @Test
   public void testGetTimestamp() {
-    assertThat(note.getTimestamp(build), is(new Timestamp(2, 3)));
+    assertThat(note.getTimestamp(build), is(new Timestamp(TIME
+        - BUILD_START, TIME)));
   }
 
   /**
    */
   @Test
-  public void testGetTimestampAfterSerialization() {
+  public void testGetTimestamp_afterSerialization() {
     note = (TimestampNote) SerializationUtils.clone(note);
     testGetTimestamp();
   }
@@ -105,13 +110,13 @@ public class TimestampNoteTest {
   @Test
   public void testAnnotate() {
     note.annotate(build, text, 0);
-    verify(formatter).markup(text, new Timestamp(2, 3));
+    verify(formatter).markup(text, new Timestamp(TIME - BUILD_START, TIME));
   }
 
   /**
    */
   @Test
-  public void testAnnotateAfterSerialization() {
+  public void testAnnotate_afterSerialization() {
     note = (TimestampNote) SerializationUtils.clone(note);
     testAnnotate();
   }
@@ -119,9 +124,34 @@ public class TimestampNoteTest {
   /**
    */
   @Test
-  public void testAnnotateUnrecognisedContext() {
+  public void testAnnotate_unrecognisedContext() {
     note.annotate(new Object(), text, 0);
-    verify(formatter, never()).markup(any(MarkupText.class),
-        any(Timestamp.class));
+    verify(formatter)
+        .markup(text, new Timestamp(NOTE_ELAPSED, TIME));
+  }
+
+  /**
+   */
+  @Test
+  public void testAnnotate_UnrecognisedContext_afterSerialization() {
+    note = (TimestampNote) SerializationUtils.clone(note);
+    testAnnotate_unrecognisedContext();
+  }
+
+  /**
+   */
+  @Test
+  public void testAnnotate_unrecognisedContext_buildStartNotRecorded() {
+    Whitebox.setInternalState(note, "elapsedMillis", (Object)null);
+    note.annotate(new Object(), text, 0);
+    verify(formatter).markup(text, new Timestamp(null, TIME));
+  }
+
+  /**
+   */
+  @Test
+  public void testAnnotate_UnrecognisedContext_buildStartNotRecorded_afterSerialization() {
+    note = (TimestampNote) SerializationUtils.clone(note);
+    testAnnotate_unrecognisedContext_buildStartNotRecorded();
   }
 }
