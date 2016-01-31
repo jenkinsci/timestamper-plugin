@@ -26,23 +26,27 @@ package hudson.plugins.timestamper;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
+import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsAction;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 
 /**
- * Time-stamp note that was inserted into the console note by the Timestamper
- * plugin prior to version 1.4.
+ * Time-stamp console note.
  * <p>
- * The time-stamps are now stored in a separate file, which allows a more
- * compact format to be used. Having the timestamps in the console log file was
- * also inconvenient when reading the file in a text editor.
+ * These are inserted into the log file when:
+ * <ul>
+ * <li>The build does not extend {@link AbstractBuild}, e.g. a pipeline job.</li>
+ * <li>Running the Timestamper plugin prior to version 1.4.</li>
+ * <li>The system property is set: ({@link #getSystemProperty()}). The is
+ * intended to support scripts that were written prior to Timestamper 1.4 to
+ * parse the log files. New scripts should query the {@code /timestamps} URL
+ * instead (see {@link TimestampsAction}).</li>
+ * </ul>
  * <p>
- * It is possible to restore the old behaviour of inserting console notes by
- * setting a system property: {@link #getSystemProperty()}. This will allow
- * scripts which expect to find the time-stamps within the console log file to
- * continue working. New scripts should rely on the page served by
- * {@link TimestampsAction} instead.
+ * Otherwise, the time-stamps are stored in a separate file, which allows a more
+ * compact format to be used and avoids filling the log files with encoded
+ * console notes.
  * 
  * @author Steven G. Brown
  */
