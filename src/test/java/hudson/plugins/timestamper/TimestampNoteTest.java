@@ -93,8 +93,8 @@ public class TimestampNoteTest {
    */
   @Test
   public void testGetTimestamp() {
-    assertThat(note.getTimestamp(build), is(new Timestamp(TIME
-        - BUILD_START, TIME)));
+    assertThat(note.getTimestamp(build), is(new Timestamp(TIME - BUILD_START,
+        TIME)));
   }
 
   /**
@@ -126,8 +126,7 @@ public class TimestampNoteTest {
   @Test
   public void testAnnotate_unrecognisedContext() {
     note.annotate(new Object(), text, 0);
-    verify(formatter)
-        .markup(text, new Timestamp(NOTE_ELAPSED, TIME));
+    verify(formatter).markup(text, new Timestamp(NOTE_ELAPSED, TIME));
   }
 
   /**
@@ -142,7 +141,7 @@ public class TimestampNoteTest {
    */
   @Test
   public void testAnnotate_unrecognisedContext_buildStartNotRecorded() {
-    Whitebox.setInternalState(note, "elapsedMillis", (Object)null);
+    Whitebox.setInternalState(note, "elapsedMillis", (Object) null);
     note.annotate(new Object(), text, 0);
     verify(formatter).markup(text, new Timestamp(null, TIME));
   }

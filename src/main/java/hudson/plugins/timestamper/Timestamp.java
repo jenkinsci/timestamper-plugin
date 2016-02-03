@@ -66,7 +66,8 @@ public final class Timestamp {
    * Create a {@link Timestamp}.
    * 
    * @param elapsedMillis
-   *          the elapsed time in milliseconds since the start of the build (null if unknown)
+   *          the elapsed time in milliseconds since the start of the build
+   *          (null if unknown)
    * @param millisSinceEpoch
    *          the clock time in milliseconds since midnight, January 1, 1970 UTC
    */

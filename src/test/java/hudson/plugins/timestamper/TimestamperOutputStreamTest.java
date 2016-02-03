@@ -64,8 +64,7 @@ public class TimestamperOutputStreamTest {
   public void setUp() {
     delegate = mock(OutputStream.class);
     writer = mock(TimestampsWriter.class);
-    timestamperOutputStream = new TimestamperOutputStream(delegate,
-        writer);
+    timestamperOutputStream = new TimestamperOutputStream(delegate, writer);
     data = new byte[] { 'a', (byte) NEWLINE };
     dataTwoLines = new byte[] { 'a', (byte) NEWLINE, 'b', (byte) NEWLINE };
   }

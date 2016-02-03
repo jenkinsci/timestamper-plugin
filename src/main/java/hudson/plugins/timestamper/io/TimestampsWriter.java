@@ -86,10 +86,12 @@ public class TimestampsWriter implements Closeable {
    */
   public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest)
       throws IOException {
-    this(TimestamperPaths.timestampsFile(build), build.getTimeInMillis(), digest);
+    this(TimestamperPaths.timestampsFile(build), build.getTimeInMillis(),
+        digest);
   }
 
-  public TimestampsWriter(File timestampsFile, long buildStartTime, Optional<MessageDigest> digest) throws IOException {
+  public TimestampsWriter(File timestampsFile, long buildStartTime,
+      Optional<MessageDigest> digest) throws IOException {
     this.timestampsFile = timestampsFile;
     this.previousCurrentTimeMillis = buildStartTime;
     this.timestampsDigest = checkNotNull(digest);

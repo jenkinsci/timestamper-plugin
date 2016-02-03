@@ -77,7 +77,8 @@ final class TimestamperOutputStream extends OutputStream {
    *          will be used by this output stream to write the time-stamps and
    *          closed when the {@link #close()} method is called
    */
-  TimestamperOutputStream(OutputStream delegate, TimestampsWriter timestampsWriter) {
+  TimestamperOutputStream(OutputStream delegate,
+      TimestampsWriter timestampsWriter) {
     this.delegate = checkNotNull(delegate);
     this.timestampsWriter = checkNotNull(timestampsWriter);
   }
@@ -126,8 +127,7 @@ final class TimestamperOutputStream extends OutputStream {
         timestampsWriter.write(currentTimeMillis, lineStartCount);
       } catch (IOException ex) {
         writeError = true;
-        LOGGER.log(Level.WARNING,
-            "Error writing timestamps", ex);
+        LOGGER.log(Level.WARNING, "Error writing timestamps", ex);
       }
     }
   }

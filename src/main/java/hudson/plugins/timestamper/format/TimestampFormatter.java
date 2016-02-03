@@ -113,11 +113,13 @@ public class TimestampFormatter {
             mode = cookie.getValue();
           }
 
-          if (local == null && "jenkins-timestamper-local".equals(cookie.getName())) {
+          if (local == null
+              && "jenkins-timestamper-local".equals(cookie.getName())) {
             local = Boolean.valueOf(cookie.getValue());
           }
 
-          if (offset == null && "jenkins-timestamper-offset".equals(cookie.getName())) {
+          if (offset == null
+              && "jenkins-timestamper-offset".equals(cookie.getName())) {
             offset = cookie.getValue();
           }
         }
