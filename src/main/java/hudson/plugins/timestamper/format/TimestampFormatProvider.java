@@ -43,7 +43,7 @@ import com.google.common.base.Supplier;
  * 
  * @author Steven G. Brown
  */
-public class TimestampFormatter {
+public class TimestampFormatProvider {
 
   private static Supplier<TimestampFormat> SUPPLIER = new Supplier<TimestampFormat>() {
     @Override
@@ -53,7 +53,7 @@ public class TimestampFormatter {
       // JENKINS-16778: The request can be null when the slave goes off-line.
       Optional<StaplerRequest> request = Optional.fromNullable(Stapler
           .getCurrentRequest());
-      return TimestampFormatter.get(config.getSystemTimeFormat(),
+      return TimestampFormatProvider.get(config.getSystemTimeFormat(),
           config.getElapsedTimeFormat(), request);
     }
   };

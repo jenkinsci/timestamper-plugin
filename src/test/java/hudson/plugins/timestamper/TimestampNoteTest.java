@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.model.Run;
 import hudson.plugins.timestamper.format.TimestampFormat;
-import hudson.plugins.timestamper.format.TimestampFormatter;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
@@ -79,7 +79,7 @@ public class TimestampNoteTest {
     note = new TimestampNote(NOTE_ELAPSED, TIME);
 
     format = mock(TimestampFormat.class);
-    Whitebox.setInternalState(TimestampFormatter.class,
+    Whitebox.setInternalState(TimestampFormatProvider.class,
         new Supplier<TimestampFormat>() {
           @Override
           public TimestampFormat get() {

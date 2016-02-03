@@ -29,7 +29,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
-import hudson.plugins.timestamper.format.TimestampFormatter;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
@@ -108,7 +108,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
   private void markup(MarkupText text, Timestamp timestamp) {
     if (format == null) {
-      format = TimestampFormatter.get();
+      format = TimestampFormatProvider.get();
     }
     format.markup(text, timestamp);
   }

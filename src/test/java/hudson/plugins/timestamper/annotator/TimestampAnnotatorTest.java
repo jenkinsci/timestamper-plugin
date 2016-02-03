@@ -34,7 +34,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
-import hudson.plugins.timestamper.format.TimestampFormatter;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.IOException;
@@ -194,7 +194,7 @@ public class TimestampAnnotatorTest {
         return null;
       }
     }).when(format).markup(any(MarkupText.class), any(Timestamp.class));
-    Whitebox.setInternalState(TimestampFormatter.class, Supplier.class,
+    Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class,
         new Supplier<TimestampFormat>() {
           @Override
           public TimestampFormat get() {

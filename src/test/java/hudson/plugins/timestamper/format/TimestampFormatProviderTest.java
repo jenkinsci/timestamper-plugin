@@ -45,12 +45,12 @@ import org.junit.runners.Parameterized.Parameters;
 import com.google.common.base.Optional;
 
 /**
- * Unit test for the {@link TimestampFormatter} class.
+ * Unit test for the {@link TimestampFormatProvider} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
-public class TimestampFormatterTest {
+public class TimestampFormatProviderTest {
 
   private static final long HALF_HOUR = TimeUnit.MINUTES.toMillis(30);
 
@@ -145,7 +145,8 @@ public class TimestampFormatterTest {
    */
   @Test
   public void testGet() {
-    assertThat(TimestampFormatter.get(SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT,
-        Optional.fromNullable(request)), is(expectedTimestampFormat));
+    assertThat(TimestampFormatProvider.get(SYSTEM_TIME_FORMAT,
+        ELAPSED_TIME_FORMAT, Optional.fromNullable(request)),
+        is(expectedTimestampFormat));
   }
 }
