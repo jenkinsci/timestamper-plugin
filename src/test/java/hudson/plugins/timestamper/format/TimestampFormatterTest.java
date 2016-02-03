@@ -27,23 +27,15 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.MarkupText;
-import hudson.console.ConsoleNote;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.tasks._ant.AntTargetNote;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -64,45 +56,46 @@ public class TimestampFormatterTest {
 
   private static final long ONE_HOUR = TimeUnit.HOURS.toMillis(1);
 
+  private static final String SYSTEM_TIME_FORMAT = "HH:mm:ss";
+
+  private static final String ELAPSED_TIME_FORMAT = "ss.S";
+
   /**
    * @return parameterised test data
    */
-  @Parameters
+  @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        // system
-        { request("jenkins-timestamper=system"), span("00:00:42 "),
-            span("08:00:42 ") },
-        // local (system with browser time zone)
-        {
-            request("jenkins-timestamper-local=true",
-                "jenkins-timestamper-offset=0"), span("00:00:42 "),
-            span("00:00:42 ") },
-        {
-            request("jenkins-timestamper-local=true",
-                "jenkins-timestamper-offset=" + HALF_HOUR), span("23:30:42 "),
-            span("23:30:42 ") },
-        {
-            request("jenkins-timestamper-local=true",
-                "jenkins-timestamper-offset=" + ONE_HOUR), span("23:00:42 "),
-            span("23:00:42 ") },
-        {
-            request("jenkins-timestamper-local=true",
-                "jenkins-timestamper-offset=-" + HALF_HOUR), span("00:30:42 "),
-            span("00:30:42 ") },
-        {
-            request("jenkins-timestamper-local=true",
-                "jenkins-timestamper-offset=-" + ONE_HOUR), span("01:00:42 "),
-            span("01:00:42 ") },
-        // elapsed
-        { request("jenkins-timestamper=elapsed"), span("00.123 "),
-            span("00.123 ") },
-        // none
-        { request("jenkins-timestamper=none"), span(""), span("") },
-        // other
-        { request(), span("00:00:42 "), span("08:00:42 ") },
-        { request((String[]) null), span("00:00:42 "), span("08:00:42 ") },
-        { null, span("00:00:42 "), span("08:00:42 ") } });
+    return Arrays
+        .asList(new Object[][] {
+            // system
+            { request("jenkins-timestamper=system"), system() },
+            // local (system with browser time zone)
+            {
+                request("jenkins-timestamper-local=true",
+                    "jenkins-timestamper-offset=0"), system("GMT+00:00") },
+            {
+                request("jenkins-timestamper-local=true",
+                    "jenkins-timestamper-offset=" + HALF_HOUR),
+                system("GMT-00:30") },
+            {
+                request("jenkins-timestamper-local=true",
+                    "jenkins-timestamper-offset=" + ONE_HOUR),
+                system("GMT-01:00") },
+            {
+                request("jenkins-timestamper-local=true",
+                    "jenkins-timestamper-offset=-" + HALF_HOUR),
+                system("GMT+00:30") },
+            {
+                request("jenkins-timestamper-local=true",
+                    "jenkins-timestamper-offset=-" + ONE_HOUR),
+                system("GMT+01:00") },
+            // elapsed
+            { request("jenkins-timestamper=elapsed"), elapsed() },
+            // none
+            { request("jenkins-timestamper=none"), empty() },
+            // other
+            { request(), system() }, { request((String[]) null), system() },
+            { null, system() } });
   }
 
   private static HttpServletRequest request(String... cookies) {
@@ -116,117 +109,43 @@ public class TimestampFormatterTest {
       }
     }
     when(request.getCookies()).thenReturn(requestCookies);
+    when(request.toString()).thenReturn(
+        HttpServletRequest.class.getSimpleName() + " "
+            + Arrays.toString(cookies));
     return request;
   }
 
-  private static String span(String timestampString) {
-    return "<span class=\"timestamp\">" + timestampString + "</span>";
+  private static SystemTimestampFormat system() {
+    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT,
+        Optional.<String> absent());
   }
 
-  /**
-   */
+  private static SystemTimestampFormat system(String timeZoneId) {
+    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT,
+        Optional.of(timeZoneId));
+  }
+
+  private static ElapsedTimestampFormat elapsed() {
+    return new ElapsedTimestampFormat(ELAPSED_TIME_FORMAT);
+  }
+
+  private static EmptyTimestampFormat empty() {
+    return EmptyTimestampFormat.INSTANCE;
+  }
+
   @Parameter(0)
   public HttpServletRequest request;
 
   /**
    */
   @Parameter(1)
-  public String prefix;
-
-  /**
-   */
-  @Parameter(2)
-  public String prefixWithDifferentJenkinsTimezone;
-
-  private TimeZone systemDefaultTimeZone;
-
-  /**
-   */
-  @Before
-  public void setUp() {
-    systemDefaultTimeZone = TimeZone.getDefault();
-    // Set the time zone to get consistent results.
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-  }
-
-  /**
-   */
-  @After
-  public void tearDown() {
-    TimeZone.setDefault(systemDefaultTimeZone);
-  }
+  public TimestampFormat expectedTimestampFormat;
 
   /**
    */
   @Test
-  public void testMarkup() {
-    assertThat(markup("line").toString(true), is(prefix + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupWithDifferentTimeZone() {
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
-    assertThat(markup("line").toString(true),
-        is(prefixWithDifferentJenkinsTimezone + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupWithConfiguredTimeZone() {
-    assertThat(markup("line", "GMT+8").toString(true),
-        is(prefixWithDifferentJenkinsTimezone + "line"));
-  }
-
-  /**
-   */
-  @Test
-  public void testMarkupThenAntTargetNote() {
-    assertThat(annotate(markup("target:"), new AntTargetNote()).toString(true),
-        is(prefix + "<b class=ant-target>target</b>:"));
-  }
-
-  /**
-   */
-  @Test
-  public void testAntTargetNoteThenMarkup() {
-    assertThat(markup(annotate("target:", new AntTargetNote())).toString(true),
-        is(prefix + "<b class=ant-target>target</b>:"));
-  }
-
-  private MarkupText markup(String text) {
-    return markup(text, null);
-  }
-
-  private MarkupText markup(String text, String timeZoneId) {
-    return markup(new MarkupText(text), timeZoneId);
-  }
-
-  private MarkupText markup(MarkupText markupText) {
-    return markup(markupText, null);
-  }
-
-  private MarkupText markup(MarkupText markupText, String timeZoneId) {
-    TimestampFormatter formatter = new TimestampFormatter("HH:mm:ss ", "ss.S ",
-        Optional.fromNullable(request), Optional.fromNullable(timeZoneId));
-    formatter.markup(markupText, new Timestamp(123, 42000));
-    return markupText;
-  }
-
-  @SuppressWarnings("rawtypes")
-  private MarkupText annotate(String text, ConsoleNote... notes) {
-    MarkupText markupText = new MarkupText(text);
-    return annotate(markupText, notes);
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private MarkupText annotate(MarkupText markupText, ConsoleNote... notes) {
-    Object context = mock(Run.class);
-    for (ConsoleNote note : notes) {
-      note.annotate(context, markupText, 0);
-    }
-    return markupText;
+  public void testGet() {
+    assertThat(TimestampFormatter.get(SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT,
+        Optional.fromNullable(request)), is(expectedTimestampFormat));
   }
 }

@@ -29,6 +29,7 @@ import hudson.console.ConsoleNote;
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsAction;
+import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 
 /**
@@ -109,9 +110,9 @@ public final class TimestampNote extends ConsoleNote<Object> {
   @Override
   public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
       int charPos) {
-    TimestampFormatter formatter = TimestampFormatter.get();
+    TimestampFormat format = TimestampFormatter.get();
     Timestamp timestamp = getTimestamp(context);
-    formatter.markup(text, timestamp);
+    format.markup(text, timestamp);
     return null; // each time-stamp note affects one line only
   }
 

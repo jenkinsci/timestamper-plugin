@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.model.Run;
+import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 
 import org.apache.commons.lang.SerializationUtils;
@@ -57,7 +58,7 @@ public class TimestampNoteTest {
 
   private TimestampNote note;
 
-  private TimestampFormatter formatter;
+  private TimestampFormat format;
 
   private MarkupText text;
 
@@ -77,12 +78,12 @@ public class TimestampNoteTest {
 
     note = new TimestampNote(NOTE_ELAPSED, TIME);
 
-    formatter = mock(TimestampFormatter.class);
+    format = mock(TimestampFormat.class);
     Whitebox.setInternalState(TimestampFormatter.class,
-        new Supplier<TimestampFormatter>() {
+        new Supplier<TimestampFormat>() {
           @Override
-          public TimestampFormatter get() {
-            return formatter;
+          public TimestampFormat get() {
+            return format;
           }
         });
 
@@ -110,7 +111,7 @@ public class TimestampNoteTest {
   @Test
   public void testAnnotate() {
     note.annotate(build, text, 0);
-    verify(formatter).markup(text, new Timestamp(TIME - BUILD_START, TIME));
+    verify(format).markup(text, new Timestamp(TIME - BUILD_START, TIME));
   }
 
   /**
@@ -126,7 +127,7 @@ public class TimestampNoteTest {
   @Test
   public void testAnnotate_unrecognisedContext() {
     note.annotate(new Object(), text, 0);
-    verify(formatter).markup(text, new Timestamp(NOTE_ELAPSED, TIME));
+    verify(format).markup(text, new Timestamp(NOTE_ELAPSED, TIME));
   }
 
   /**
@@ -143,7 +144,7 @@ public class TimestampNoteTest {
   public void testAnnotate_unrecognisedContext_buildStartNotRecorded() {
     Whitebox.setInternalState(note, "elapsedMillis", (Object) null);
     note.annotate(new Object(), text, 0);
-    verify(formatter).markup(text, new Timestamp(null, TIME));
+    verify(format).markup(text, new Timestamp(null, TIME));
   }
 
   /**

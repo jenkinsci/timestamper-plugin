@@ -23,84 +23,52 @@
  */
 package hudson.plugins.timestamper.format;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.MarkupText;
-import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestamperConfig;
 
-import java.util.Date;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import jenkins.model.GlobalConfiguration;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.commons.lang.time.FastDateFormat;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 
 /**
- * Formats a time-stamp to be displayed in the console log page, according to
- * the current settings.
+ * Provides a {@link TimestampFormat} based on the current settings.
  * 
  * @author Steven G. Brown
  */
 public class TimestampFormatter {
 
-  /**
-   * This System property is used to configure the time zone. See the
-   * "Change time zone" Jenkins wiki page.
-   */
-  private static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
-
-  private static Supplier<TimestampFormatter> SUPPLIER = new Supplier<TimestampFormatter>() {
+  private static Supplier<TimestampFormat> SUPPLIER = new Supplier<TimestampFormat>() {
     @Override
-    public TimestampFormatter get() {
+    public TimestampFormat get() {
       TimestamperConfig config = GlobalConfiguration.all().get(
           TimestamperConfig.class);
       // JENKINS-16778: The request can be null when the slave goes off-line.
       Optional<StaplerRequest> request = Optional.fromNullable(Stapler
           .getCurrentRequest());
-      Optional<String> timeZoneId = Optional.fromNullable(System
-          .getProperty(TIME_ZONE_PROPERTY));
-      return new TimestampFormatter(config.getSystemTimeFormat(),
-          config.getElapsedTimeFormat(), request, timeZoneId);
+      return TimestampFormatter.get(config.getSystemTimeFormat(),
+          config.getElapsedTimeFormat(), request);
     }
   };
 
-  public static TimestampFormatter get() {
+  /**
+   * Get the currently selected time-stamp format.
+   * 
+   * @return the time-stamp format
+   */
+  public static TimestampFormat get() {
     return SUPPLIER.get();
   }
 
-  /**
-   * Function that converts a time-stamp to a formatted string representation of
-   * that time-stamp.
-   */
-  private final Function<Timestamp, String> formatTimestamp;
-
-  /**
-   * Create a new {@link TimestampFormatter}.
-   * 
-   * @param systemTimeFormat
-   *          the system clock time format
-   * @param elapsedTimeFormat
-   *          the elapsed time format
-   * @param request
-   *          the current HTTP request
-   * @param timeZoneId
-   *          the currently configured time zone
-   */
-  TimestampFormatter(String systemTimeFormat, String elapsedTimeFormat,
-      Optional<? extends HttpServletRequest> request,
-      Optional<String> timeZoneId) {
+  static TimestampFormat get(String systemTimeFormat, String elapsedTimeFormat,
+      Optional<? extends HttpServletRequest> request) {
 
     String mode = null;
     Boolean local = null;
@@ -127,11 +95,12 @@ public class TimestampFormatter {
     }
 
     if ("elapsed".equalsIgnoreCase(mode)) {
-      formatTimestamp = new ElapsedTimeFormatFunction(elapsedTimeFormat);
+      return new ElapsedTimestampFormat(elapsedTimeFormat);
     } else if ("none".equalsIgnoreCase(mode)) {
-      formatTimestamp = new EmptyFormatFunction();
+      return EmptyTimestampFormat.INSTANCE;
     } else {
       // "system", no mode cookie, or unrecognised mode cookie
+      Optional<String> timeZoneId = Optional.absent();
       if (local != null && local.booleanValue()) {
         if (offset == null) {
           offset = "0";
@@ -139,94 +108,15 @@ public class TimestampFormatter {
         String localTimeZoneId = convertOffsetToTimeZoneId(offset);
         timeZoneId = Optional.of(localTimeZoneId);
       }
-      formatTimestamp = new SystemTimeFormatFunction(systemTimeFormat,
-          timeZoneId);
+      return new SystemTimestampFormat(systemTimeFormat, timeZoneId);
     }
   }
 
-  private String convertOffsetToTimeZoneId(String offset) {
+  private static String convertOffsetToTimeZoneId(String offset) {
     long minutes = TimeUnit.MILLISECONDS.toMinutes(Integer.parseInt(offset));
     // Reverse sign due to return value of the Date.getTimezoneOffset function.
     String sign = minutes > 0 ? "-" : "+";
     return String.format("GMT%s%02d:%02d", sign, Math.abs(minutes / 60),
         Math.abs(minutes % 60));
-  }
-
-  /**
-   * Format the given time-stamp and add it to the mark-up text.
-   * 
-   * @param text
-   *          the mark-up text
-   * @param timestamp
-   *          the time-stamp to format
-   */
-  public void markup(MarkupText text, Timestamp timestamp) {
-    String timestampString = formatTimestamp.apply(timestamp);
-    // Wrap the time-stamp in a span element, which is used to detect the
-    // time-stamp when inspecting the page with Javascript.
-    String markup = "<span class=\"timestamp\">" + timestampString + "</span>";
-    // Add as end tag, which will be inserted prior to tags added by other
-    // console notes (e.g. AntTargetNote).
-    text.addMarkup(0, 0, "", markup);
-  }
-
-  /**
-   * Function that converts a time-stamp to the system clock time format.
-   */
-  private static class SystemTimeFormatFunction implements
-      Function<Timestamp, String> {
-
-    private final FastDateFormat format;
-
-    SystemTimeFormatFunction(String systemTimeFormat,
-        Optional<String> timeZoneId) {
-      TimeZone timeZone = null;
-      if (timeZoneId.isPresent()) {
-        timeZone = TimeZone.getTimeZone(timeZoneId.get());
-      }
-      this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone);
-    }
-
-    @Override
-    public String apply(@Nonnull Timestamp timestamp) {
-      return format.format(new Date(timestamp.millisSinceEpoch));
-    }
-  }
-
-  /**
-   * Function that converts a time-stamp to the elapsed time format.
-   */
-  private static class ElapsedTimeFormatFunction implements
-      Function<Timestamp, String> {
-
-    private final String elapsedTimeFormat;
-
-    ElapsedTimeFormatFunction(String elapsedTimeFormat) {
-      this.elapsedTimeFormat = checkNotNull(elapsedTimeFormat);
-    }
-
-    @Override
-    public String apply(@Nonnull Timestamp timestamp) {
-      if (timestamp.elapsedMillisKnown) {
-        return DurationFormatUtils.formatDuration(timestamp.elapsedMillis,
-            elapsedTimeFormat);
-      }
-      return "";
-    }
-  }
-
-  /**
-   * Function that converts any time-stamp to an empty string.
-   */
-  private static class EmptyFormatFunction implements
-      Function<Timestamp, String> {
-
-    EmptyFormatFunction() {
-    }
-
-    @Override
-    public String apply(@Nonnull Timestamp timestamp) {
-      return "";
-    }
   }
 }

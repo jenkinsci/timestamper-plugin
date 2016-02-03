@@ -28,6 +28,7 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
@@ -57,7 +58,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   private TimestampsReader timestampsReader;
 
   @CheckForNull
-  private transient TimestampFormatter formatter;
+  private transient TimestampFormat format;
 
   /**
    * Create a new {@link TimestampAnnotator}.
@@ -106,9 +107,9 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   }
 
   private void markup(MarkupText text, Timestamp timestamp) {
-    if (formatter == null) {
-      formatter = TimestampFormatter.get();
+    if (format == null) {
+      format = TimestampFormatter.get();
     }
-    formatter.markup(text, timestamp);
+    format.markup(text, timestamp);
   }
 }

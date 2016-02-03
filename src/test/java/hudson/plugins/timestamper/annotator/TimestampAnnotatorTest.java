@@ -33,6 +33,7 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatter;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
@@ -183,7 +184,7 @@ public class TimestampAnnotatorTest {
   }
 
   private void captureFormattedTimestamps() {
-    final TimestampFormatter formatter = mock(TimestampFormatter.class);
+    final TimestampFormat format = mock(TimestampFormat.class);
     doAnswer(new Answer<Void>() {
 
       @Override
@@ -192,12 +193,12 @@ public class TimestampAnnotatorTest {
         capturedTimestamps.add(timestamp);
         return null;
       }
-    }).when(formatter).markup(any(MarkupText.class), any(Timestamp.class));
+    }).when(format).markup(any(MarkupText.class), any(Timestamp.class));
     Whitebox.setInternalState(TimestampFormatter.class, Supplier.class,
-        new Supplier<TimestampFormatter>() {
+        new Supplier<TimestampFormat>() {
           @Override
-          public TimestampFormatter get() {
-            return formatter;
+          public TimestampFormat get() {
+            return format;
           }
         });
   }
