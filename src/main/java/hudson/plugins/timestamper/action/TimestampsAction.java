@@ -114,7 +114,7 @@ public final class TimestampsAction implements Action {
 
     try {
       PrintWriter writer = response.getWriter();
-      output.write(timestampsReader, writer, request);
+      output.write(timestampsReader, writer, request.getQueryString());
       writer.flush();
     } finally {
       timestampsReader.close();

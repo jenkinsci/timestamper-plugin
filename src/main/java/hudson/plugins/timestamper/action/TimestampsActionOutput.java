@@ -28,10 +28,10 @@ import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -59,13 +59,13 @@ class TimestampsActionOutput {
    * 
    * @param timestampsReader
    * @param writer
-   * @param request
+   * @param query
    * @throws IOException
    */
-  void write(TimestampsReader timestampsReader, PrintWriter writer,
-      StaplerRequest request) throws IOException {
+  void write(TimestampsReader timestampsReader, PrintWriter writer, String query)
+      throws IOException {
 
-    int precision = getPrecision(request);
+    int precision = getPrecision(query);
 
     while (true) {
       Optional<Timestamp> timestamp = timestampsReader.read();
@@ -76,8 +76,8 @@ class TimestampsActionOutput {
     }
   }
 
-  private int getPrecision(StaplerRequest request) {
-    String precision = request.getParameter("precision");
+  private int getPrecision(String query) {
+    String precision = getParameterValue(query, "precision");
     if ("seconds".equalsIgnoreCase(precision)) {
       return 0;
     }
@@ -104,6 +104,32 @@ class TimestampsActionOutput {
     }
     // Default precision.
     return 3;
+  }
+
+  private String getParameterValue(String query, String parameterName) {
+    if (query == null) {
+      return null;
+    }
+    String[] pairs = query.split("&");
+    for (String pair : pairs) {
+      String[] nameAndValue = pair.split("=", 2);
+      if (nameAndValue.length == 2) {
+        String key = urlDecode(nameAndValue[0]);
+        String value = urlDecode(nameAndValue[1]);
+        if (parameterName.equals(key)) {
+          return value;
+        }
+      }
+    }
+    return null;
+  }
+
+  private String urlDecode(String string) {
+    try {
+      return URLDecoder.decode(string, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private void logUnrecognisedPrecision(String precision) {

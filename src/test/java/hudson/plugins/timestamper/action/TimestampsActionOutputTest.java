@@ -36,7 +36,6 @@ import java.io.PrintWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kohsuke.stapler.StaplerRequest;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -59,9 +58,6 @@ public class TimestampsActionOutputTest {
   private PrintWriter writer;
 
   private StringBuilder written;
-
-  @Mock
-  private StaplerRequest request;
 
   private TimestampsActionOutput output;
 
@@ -94,8 +90,18 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_defaultPrecision() throws Exception {
-    output.write(reader, writer, request);
+  public void testWrite_emptyQueryString() throws Exception {
+    output.write(reader, writer, "");
+    assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
+        + "0.100\n" + "1.000\n" + "10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_nullQueryString() throws Exception {
+    output.write(reader, writer, null);
     assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
         + "0.100\n" + "1.000\n" + "10.000\n"));
   }
@@ -105,8 +111,17 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_zeroPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("0");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=0");
+    assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n"
+        + "10\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_zeroPrecisionAndOnePrecision() throws Exception {
+    output.write(reader, writer, "precision=0&precision=1");
     assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n"
         + "10\n"));
   }
@@ -116,8 +131,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_secondsPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("seconds");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=seconds");
     assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n"
         + "10\n"));
   }
@@ -127,8 +141,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_onePrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("1");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=1");
     assertThat(written.toString(), is("0.0\n" + "0.0\n" + "0.0\n" + "0.1\n"
         + "1.0\n" + "10.0\n"));
   }
@@ -138,8 +151,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_twoPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("2");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=2");
     assertThat(written.toString(), is("0.00\n" + "0.00\n" + "0.01\n" + "0.10\n"
         + "1.00\n" + "10.00\n"));
   }
@@ -149,8 +161,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_threePrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("3");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=3");
     assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
         + "0.100\n" + "1.000\n" + "10.000\n"));
   }
@@ -160,8 +171,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_millisecondsPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("milliseconds");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=milliseconds");
     assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
         + "0.100\n" + "1.000\n" + "10.000\n"));
   }
@@ -171,8 +181,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_sixPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("6");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=6");
     assertThat(written.toString(), is("0.000000\n" + "0.001000\n"
         + "0.010000\n" + "0.100000\n" + "1.000000\n" + "10.000000\n"));
   }
@@ -182,8 +191,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_microsecondsPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("microseconds");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=microseconds");
     assertThat(written.toString(), is("0.000000\n" + "0.001000\n"
         + "0.010000\n" + "0.100000\n" + "1.000000\n" + "10.000000\n"));
   }
@@ -193,8 +201,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_nanosecondsPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("nanoseconds");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=nanoseconds");
     assertThat(written.toString(), is("0.000000000\n" + "0.001000000\n"
         + "0.010000000\n" + "0.100000000\n" + "1.000000000\n"
         + "10.000000000\n"));
@@ -205,8 +212,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_emptyPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=");
     assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
         + "0.100\n" + "1.000\n" + "10.000\n"));
   }
@@ -216,8 +222,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_negativePrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("-1");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=-1");
     assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
         + "0.100\n" + "1.000\n" + "10.000\n"));
   }
@@ -227,8 +232,7 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_invalidPrecision() throws Exception {
-    when(request.getParameter("precision")).thenReturn("invalid");
-    output.write(reader, writer, request);
+    output.write(reader, writer, "precision=invalid");
     assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
         + "0.100\n" + "1.000\n" + "10.000\n"));
   }
@@ -239,7 +243,7 @@ public class TimestampsActionOutputTest {
   @Test
   public void testWrite_noTimestamps() throws Exception {
     when(reader.read()).thenReturn(Optional.<Timestamp> absent());
-    output.write(reader, writer, request);
+    output.write(reader, writer, "");
     assertThat(written.toString(), is(""));
   }
 }

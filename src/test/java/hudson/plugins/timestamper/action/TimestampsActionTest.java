@@ -84,6 +84,7 @@ public class TimestampsActionTest {
   public void setUp() throws Exception {
     when(build.getRootDir()).thenReturn(folder.getRoot());
     when(response.getWriter()).thenReturn(writer);
+    when(request.getQueryString()).thenReturn("query");
 
     action = new TimestampsAction(build, output);
   }
@@ -99,7 +100,7 @@ public class TimestampsActionTest {
 
     action.doIndex(request, response);
     verify(output).write(isA(TimestampsFileReader.class), eq(writer),
-        eq(request));
+        eq("query"));
   }
 
   /**
@@ -109,6 +110,6 @@ public class TimestampsActionTest {
   public void testDoIndex_timestampsFileDoesNotExist() throws Exception {
     action.doIndex(request, response);
     verify(output).write(isA(TimestampNotesReader.class), eq(writer),
-        eq(request));
+        eq("query"));
   }
 }
