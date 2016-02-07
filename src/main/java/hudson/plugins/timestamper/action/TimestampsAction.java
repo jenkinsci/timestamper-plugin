@@ -26,7 +26,6 @@ package hudson.plugins.timestamper.action;
 import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Action;
 import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
 import hudson.plugins.timestamper.io.TimestamperPaths;
 import hudson.plugins.timestamper.io.TimestampsFileReader;
@@ -34,33 +33,19 @@ import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-
 /**
- * Action which serves a page of timestamps. The format of this page will not
+ * Action which serves a page of time-stamps. The format of this page will not
  * change, so it can be safely parsed by scripts.
  * <p>
- * Each line contains the elapsed time in seconds since the start of the build
- * for the equivalent line in the console log.
- * <p>
- * By default, the elapsed time will include three places after the decimal
- * point. The number of places after the decimal point can be configured by the
- * "precision" query parameter, which accepts a number of decimal places or the
- * values "seconds" or "milliseconds".
+ * See {@link TimestampsActionOutput} for the format of this page.
  * 
  * @author Steven G. Brown
  */
 public final class TimestampsAction implements Action {
-
-  private static final Logger LOGGER = Logger.getLogger(TimestampsAction.class
-      .getName());
 
   /**
    * The build to inspect.
@@ -68,13 +53,21 @@ public final class TimestampsAction implements Action {
   private final Run<?, ?> build;
 
   /**
+   * Generates the page of time-stamps.
+   */
+  private final TimestampsActionOutput output;
+
+  /**
    * Create a {@link TimestampsAction} for the given build.
    * 
    * @param build
    *          the build to inspect
+   * @param output
+   *          generates the page of time-stamps
    */
-  TimestampsAction(Run<?, ?> build) {
+  TimestampsAction(Run<?, ?> build, TimestampsActionOutput output) {
     this.build = checkNotNull(build);
+    this.output = checkNotNull(output);
   }
 
   /**
@@ -110,9 +103,7 @@ public final class TimestampsAction implements Action {
    */
   public void doIndex(StaplerRequest request, StaplerResponse response)
       throws IOException {
-    int precision = getPrecision(request);
     response.setContentType("text/plain;charset=UTF-8");
-    PrintWriter writer = response.getWriter();
 
     TimestampsReader timestampsReader;
     if (TimestamperPaths.timestampsFile(build).isFile()) {
@@ -122,66 +113,11 @@ public final class TimestampsAction implements Action {
     }
 
     try {
-      while (true) {
-        Optional<Timestamp> timestamp = timestampsReader.read();
-        if (!timestamp.isPresent()) {
-          break;
-        }
-        writer.write(formatTimestamp(timestamp.get(), precision));
-      }
+      PrintWriter writer = response.getWriter();
+      output.write(timestampsReader, writer, request);
+      writer.flush();
     } finally {
       timestampsReader.close();
     }
-
-    writer.flush();
-  }
-
-  private int getPrecision(StaplerRequest request) {
-    String precision = request.getParameter("precision");
-    if ("seconds".equalsIgnoreCase(precision)) {
-      return 0;
-    }
-    if ("milliseconds".equalsIgnoreCase(precision)) {
-      return 3;
-    }
-    if ("microseconds".equalsIgnoreCase(precision)) {
-      return 6;
-    }
-    if ("nanoseconds".equalsIgnoreCase(precision)) {
-      return 9;
-    }
-    if (!Strings.isNullOrEmpty(precision)) {
-      try {
-        int intPrecision = Integer.parseInt(precision);
-        if (intPrecision < 0) {
-          logUnrecognisedPrecision(precision);
-        } else {
-          return intPrecision;
-        }
-      } catch (NumberFormatException ex) {
-        logUnrecognisedPrecision(precision);
-      }
-    }
-    // Default precision.
-    return 3;
-  }
-
-  private void logUnrecognisedPrecision(String precision) {
-    LOGGER.log(Level.WARNING, "Unrecognised precision: " + precision);
-  }
-
-  private String formatTimestamp(Timestamp timestamp, int precision) {
-    long seconds = timestamp.elapsedMillis / 1000;
-    if (precision == 0) {
-      return String.valueOf(seconds) + "\n";
-    }
-    long millis = timestamp.elapsedMillis % 1000;
-    String fractional = String.format("%03d", millis);
-    if (precision <= 3) {
-      fractional = fractional.substring(0, precision);
-    } else {
-      fractional += Strings.repeat("0", precision - 3);
-    }
-    return String.valueOf(seconds) + "." + fractional + "\n";
   }
 }

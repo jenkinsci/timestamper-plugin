@@ -23,317 +23,92 @@
  */
 package hudson.plugins.timestamper.action;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import hudson.PluginManager;
 import hudson.model.Run;
-import hudson.plugins.timestamper.TimestampNote;
-import hudson.plugins.timestamper.action.TimestampsActionTest.NoLogFileTest;
-import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampNotesTest;
-import hudson.plugins.timestamper.action.TimestampsActionTest.TimestampWriterTest;
-import hudson.plugins.timestamper.io.TimestampsWriter;
+import hudson.plugins.timestamper.io.TimestampNotesReader;
+import hudson.plugins.timestamper.io.TimestamperPaths;
+import hudson.plugins.timestamper.io.TimestampsFileReader;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
-
-import jenkins.model.Jenkins;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.google.common.io.Files;
 
 /**
  * Unit test for the {@link TimestampsAction} class.
  * 
  * @author Steven G. Brown
  */
-@RunWith(Suite.class)
-@SuiteClasses({ NoLogFileTest.class, TimestampNotesTest.class,
-    TimestampWriterTest.class })
-@SuppressWarnings("boxing")
+@RunWith(MockitoJUnitRunner.class)
 public class TimestampsActionTest {
 
-  static final List<Long> millisSinceEpochToWrite = Arrays.asList(0l, 1l, 10l,
-      100l, 1000l, 10000l);
+  /**
+     */
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
+
+  @Mock
+  private Run<?, ?> build;
+
+  @Mock
+  private StaplerRequest request;
+
+  @Mock
+  private PrintWriter writer;
+
+  @Mock
+  private StaplerResponse response;
+
+  @Mock
+  private TimestampsActionOutput output;
+
+  private TimestampsAction action;
 
   /**
+   * @throws Exception
    */
-  @RunWith(PowerMockRunner.class)
-  @PrepareForTest(Jenkins.class)
-  public static abstract class SetUp {
+  @Before
+  public void setUp() throws Exception {
+    when(build.getRootDir()).thenReturn(folder.getRoot());
+    when(response.getWriter()).thenReturn(writer);
 
-    /**
-     */
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
-    Run<?, ?> build;
-
-    TimestampsAction action;
-
-    StaplerRequest request;
-
-    StringBuilder written;
-
-    PrintWriter writer;
-
-    StaplerResponse response;
-
-    /**
-     * @throws Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-      build = mock(Run.class);
-      when(build.getRootDir()).thenReturn(folder.getRoot());
-      when(build.getLogInputStream()).thenReturn(
-          new ByteArrayInputStream(new byte[] {}));
-      action = new TimestampsAction(build);
-      request = mock(StaplerRequest.class);
-
-      written = new StringBuilder();
-      writer = mock(PrintWriter.class);
-      doAnswer(new Answer<Void>() {
-        @Override
-        public Void answer(InvocationOnMock invocation) throws Throwable {
-          String arg = (String) invocation.getArguments()[0];
-          written.append(arg);
-          return null;
-        }
-      }).when(writer).write(anyString());
-      response = mock(StaplerResponse.class);
-      when(response.getWriter()).thenReturn(writer);
-
-      // Need to mock Jenkins to read the console notes.
-      Jenkins jenkins = mock(Jenkins.class);
-      PluginManager pluginManager = mock(PluginManager.class);
-      Whitebox.setInternalState(jenkins, PluginManager.class, pluginManager);
-      PowerMockito.mockStatic(Jenkins.class);
-      when(Jenkins.getInstance()).thenReturn(jenkins);
-    }
+    action = new TimestampsAction(build, output);
   }
 
   /**
+   * @throws Exception
    */
-  public static abstract class ReadTimestampsTests extends SetUp {
+  @Test
+  public void testDoIndex_timestampsFileExists() throws Exception {
+    File timestampsFile = TimestamperPaths.timestampsFile(build);
+    timestampsFile.getParentFile().mkdirs();
+    Files.touch(timestampsFile);
 
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsDefaultPrecision() throws Exception {
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
-          + "0.100\n" + "1.000\n" + "10.000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsDefaultZeroPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("0");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n"
-          + "10\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsDefaultSecondsPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("seconds");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n"
-          + "10\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsOnePrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("1");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.0\n" + "0.0\n" + "0.0\n" + "0.1\n"
-          + "1.0\n" + "10.0\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsTwoPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("2");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.00\n" + "0.00\n" + "0.01\n"
-          + "0.10\n" + "1.00\n" + "10.00\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsThreePrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("3");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
-          + "0.100\n" + "1.000\n" + "10.000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsMillisecondsPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("milliseconds");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
-          + "0.100\n" + "1.000\n" + "10.000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsSixPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("6");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000000\n" + "0.001000\n"
-          + "0.010000\n" + "0.100000\n" + "1.000000\n" + "10.000000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsMicrosecondsPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("microseconds");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000000\n" + "0.001000\n"
-          + "0.010000\n" + "0.100000\n" + "1.000000\n" + "10.000000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsNanosecondsPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("nanoseconds");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000000000\n" + "0.001000000\n"
-          + "0.010000000\n" + "0.100000000\n" + "1.000000000\n"
-          + "10.000000000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsEmptyPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
-          + "0.100\n" + "1.000\n" + "10.000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsNegativePrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("-1");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
-          + "0.100\n" + "1.000\n" + "10.000\n"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testReadTimestampsInvalidPrecision() throws Exception {
-      when(request.getParameter("precision")).thenReturn("invalid");
-      action.doIndex(request, response);
-      assertThat(written.toString(), is("0.000\n" + "0.001\n" + "0.010\n"
-          + "0.100\n" + "1.000\n" + "10.000\n"));
-    }
+    action.doIndex(request, response);
+    verify(output).write(isA(TimestampsFileReader.class), eq(writer),
+        eq(request));
   }
 
   /**
+   * @throws Exception
    */
-  public static class NoLogFileTest extends SetUp {
-
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testNoLogFile() throws Exception {
-      action.doIndex(request, response);
-      assertThat(written.toString(), is(""));
-    }
-  }
-
-  /**
-   */
-  public static class TimestampNotesTest extends ReadTimestampsTests {
-
-    /**
-     * @throws Exception
-     */
-    @Before
-    public void writeTimestamps() throws Exception {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      int i = 0;
-      for (long millisSinceEpoch : millisSinceEpochToWrite) {
-        TimestampNote timestampNote = new TimestampNote(0, millisSinceEpoch);
-        timestampNote.encodeTo(outputStream);
-        outputStream.write('a' + i);
-        i++;
-      }
-      byte[] consoleLog = outputStream.toByteArray();
-      when(build.getLogInputStream()).thenReturn(
-          new ByteArrayInputStream(consoleLog));
-    }
-  }
-
-  /**
-   */
-  public static class TimestampWriterTest extends ReadTimestampsTests {
-
-    /**
-     * @throws Exception
-     */
-    @Before
-    public void writeTimestamps() throws Exception {
-      TimestampsWriter writer = new TimestampsWriter(build);
-      try {
-        for (long millisSinceEpoch : millisSinceEpochToWrite) {
-          writer.write(millisSinceEpoch, 1);
-        }
-      } finally {
-        writer.close();
-      }
-    }
+  @Test
+  public void testDoIndex_timestampsFileDoesNotExist() throws Exception {
+    action.doIndex(request, response);
+    verify(output).write(isA(TimestampNotesReader.class), eq(writer),
+        eq(request));
   }
 }
