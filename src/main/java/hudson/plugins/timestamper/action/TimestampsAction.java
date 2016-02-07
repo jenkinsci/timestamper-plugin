@@ -28,7 +28,7 @@ import hudson.model.Action;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
-import hudson.plugins.timestamper.io.TimestampsReader;
+import hudson.plugins.timestamper.io.TimestampsFileReader;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -112,7 +112,7 @@ public final class TimestampsAction implements Action {
     response.setContentType("text/plain;charset=UTF-8");
     PrintWriter writer = response.getWriter();
 
-    TimestampsReader timestampsReader = new TimestampsReader(build);
+    TimestampsFileReader timestampsReader = new TimestampsFileReader(build);
     boolean timestampsFound = false;
     try {
       while (true) {

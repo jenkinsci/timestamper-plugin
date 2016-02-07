@@ -44,7 +44,7 @@ import com.google.common.io.CountingInputStream;
  * 
  * @author Steven G. Brown
  */
-public final class TimestampsReader implements Serializable {
+public final class TimestampsFileReader implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -67,7 +67,7 @@ public final class TimestampsReader implements Serializable {
    * 
    * @param build
    */
-  public TimestampsReader(Run<?, ?> build) {
+  public TimestampsFileReader(Run<?, ?> build) {
     this.timestampsFile = TimestamperPaths.timestampsFile(build);
     this.timeShiftsReader = new TimeShiftsReader(build);
     this.millisSinceEpoch = build.getTimeInMillis();

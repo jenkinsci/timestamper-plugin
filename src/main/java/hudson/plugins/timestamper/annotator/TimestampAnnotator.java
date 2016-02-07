@@ -30,7 +30,7 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
-import hudson.plugins.timestamper.io.TimestampsReader;
+import hudson.plugins.timestamper.io.TimestampsFileReader;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -55,7 +55,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   private final ConsoleLogParser logParser;
 
   @CheckForNull
-  private TimestampsReader timestampsReader;
+  private TimestampsFileReader timestampsReader;
 
   @CheckForNull
   private transient TimestampFormat format;
@@ -86,7 +86,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
         if (logPosition.endOfFile) {
           return null; // do not annotate the following lines
         }
-        timestampsReader = new TimestampsReader(build);
+        timestampsReader = new TimestampsFileReader(build);
         timestampsReader.skip(logPosition.lineNumber);
         Optional<Timestamp> timestamp = timestampsReader.read();
         if (logPosition.atNewLine && timestamp.isPresent()) {

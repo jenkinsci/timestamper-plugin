@@ -54,12 +54,12 @@ import com.google.common.base.Optional;
 import com.google.common.io.Closeables;
 
 /**
- * Unit test for the {@link TimestampsReader} class.
+ * Unit test for the {@link TimestampsFileReader} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
-public class TimestampsReaderTest {
+public class TimestampsFileReaderTest {
 
   /**
    * @return parameterised test data
@@ -81,7 +81,7 @@ public class TimestampsReaderTest {
 
   private Run<?, ?> build;
 
-  private TimestampsReader timestampsReader;
+  private TimestampsFileReader timestampsReader;
 
   /**
    * @throws Exception
@@ -90,7 +90,7 @@ public class TimestampsReaderTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    timestampsReader = new TimestampsReader(build);
+    timestampsReader = new TimestampsFileReader(build);
   }
 
   /**
@@ -218,7 +218,7 @@ public class TimestampsReaderTest {
     int iterations = 0;
     while (true) {
       if (serialize) {
-        timestampsReader = (TimestampsReader) SerializationUtils
+        timestampsReader = (TimestampsFileReader) SerializationUtils
             .clone(timestampsReader);
       }
       Optional<Timestamp> next = timestampsReader.read();

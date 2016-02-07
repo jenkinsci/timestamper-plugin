@@ -41,7 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.google.common.base.Optional;
 
 /**
- * Test for integration between the {@link TimestampsReader} and
+ * Test for integration between the {@link TimestampsFileReader} and
  * {@link TimestampsWriter} classes.
  * 
  * @author Steven G. Brown
@@ -73,7 +73,7 @@ public class TimestampsIOTest {
   @Test
   public void testReadFromStartWhileWriting() throws Exception {
     TimestampsWriter writer = new TimestampsWriter(build);
-    TimestampsReader reader = new TimestampsReader(build);
+    TimestampsFileReader reader = new TimestampsFileReader(build);
     try {
       writer.write(2, 1);
       assertThat(reader.read(), is(Optional.of(new Timestamp(1, 2))));
