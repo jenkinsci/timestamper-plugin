@@ -28,7 +28,9 @@ import hudson.model.Action;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
+import hudson.plugins.timestamper.io.TimestamperPaths;
 import hudson.plugins.timestamper.io.TimestampsFileReader;
+import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -112,35 +114,23 @@ public final class TimestampsAction implements Action {
     response.setContentType("text/plain;charset=UTF-8");
     PrintWriter writer = response.getWriter();
 
-    TimestampsFileReader timestampsReader = new TimestampsFileReader(build);
-    boolean timestampsFound = false;
+    TimestampsReader timestampsReader;
+    if (TimestamperPaths.timestampsFile(build).isFile()) {
+      timestampsReader = new TimestampsFileReader(build);
+    } else {
+      timestampsReader = new TimestampNotesReader(build);
+    }
+
     try {
       while (true) {
         Optional<Timestamp> timestamp = timestampsReader.read();
         if (!timestamp.isPresent()) {
           break;
         }
-        timestampsFound = true;
         writer.write(formatTimestamp(timestamp.get(), precision));
       }
     } finally {
       timestampsReader.close();
-    }
-
-    if (!timestampsFound) {
-      TimestampNotesReader timestampNotesReader = new TimestampNotesReader(
-          build);
-      try {
-        while (true) {
-          Optional<Timestamp> timestamp = timestampNotesReader.read();
-          if (!timestamp.isPresent()) {
-            break;
-          }
-          writer.write(formatTimestamp(timestamp.get(), precision));
-        }
-      } finally {
-        timestampNotesReader.close();
-      }
     }
 
     writer.flush();

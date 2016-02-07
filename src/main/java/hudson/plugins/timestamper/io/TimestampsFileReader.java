@@ -44,7 +44,8 @@ import com.google.common.io.CountingInputStream;
  * 
  * @author Steven G. Brown
  */
-public final class TimestampsFileReader implements Serializable {
+public final class TimestampsFileReader implements TimestampsReader,
+    Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -90,12 +91,9 @@ public final class TimestampsFileReader implements Serializable {
   }
 
   /**
-   * Read the next time-stamp.
-   * 
-   * @return the next time-stamp, or {@link Optional#absent()} if there are no
-   *         more to read
-   * @throws IOException
+   * {@inheritDoc}
    */
+  @Override
   public Optional<Timestamp> read() throws IOException {
     if (inputStream == null) {
       if (!timestampsFile.isFile()) {
@@ -113,8 +111,9 @@ public final class TimestampsFileReader implements Serializable {
   }
 
   /**
-   * Close this reader.
+   * {@inheritDoc}
    */
+  @Override
   public void close() {
     Closeables.closeQuietly(inputStream);
     inputStream = null;

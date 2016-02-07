@@ -41,7 +41,7 @@ import com.google.common.io.Closeables;
  * 
  * @author Steven G. Brown
  */
-public class TimestampNotesReader {
+public class TimestampNotesReader implements TimestampsReader {
 
   private final Run<?, ?> build;
 
@@ -57,12 +57,9 @@ public class TimestampNotesReader {
   }
 
   /**
-   * Read the next time-stamp.
-   * 
-   * @return the next time-stamp, or {@link Optional#absent()} if there are no
-   *         more to read
-   * @throws IOException
+   * {@inheritDoc}
    */
+  @Override
   public Optional<Timestamp> read() throws IOException {
     if (dataInputStream == null) {
       dataInputStream = new DataInputStream(new BufferedInputStream(
@@ -93,8 +90,9 @@ public class TimestampNotesReader {
   }
 
   /**
-   * Close this reader.
+   * {@inheritDoc}
    */
+  @Override
   public void close() {
     Closeables.closeQuietly(dataInputStream);
   }
