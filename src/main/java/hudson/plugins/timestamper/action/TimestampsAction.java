@@ -35,13 +35,13 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
 
@@ -118,15 +118,17 @@ public final class TimestampsAction implements Action {
 
     TimestampsReader reader = new TimestampsReader(build);
     boolean timestampsFound = false;
-    while (true) {
-      List<Timestamp> timestamps = reader.read(1000);
-      if (timestamps.isEmpty()) {
-        break;
+    try {
+      while (true) {
+        Optional<Timestamp> timestamp = reader.read();
+        if (!timestamp.isPresent()) {
+          break;
+        }
+        timestampsFound = true;
+        writer.write(formatTimestamp(timestamp.get(), precision));
       }
-      timestampsFound = true;
-      for (Timestamp timestamp : timestamps) {
-        writer.write(formatTimestamp(timestamp, precision));
-      }
+    } finally {
+      reader.close();
     }
 
     if (!timestampsFound) {

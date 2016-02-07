@@ -85,6 +85,9 @@ public class TimestampsIOTest {
       writer.write(5, 1);
       assertThat(reader.read(), is(Optional.of(new Timestamp(4, 5))));
     } finally {
+      if (reader != null) {
+        reader.close();
+      }
       writer.close();
     }
   }

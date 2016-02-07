@@ -31,13 +31,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
@@ -63,6 +60,8 @@ public final class TimestampsReader implements Serializable {
 
   private final TimeShiftsReader timeShiftsReader;
 
+  private transient InputStream inputStream;
+
   /**
    * Create a time-stamps reader for the given build.
    * 
@@ -82,7 +81,12 @@ public final class TimestampsReader implements Serializable {
    * @throws IOException
    */
   public void skip(int count) throws IOException {
-    read(count, Optional.<List<Timestamp>> absent());
+    for (int i = 0; i < count; i++) {
+      Optional<Timestamp> timestamp = read();
+      if (!timestamp.isPresent()) {
+        return;
+      }
+    }
   }
 
   /**
@@ -93,58 +97,27 @@ public final class TimestampsReader implements Serializable {
    * @throws IOException
    */
   public Optional<Timestamp> read() throws IOException {
-    List<Timestamp> timestamps = new ArrayList<Timestamp>();
-    read(1, Optional.of(timestamps));
-    return Optional.fromNullable(Iterators.getOnlyElement(
-        timestamps.iterator(), null));
-  }
-
-  /**
-   * Read several time-stamps.
-   * 
-   * @param count
-   *          the number of time-stamps to read
-   * @return a list containing {@code count} time-stamps, or fewer if there are
-   *         no more to read
-   * @throws IOException
-   */
-  public List<Timestamp> read(int count) throws IOException {
-    List<Timestamp> timestamps = new ArrayList<Timestamp>();
-    read(count, Optional.of(timestamps));
-    return ImmutableList.copyOf(timestamps);
-  }
-
-  /**
-   * Read up to {@code count} time-stamps and add them to the given list.
-   * 
-   * @param count
-   *          the number of time-stamps to read
-   * @param timestamps
-   *          the list that will contain the time-stamps (optional)
-   * @throws IOException
-   */
-  private void read(int count, Optional<List<Timestamp>> timestamps)
-      throws IOException {
-    if (count < 1 || !timestampsFile.isFile()) {
-      return;
-    }
-    InputStream inputStream = new FileInputStream(timestampsFile);
-    boolean threw = true;
-    try {
+    if (inputStream == null) {
+      if (!timestampsFile.isFile()) {
+        return Optional.absent();
+      }
+      inputStream = new FileInputStream(timestampsFile);
       ByteStreams.skipFully(inputStream, filePointer);
       inputStream = new BufferedInputStream(inputStream);
-      int i = 0;
-      while (i < count && filePointer < timestampsFile.length()) {
-        Timestamp timestamp = readNext(inputStream);
-        if (timestamps.isPresent()) {
-          timestamps.get().add(timestamp);
-        }
-        i++;
-      }
-      threw = false;
-    } finally {
-      Closeables.close(inputStream, threw);
     }
+    Optional<Timestamp> timestamp = Optional.absent();
+    if (filePointer < timestampsFile.length()) {
+      timestamp = Optional.of(readNext(inputStream));
+    }
+    return timestamp;
+  }
+
+  /**
+   * Close this reader.
+   */
+  public void close() {
+    Closeables.closeQuietly(inputStream);
+    inputStream = null;
   }
 
   /**
@@ -164,5 +137,10 @@ public final class TimestampsReader implements Serializable {
     filePointer += countingInputStream.getCount();
     entry++;
     return new Timestamp(elapsedMillis, millisSinceEpoch);
+  }
+
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
+    Closeables.closeQuietly(inputStream);
   }
 }

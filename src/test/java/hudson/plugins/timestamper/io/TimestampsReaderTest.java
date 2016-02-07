@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,8 +50,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Closeables;
-import com.google.common.primitives.Ints;
 
 /**
  * Unit test for the {@link TimestampsReader} class.
@@ -65,23 +66,13 @@ public class TimestampsReaderTest {
    */
   @Parameters
   public static Collection<Object[]> data() {
-    List<Object[]> parameters = new ArrayList<Object[]>();
-    for (int numToRead : Ints.asList(1, 2, 3, 10)) {
-      parameters.add(new Object[] { false, numToRead });
-      parameters.add(new Object[] { true, numToRead });
-    }
-    return parameters;
+    return Arrays.asList(new Object[] { false }, new Object[] { true });
   }
 
   /**
    */
   @Parameter(0)
   public boolean serialize;
-
-  /**
-   */
-  @Parameter(1)
-  public int numToRead;
 
   /**
    */
@@ -100,6 +91,13 @@ public class TimestampsReaderTest {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     timestampsReader = new TimestampsReader(build);
+  }
+
+  /**
+   */
+  @After
+  public void tearDown() {
+    timestampsReader.close();
   }
 
   /**
@@ -223,16 +221,11 @@ public class TimestampsReaderTest {
         timestampsReader = (TimestampsReader) SerializationUtils
             .clone(timestampsReader);
       }
-      Collection<Timestamp> next;
-      if (numToRead == 1) {
-        next = timestampsReader.read().asSet();
-      } else {
-        next = timestampsReader.read(numToRead);
-      }
-      if (next.isEmpty()) {
+      Optional<Timestamp> next = timestampsReader.read();
+      if (!next.isPresent()) {
         return timestamps;
       }
-      timestamps.addAll(next);
+      timestamps.add(next.get());
       iterations++;
       if (iterations > 10000) {
         throw new IllegalStateException(
