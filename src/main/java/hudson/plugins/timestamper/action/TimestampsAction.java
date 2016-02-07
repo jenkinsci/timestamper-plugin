@@ -24,15 +24,12 @@
 package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.console.ConsoleNote;
 import hudson.model.Action;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.TimestampNote;
+import hudson.plugins.timestamper.io.TimestampNotesReader;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
@@ -43,7 +40,6 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.io.Closeables;
 
 /**
  * Action which serves a page of timestamps. The format of this page will not
@@ -116,11 +112,11 @@ public final class TimestampsAction implements Action {
     response.setContentType("text/plain;charset=UTF-8");
     PrintWriter writer = response.getWriter();
 
-    TimestampsReader reader = new TimestampsReader(build);
+    TimestampsReader timestampsReader = new TimestampsReader(build);
     boolean timestampsFound = false;
     try {
       while (true) {
-        Optional<Timestamp> timestamp = reader.read();
+        Optional<Timestamp> timestamp = timestampsReader.read();
         if (!timestamp.isPresent()) {
           break;
         }
@@ -128,11 +124,23 @@ public final class TimestampsAction implements Action {
         writer.write(formatTimestamp(timestamp.get(), precision));
       }
     } finally {
-      reader.close();
+      timestampsReader.close();
     }
 
     if (!timestampsFound) {
-      writeConsoleNotes(writer, precision);
+      TimestampNotesReader timestampNotesReader = new TimestampNotesReader(
+          build);
+      try {
+        while (true) {
+          Optional<Timestamp> timestamp = timestampNotesReader.read();
+          if (!timestamp.isPresent()) {
+            break;
+          }
+          writer.write(formatTimestamp(timestamp.get(), precision));
+        }
+      } finally {
+        timestampNotesReader.close();
+      }
     }
 
     writer.flush();
@@ -170,40 +178,6 @@ public final class TimestampsAction implements Action {
 
   private void logUnrecognisedPrecision(String precision) {
     LOGGER.log(Level.WARNING, "Unrecognised precision: " + precision);
-  }
-
-  private void writeConsoleNotes(PrintWriter writer, int precision)
-      throws IOException {
-    DataInputStream dataInputStream = new DataInputStream(
-        new BufferedInputStream(build.getLogInputStream()));
-    boolean threw = true;
-    try {
-      while (true) {
-        dataInputStream.mark(1);
-        int currentByte = dataInputStream.read();
-        if (currentByte == -1) {
-          threw = false;
-          return;
-        }
-        if (currentByte == ConsoleNote.PREAMBLE[0]) {
-          dataInputStream.reset();
-          ConsoleNote<?> consoleNote;
-          try {
-            consoleNote = ConsoleNote.readFrom(dataInputStream);
-          } catch (ClassNotFoundException ex) {
-            // Unknown console note. Ignore.
-            continue;
-          }
-          if (consoleNote instanceof TimestampNote) {
-            TimestampNote timestampNote = (TimestampNote) consoleNote;
-            Timestamp timestamp = timestampNote.getTimestamp(build);
-            writer.write(formatTimestamp(timestamp, precision));
-          }
-        }
-      }
-    } finally {
-      Closeables.close(dataInputStream, threw);
-    }
   }
 
   private String formatTimestamp(Timestamp timestamp, int precision) {
