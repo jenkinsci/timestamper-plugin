@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2012 Steven G. Brown
+ * Copyright (c) 2016 Steven G. Brown
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.plugins.timestamper.action;
+package hudson.plugins.timestamper.api;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.model.Run;
+import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
 import hudson.plugins.timestamper.io.TimestamperPaths;
 import hudson.plugins.timestamper.io.TimestampsFileReader;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.PrintWriter;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -51,12 +52,12 @@ import com.google.common.base.Optional;
 import com.google.common.io.Files;
 
 /**
- * Unit test for the {@link TimestampsAction} class.
+ * Unit test for the {@link TimestamperAPI} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TimestampsActionTest {
+public class TimestamperAPITest {
 
   /**
    */
@@ -67,18 +68,9 @@ public class TimestampsActionTest {
   private Run<?, ?> build;
 
   @Mock
-  private StaplerRequest request;
-
-  @Mock
-  private PrintWriter writer;
-
-  @Mock
-  private StaplerResponse response;
-
-  @Mock
   private TimestampsActionOutput output;
 
-  private TimestampsAction action;
+  private TimestamperAPI api;
 
   /**
    * @throws Exception
@@ -86,40 +78,50 @@ public class TimestampsActionTest {
   @Before
   public void setUp() throws Exception {
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    when(response.getWriter()).thenReturn(writer);
-    when(request.getQueryString()).thenReturn("query");
 
-    when(output.nextLine(any(TimestampsReader.class))).thenReturn(
-        Optional.of("line")).thenReturn(Optional.<String> absent());
+    when(output.nextLine(any(TimestampsReader.class)))
+        .thenReturn(Optional.of("line1")).thenReturn(Optional.of("line2"))
+        .thenReturn(Optional.<String> absent());
 
-    action = new TimestampsAction(build, output);
+    api = new TimestamperAPI(output);
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testDoIndex_timestampsFileExists() throws Exception {
+  public void testRead_timestampsFileExists() throws Exception {
     File timestampsFile = TimestamperPaths.timestampsFile(build);
     timestampsFile.getParentFile().mkdirs();
     Files.touch(timestampsFile);
 
-    action.doIndex(request, response);
+    assertThat(read(), is("line1\nline2\n"));
 
     verify(output).setQuery("query");
-    verify(output, times(2)).nextLine(isA(TimestampsFileReader.class));
-    verify(writer).println("line");
+    verify(output, atLeast(1)).nextLine(isA(TimestampsFileReader.class));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testDoIndex_timestampsFileDoesNotExist() throws Exception {
-    action.doIndex(request, response);
+  public void testRead_timestampsFileDoesNotExist() throws Exception {
+    assertThat(read(), is("line1\nline2\n"));
 
     verify(output).setQuery("query");
-    verify(output, times(2)).nextLine(isA(TimestampNotesReader.class));
-    verify(writer).println("line");
+    verify(output, atLeast(1)).nextLine(isA(TimestampNotesReader.class));
+  }
+
+  private String read() throws Exception {
+    BufferedReader reader = api.read(build, "query");
+    StringBuilder result = new StringBuilder();
+    while (true) {
+      String line = reader.readLine();
+      if (line == null) {
+        return result.toString();
+      }
+      result.append(line);
+      result.append("\n");
+    }
   }
 }

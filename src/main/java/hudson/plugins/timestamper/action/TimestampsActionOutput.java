@@ -27,7 +27,6 @@ import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.logging.Level;
@@ -37,7 +36,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 /**
- * Output a page of time-stamps on behalf of {@link TimestampsAction}.
+ * Generate a page of time-stamps on behalf of {@link TimestampsAction}.
  * <p>
  * Each line contains the elapsed time in seconds since the start of the build
  * for the equivalent line in the console log.
@@ -49,31 +48,25 @@ import com.google.common.base.Strings;
  * 
  * @author Steven G. Brown
  */
-class TimestampsActionOutput {
+public class TimestampsActionOutput {
 
   private static final Logger LOGGER = Logger
       .getLogger(TimestampsActionOutput.class.getName());
 
+  private int precision;
+
+  public TimestampsActionOutput() {
+    setQuery(null);
+  }
+
   /**
-   * Write a page of time-stamps.
+   * Set the query string.
    * 
-   * @param timestampsReader
-   * @param writer
    * @param query
-   * @throws IOException
+   *          the query string
    */
-  void write(TimestampsReader timestampsReader, PrintWriter writer, String query)
-      throws IOException {
-
-    int precision = getPrecision(query);
-
-    while (true) {
-      Optional<Timestamp> timestamp = timestampsReader.read();
-      if (!timestamp.isPresent()) {
-        break;
-      }
-      writer.write(formatTimestamp(timestamp.get(), precision));
-    }
+  public void setQuery(String query) {
+    precision = getPrecision(query);
   }
 
   private int getPrecision(String query) {
@@ -136,10 +129,26 @@ class TimestampsActionOutput {
     LOGGER.log(Level.WARNING, "Unrecognised precision: " + precision);
   }
 
+  /**
+   * Generate the next line in the page of time-stamps.
+   * 
+   * @param timestampsReader
+   * @return the next line
+   * @throws IOException
+   */
+  public Optional<String> nextLine(TimestampsReader timestampsReader)
+      throws IOException {
+    Optional<Timestamp> timestamp = timestampsReader.read();
+    if (!timestamp.isPresent()) {
+      return Optional.absent();
+    }
+    return Optional.of(formatTimestamp(timestamp.get(), precision));
+  }
+
   private String formatTimestamp(Timestamp timestamp, int precision) {
     long seconds = timestamp.elapsedMillis / 1000;
     if (precision == 0) {
-      return String.valueOf(seconds) + "\n";
+      return String.valueOf(seconds);
     }
     long millis = timestamp.elapsedMillis % 1000;
     String fractional = String.format("%03d", millis);
@@ -148,6 +157,6 @@ class TimestampsActionOutput {
     } else {
       fractional += Strings.repeat("0", precision - 3);
     }
-    return String.valueOf(seconds) + "." + fractional + "\n";
+    return String.valueOf(seconds) + "." + fractional;
   }
 }

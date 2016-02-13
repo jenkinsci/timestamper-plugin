@@ -37,6 +37,8 @@ import java.io.PrintWriter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import com.google.common.base.Optional;
+
 /**
  * Action which serves a page of time-stamps. The format of this page will not
  * change, so it can be safely parsed by scripts.
@@ -114,7 +116,14 @@ public final class TimestampsAction implements Action {
 
     try {
       PrintWriter writer = response.getWriter();
-      output.write(timestampsReader, writer, request.getQueryString());
+      output.setQuery(request.getQueryString());
+      while (true) {
+        Optional<String> line = output.nextLine(timestampsReader);
+        if (!line.isPresent()) {
+          break;
+        }
+        writer.println(line.get());
+      }
       writer.flush();
     } finally {
       timestampsReader.close();
