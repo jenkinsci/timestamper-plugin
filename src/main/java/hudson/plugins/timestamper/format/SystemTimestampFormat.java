@@ -50,7 +50,8 @@ public final class SystemTimestampFormat extends TimestampFormat {
 
   private final FastDateFormat format;
 
-  SystemTimestampFormat(String systemTimeFormat, Optional<String> timeZoneId) {
+  public SystemTimestampFormat(String systemTimeFormat,
+      Optional<String> timeZoneId) {
     TimeZone timeZone = null;
     if (timeZoneId.isPresent()) {
       timeZone = TimeZone.getTimeZone(timeZoneId.get());

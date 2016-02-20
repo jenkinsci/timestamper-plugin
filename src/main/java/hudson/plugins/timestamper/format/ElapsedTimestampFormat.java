@@ -41,7 +41,7 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
 
   private final String elapsedTimeFormat;
 
-  ElapsedTimestampFormat(String elapsedTimeFormat) {
+  public ElapsedTimestampFormat(String elapsedTimeFormat) {
     this.elapsedTimeFormat = checkNotNull(elapsedTimeFormat);
   }
 

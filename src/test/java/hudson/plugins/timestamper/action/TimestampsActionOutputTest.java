@@ -29,11 +29,18 @@ import static org.mockito.Mockito.when;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.OngoingStubbing;
 
 import com.google.common.base.Optional;
 
@@ -50,19 +57,38 @@ public class TimestampsActionOutputTest {
 
   private TimestampsActionOutput output;
 
+  private TimeZone systemDefaultTimeZone;
+
   /**
    * @throws Exception
    */
-  @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
-    when(reader.read()).thenReturn(Optional.of(new Timestamp(0, 0)),
-        Optional.of(new Timestamp(1, 0)), Optional.of(new Timestamp(10, 0)),
-        Optional.of(new Timestamp(100, 0)),
-        Optional.of(new Timestamp(1000, 0)),
-        Optional.of(new Timestamp(10000, 0)), Optional.<Timestamp> absent());
+    systemDefaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+
+    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    timestamps.add(new Timestamp(0, TimeUnit.SECONDS.toMillis(1)));
+    timestamps.add(new Timestamp(1, TimeUnit.MINUTES.toMillis(1)));
+    timestamps.add(new Timestamp(10, TimeUnit.HOURS.toMillis(1)));
+    timestamps.add(new Timestamp(100, TimeUnit.DAYS.toMillis(1)));
+    timestamps.add(new Timestamp(1000, TimeUnit.DAYS.toMillis(2)));
+    timestamps.add(new Timestamp(10000, TimeUnit.DAYS.toMillis(3)));
+
+    OngoingStubbing<Optional<Timestamp>> stubbing = when(reader.read());
+    for (Timestamp timestamp : timestamps) {
+      stubbing = stubbing.thenReturn(Optional.of(timestamp));
+    }
+    stubbing.thenReturn(Optional.<Timestamp> absent());
 
     output = new TimestampsActionOutput();
+  }
+
+  /**
+   */
+  @After
+  public void tearDown() {
+    TimeZone.setDefault(systemDefaultTimeZone);
   }
 
   /**
@@ -209,6 +235,27 @@ public class TimestampsActionOutputTest {
   @Test
   public void testWrite_invalidPrecision() throws Exception {
     output.setQuery("precision=invalid");
+    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_time() throws Exception {
+    output.setQuery("time=dd:HH:mm:ss");
+    assertThat(generate(),
+        is("01:00:00:01\n" + "01:00:01:00\n" + "01:01:00:00\n"
+            + "02:00:00:00\n" + "03:00:00:00\n" + "04:00:00:00\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_elapsed() throws Exception {
+    output.setQuery("elapsed=s.SSS");
     assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
         + "1.000\n" + "10.000\n"));
   }

@@ -24,14 +24,22 @@
 package hudson.plugins.timestamper.action;
 
 import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
+import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+
+import org.apache.commons.lang.time.DurationFormatUtils;
+
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
@@ -41,10 +49,18 @@ import com.google.common.base.Strings;
  * Each line contains the elapsed time in seconds since the start of the build
  * for the equivalent line in the console log.
  * <p>
- * By default, the elapsed time will include three places after the decimal
- * point. The number of places after the decimal point can be configured by the
- * "precision" query parameter, which accepts a number of decimal places or the
- * values "seconds" or "milliseconds".
+ * By default, the elapsed time will be displayed in seconds, with three places
+ * after the decimal point. The output can be configured by providing query
+ * parameters:
+ * <ul>
+ * <li>"precision": Display the elapsed time in seconds, with a certain number
+ * of places after the decimal point. Accepts a number of decimal places or
+ * values such as "seconds" and "milliseconds".</li>
+ * <li>"time": Display the system clock time. Accepts the
+ * {@link SimpleDateFormat} format.</li>
+ * <li>"elapsed": Display the elapsed time since the start of the build. Accepts
+ * the {@link DurationFormatUtils} format.</li>
+ * </ul>
  * 
  * @author Steven G. Brown
  */
@@ -53,7 +69,7 @@ public class TimestampsActionOutput {
   private static final Logger LOGGER = Logger
       .getLogger(TimestampsActionOutput.class.getName());
 
-  private int precision;
+  private Function<Timestamp, String> timestampFormat;
 
   public TimestampsActionOutput() {
     setQuery(null);
@@ -66,11 +82,25 @@ public class TimestampsActionOutput {
    *          the query string
    */
   public void setQuery(String query) {
-    precision = getPrecision(query);
+    Optional<String> time = getParameterValue(query, "time");
+    if (time.isPresent()) {
+      timestampFormat = new SystemTimestampFormat(time.get(),
+          Optional.<String> absent());
+      return;
+    }
+
+    Optional<String> elapsed = getParameterValue(query, "elapsed");
+    if (elapsed.isPresent()) {
+      timestampFormat = new ElapsedTimestampFormat(elapsed.get());
+      return;
+    }
+
+    int precision = getPrecision(query);
+    timestampFormat = new PrecisionTimestampFormat(precision);
   }
 
   private int getPrecision(String query) {
-    String precision = getParameterValue(query, "precision");
+    String precision = getParameterValue(query, "precision").orNull();
     if ("seconds".equalsIgnoreCase(precision)) {
       return 0;
     }
@@ -99,22 +129,21 @@ public class TimestampsActionOutput {
     return 3;
   }
 
-  private String getParameterValue(String query, String parameterName) {
-    if (query == null) {
-      return null;
-    }
-    String[] pairs = query.split("&");
-    for (String pair : pairs) {
-      String[] nameAndValue = pair.split("=", 2);
-      if (nameAndValue.length == 2) {
-        String key = urlDecode(nameAndValue[0]);
-        String value = urlDecode(nameAndValue[1]);
-        if (parameterName.equals(key)) {
-          return value;
+  private Optional<String> getParameterValue(String query, String parameterName) {
+    if (query != null) {
+      String[] pairs = query.split("&");
+      for (String pair : pairs) {
+        String[] nameAndValue = pair.split("=", 2);
+        if (nameAndValue.length == 2) {
+          String key = urlDecode(nameAndValue[0]);
+          String value = urlDecode(nameAndValue[1]);
+          if (parameterName.equals(key)) {
+            return Optional.of(value);
+          }
         }
       }
     }
-    return null;
+    return Optional.absent();
   }
 
   private String urlDecode(String string) {
@@ -138,25 +167,37 @@ public class TimestampsActionOutput {
    */
   public Optional<String> nextLine(TimestampsReader timestampsReader)
       throws IOException {
+
     Optional<Timestamp> timestamp = timestampsReader.read();
     if (!timestamp.isPresent()) {
       return Optional.absent();
     }
-    return Optional.of(formatTimestamp(timestamp.get(), precision));
+    return Optional.of(timestampFormat.apply(timestamp.get()));
   }
 
-  private String formatTimestamp(Timestamp timestamp, int precision) {
-    long seconds = timestamp.elapsedMillis / 1000;
-    if (precision == 0) {
-      return String.valueOf(seconds);
+  private static class PrecisionTimestampFormat implements
+      Function<Timestamp, String> {
+
+    private final int precision;
+
+    PrecisionTimestampFormat(int precision) {
+      this.precision = precision;
     }
-    long millis = timestamp.elapsedMillis % 1000;
-    String fractional = String.format("%03d", millis);
-    if (precision <= 3) {
-      fractional = fractional.substring(0, precision);
-    } else {
-      fractional += Strings.repeat("0", precision - 3);
+
+    @Override
+    public String apply(@Nonnull Timestamp timestamp) {
+      long seconds = timestamp.elapsedMillis / 1000;
+      if (precision == 0) {
+        return String.valueOf(seconds);
+      }
+      long millis = timestamp.elapsedMillis % 1000;
+      String fractional = String.format("%03d", millis);
+      if (precision <= 3) {
+        fractional = fractional.substring(0, precision);
+      } else {
+        fractional += Strings.repeat("0", precision - 3);
+      }
+      return String.valueOf(seconds) + "." + fractional;
     }
-    return String.valueOf(seconds) + "." + fractional;
   }
 }
