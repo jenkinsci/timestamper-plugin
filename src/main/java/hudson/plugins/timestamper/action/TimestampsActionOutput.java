@@ -26,6 +26,7 @@ package hudson.plugins.timestamper.action;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
 import hudson.plugins.timestamper.format.SystemTimestampFormat;
+import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
@@ -60,6 +61,8 @@ import com.google.common.base.Strings;
  * {@link SimpleDateFormat} format.</li>
  * <li>"elapsed": Display the elapsed time since the start of the build. Accepts
  * the {@link DurationFormatUtils} format.</li>
+ * <li>"appendLog": Display the console log line after the time-stamp. Can be
+ * combined with the other query parameters.</li>
  * </ul>
  * 
  * @author Steven G. Brown
@@ -70,6 +73,8 @@ public class TimestampsActionOutput {
       .getLogger(TimestampsActionOutput.class.getName());
 
   private Function<Timestamp, String> timestampFormat;
+
+  private boolean appendLogLine;
 
   public TimestampsActionOutput() {
     setQuery(null);
@@ -86,17 +91,19 @@ public class TimestampsActionOutput {
     if (time.isPresent()) {
       timestampFormat = new SystemTimestampFormat(time.get(),
           Optional.<String> absent());
-      return;
+    } else {
+      Optional<String> elapsed = getParameterValue(query, "elapsed");
+      if (elapsed.isPresent()) {
+        timestampFormat = new ElapsedTimestampFormat(elapsed.get());
+      } else {
+        int precision = getPrecision(query);
+        timestampFormat = new PrecisionTimestampFormat(precision);
+      }
     }
 
-    Optional<String> elapsed = getParameterValue(query, "elapsed");
-    if (elapsed.isPresent()) {
-      timestampFormat = new ElapsedTimestampFormat(elapsed.get());
-      return;
-    }
-
-    int precision = getPrecision(query);
-    timestampFormat = new PrecisionTimestampFormat(precision);
+    Optional<String> appendLog = getParameterValue(query, "appendLog");
+    appendLogLine = (appendLog.isPresent() && (appendLog.get().isEmpty() || Boolean
+        .parseBoolean(appendLog.get())));
   }
 
   private int getPrecision(String query) {
@@ -134,12 +141,11 @@ public class TimestampsActionOutput {
       String[] pairs = query.split("&");
       for (String pair : pairs) {
         String[] nameAndValue = pair.split("=", 2);
-        if (nameAndValue.length == 2) {
-          String key = urlDecode(nameAndValue[0]);
-          String value = urlDecode(nameAndValue[1]);
-          if (parameterName.equals(key)) {
-            return Optional.of(value);
-          }
+        String key = urlDecode(nameAndValue[0]);
+        String value = (nameAndValue.length == 1 ? ""
+            : urlDecode(nameAndValue[1]));
+        if (parameterName.equals(key)) {
+          return Optional.of(value);
         }
       }
     }
@@ -162,17 +168,31 @@ public class TimestampsActionOutput {
    * Generate the next line in the page of time-stamps.
    * 
    * @param timestampsReader
+   * @param logFileReader
    * @return the next line
    * @throws IOException
    */
-  public Optional<String> nextLine(TimestampsReader timestampsReader)
-      throws IOException {
+  public Optional<String> nextLine(TimestampsReader timestampsReader,
+      LogFileReader logFileReader) throws IOException {
+
+    StringBuilder line = new StringBuilder();
 
     Optional<Timestamp> timestamp = timestampsReader.read();
-    if (!timestamp.isPresent()) {
+    if (timestamp.isPresent()) {
+      line.append(timestampFormat.apply(timestamp.get()));
+    }
+
+    if (appendLogLine) {
+      Optional<String> logFileLine = logFileReader.nextLine();
+      if (logFileLine.isPresent()) {
+        line.append(" ").append(logFileLine.get());
+      }
+    }
+
+    if (line.length() == 0) {
       return Optional.absent();
     }
-    return Optional.of(timestampFormat.apply(timestamp.get()));
+    return Optional.of(line.toString());
   }
 
   private static class PrecisionTimestampFormat implements

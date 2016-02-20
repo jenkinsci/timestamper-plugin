@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.api;
 
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
+import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
 import hudson.plugins.timestamper.io.TimestamperPaths;
 import hudson.plugins.timestamper.io.TimestampsFileReader;
@@ -86,12 +87,15 @@ public class TimestamperAPI {
       timestampsReader = new TimestampNotesReader(build);
     }
 
+    final LogFileReader logFileReader = new LogFileReader(build);
+
     Reader reader = new Reader() {
 
       @Override
       public int read(char[] cbuf, int off, int len) throws IOException {
         while (buffer.length() < len) {
-          Optional<String> nextLine = output.nextLine(timestampsReader);
+          Optional<String> nextLine = output.nextLine(timestampsReader,
+              logFileReader);
           if (!nextLine.isPresent()) {
             break;
           }
@@ -106,6 +110,7 @@ public class TimestamperAPI {
       @Override
       public void close() throws IOException {
         timestampsReader.close();
+        logFileReader.close();
       }
     };
 

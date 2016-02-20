@@ -29,6 +29,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.model.Run;
+import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
 import hudson.plugins.timestamper.io.TimestamperPaths;
 import hudson.plugins.timestamper.io.TimestampsFileReader;
@@ -89,8 +90,8 @@ public class TimestampsActionTest {
     when(response.getWriter()).thenReturn(writer);
     when(request.getQueryString()).thenReturn("query");
 
-    when(output.nextLine(any(TimestampsReader.class))).thenReturn(
-        Optional.of("line")).thenReturn(Optional.<String> absent());
+    when(output.nextLine(any(TimestampsReader.class), any(LogFileReader.class)))
+        .thenReturn(Optional.of("line")).thenReturn(Optional.<String> absent());
 
     action = new TimestampsAction(build, output);
   }
@@ -107,7 +108,8 @@ public class TimestampsActionTest {
     action.doIndex(request, response);
 
     verify(output).setQuery("query");
-    verify(output, times(2)).nextLine(isA(TimestampsFileReader.class));
+    verify(output, times(2)).nextLine(isA(TimestampsFileReader.class),
+        isA(LogFileReader.class));
     verify(writer).println("line");
   }
 
@@ -119,7 +121,8 @@ public class TimestampsActionTest {
     action.doIndex(request, response);
 
     verify(output).setQuery("query");
-    verify(output, times(2)).nextLine(isA(TimestampNotesReader.class));
+    verify(output, times(2)).nextLine(isA(TimestampNotesReader.class),
+        isA(LogFileReader.class));
     verify(writer).println("line");
   }
 }

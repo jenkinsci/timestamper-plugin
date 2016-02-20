@@ -26,6 +26,7 @@ package hudson.plugins.timestamper.action;
 import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Action;
 import hudson.model.Run;
+import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
 import hudson.plugins.timestamper.io.TimestamperPaths;
 import hudson.plugins.timestamper.io.TimestampsFileReader;
@@ -114,11 +115,14 @@ public final class TimestampsAction implements Action {
       timestampsReader = new TimestampNotesReader(build);
     }
 
+    LogFileReader logFileReader = new LogFileReader(build);
+
     try {
       PrintWriter writer = response.getWriter();
       output.setQuery(request.getQueryString());
       while (true) {
-        Optional<String> line = output.nextLine(timestampsReader);
+        Optional<String> line = output
+            .nextLine(timestampsReader, logFileReader);
         if (!line.isPresent()) {
           break;
         }
@@ -127,6 +131,7 @@ public final class TimestampsAction implements Action {
       writer.flush();
     } finally {
       timestampsReader.close();
+      logFileReader.close();
     }
   }
 }

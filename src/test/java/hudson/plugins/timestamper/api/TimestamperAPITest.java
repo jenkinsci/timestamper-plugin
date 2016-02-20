@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
+import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampNotesReader;
 import hudson.plugins.timestamper.io.TimestamperPaths;
 import hudson.plugins.timestamper.io.TimestampsFileReader;
@@ -79,7 +80,7 @@ public class TimestamperAPITest {
   public void setUp() throws Exception {
     when(build.getRootDir()).thenReturn(folder.getRoot());
 
-    when(output.nextLine(any(TimestampsReader.class)))
+    when(output.nextLine(any(TimestampsReader.class), any(LogFileReader.class)))
         .thenReturn(Optional.of("line1")).thenReturn(Optional.of("line2"))
         .thenReturn(Optional.<String> absent());
 
@@ -98,7 +99,8 @@ public class TimestamperAPITest {
     assertThat(read(), is("line1\nline2\n"));
 
     verify(output).setQuery("query");
-    verify(output, atLeast(1)).nextLine(isA(TimestampsFileReader.class));
+    verify(output, atLeast(1)).nextLine(isA(TimestampsFileReader.class),
+        isA(LogFileReader.class));
   }
 
   /**
@@ -109,7 +111,8 @@ public class TimestamperAPITest {
     assertThat(read(), is("line1\nline2\n"));
 
     verify(output).setQuery("query");
-    verify(output, atLeast(1)).nextLine(isA(TimestampNotesReader.class));
+    verify(output, atLeast(1)).nextLine(isA(TimestampNotesReader.class),
+        isA(LogFileReader.class));
   }
 
   private String read() throws Exception {

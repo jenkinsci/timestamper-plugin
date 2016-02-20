@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.util.ArrayList;
@@ -39,7 +40,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.OngoingStubbing;
 
 import com.google.common.base.Optional;
@@ -53,11 +56,16 @@ import com.google.common.base.Optional;
 public class TimestampsActionOutputTest {
 
   @Mock
-  private TimestampsReader reader;
+  private TimestampsReader timestampsReader;
+
+  @Mock
+  private LogFileReader logFileReader;
 
   private TimestampsActionOutput output;
 
   private TimeZone systemDefaultTimeZone;
+
+  private int line;
 
   /**
    * @throws Exception
@@ -67,7 +75,7 @@ public class TimestampsActionOutputTest {
     systemDefaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
-    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    final List<Timestamp> timestamps = new ArrayList<Timestamp>();
     timestamps.add(new Timestamp(0, TimeUnit.SECONDS.toMillis(1)));
     timestamps.add(new Timestamp(1, TimeUnit.MINUTES.toMillis(1)));
     timestamps.add(new Timestamp(10, TimeUnit.HOURS.toMillis(1)));
@@ -75,11 +83,25 @@ public class TimestampsActionOutputTest {
     timestamps.add(new Timestamp(1000, TimeUnit.DAYS.toMillis(2)));
     timestamps.add(new Timestamp(10000, TimeUnit.DAYS.toMillis(3)));
 
-    OngoingStubbing<Optional<Timestamp>> stubbing = when(reader.read());
+    OngoingStubbing<Optional<Timestamp>> timestampsReaderStubbing = when(timestampsReader
+        .read());
     for (Timestamp timestamp : timestamps) {
-      stubbing = stubbing.thenReturn(Optional.of(timestamp));
+      timestampsReaderStubbing = timestampsReaderStubbing.thenReturn(Optional
+          .of(timestamp));
     }
-    stubbing.thenReturn(Optional.<Timestamp> absent());
+    timestampsReaderStubbing.thenReturn(Optional.<Timestamp> absent());
+
+    when(logFileReader.nextLine()).thenAnswer(new Answer<Optional<String>>() {
+
+      @Override
+      public Optional<String> answer(InvocationOnMock invocation) {
+        line++;
+        if (line > timestamps.size()) {
+          return Optional.absent();
+        }
+        return Optional.of("line" + line);
+      }
+    });
 
     output = new TimestampsActionOutput();
   }
@@ -118,6 +140,16 @@ public class TimestampsActionOutputTest {
   public void testWrite_zeroPrecision() throws Exception {
     output.setQuery("precision=0");
     assertThat(generate(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_zeroPrecisionAppendLog() throws Exception {
+    output.setQuery("precision=0&appendLog");
+    assertThat(generate(), is("0 line1\n" + "0 line2\n" + "0 line3\n"
+        + "0 line4\n" + "1 line5\n" + "10 line6\n"));
   }
 
   /**
@@ -254,6 +286,17 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
+  public void testWrite_timeAppendLog() throws Exception {
+    output.setQuery("time=dd:HH:mm:ss&appendLog");
+    assertThat(generate(), is("01:00:00:01 line1\n" + "01:00:01:00 line2\n"
+        + "01:01:00:00 line3\n" + "02:00:00:00 line4\n" + "03:00:00:00 line5\n"
+        + "04:00:00:00 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
   public void testWrite_elapsed() throws Exception {
     output.setQuery("elapsed=s.SSS");
     assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
@@ -264,16 +307,49 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
+  public void testWrite_elapsedAppendLog() throws Exception {
+    output.setQuery("elapsed=s.SSS&appendLog");
+    assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
+        + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
+        + "10.000 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_appendLogOnly() throws Exception {
+    output.setQuery("appendLog");
+    assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
+        + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
+        + "10.000 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
   public void testWrite_noTimestamps() throws Exception {
-    when(reader.read()).thenReturn(Optional.<Timestamp> absent());
+    when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
     output.setQuery("");
     assertThat(generate(), is(""));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_noLogFile() throws Exception {
+    when(logFileReader.nextLine()).thenReturn(Optional.<String> absent());
+    output.setQuery("appendLog");
+    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
+        + "1.000\n" + "10.000\n"));
   }
 
   private String generate() throws Exception {
     StringBuilder sb = new StringBuilder();
     while (true) {
-      Optional<String> line = output.nextLine(reader);
+      Optional<String> line = output.nextLine(timestampsReader, logFileReader);
       if (!line.isPresent()) {
         return sb.toString();
       }
