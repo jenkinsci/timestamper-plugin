@@ -158,7 +158,8 @@ public class TimestampsActionOutputTest {
   @Test
   public void testWrite_zeroPrecisionAndOnePrecision() throws Exception {
     output.setQuery("precision=0&precision=1");
-    assertThat(generate(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
+    assertThat(generate(), is("0 0.0\n" + "0 0.0\n" + "0 0.0\n" + "0 0.1\n"
+        + "1 1.0\n" + "10 10.0\n"));
   }
 
   /**
@@ -312,6 +313,29 @@ public class TimestampsActionOutputTest {
     assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
         + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
         + "10.000 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_timeAndElapsed() throws Exception {
+    output.setQuery("time=dd:HH:mm:ss&elapsed=s.SSS");
+    assertThat(generate(), is("01:00:00:01 0.000\n" + "01:00:01:00 0.001\n"
+        + "01:01:00:00 0.010\n" + "02:00:00:00 0.100\n" + "03:00:00:00 1.000\n"
+        + "04:00:00:00 10.000\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_timeAndElapsedAppendLog() throws Exception {
+    output.setQuery("time=dd:HH:mm:ss&elapsed=s.SSS&appendLog");
+    assertThat(generate(), is("01:00:00:01 0.000 line1\n"
+        + "01:00:01:00 0.001 line2\n" + "01:01:00:00 0.010 line3\n"
+        + "02:00:00:00 0.100 line4\n" + "03:00:00:00 1.000 line5\n"
+        + "04:00:00:00 10.000 line6\n"));
   }
 
   /**
