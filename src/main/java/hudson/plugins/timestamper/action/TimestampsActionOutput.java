@@ -47,6 +47,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Generate a page of time-stamps on behalf of {@link TimestampsAction}.
@@ -78,7 +79,7 @@ public class TimestampsActionOutput {
 
   private static final int DEFAULT_PRECISION = 3;
 
-  private List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
+  private final List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
 
   private boolean appendLogLine;
 
@@ -97,17 +98,17 @@ public class TimestampsActionOutput {
     appendLogLine = false;
 
     for (QueryParameter parameter : readQueryString(query)) {
-      if (parameter.name.equals("time")) {
+      if (parameter.name.equalsIgnoreCase("time")) {
         timestampFormats.add(new SystemTimestampFormat(parameter.value,
             Optional.<String> absent()));
-      } else if (parameter.name.equals("elapsed")) {
+      } else if (parameter.name.equalsIgnoreCase("elapsed")) {
         timestampFormats.add(new ElapsedTimestampFormat(parameter.value));
-      } else if (parameter.name.equals("precision")) {
+      } else if (parameter.name.equalsIgnoreCase("precision")) {
         int precision = readPrecision(parameter.value);
         if (precision != -1) {
           timestampFormats.add(new PrecisionTimestampFormat(precision));
         }
-      } else if (parameter.name.equals("appendLog")) {
+      } else if (parameter.name.equalsIgnoreCase("appendLog")) {
         appendLogLine = (parameter.value.isEmpty() || Boolean
             .parseBoolean(parameter.value));
       }
@@ -148,7 +149,7 @@ public class TimestampsActionOutput {
   }
 
   private List<QueryParameter> readQueryString(String query) {
-    List<QueryParameter> parameters = new ArrayList<QueryParameter>();
+    ImmutableList.Builder<QueryParameter> parameters = new ImmutableList.Builder<QueryParameter>();
     if (query != null) {
       String[] pairs = query.split("&");
       for (String pair : pairs) {
@@ -159,7 +160,7 @@ public class TimestampsActionOutput {
         parameters.add(new QueryParameter(name, value));
       }
     }
-    return parameters;
+    return parameters.build();
   }
 
   private String urlDecode(String string) {
@@ -216,6 +217,11 @@ public class TimestampsActionOutput {
     QueryParameter(String name, String value) {
       this.name = checkNotNull(name);
       this.value = checkNotNull(value);
+    }
+
+    @Override
+    public String toString() {
+      return name + "=" + value;
     }
   }
 
