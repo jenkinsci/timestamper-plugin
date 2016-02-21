@@ -67,6 +67,12 @@ public class LogFileReaderTest {
 
   private String logFileContents;
 
+  private File uncompressedLogFile;
+
+  private File gzippedLogFile;
+
+  private File nonExistantFile;
+
   /**
    * @throws Exception
    */
@@ -79,6 +85,27 @@ public class LogFileReaderTest {
     logFileReader = new LogFileReader(build);
 
     logFileContents = "line1\nline2" + new TimestampNote(0, 0).encode() + "\n";
+
+    // Uncompressed log file
+    uncompressedLogFile = tempFolder.newFile();
+    Files.write(logFileContents, uncompressedLogFile, Charsets.UTF_8);
+
+    // Gzipped log file
+    gzippedLogFile = tempFolder.newFile("logFile.gz");
+    FileOutputStream fileOutputStream = null;
+    GZIPOutputStream gzipOutputStream = null;
+    try {
+      fileOutputStream = new FileOutputStream(gzippedLogFile);
+      gzipOutputStream = new GZIPOutputStream(fileOutputStream);
+      gzipOutputStream
+          .write(logFileContents.getBytes(Charset.defaultCharset()));
+    } finally {
+      Closeables.close(gzipOutputStream, true);
+      Closeables.close(fileOutputStream, true);
+    }
+
+    // Non-existant log file
+    nonExistantFile = new File(tempFolder.getRoot(), "logFile");
   }
 
   /**
@@ -93,10 +120,7 @@ public class LogFileReaderTest {
    */
   @Test
   public void testNextLine_logFileExists() throws Exception {
-    File logFile = tempFolder.newFile();
-    Files.write(logFileContents, logFile, Charsets.UTF_8);
-    when(build.getLogFile()).thenReturn(logFile);
-
+    when(build.getLogFile()).thenReturn(uncompressedLogFile);
     testNextLine();
   }
 
@@ -105,20 +129,7 @@ public class LogFileReaderTest {
    */
   @Test
   public void testNextLine_zippedLogFile() throws Exception {
-    File logFile = tempFolder.newFile("logFile.gz");
-    FileOutputStream fileOutputStream = null;
-    GZIPOutputStream gzipOutputStream = null;
-    try {
-      fileOutputStream = new FileOutputStream(logFile);
-      gzipOutputStream = new GZIPOutputStream(fileOutputStream);
-      gzipOutputStream
-          .write(logFileContents.getBytes(Charset.defaultCharset()));
-    } finally {
-      Closeables.close(gzipOutputStream, true);
-      Closeables.close(fileOutputStream, true);
-    }
-    when(build.getLogFile()).thenReturn(logFile);
-
+    when(build.getLogFile()).thenReturn(gzippedLogFile);
     testNextLine();
   }
 
@@ -138,9 +149,34 @@ public class LogFileReaderTest {
    */
   @Test
   public void testNextLine_noLogFile() throws Exception {
-    File logFile = new File(tempFolder.getRoot(), "logFile");
-    when(build.getLogFile()).thenReturn(logFile);
-
+    when(build.getLogFile()).thenReturn(nonExistantFile);
     assertThat(logFileReader.nextLine(), is(Optional.<String> absent()));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testLineCount_logFileExists() throws Exception {
+    when(build.getLogFile()).thenReturn(uncompressedLogFile);
+    assertThat(logFileReader.lineCount(), is(2));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testLineCount_zippedLogFile() throws Exception {
+    when(build.getLogFile()).thenReturn(gzippedLogFile);
+    assertThat(logFileReader.lineCount(), is(2));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testLineCount_noLogFile() throws Exception {
+    when(build.getLogFile()).thenReturn(nonExistantFile);
+    assertThat(logFileReader.lineCount(), is(0));
   }
 }

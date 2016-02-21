@@ -102,6 +102,7 @@ public class TimestampsActionOutputTest {
         return Optional.of("line" + line);
       }
     });
+    when(logFileReader.lineCount()).thenReturn(timestamps.size());
 
     output = new TimestampsActionOutput();
   }
@@ -388,6 +389,46 @@ public class TimestampsActionOutputTest {
   @Test
   public void testWrite_appendLogLowercase() throws Exception {
     output.setQuery("appendlog");
+    assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
+        + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
+        + "10.000 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startOffset_positive() throws Exception {
+    output.setQuery("appendLog&startOffset=1");
+    assertThat(generate(), is("0.001 line2\n" + "0.010 line3\n"
+        + "0.100 line4\n" + "1.000 line5\n" + "10.000 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startOffset_positive_lowercase() throws Exception {
+    output.setQuery("appendLog&startoffset=1");
+    assertThat(generate(), is("0.001 line2\n" + "0.010 line3\n"
+        + "0.100 line4\n" + "1.000 line5\n" + "10.000 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startOffset_negative() throws Exception {
+    output.setQuery("appendLog&startOffset=-1");
+    assertThat(generate(), is("10.000 line6\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startOffset_zero() throws Exception {
+    output.setQuery("appendLog&startOffset=0");
     assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
         + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
         + "10.000 line6\n"));

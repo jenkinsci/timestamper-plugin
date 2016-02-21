@@ -71,6 +71,9 @@ import com.google.common.collect.ImmutableList;
  * <li>"elapsed": Display the elapsed time since the start of the build. Accepts
  * the {@link DurationFormatUtils} format.</li>
  * <li>"appendLog": Display the console log line after the time-stamp.</li>
+ * <li>"startOffset": Display the time-stamps starting from a certain line.
+ * Accepts a positive integer to start at that line, or a negative integer to
+ * start that many lines back from the end.</li>
  * </ul>
  * 
  * @author Steven G. Brown
@@ -81,6 +84,8 @@ public class TimestampsActionOutput {
       .getLogger(TimestampsActionOutput.class.getName());
 
   private static final int DEFAULT_PRECISION = 3;
+
+  private int startOffset;
 
   private final List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
 
@@ -97,6 +102,7 @@ public class TimestampsActionOutput {
    *          the query string
    */
   public void setQuery(String query) {
+    startOffset = 0;
     timestampFormats.clear();
     appendLogLine = false;
 
@@ -126,6 +132,9 @@ public class TimestampsActionOutput {
       } else if (parameter.name.equalsIgnoreCase("appendLog")) {
         appendLogLine = (parameter.value.isEmpty() || Boolean
             .parseBoolean(parameter.value));
+      } else if (parameter.name.equalsIgnoreCase("startOffset")) {
+        startOffset = (parameter.value.isEmpty() ? 0 : Integer
+            .parseInt(parameter.value));
       }
     }
 
@@ -201,6 +210,8 @@ public class TimestampsActionOutput {
   public Optional<String> nextLine(TimestampsReader timestampsReader,
       LogFileReader logFileReader) throws IOException {
 
+    applyStartOffset(timestampsReader, logFileReader);
+
     List<String> parts = new ArrayList<String>();
 
     Optional<Timestamp> timestamp = timestampsReader.read();
@@ -221,6 +232,21 @@ public class TimestampsActionOutput {
       return Optional.absent();
     }
     return Optional.of(Joiner.on(' ').join(parts));
+  }
+
+  private void applyStartOffset(TimestampsReader timestampsReader,
+      LogFileReader logFileReader) throws IOException {
+    int linesToSkip = startOffset;
+    if (startOffset < 0) {
+      int lineCount = logFileReader.lineCount();
+      linesToSkip = lineCount + startOffset;
+    }
+    startOffset = 0;
+
+    for (int line = 0; line < linesToSkip; line++) {
+      timestampsReader.read();
+      logFileReader.nextLine();
+    }
   }
 
   private static class QueryParameter {

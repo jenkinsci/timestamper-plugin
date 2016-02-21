@@ -33,6 +33,8 @@ import java.io.IOException;
 import com.google.common.base.Optional;
 import com.google.common.io.Closeables;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Reader for the build log file which skips over the console notes.
  * 
@@ -72,6 +74,29 @@ public class LogFileReader {
       return Optional.absent();
     }
     return Optional.of(ConsoleNote.removeNotes(line));
+  }
+
+  /**
+   * Get the number of lines that can be read from the log file.
+   * 
+   * @return the line count
+   * @throws IOException
+   */
+  @SuppressFBWarnings("RV_DONT_JUST_NULL_CHECK_READLINE")
+  public int lineCount() throws IOException {
+    if (!build.getLogFile().exists()) {
+      return 0;
+    }
+    int lineCount = 0;
+    BufferedReader reader = new BufferedReader(build.getLogReader());
+    try {
+      while (reader.readLine() != null) {
+        lineCount++;
+      }
+    } finally {
+      Closeables.closeQuietly(reader);
+    }
+    return lineCount;
   }
 
   /**
