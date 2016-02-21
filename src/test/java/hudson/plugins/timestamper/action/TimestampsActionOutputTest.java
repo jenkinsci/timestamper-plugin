@@ -287,6 +287,39 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
+  public void testWrite_timeWithAheadTimeZone() throws Exception {
+    output.setQuery("time=dd:HH:mm:ss&timeZone=GMT+10");
+    assertThat(generate(),
+        is("01:10:00:01\n" + "01:10:01:00\n" + "01:11:00:00\n"
+            + "02:10:00:00\n" + "03:10:00:00\n" + "04:10:00:00\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_timeWithAheadTimeZoneLowercase() throws Exception {
+    output.setQuery("time=dd:HH:mm:ss&timezone=GMT+10");
+    assertThat(generate(),
+        is("01:10:00:01\n" + "01:10:01:00\n" + "01:11:00:00\n"
+            + "02:10:00:00\n" + "03:10:00:00\n" + "04:10:00:00\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_timeWithBehindTimeZone() throws Exception {
+    output.setQuery("time=dd:HH:mm:ss&timeZone=GMT-10");
+    assertThat(generate(),
+        is("31:14:00:01\n" + "31:14:01:00\n" + "31:15:00:00\n"
+            + "01:14:00:00\n" + "02:14:00:00\n" + "03:14:00:00\n"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
   public void testWrite_timeAppendLog() throws Exception {
     output.setQuery("time=dd:HH:mm:ss&appendLog");
     assertThat(generate(), is("01:00:00:01 line1\n" + "01:00:01:00 line2\n"

@@ -36,6 +36,7 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,6 +66,8 @@ import com.google.common.collect.ImmutableList;
  * values such as "seconds" and "milliseconds".</li>
  * <li>"time": Display the system clock time. Accepts the
  * {@link SimpleDateFormat} format.</li>
+ * <li>"timeZone": Time zone used when displaying the system clock time. Accepts
+ * the {@link TimeZone} ID format.</li>
  * <li>"elapsed": Display the elapsed time since the start of the build. Accepts
  * the {@link DurationFormatUtils} format.</li>
  * <li>"appendLog": Display the console log line after the time-stamp.</li>
@@ -97,10 +100,22 @@ public class TimestampsActionOutput {
     timestampFormats.clear();
     appendLogLine = false;
 
-    for (QueryParameter parameter : readQueryString(query)) {
+    List<QueryParameter> queryParameters = readQueryString(query);
+
+    Optional<String> timeZoneId = Optional.absent();
+    for (QueryParameter parameter : queryParameters) {
+      if (parameter.name.equalsIgnoreCase("timeZone")) {
+        // '+' was replaced with ' ' by URL decoding, so put it back.
+        String value = parameter.value.replace("GMT ", "GMT+");
+        timeZoneId = (value.isEmpty() ? Optional.<String> absent() : Optional
+            .of(value));
+      }
+    }
+
+    for (QueryParameter parameter : queryParameters) {
       if (parameter.name.equalsIgnoreCase("time")) {
         timestampFormats.add(new SystemTimestampFormat(parameter.value,
-            Optional.<String> absent()));
+            timeZoneId));
       } else if (parameter.name.equalsIgnoreCase("elapsed")) {
         timestampFormats.add(new ElapsedTimestampFormat(parameter.value));
       } else if (parameter.name.equalsIgnoreCase("precision")) {
