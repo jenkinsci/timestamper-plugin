@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.format;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -33,29 +32,27 @@ import java.util.regex.Pattern;
  */
 class FormatStringUtils {
 
+  private static final Pattern START_TAG_PATTERN = Pattern.compile(
+      "\\<\\p{Alpha}+.*?\\>", Pattern.CASE_INSENSITIVE);
+
+  private static final Pattern END_TAG_PATTERN = Pattern.compile(
+      "\\</\\p{Alpha}+\\>", Pattern.CASE_INSENSITIVE);
+
   /**
-   * Strip HTML tags that may occur within a time-stamp format string.
+   * Strip HTML tags from the given string.
+   * <p>
+   * This may strip too much from the string when it contains angle bracket
+   * characters which are not part of an HTML tag. It seems unlikely that this
+   * will occur for time-stamp format strings.
    * 
    * @param input
    *          the input string
    * @return the string without HTML tags
    */
   static String stripHtmlTags(String input) {
-    for (String tag : Arrays.asList("b", "i", "code", "strong", "em", "span")) {
-      input = stripStartingTags(input, tag);
-      input = stripEndingTags(input, tag);
-    }
+    input = START_TAG_PATTERN.matcher(input).replaceAll("");
+    input = END_TAG_PATTERN.matcher(input).replaceAll("");
     return input;
-  }
-
-  private static String stripStartingTags(String input, String tag) {
-    String pattern = "\\<" + Pattern.quote(tag) + ".*?\\>(?i)";
-    return input.replaceAll(pattern, "");
-  }
-
-  private static String stripEndingTags(String input, String tag) {
-    String pattern = "\\<\\/" + Pattern.quote(tag) + "\\>(?i)";
-    return input.replaceAll(pattern, "");
   }
 
   private static final String QUOTED_WHITESPACE = "\\s*'\\s*'\\s*";
