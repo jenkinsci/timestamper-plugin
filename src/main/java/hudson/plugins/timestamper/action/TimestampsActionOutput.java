@@ -134,6 +134,29 @@ public class TimestampsActionOutput {
     }
   }
 
+  private List<QueryParameter> readQueryString(String query) {
+    ImmutableList.Builder<QueryParameter> parameters = new ImmutableList.Builder<QueryParameter>();
+    if (query != null) {
+      String[] pairs = query.split("&");
+      for (String pair : pairs) {
+        String[] nameAndValue = pair.split("=", 2);
+        String name = urlDecode(nameAndValue[0]);
+        String value = (nameAndValue.length == 1 ? ""
+            : urlDecode(nameAndValue[1]));
+        parameters.add(new QueryParameter(name, value));
+      }
+    }
+    return parameters.build();
+  }
+
+  private String urlDecode(String string) {
+    try {
+      return URLDecoder.decode(string, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private int readPrecision(String precision) {
     if (precision.isEmpty()) {
       return DEFAULT_PRECISION;
@@ -161,29 +184,6 @@ public class TimestampsActionOutput {
       logUnrecognisedPrecision(precision);
     }
     return -1;
-  }
-
-  private List<QueryParameter> readQueryString(String query) {
-    ImmutableList.Builder<QueryParameter> parameters = new ImmutableList.Builder<QueryParameter>();
-    if (query != null) {
-      String[] pairs = query.split("&");
-      for (String pair : pairs) {
-        String[] nameAndValue = pair.split("=", 2);
-        String name = urlDecode(nameAndValue[0]);
-        String value = (nameAndValue.length == 1 ? ""
-            : urlDecode(nameAndValue[1]));
-        parameters.add(new QueryParameter(name, value));
-      }
-    }
-    return parameters.build();
-  }
-
-  private String urlDecode(String string) {
-    try {
-      return URLDecoder.decode(string, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private void logUnrecognisedPrecision(String precision) {
