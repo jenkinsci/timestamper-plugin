@@ -34,6 +34,8 @@ import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -49,6 +51,9 @@ import com.google.common.base.Optional;
  * @author Steven G. Brown
  */
 public final class TimestampsAction implements Action {
+
+  private static final Logger LOGGER = Logger.getLogger(TimestampsAction.class
+      .getName());
 
   /**
    * The build to inspect.
@@ -117,8 +122,8 @@ public final class TimestampsAction implements Action {
 
     LogFileReader logFileReader = new LogFileReader(build);
 
+    PrintWriter writer = response.getWriter();
     try {
-      PrintWriter writer = response.getWriter();
       output.setQuery(request.getQueryString());
       while (true) {
         Optional<String> line = output
@@ -128,10 +133,16 @@ public final class TimestampsAction implements Action {
         }
         writer.println(line.get());
       }
-      writer.flush();
+    } catch (Exception e) {
+      String urlWithQueryString = request.getRequestURLWithQueryString()
+          .toString();
+      writer.println(urlWithQueryString);
+      writer.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+      LOGGER.log(Level.WARNING, urlWithQueryString, e);
     } finally {
       timestampsReader.close();
       logFileReader.close();
+      writer.flush();
     }
   }
 }

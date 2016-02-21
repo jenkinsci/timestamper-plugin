@@ -37,8 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -79,9 +77,6 @@ import com.google.common.collect.ImmutableList;
  * @author Steven G. Brown
  */
 public class TimestampsActionOutput {
-
-  private static final Logger LOGGER = Logger
-      .getLogger(TimestampsActionOutput.class.getName());
 
   private static final int DEFAULT_PRECISION = 3;
 
@@ -126,9 +121,7 @@ public class TimestampsActionOutput {
         timestampFormats.add(new ElapsedTimestampFormat(parameter.value));
       } else if (parameter.name.equalsIgnoreCase("precision")) {
         int precision = readPrecision(parameter.value);
-        if (precision != -1) {
-          timestampFormats.add(new PrecisionTimestampFormat(precision));
-        }
+        timestampFormats.add(new PrecisionTimestampFormat(precision));
       } else if (parameter.name.equalsIgnoreCase("appendLog")) {
         appendLogLine = (parameter.value.isEmpty() || Boolean
             .parseBoolean(parameter.value));
@@ -182,21 +175,12 @@ public class TimestampsActionOutput {
     if ("nanoseconds".equalsIgnoreCase(precision)) {
       return 9;
     }
-    try {
-      int intPrecision = Integer.parseInt(precision);
-      if (intPrecision < 0) {
-        logUnrecognisedPrecision(precision);
-      } else {
-        return intPrecision;
-      }
-    } catch (NumberFormatException ex) {
-      logUnrecognisedPrecision(precision);
+    int intPrecision = Integer.parseInt(precision);
+    if (intPrecision < 0) {
+      throw new IllegalArgumentException(
+          "Expected non-negative precision, but was: " + precision);
     }
-    return -1;
-  }
-
-  private void logUnrecognisedPrecision(String precision) {
-    LOGGER.log(Level.WARNING, "Unrecognised precision: " + precision);
+    return intPrecision;
   }
 
   /**
