@@ -61,6 +61,18 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
    * {@inheritDoc}
    */
   @Override
+  public String getPlainTextUrl() {
+    String elapsedParamValue = elapsedTimeFormat;
+    elapsedParamValue = FormatStringUtils.stripHtmlTags(elapsedParamValue);
+    elapsedParamValue = FormatStringUtils.trim(elapsedParamValue);
+
+    return "timestamps?elapsed=" + elapsedParamValue + "&appendLog";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public int hashCode() {
     return elapsedTimeFormat.hashCode();
   }

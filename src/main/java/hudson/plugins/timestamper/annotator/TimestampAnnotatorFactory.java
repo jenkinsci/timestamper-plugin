@@ -26,6 +26,8 @@ package hudson.plugins.timestamper.annotator;
 import hudson.Extension;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
+import hudson.plugins.timestamper.format.TimestampFormat;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
 
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
@@ -53,6 +55,17 @@ public final class TimestampAnnotatorFactory extends
     long offset = getOffset(request);
     ConsoleLogParser logParser = new ConsoleLogParserImpl(offset);
     return new TimestampAnnotator(logParser);
+  }
+
+  /**
+   * Get the URL for displaying the plain text console and time-stamps in the
+   * current format.
+   * 
+   * @return the plain text URL
+   */
+  public String getPlainTextUrl() {
+    TimestampFormat format = TimestampFormatProvider.get();
+    return format.getPlainTextUrl();
   }
 
   /**

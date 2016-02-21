@@ -46,4 +46,12 @@ public final class EmptyTimestampFormat extends TimestampFormat {
   public String apply(@Nonnull Timestamp timestamp) {
     return "";
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getPlainTextUrl() {
+    return "consoleText";
+  }
 }

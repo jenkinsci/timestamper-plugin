@@ -50,6 +50,8 @@ public final class SystemTimestampFormat extends TimestampFormat {
 
   private final FastDateFormat format;
 
+  private final Optional<String> timeZoneId;
+
   public SystemTimestampFormat(String systemTimeFormat,
       Optional<String> timeZoneId) {
     TimeZone timeZone = null;
@@ -62,6 +64,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
       }
     }
     this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone);
+    this.timeZoneId = timeZoneId;
   }
 
   /**
@@ -70,6 +73,20 @@ public final class SystemTimestampFormat extends TimestampFormat {
   @Override
   public String apply(@Nonnull Timestamp timestamp) {
     return format.format(new Date(timestamp.millisSinceEpoch));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getPlainTextUrl() {
+    String timeParamValue = format.getPattern();
+    timeParamValue = FormatStringUtils.stripHtmlTags(timeParamValue);
+    timeParamValue = FormatStringUtils.trim(timeParamValue);
+
+    return "timestamps?time=" + timeParamValue
+        + (timeZoneId.isPresent() ? "&timeZone=" + timeZoneId.get() : "")
+        + "&appendLog";
   }
 
   /**

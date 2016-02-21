@@ -43,4 +43,12 @@ public class EmptyTimestampFormatTest {
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(EmptyTimestampFormat.INSTANCE.apply(timestamp), is(""));
   }
+
+  /**
+   */
+  @Test
+  public void testGetPlainTextUrl() {
+    assertThat(EmptyTimestampFormat.INSTANCE.getPlainTextUrl(),
+        is("consoleText"));
+  }
 }

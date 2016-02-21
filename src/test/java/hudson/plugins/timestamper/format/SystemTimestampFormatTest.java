@@ -133,6 +133,36 @@ public class SystemTimestampFormatTest {
   /**
    */
   @Test
+  public void testGetPlainTextUrl() {
+    SystemTimestampFormat format = new SystemTimestampFormat(
+        "'<b>'HH:mm:ss'</b> '", Optional.<String> absent());
+    assertThat(format.getPlainTextUrl(),
+        is("timestamps?time=HH:mm:ss&appendLog"));
+  }
+
+  /**
+   */
+  @Test
+  public void testGetPlainTextUrl_excessWhitespace() {
+    SystemTimestampFormat format = new SystemTimestampFormat(
+        " ' <b> ' HH:mm:ss ' </b> ' ", Optional.<String> absent());
+    assertThat(format.getPlainTextUrl(),
+        is("timestamps?time=HH:mm:ss&appendLog"));
+  }
+
+  /**
+   */
+  @Test
+  public void testGetPlainTextUrl_withTimeZone() {
+    SystemTimestampFormat format = new SystemTimestampFormat(
+        "'<b>'HH:mm:ss'</b> '", Optional.of("GMT+1"));
+    assertThat(format.getPlainTextUrl(),
+        is("timestamps?time=HH:mm:ss&timeZone=GMT+1&appendLog"));
+  }
+
+  /**
+   */
+  @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(SystemTimestampFormat.class)
         .suppress(Warning.NULL_FIELDS).verify();

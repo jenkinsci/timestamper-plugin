@@ -27,7 +27,10 @@ THE SOFTWARE.
   <l:ajax>
     <table class="pane">
       <tr>
-        <td class="pane-header">${%Timestamps}</td>
+        <td class="pane-header">
+          <span style="text-align:left;">${%Timestamps}</span>
+          <span style="float:right;"><a href="${it.plainTextUrl}">${%View as plain text}</a></span>
+        </td>
       </tr>
       <tr>
         <td>

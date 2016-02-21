@@ -51,6 +51,26 @@ public class ElapsedTimestampFormatTest {
   /**
    */
   @Test
+  public void testGetPlainTextUrl() {
+    ElapsedTimestampFormat format = new ElapsedTimestampFormat(
+        "'<b>'HH:mm:ss.S'</b> '");
+    assertThat(format.getPlainTextUrl(),
+        is("timestamps?elapsed=HH:mm:ss.S&appendLog"));
+  }
+
+  /**
+   */
+  @Test
+  public void testGetPlainTextUrl_excessWhitespace() {
+    ElapsedTimestampFormat format = new ElapsedTimestampFormat(
+        " ' <b> ' HH:mm:ss.S ' </b> ' ");
+    assertThat(format.getPlainTextUrl(),
+        is("timestamps?elapsed=HH:mm:ss.S&appendLog"));
+  }
+
+  /**
+   */
+  @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(ElapsedTimestampFormat.class)
         .suppress(Warning.NULL_FIELDS).verify();

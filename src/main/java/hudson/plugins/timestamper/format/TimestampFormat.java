@@ -60,4 +60,12 @@ public abstract class TimestampFormat implements Function<Timestamp, String> {
     // console notes (e.g. AntTargetNote).
     text.addMarkup(0, 0, "", markup);
   }
+
+  /**
+   * Get the URL for displaying the plain text console and time-stamps in this
+   * format.
+   * 
+   * @return the plain text URL
+   */
+  public abstract String getPlainTextUrl();
 }

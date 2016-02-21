@@ -80,6 +80,11 @@ public class TimestampFormatTest {
       public String apply(Timestamp timestamp) {
         return timestampString;
       }
+
+      @Override
+      public String getPlainTextUrl() {
+        return "";
+      }
     };
     format.markup(markupText, new Timestamp(123, 42000));
     return markupText;
