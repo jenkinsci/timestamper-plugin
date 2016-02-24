@@ -78,8 +78,6 @@ import com.google.common.collect.ImmutableList;
  */
 public class TimestampsActionOutput {
 
-  private static final int DEFAULT_PRECISION = 3;
-
   private int startLine;
 
   private Integer endLine;
@@ -114,9 +112,7 @@ public class TimestampsActionOutput {
     for (QueryParameter parameter : queryParameters) {
       if (parameter.name.equalsIgnoreCase("timeZone")) {
         // '+' was replaced with ' ' by URL decoding, so put it back.
-        String value = parameter.value.replace("GMT ", "GMT+");
-        timeZoneId = (value.isEmpty() ? Optional.<String> absent() : Optional
-            .of(value));
+        timeZoneId = Optional.of(parameter.value.replace("GMT ", "GMT+"));
       }
     }
 
@@ -133,16 +129,15 @@ public class TimestampsActionOutput {
         appendLogLine = (parameter.value.isEmpty() || Boolean
             .parseBoolean(parameter.value));
       } else if (parameter.name.equalsIgnoreCase("startLine")) {
-        startLine = (parameter.value.isEmpty() ? 0 : Integer
-            .parseInt(parameter.value));
+        startLine = Integer.parseInt(parameter.value);
       } else if (parameter.name.equalsIgnoreCase("endLine")) {
-        endLine = (parameter.value.isEmpty() ? null : Integer
-            .valueOf(parameter.value));
+        endLine = Integer.valueOf(parameter.value);
       }
     }
 
     if (timestampFormats.isEmpty()) {
-      timestampFormats.add(new PrecisionTimestampFormat(DEFAULT_PRECISION));
+      // Default
+      timestampFormats.add(new PrecisionTimestampFormat(3));
     }
   }
 
@@ -170,9 +165,6 @@ public class TimestampsActionOutput {
   }
 
   private int readPrecision(String precision) {
-    if (precision.isEmpty()) {
-      return DEFAULT_PRECISION;
-    }
     if ("seconds".equalsIgnoreCase(precision)) {
       return 0;
     }

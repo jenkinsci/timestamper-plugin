@@ -94,8 +94,6 @@ public class TimestampsActionOutputTest {
             "precision=nanoseconds",
             asList("0.000000000", "0.001000000", "0.010000000", "0.100000000",
                 "1.000000000", "10.000000000") },
-        { "precision=",
-            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
         {
             "time=dd:HH:mm:ss",
             asList("01:00:00:01", "01:00:01:00", "01:01:00:00", "02:00:00:00",
@@ -194,6 +192,24 @@ public class TimestampsActionOutputTest {
   public void testWrite_appendLog() throws Exception {
     output.setQuery(appendToQuery(query, "appendLog"));
     assertThat(readLines(), is(appendLog(expectedResult)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_appendLog_true() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog=true"));
+    assertThat(readLines(), is(appendLog(expectedResult)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_appendLog_false() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog=false"));
+    assertThat(readLines(), is(expectedResult));
   }
 
   /**
