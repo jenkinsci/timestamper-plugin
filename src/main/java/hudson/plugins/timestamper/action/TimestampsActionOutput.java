@@ -82,9 +82,15 @@ public class TimestampsActionOutput {
 
   private int startLine;
 
+  private Integer endLine;
+
   private final List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
 
   private boolean appendLogLine;
+
+  private int linesRead;
+
+  private Integer cachedLineCount;
 
   public TimestampsActionOutput() {
     setQuery(null);
@@ -98,6 +104,7 @@ public class TimestampsActionOutput {
    */
   public void setQuery(String query) {
     startLine = 0;
+    endLine = null;
     timestampFormats.clear();
     appendLogLine = false;
 
@@ -128,6 +135,9 @@ public class TimestampsActionOutput {
       } else if (parameter.name.equalsIgnoreCase("startLine")) {
         startLine = (parameter.value.isEmpty() ? 0 : Integer
             .parseInt(parameter.value));
+      } else if (parameter.name.equalsIgnoreCase("endLine")) {
+        endLine = (parameter.value.isEmpty() ? null : Integer
+            .valueOf(parameter.value));
       }
     }
 
@@ -194,11 +204,16 @@ public class TimestampsActionOutput {
   public Optional<String> nextLine(TimestampsReader timestampsReader,
       LogFileReader logFileReader) throws IOException {
 
-    readToStartLine(timestampsReader, logFileReader);
+    linesRead += readToStartLine(timestampsReader, logFileReader);
+    resolveEndLine(logFileReader);
+    if (endLine != null && linesRead >= endLine) {
+      return Optional.absent();
+    }
 
     List<String> parts = new ArrayList<String>();
 
     Optional<Timestamp> timestamp = timestampsReader.read();
+    linesRead++;
     if (timestamp.isPresent()) {
       for (Function<Timestamp, String> format : timestampFormats) {
         parts.add(format.apply(timestamp.get()));
@@ -218,11 +233,11 @@ public class TimestampsActionOutput {
     return Optional.of(Joiner.on(' ').join(parts));
   }
 
-  private void readToStartLine(TimestampsReader timestampsReader,
+  private int readToStartLine(TimestampsReader timestampsReader,
       LogFileReader logFileReader) throws IOException {
     int linesToSkip = Math.max(startLine - 1, 0);
     if (startLine < 0) {
-      int lineCount = logFileReader.lineCount();
+      int lineCount = getLineCount(logFileReader);
       linesToSkip = lineCount + startLine;
     }
     startLine = 0;
@@ -231,6 +246,21 @@ public class TimestampsActionOutput {
       timestampsReader.read();
       logFileReader.nextLine();
     }
+    return linesToSkip;
+  }
+
+  private void resolveEndLine(LogFileReader logFileReader) throws IOException {
+    if (endLine != null && endLine < 0) {
+      int lineCount = getLineCount(logFileReader);
+      endLine = lineCount + endLine + 1;
+    }
+  }
+
+  private int getLineCount(LogFileReader logFileReader) throws IOException {
+    if (cachedLineCount == null) {
+      cachedLineCount = logFileReader.lineCount();
+    }
+    return cachedLineCount;
   }
 
   private static class QueryParameter {

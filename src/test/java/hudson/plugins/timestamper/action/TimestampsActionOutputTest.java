@@ -27,6 +27,8 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.LogFileReader;
@@ -226,15 +228,6 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_startLine_two_lowercase() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startline=2"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 6)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
   public void testWrite_startLine_one() throws Exception {
     output.setQuery(appendToQuery(query, "appendLog&startLine=1"));
     assertThat(readLines(), is(appendLog(expectedResult)));
@@ -261,6 +254,99 @@ public class TimestampsActionOutputTest {
   /**
    * @throws Exception
    */
+  @Test
+  public void testWrite_endLine_two() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&endLine=2"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(0, 2)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_endLine_one() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&endLine=1"));
+    assertThat(readLines(), is(asList(appendLog(expectedResult).get(0))));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_endLine_zero() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&endLine=0"));
+    assertThat(readLines(), is(Collections.<String> emptyList()));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_endLine_negativeOne() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&endLine=-1"));
+    assertThat(readLines(), is(appendLog(expectedResult)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_endLine_negativeTwo() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&endLine=-2"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(0, 5)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startLineAndEndLine() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=2&endLine=-2"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 5)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startLineAndEndLine_lowercase() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startline=2&endline=-2"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 5)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startLineAndEndLine_bothPositive() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=2&endLine=5"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 5)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startLineAndEndLine_bothNegative() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=-4&endLine=-2"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(2, 5)));
+
+    // for efficiency, avoid counting the number of lines more than once
+    verify(logFileReader, times(1)).lineCount();
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startLineAndEndLine_overlap() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=4&endLine=-4"));
+    assertThat(readLines(), is(Collections.<String> emptyList()));
+  }
+
+  /**
+   * @throws Exception
+   */
   @Test(expected = IllegalArgumentException.class)
   public void testWrite_negativePrecision() throws Exception {
     output.setQuery(appendToQuery(query, "precision=-1"));
@@ -280,6 +366,14 @@ public class TimestampsActionOutputTest {
   @Test(expected = NumberFormatException.class)
   public void testWrite_invalidStartLine() throws Exception {
     output.setQuery(appendToQuery(query, "startLine=invalid"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test(expected = NumberFormatException.class)
+  public void testWrite_invalidEndLine() throws Exception {
+    output.setQuery(appendToQuery(query, "endLine=invalid"));
   }
 
   /**
