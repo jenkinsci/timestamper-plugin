@@ -217,8 +217,8 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_startOffset_positive() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startOffset=1"));
+  public void testWrite_startLine_two() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=2"));
     assertThat(readLines(), is(appendLog(expectedResult).subList(1, 6)));
   }
 
@@ -226,8 +226,8 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_startOffset_positive_lowercase() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startoffset=1"));
+  public void testWrite_startLine_two_lowercase() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startline=2"));
     assertThat(readLines(), is(appendLog(expectedResult).subList(1, 6)));
   }
 
@@ -235,18 +235,27 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_startOffset_negative() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startOffset=-1"));
-    assertThat(readLines(), is(asList(appendLog(expectedResult).get(5))));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startOffset_zero() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startOffset=0"));
+  public void testWrite_startLine_one() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=1"));
     assertThat(readLines(), is(appendLog(expectedResult)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startLine_zero() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=0"));
+    assertThat(readLines(), is(appendLog(expectedResult)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_startLine_negative() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog&startLine=-1"));
+    assertThat(readLines(), is(asList(appendLog(expectedResult).get(5))));
   }
 
   /**
@@ -269,8 +278,8 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test(expected = NumberFormatException.class)
-  public void testWrite_invalidStartOffset() throws Exception {
-    output.setQuery(appendToQuery(query, "startOffset=invalid"));
+  public void testWrite_invalidStartLine() throws Exception {
+    output.setQuery(appendToQuery(query, "startLine=invalid"));
   }
 
   /**

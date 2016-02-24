@@ -69,7 +69,7 @@ import com.google.common.collect.ImmutableList;
  * <li>"elapsed": Display the elapsed time since the start of the build. Accepts
  * the {@link DurationFormatUtils} format.</li>
  * <li>"appendLog": Display the console log line after the time-stamp.</li>
- * <li>"startOffset": Display the time-stamps starting from a certain line.
+ * <li>"startLine": Display the time-stamps starting from a certain line.
  * Accepts a positive integer to start at that line, or a negative integer to
  * start that many lines back from the end.</li>
  * </ul>
@@ -80,7 +80,7 @@ public class TimestampsActionOutput {
 
   private static final int DEFAULT_PRECISION = 3;
 
-  private int startOffset;
+  private int startLine;
 
   private final List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
 
@@ -97,7 +97,7 @@ public class TimestampsActionOutput {
    *          the query string
    */
   public void setQuery(String query) {
-    startOffset = 0;
+    startLine = 0;
     timestampFormats.clear();
     appendLogLine = false;
 
@@ -125,8 +125,8 @@ public class TimestampsActionOutput {
       } else if (parameter.name.equalsIgnoreCase("appendLog")) {
         appendLogLine = (parameter.value.isEmpty() || Boolean
             .parseBoolean(parameter.value));
-      } else if (parameter.name.equalsIgnoreCase("startOffset")) {
-        startOffset = (parameter.value.isEmpty() ? 0 : Integer
+      } else if (parameter.name.equalsIgnoreCase("startLine")) {
+        startLine = (parameter.value.isEmpty() ? 0 : Integer
             .parseInt(parameter.value));
       }
     }
@@ -194,7 +194,7 @@ public class TimestampsActionOutput {
   public Optional<String> nextLine(TimestampsReader timestampsReader,
       LogFileReader logFileReader) throws IOException {
 
-    applyStartOffset(timestampsReader, logFileReader);
+    readToStartLine(timestampsReader, logFileReader);
 
     List<String> parts = new ArrayList<String>();
 
@@ -218,14 +218,14 @@ public class TimestampsActionOutput {
     return Optional.of(Joiner.on(' ').join(parts));
   }
 
-  private void applyStartOffset(TimestampsReader timestampsReader,
+  private void readToStartLine(TimestampsReader timestampsReader,
       LogFileReader logFileReader) throws IOException {
-    int linesToSkip = startOffset;
-    if (startOffset < 0) {
+    int linesToSkip = Math.max(startLine - 1, 0);
+    if (startLine < 0) {
       int lineCount = logFileReader.lineCount();
-      linesToSkip = lineCount + startOffset;
+      linesToSkip = lineCount + startLine;
     }
-    startOffset = 0;
+    startLine = 0;
 
     for (int line = 0; line < linesToSkip; line++) {
       timestampsReader.read();
