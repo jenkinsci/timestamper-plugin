@@ -23,49 +23,118 @@
  */
 package hudson.plugins.timestamper.action;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.mockito.stubbing.OngoingStubbing;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 /**
  * Unit test for the {@link TimestampsActionOutput} class.
  * 
  * @author Steven G. Brown
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(Parameterized.class)
 public class TimestampsActionOutputTest {
 
-  @Mock
+  /**
+   * @return the test data
+   */
+  @Parameters(name = "{0}")
+  public static Collection<Object[]> data() {
+    return asList(new Object[][] {
+        { "", DEFAULT_OUTPUT },
+        { null, DEFAULT_OUTPUT },
+        { "precision=0", asList("0", "0", "0", "0", "1", "10") },
+        { "precision=0&precision=1",
+            asList("0 0.0", "0 0.0", "0 0.0", "0 0.1", "1 1.0", "10 10.0") },
+        { "precision=seconds", asList("0", "0", "0", "0", "1", "10") },
+        { "precision=1", asList("0.0", "0.0", "0.0", "0.1", "1.0", "10.0") },
+        { "precision=2",
+            asList("0.00", "0.00", "0.01", "0.10", "1.00", "10.00") },
+        { "precision=3",
+            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
+        { "precision=milliseconds",
+            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
+        {
+            "precision=6",
+            asList("0.000000", "0.001000", "0.010000", "0.100000", "1.000000",
+                "10.000000") },
+        {
+            "precision=microseconds",
+            asList("0.000000", "0.001000", "0.010000", "0.100000", "1.000000",
+                "10.000000") },
+        {
+            "precision=nanoseconds",
+            asList("0.000000000", "0.001000000", "0.010000000", "0.100000000",
+                "1.000000000", "10.000000000") },
+        { "precision=",
+            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
+        {
+            "time=dd:HH:mm:ss",
+            asList("01:00:00:01", "01:00:01:00", "01:01:00:00", "02:00:00:00",
+                "03:00:00:00", "04:00:00:00") },
+        {
+            "time=dd:HH:mm:ss&timeZone=GMT+10",
+            asList("01:10:00:01", "01:10:01:00", "01:11:00:00", "02:10:00:00",
+                "03:10:00:00", "04:10:00:00") },
+        {
+            "time=dd:HH:mm:ss&timeZone=GMT-10",
+            asList("31:14:00:01", "31:14:01:00", "31:15:00:00", "01:14:00:00",
+                "02:14:00:00", "03:14:00:00") },
+        { "elapsed=s.SSS",
+            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
+        {
+            "time=dd:HH:mm:ss&elapsed=s.SSS",
+            asList("01:00:00:01 0.000", "01:00:01:00 0.001",
+                "01:01:00:00 0.010", "02:00:00:00 0.100", "03:00:00:00 1.000",
+                "04:00:00:00 10.000") } });
+  }
+
+  private static final List<String> DEFAULT_OUTPUT = asList("0.000", "0.001",
+      "0.010", "0.100", "1.000", "10.000");
+
+  /**
+   */
+  @Parameter(0)
+  public String query;
+
+  /**
+   */
+  @Parameter(1)
+  public List<String> expectedResult;
+
   private TimestampsReader timestampsReader;
 
-  @Mock
   private LogFileReader logFileReader;
 
   private TimestampsActionOutput output;
 
   private TimeZone systemDefaultTimeZone;
-
-  private int line;
 
   /**
    * @throws Exception
@@ -75,36 +144,29 @@ public class TimestampsActionOutputTest {
     systemDefaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
-    final List<Timestamp> timestamps = new ArrayList<Timestamp>();
-    timestamps.add(new Timestamp(0, TimeUnit.SECONDS.toMillis(1)));
-    timestamps.add(new Timestamp(1, TimeUnit.MINUTES.toMillis(1)));
-    timestamps.add(new Timestamp(10, TimeUnit.HOURS.toMillis(1)));
-    timestamps.add(new Timestamp(100, TimeUnit.DAYS.toMillis(1)));
-    timestamps.add(new Timestamp(1000, TimeUnit.DAYS.toMillis(2)));
-    timestamps.add(new Timestamp(10000, TimeUnit.DAYS.toMillis(3)));
+    timestampsReader = mock(TimestampsReader.class);
+    OngoingStubbing<Optional<Timestamp>> s = when(timestampsReader.read());
+    s = s.thenReturn(ts(0, TimeUnit.SECONDS.toMillis(1)));
+    s = s.thenReturn(ts(1, TimeUnit.MINUTES.toMillis(1)));
+    s = s.thenReturn(ts(10, TimeUnit.HOURS.toMillis(1)));
+    s = s.thenReturn(ts(100, TimeUnit.DAYS.toMillis(1)));
+    s = s.thenReturn(ts(1000, TimeUnit.DAYS.toMillis(2)));
+    s = s.thenReturn(ts(10000, TimeUnit.DAYS.toMillis(3)));
+    s.thenReturn(Optional.<Timestamp> absent());
 
-    OngoingStubbing<Optional<Timestamp>> timestampsReaderStubbing = when(timestampsReader
-        .read());
-    for (Timestamp timestamp : timestamps) {
-      timestampsReaderStubbing = timestampsReaderStubbing.thenReturn(Optional
-          .of(timestamp));
-    }
-    timestampsReaderStubbing.thenReturn(Optional.<Timestamp> absent());
-
-    when(logFileReader.nextLine()).thenAnswer(new Answer<Optional<String>>() {
-
-      @Override
-      public Optional<String> answer(InvocationOnMock invocation) {
-        line++;
-        if (line > timestamps.size()) {
-          return Optional.absent();
-        }
-        return Optional.of("line" + line);
-      }
-    });
-    when(logFileReader.lineCount()).thenReturn(timestamps.size());
+    logFileReader = mock(LogFileReader.class);
+    when(logFileReader.nextLine()).thenReturn(Optional.of("line1"))
+        .thenReturn(Optional.of("line2")).thenReturn(Optional.of("line3"))
+        .thenReturn(Optional.of("line4")).thenReturn(Optional.of("line5"))
+        .thenReturn(Optional.of("line6"))
+        .thenReturn(Optional.<String> absent());
+    when(logFileReader.lineCount()).thenReturn(6);
 
     output = new TimestampsActionOutput();
+  }
+
+  private Optional<Timestamp> ts(long elapsedMillis, long millisSinceEpoch) {
+    return Optional.of(new Timestamp(elapsedMillis, millisSinceEpoch));
   }
 
   /**
@@ -118,276 +180,37 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_emptyQueryString() throws Exception {
-    output.setQuery("");
-    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
+  public void testWrite() throws Exception {
+    output.setQuery(query);
+    assertThat(readLines(), is(expectedResult));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testWrite_nullQueryString() throws Exception {
-    output.setQuery(null);
-    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
+  public void testWrite_appendLog() throws Exception {
+    output.setQuery(appendToQuery(query, "appendLog"));
+    assertThat(readLines(), is(appendLog(expectedResult)));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testWrite_zeroPrecision() throws Exception {
-    output.setQuery("precision=0");
-    assertThat(generate(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
+  public void testWrite_appendLog_prepend() throws Exception {
+    output.setQuery(prependToQuery(query, "appendLog"));
+    assertThat(readLines(), is(appendLog(expectedResult)));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testWrite_zeroPrecisionAppendLog() throws Exception {
-    output.setQuery("precision=0&appendLog");
-    assertThat(generate(), is("0 line1\n" + "0 line2\n" + "0 line3\n"
-        + "0 line4\n" + "1 line5\n" + "10 line6\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_zeroPrecisionAndOnePrecision() throws Exception {
-    output.setQuery("precision=0&precision=1");
-    assertThat(generate(), is("0 0.0\n" + "0 0.0\n" + "0 0.0\n" + "0 0.1\n"
-        + "1 1.0\n" + "10 10.0\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_secondsPrecision() throws Exception {
-    output.setQuery("precision=seconds");
-    assertThat(generate(), is("0\n" + "0\n" + "0\n" + "0\n" + "1\n" + "10\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_onePrecision() throws Exception {
-    output.setQuery("precision=1");
-    assertThat(generate(), is("0.0\n" + "0.0\n" + "0.0\n" + "0.1\n" + "1.0\n"
-        + "10.0\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_twoPrecision() throws Exception {
-    output.setQuery("precision=2");
-    assertThat(generate(), is("0.00\n" + "0.00\n" + "0.01\n" + "0.10\n"
-        + "1.00\n" + "10.00\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_threePrecision() throws Exception {
-    output.setQuery("precision=3");
-    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_millisecondsPrecision() throws Exception {
-    output.setQuery("precision=milliseconds");
-    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_sixPrecision() throws Exception {
-    output.setQuery("precision=6");
-    assertThat(generate(), is("0.000000\n" + "0.001000\n" + "0.010000\n"
-        + "0.100000\n" + "1.000000\n" + "10.000000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_microsecondsPrecision() throws Exception {
-    output.setQuery("precision=microseconds");
-    assertThat(generate(), is("0.000000\n" + "0.001000\n" + "0.010000\n"
-        + "0.100000\n" + "1.000000\n" + "10.000000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_nanosecondsPrecision() throws Exception {
-    output.setQuery("precision=nanoseconds");
-    assertThat(generate(), is("0.000000000\n" + "0.001000000\n"
-        + "0.010000000\n" + "0.100000000\n" + "1.000000000\n"
-        + "10.000000000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_emptyPrecision() throws Exception {
-    output.setQuery("precision=");
-    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test(expected = IllegalArgumentException.class)
-  public void testWrite_negativePrecision() throws Exception {
-    output.setQuery("precision=-1");
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test(expected = NumberFormatException.class)
-  public void testWrite_invalidPrecision() throws Exception {
-    output.setQuery("precision=invalid");
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_time() throws Exception {
-    output.setQuery("time=dd:HH:mm:ss");
-    assertThat(generate(),
-        is("01:00:00:01\n" + "01:00:01:00\n" + "01:01:00:00\n"
-            + "02:00:00:00\n" + "03:00:00:00\n" + "04:00:00:00\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_timeWithAheadTimeZone() throws Exception {
-    output.setQuery("time=dd:HH:mm:ss&timeZone=GMT+10");
-    assertThat(generate(),
-        is("01:10:00:01\n" + "01:10:01:00\n" + "01:11:00:00\n"
-            + "02:10:00:00\n" + "03:10:00:00\n" + "04:10:00:00\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_timeWithAheadTimeZoneLowercase() throws Exception {
-    output.setQuery("time=dd:HH:mm:ss&timezone=GMT+10");
-    assertThat(generate(),
-        is("01:10:00:01\n" + "01:10:01:00\n" + "01:11:00:00\n"
-            + "02:10:00:00\n" + "03:10:00:00\n" + "04:10:00:00\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_timeWithBehindTimeZone() throws Exception {
-    output.setQuery("time=dd:HH:mm:ss&timeZone=GMT-10");
-    assertThat(generate(),
-        is("31:14:00:01\n" + "31:14:01:00\n" + "31:15:00:00\n"
-            + "01:14:00:00\n" + "02:14:00:00\n" + "03:14:00:00\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_timeAppendLog() throws Exception {
-    output.setQuery("time=dd:HH:mm:ss&appendLog");
-    assertThat(generate(), is("01:00:00:01 line1\n" + "01:00:01:00 line2\n"
-        + "01:01:00:00 line3\n" + "02:00:00:00 line4\n" + "03:00:00:00 line5\n"
-        + "04:00:00:00 line6\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_elapsed() throws Exception {
-    output.setQuery("elapsed=s.SSS");
-    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_elapsedAppendLog() throws Exception {
-    output.setQuery("elapsed=s.SSS&appendLog");
-    assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
-        + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
-        + "10.000 line6\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_timeAndElapsed() throws Exception {
-    output.setQuery("time=dd:HH:mm:ss&elapsed=s.SSS");
-    assertThat(generate(), is("01:00:00:01 0.000\n" + "01:00:01:00 0.001\n"
-        + "01:01:00:00 0.010\n" + "02:00:00:00 0.100\n" + "03:00:00:00 1.000\n"
-        + "04:00:00:00 10.000\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_timeAndElapsedAppendLog() throws Exception {
-    output.setQuery("time=dd:HH:mm:ss&elapsed=s.SSS&appendLog");
-    assertThat(generate(), is("01:00:00:01 0.000 line1\n"
-        + "01:00:01:00 0.001 line2\n" + "01:01:00:00 0.010 line3\n"
-        + "02:00:00:00 0.100 line4\n" + "03:00:00:00 1.000 line5\n"
-        + "04:00:00:00 10.000 line6\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_appendLogOnly() throws Exception {
-    output.setQuery("appendLog");
-    assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
-        + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
-        + "10.000 line6\n"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_appendLogLowercase() throws Exception {
-    output.setQuery("appendlog");
-    assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
-        + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
-        + "10.000 line6\n"));
+  public void testWrite_changeCaseOfQueryParameterNames() throws Exception {
+    output.setQuery(changeCaseOfQueryParameterNames(appendToQuery(query,
+        "appendLog")));
+    assertThat(readLines(), is(appendLog(expectedResult)));
   }
 
   /**
@@ -395,9 +218,8 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_startOffset_positive() throws Exception {
-    output.setQuery("appendLog&startOffset=1");
-    assertThat(generate(), is("0.001 line2\n" + "0.010 line3\n"
-        + "0.100 line4\n" + "1.000 line5\n" + "10.000 line6\n"));
+    output.setQuery(appendToQuery(query, "appendLog&startOffset=1"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 6)));
   }
 
   /**
@@ -405,9 +227,8 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_startOffset_positive_lowercase() throws Exception {
-    output.setQuery("appendLog&startoffset=1");
-    assertThat(generate(), is("0.001 line2\n" + "0.010 line3\n"
-        + "0.100 line4\n" + "1.000 line5\n" + "10.000 line6\n"));
+    output.setQuery(appendToQuery(query, "appendLog&startoffset=1"));
+    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 6)));
   }
 
   /**
@@ -415,8 +236,8 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_startOffset_negative() throws Exception {
-    output.setQuery("appendLog&startOffset=-1");
-    assertThat(generate(), is("10.000 line6\n"));
+    output.setQuery(appendToQuery(query, "appendLog&startOffset=-1"));
+    assertThat(readLines(), is(asList(appendLog(expectedResult).get(5))));
   }
 
   /**
@@ -424,18 +245,32 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_startOffset_zero() throws Exception {
-    output.setQuery("appendLog&startOffset=0");
-    assertThat(generate(), is("0.000 line1\n" + "0.001 line2\n"
-        + "0.010 line3\n" + "0.100 line4\n" + "1.000 line5\n"
-        + "10.000 line6\n"));
+    output.setQuery(appendToQuery(query, "appendLog&startOffset=0"));
+    assertThat(readLines(), is(appendLog(expectedResult)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrite_negativePrecision() throws Exception {
+    output.setQuery(appendToQuery(query, "precision=-1"));
   }
 
   /**
    * @throws Exception
    */
   @Test(expected = NumberFormatException.class)
-  public void testWrite_startOffset_invalid() throws Exception {
-    output.setQuery("appendLog&startOffset=invalid");
+  public void testWrite_invalidPrecision() throws Exception {
+    output.setQuery(appendToQuery(query, "precision=invalid"));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test(expected = NumberFormatException.class)
+  public void testWrite_invalidStartOffset() throws Exception {
+    output.setQuery(appendToQuery(query, "startOffset=invalid"));
   }
 
   /**
@@ -444,8 +279,19 @@ public class TimestampsActionOutputTest {
   @Test
   public void testWrite_noTimestamps() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
-    output.setQuery("");
-    assertThat(generate(), is(""));
+    output.setQuery(query);
+    assertThat(readLines(), is(Collections.<String> emptyList()));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_noTimestamps_appendLog() throws Exception {
+    when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
+    output.setQuery(appendToQuery(query, "appendLog"));
+    assertThat(readLines(),
+        is(appendLog(listOfEmptyStrings(expectedResult.size()))));
   }
 
   /**
@@ -454,20 +300,124 @@ public class TimestampsActionOutputTest {
   @Test
   public void testWrite_noLogFile() throws Exception {
     when(logFileReader.nextLine()).thenReturn(Optional.<String> absent());
-    output.setQuery("appendLog");
-    assertThat(generate(), is("0.000\n" + "0.001\n" + "0.010\n" + "0.100\n"
-        + "1.000\n" + "10.000\n"));
+    output.setQuery(query);
+    assertThat(readLines(), is(expectedResult));
   }
 
-  private String generate() throws Exception {
-    StringBuilder sb = new StringBuilder();
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testWrite_noLogFile_appendLog() throws Exception {
+    when(logFileReader.nextLine()).thenReturn(Optional.<String> absent());
+    output.setQuery(appendToQuery(query, "appendLog"));
+    assertThat(readLines(), is(expectedResult));
+  }
+
+  /**
+   * Append additional parameters to the query string.
+   * 
+   * @param query
+   * @param additional
+   * @return the combined query string
+   */
+  private String appendToQuery(String query, String additional) {
+    if (Strings.isNullOrEmpty(query)) {
+      return additional;
+    }
+    return query + "&" + additional;
+  }
+
+  /**
+   * Prepend an additional parameter to the query string.
+   * 
+   * @param query
+   * @param additional
+   * @return the combined query string
+   */
+  private String prependToQuery(String query, String additional) {
+    if (Strings.isNullOrEmpty(query)) {
+      return additional;
+    }
+    return additional + "&" + query;
+  }
+
+  /**
+   * Append the expected log lines to the expected result.
+   * 
+   * @param lines
+   * @return the expected result including the contents of the log
+   */
+  private List<String> appendLog(List<String> lines) {
+    int i = 1;
+    List<String> result = new ArrayList<String>();
+    for (String line : lines) {
+      String logLine = "line" + i;
+      i++;
+
+      result.add(line.isEmpty() ? logLine : line + " " + logLine);
+    }
+    return result;
+  }
+
+  /**
+   * Change the case of all query parameter names.
+   * 
+   * @param query
+   * @return the modified query
+   */
+  private String changeCaseOfQueryParameterNames(String query) {
+    if (Strings.isNullOrEmpty(query)) {
+      return query;
+    }
+
+    Pattern paramNamePattern = Pattern.compile("(^|\\&)(.+?)(\\=|\\&|$)");
+    Matcher m = paramNamePattern.matcher(query);
+    StringBuffer sb = new StringBuffer();
+    while (m.find()) {
+      String name = m.group();
+      name = (name.toLowerCase().equals(name) ? name.toUpperCase() : name
+          .toLowerCase());
+      m.appendReplacement(sb, name);
+    }
+    m.appendTail(sb);
+    String result = sb.toString();
+
+    if (result.equals(query)) {
+      throw new IllegalStateException(
+          "Invalid test. No changes made to query: " + query);
+    }
+    return result;
+  }
+
+  /**
+   * Create a list of empty strings.
+   * 
+   * @param size
+   * @return a new list
+   */
+  private List<String> listOfEmptyStrings(int size) {
+    List<String> emptyStrings = new ArrayList<String>();
+    for (int i = 0; i < size; i++) {
+      emptyStrings.add("");
+    }
+    return emptyStrings;
+  }
+
+  /**
+   * Read all lines from the {@link TimestampsActionOutput}.
+   * 
+   * @return the output lines
+   * @throws Exception
+   */
+  private List<String> readLines() throws Exception {
+    List<String> lines = new ArrayList<String>();
     while (true) {
       Optional<String> line = output.nextLine(timestampsReader, logFileReader);
       if (!line.isPresent()) {
-        return sb.toString();
+        return lines;
       }
-      sb.append(line.get());
-      sb.append("\n");
+      lines.add(line.get());
     }
   }
 }
