@@ -33,6 +33,7 @@ import javax.annotation.CheckForNull;
 
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -48,6 +49,23 @@ import com.google.common.base.Objects;
  */
 @Extension(dynamicLoadable = YesNoMaybe.YES)
 public final class TimestamperConfig extends GlobalConfiguration {
+
+  /**
+   * Get the current Timestamper global configuration.
+   * 
+   * @return the Timestamper configuration
+   */
+  public static TimestamperConfig get() {
+    Jenkins jenkins = Jenkins.getInstance();
+    if (jenkins != null) {
+      TimestamperConfig config = jenkins
+          .getDescriptorByType(TimestamperConfig.class);
+      if (config != null) {
+        return config;
+      }
+    }
+    return new TimestamperConfig(null, null);
+  }
 
   /**
    * The default {@link #timestampFormat}.
@@ -78,6 +96,14 @@ public final class TimestamperConfig extends GlobalConfiguration {
    */
   public TimestamperConfig() {
     load();
+  }
+
+  /**
+   * Constructor.
+   */
+  private TimestamperConfig(String timestampFormat, String elapsedTimeFormat) {
+    this.timestampFormat = timestampFormat;
+    this.elapsedTimeFormat = elapsedTimeFormat;
   }
 
   /**

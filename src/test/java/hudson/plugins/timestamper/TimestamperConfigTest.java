@@ -84,9 +84,27 @@ public class TimestamperConfigTest {
   /**
    */
   @Test
+  public void testDefaultSystemTimeFormat_noJenkinsInstance() {
+    when(Jenkins.getInstance()).thenReturn(null);
+    TimestamperConfig config = TimestamperConfig.get();
+    assertThat(config.getSystemTimeFormat(), containsString("HH:mm:ss"));
+  }
+
+  /**
+   */
+  @Test
   public void testDefaultElapsedTimeFormat() {
     assertThat(new TimestamperConfig().getElapsedTimeFormat(),
         containsString("HH:mm:ss.S"));
+  }
+
+  /**
+   */
+  @Test
+  public void testDefaultElapsedTimeFormat_noJenkinsInstance() {
+    when(Jenkins.getInstance()).thenReturn(null);
+    TimestamperConfig config = TimestamperConfig.get();
+    assertThat(config.getElapsedTimeFormat(), containsString("HH:mm:ss.S"));
   }
 
   /**

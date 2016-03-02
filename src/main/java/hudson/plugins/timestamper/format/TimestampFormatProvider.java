@@ -30,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import jenkins.model.GlobalConfiguration;
-
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -48,8 +46,7 @@ public class TimestampFormatProvider {
   private static Supplier<TimestampFormat> SUPPLIER = new Supplier<TimestampFormat>() {
     @Override
     public TimestampFormat get() {
-      TimestamperConfig config = GlobalConfiguration.all().get(
-          TimestamperConfig.class);
+      TimestamperConfig config = TimestamperConfig.get();
       // JENKINS-16778: The request can be null when the slave goes off-line.
       Optional<StaplerRequest> request = Optional.fromNullable(Stapler
           .getCurrentRequest());
