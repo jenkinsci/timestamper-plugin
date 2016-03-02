@@ -46,6 +46,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jenkins.YesNoMaybe;
 import jenkins.tasks.SimpleBuildWrapper;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -131,7 +132,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
   /**
    * Registers {@link TimestamperBuildWrapper} as a {@link BuildWrapper}.
    */
-  @Extension
+  @Extension(dynamicLoadable = YesNoMaybe.YES)
   public static final class DescriptorImpl extends BuildWrapperDescriptor {
 
     /**

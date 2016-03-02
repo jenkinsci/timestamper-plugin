@@ -30,6 +30,7 @@ import hudson.model.Run;
 import java.util.Collection;
 import java.util.Collections;
 
+import jenkins.YesNoMaybe;
 import jenkins.model.TransientActionFactory;
 
 /**
@@ -37,7 +38,7 @@ import jenkins.model.TransientActionFactory;
  * 
  * @author Steven G. Brown
  */
-@Extension
+@Extension(dynamicLoadable = YesNoMaybe.YES)
 @SuppressWarnings("rawtypes")
 public final class TimestampsActionFactory extends TransientActionFactory<Run> {
 

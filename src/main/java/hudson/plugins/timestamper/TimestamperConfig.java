@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 
 import javax.annotation.CheckForNull;
 
+import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
 
@@ -45,7 +46,7 @@ import com.google.common.base.Objects;
  * 
  * @author Frederik Fromm
  */
-@Extension
+@Extension(dynamicLoadable = YesNoMaybe.YES)
 public final class TimestamperConfig extends GlobalConfiguration {
 
   /**

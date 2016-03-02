@@ -28,6 +28,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
+import jenkins.YesNoMaybe;
 
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
@@ -38,7 +39,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * 
  * @author Steven G. Brown
  */
-@Extension
+@Extension(dynamicLoadable = YesNoMaybe.YES)
 public final class TimestampAnnotatorFactory2 extends
     ConsoleAnnotatorFactory<Object> {
 
