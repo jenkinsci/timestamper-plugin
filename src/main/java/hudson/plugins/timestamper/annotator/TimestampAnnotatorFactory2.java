@@ -39,7 +39,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Steven G. Brown
  */
 @Extension
-public final class TimestampAnnotatorFactory extends
+public final class TimestampAnnotatorFactory2 extends
     ConsoleAnnotatorFactory<Object> {
 
   /**
