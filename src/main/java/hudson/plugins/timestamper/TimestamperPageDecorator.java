@@ -21,16 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package hudson.plugins.timestamper;
 
-(function() {
+import hudson.Extension;
+import hudson.Util;
+import hudson.PluginWrapper;
+import hudson.model.PageDecorator;
+import jenkins.YesNoMaybe;
+import jenkins.model.Jenkins;
 
-if (timestamperVersion) {
-  new Ajax.Request(rootURL + '/static/' + timestamperVersion + '/plugin/timestamper/annotator.js', {
-    method:'get',
-    onSuccess: function(transport) {
-      eval(transport.responseText);
+/**
+ * Page decorator which makes the Timestamper plugin version available to
+ * Javascript running within the page.
+ * 
+ * @author Steven G. Brown
+ */
+@Extension(dynamicLoadable = YesNoMaybe.YES)
+public final class TimestamperPageDecorator extends PageDecorator {
+
+  /**
+   * Get the current Timestamper plugin version.
+   * 
+   * @return the plugin version
+   */
+  public String getTimestamperVersion() {
+    Jenkins jenkins = Jenkins.getInstance();
+    if (jenkins != null) {
+      PluginWrapper plugin = jenkins.getPluginManager()
+          .getPlugin("timestamper");
+      if (plugin != null) {
+        return Util.rawEncode(plugin.getVersion());
+      }
     }
-  });
+    return "";
+  }
 }
-
-}());
