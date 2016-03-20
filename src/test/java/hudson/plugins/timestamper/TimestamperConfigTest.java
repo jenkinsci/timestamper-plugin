@@ -38,18 +38,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 /**
  * Test for the {@link TimestamperConfig} class.
  * 
  * @author Steven G. Brown
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Jenkins.class)
 public class TimestamperConfigTest {
 
   private static final String customSystemTimeFormat = "HH:mm:ss "
@@ -69,8 +64,7 @@ public class TimestamperConfigTest {
   public void setUp() {
     Jenkins jenkins = mock(Jenkins.class);
     when(jenkins.getRootDir()).thenReturn(folder.getRoot());
-    PowerMockito.mockStatic(Jenkins.class);
-    when(Jenkins.getInstance()).thenReturn(jenkins);
+    Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
   }
 
   /**
@@ -85,7 +79,7 @@ public class TimestamperConfigTest {
    */
   @Test
   public void testDefaultSystemTimeFormat_noJenkinsInstance() {
-    when(Jenkins.getInstance()).thenReturn(null);
+    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
     TimestamperConfig config = TimestamperConfig.get();
     assertThat(config.getSystemTimeFormat(), containsString("HH:mm:ss"));
   }
@@ -102,7 +96,7 @@ public class TimestamperConfigTest {
    */
   @Test
   public void testDefaultElapsedTimeFormat_noJenkinsInstance() {
-    when(Jenkins.getInstance()).thenReturn(null);
+    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
     TimestamperConfig config = TimestamperConfig.get();
     assertThat(config.getElapsedTimeFormat(), containsString("HH:mm:ss.S"));
   }

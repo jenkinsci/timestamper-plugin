@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.io;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -33,10 +34,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Optional;
 
@@ -46,8 +44,6 @@ import com.google.common.base.Optional;
  * 
  * @author Steven G. Brown
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Run.class)
 public class TimestampsIOTest {
 
   /**
@@ -62,9 +58,9 @@ public class TimestampsIOTest {
    */
   @Before
   public void setUp() throws Exception {
-    build = PowerMockito.mock(Run.class);
+    build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    when(build.getTimeInMillis()).thenReturn(1l);
+    Whitebox.setInternalState(build, "timestamp", 1l);
   }
 
   /**

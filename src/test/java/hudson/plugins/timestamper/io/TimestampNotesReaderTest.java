@@ -47,12 +47,8 @@ import jenkins.model.Jenkins;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Optional;
@@ -62,8 +58,6 @@ import com.google.common.base.Optional;
  * 
  * @author Steven G. Brown
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Jenkins.class)
 public class TimestampNotesReaderTest {
 
   private Run<?, ?> build;
@@ -90,10 +84,9 @@ public class TimestampNotesReaderTest {
 
     // Need to mock Jenkins to read the console notes.
     Jenkins jenkins = mock(Jenkins.class);
-    PluginManager pluginManager = mock(PluginManager.class);
-    Whitebox.setInternalState(jenkins, "pluginManager", pluginManager);
-    PowerMockito.mockStatic(Jenkins.class);
-    when(Jenkins.getInstance()).thenReturn(jenkins);
+    Whitebox.setInternalState(jenkins, "pluginManager",
+        mock(PluginManager.class));
+    Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
   }
 
   /**

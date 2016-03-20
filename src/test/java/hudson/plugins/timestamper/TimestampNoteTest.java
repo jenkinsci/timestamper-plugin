@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import hudson.MarkupText;
 import hudson.model.Run;
 import hudson.plugins.timestamper.format.TimestampFormat;
@@ -36,10 +35,6 @@ import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Supplier;
@@ -50,8 +45,6 @@ import com.google.common.base.Supplier;
  * @author Steven G. Brown
  */
 @SuppressWarnings("boxing")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Run.class)
 public class TimestampNoteTest {
 
   private Run<?, ?> build;
@@ -73,8 +66,8 @@ public class TimestampNoteTest {
    */
   @Before
   public void setUp() throws Exception {
-    build = PowerMockito.mock(Run.class);
-    when(build.getTimeInMillis()).thenReturn(BUILD_START);
+    build = mock(Run.class);
+    Whitebox.setInternalState(build, "timestamp", BUILD_START);
 
     note = new TimestampNote(NOTE_ELAPSED, TIME);
 
