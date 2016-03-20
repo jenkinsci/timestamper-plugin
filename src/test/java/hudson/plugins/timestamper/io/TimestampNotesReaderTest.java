@@ -91,7 +91,7 @@ public class TimestampNotesReaderTest {
     // Need to mock Jenkins to read the console notes.
     Jenkins jenkins = mock(Jenkins.class);
     PluginManager pluginManager = mock(PluginManager.class);
-    Whitebox.setInternalState(jenkins, PluginManager.class, pluginManager);
+    Whitebox.setInternalState(jenkins, "pluginManager", pluginManager);
     PowerMockito.mockStatic(Jenkins.class);
     when(Jenkins.getInstance()).thenReturn(jenkins);
   }
