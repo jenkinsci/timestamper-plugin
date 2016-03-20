@@ -32,6 +32,8 @@ import hudson.plugins.timestamper.action.TimestampsAction;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 
+import com.google.common.base.Objects;
+
 /**
  * Time-stamp console note.
  * <p>
@@ -96,12 +98,19 @@ public final class TimestampNote extends ConsoleNote<Object> {
   /**
    * Get the time-stamp recorded by this console note.
    * 
-   * @param build
-   *          the build
+   * @param context
+   *          the object that owns the console output in question
    * @return the time-stamp
    */
-  public Timestamp getTimestamp(Run<?, ?> build) {
-    return getTimestamp((Object) build);
+  public Timestamp getTimestamp(Object context) {
+    if (elapsedMillis == null && context instanceof Run<?, ?>) {
+      // The elapsed time can be determined by using the build start time
+      Run<?, ?> build = (Run<?, ?>) context;
+      long buildStartTime = build.getTimeInMillis();
+      return new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+    }
+    // Use the elapsed time recorded in this console note, if known
+    return new Timestamp(elapsedMillis, millisSinceEpoch);
   }
 
   /**
@@ -116,14 +125,12 @@ public final class TimestampNote extends ConsoleNote<Object> {
     return null; // each time-stamp note affects one line only
   }
 
-  private Timestamp getTimestamp(Object context) {
-    if (context instanceof Run<?, ?>) {
-      // The elapsed time can be determined by using the build start time
-      Run<?, ?> build = (Run<?, ?>) context;
-      long buildStartTime = build.getTimeInMillis();
-      return new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
-    }
-    // Use the elapsed time recorded in this console note, if known
-    return new Timestamp(elapsedMillis, millisSinceEpoch);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("elapsedMillis", elapsedMillis)
+        .add("millisSinceEpoch", millisSinceEpoch).toString();
   }
 }
