@@ -71,7 +71,7 @@ public final class TimestampsFileReader implements TimestampsReader,
   public TimestampsFileReader(Run<?, ?> build) {
     this.timestampsFile = TimestamperPaths.timestampsFile(build);
     this.timeShiftsReader = new TimeShiftsReader(build);
-    this.millisSinceEpoch = build.getTimeInMillis();
+    this.millisSinceEpoch = build.getStartTimeInMillis();
   }
 
   /**

@@ -106,7 +106,7 @@ public final class TimestampNote extends ConsoleNote<Object> {
     if (elapsedMillis == null && context instanceof Run<?, ?>) {
       // The elapsed time can be determined by using the build start time
       Run<?, ?> build = (Run<?, ?>) context;
-      long buildStartTime = build.getTimeInMillis();
+      long buildStartTime = build.getStartTimeInMillis();
       return new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
     }
     // Use the elapsed time recorded in this console note, if known

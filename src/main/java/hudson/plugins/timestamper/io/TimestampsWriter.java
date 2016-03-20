@@ -86,7 +86,7 @@ public class TimestampsWriter implements Closeable {
    */
   public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest)
       throws IOException {
-    this(TimestamperPaths.timestampsFile(build), build.getTimeInMillis(),
+    this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(),
         digest);
   }
 
