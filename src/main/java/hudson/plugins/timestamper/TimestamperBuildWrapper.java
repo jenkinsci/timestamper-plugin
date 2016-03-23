@@ -140,7 +140,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
      */
     @Override
     public String getDisplayName() {
-      return Messages.DisplayName();
+      return Messages.Description();
     }
 
     /**

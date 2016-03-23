@@ -35,7 +35,7 @@ import java.io.OutputStream;
  * 
  * @author Steven G. Brown
  */
-class TimestampNotesOutputStream extends LineTransformationOutputStream {
+public class TimestampNotesOutputStream extends LineTransformationOutputStream {
 
   /**
    * The delegate output stream.
@@ -55,7 +55,7 @@ class TimestampNotesOutputStream extends LineTransformationOutputStream {
    * @param buildStartTime
    *          the build start time
    */
-  TimestampNotesOutputStream(OutputStream delegate, long buildStartTime) {
+  public TimestampNotesOutputStream(OutputStream delegate, long buildStartTime) {
     this.delegate = checkNotNull(delegate);
     this.buildStartTime = buildStartTime;
   }
