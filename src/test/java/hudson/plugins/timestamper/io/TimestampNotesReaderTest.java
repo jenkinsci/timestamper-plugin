@@ -93,6 +93,7 @@ public class TimestampNotesReaderTest {
    */
   @After
   public void tearDown() {
+    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
     timestampNotesReader.close();
   }
 

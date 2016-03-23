@@ -34,6 +34,7 @@ import java.util.Arrays;
 
 import jenkins.model.Jenkins;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,6 +66,13 @@ public class TimestamperConfigTest {
     Jenkins jenkins = mock(Jenkins.class);
     when(jenkins.getRootDir()).thenReturn(folder.getRoot());
     Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
+  }
+
+  /**
+   */
+  @After
+  public void tearDown() {
+    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
   }
 
   /**
