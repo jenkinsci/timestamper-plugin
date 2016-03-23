@@ -134,11 +134,7 @@ function getCookie(suffix) {
     return null;
 }
 
-function load() {
-    if (document.getElementsBySelector('span.timestamp').length == 0) {
-        return;
-    }
-
+function displaySettings() {
     // Jenkins 1.608 displays the side panel widgets in 'side-panel-content'
     var element = document.getElementById('side-panel-content');
     if (null == element) {
@@ -157,9 +153,33 @@ function load() {
     );
 }
 
+function onLoad() {
+    if (!window.MutationObserver) {
+        displaySettings();
+        return;
+    }
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            var addedNodes = mutation.addedNodes;
+            for (var i = 0; i < addedNodes.length; i++) {
+                if (addedNodes[i].querySelector('span.timestamp')) {
+                    observer.disconnect();
+                    displaySettings();
+                    return;
+                }
+            }
+        });
+    });
+    observer.observe(document, { childList: true, subtree: true });
+    if (document.querySelector('span.timestamp')) {
+        observer.disconnect();
+        displaySettings();
+    }
+}
+
 // Run on page load
 if (document.readyState === 'complete') {
-    load();
+    onLoad();
 } else {
-    Behaviour.addLoadEvent(load);
+    Behaviour.addLoadEvent(onLoad);
 }
