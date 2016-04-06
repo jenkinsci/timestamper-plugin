@@ -72,6 +72,9 @@ import com.google.common.collect.ImmutableList;
  * <li>"startLine": Display the time-stamps starting from a certain line.
  * Accepts a positive integer to start at that line, or a negative integer to
  * start that many lines back from the end.</li>
+ * <li>"endLine": Display the time-stamps ending at a certain line. Accepts a
+ * positive integer to finish at that line, or a negative integer to finish that
+ * many lines back from the end.</li>
  * </ul>
  * 
  * @author Steven G. Brown
