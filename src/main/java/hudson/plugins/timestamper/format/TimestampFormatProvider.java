@@ -100,11 +100,12 @@ public class TimestampFormatProvider {
       // "system", no mode cookie, or unrecognised mode cookie
       Optional<String> timeZoneId = Optional.absent();
       if (local != null && local.booleanValue()) {
-        if (offset == null) {
-          offset = "0";
+        try {
+          String localTimeZoneId = convertOffsetToTimeZoneId(offset);
+          timeZoneId = Optional.of(localTimeZoneId);
+        } catch (NumberFormatException e) {
+          return EmptyTimestampFormat.INSTANCE;
         }
-        String localTimeZoneId = convertOffsetToTimeZoneId(offset);
-        timeZoneId = Optional.of(localTimeZoneId);
       }
       return new SystemTimestampFormat(systemTimeFormat, timeZoneId, locale);
     }
