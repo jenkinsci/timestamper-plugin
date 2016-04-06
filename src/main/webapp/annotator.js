@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  */
 
+(function() {
+
 // Cookie is renewed each time the page is opened and expires after 2 years
 // http://googleblog.blogspot.com.au/2007/07/cookies-expiring-sooner-to-improve.html
 
@@ -183,3 +185,5 @@ if (document.readyState === 'complete') {
 } else {
     Behaviour.addLoadEvent(onLoad);
 }
+
+}());

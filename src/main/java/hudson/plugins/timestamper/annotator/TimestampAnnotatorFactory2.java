@@ -24,14 +24,24 @@
 package hudson.plugins.timestamper.annotator;
 
 import hudson.Extension;
+import hudson.Util;
+import hudson.PluginWrapper;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+
 import jenkins.YesNoMaybe;
+import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.WebMethod;
 
 /**
  * Provides the initial {@link TimestampAnnotator} for an annotated console
@@ -56,17 +66,6 @@ public final class TimestampAnnotatorFactory2 extends
     long offset = getOffset(request);
     ConsoleLogParser logParser = new ConsoleLogParserImpl(offset);
     return new TimestampAnnotator(logParser);
-  }
-
-  /**
-   * Get the URL for displaying the plain text console and time-stamps in the
-   * current format.
-   * 
-   * @return the plain text URL
-   */
-  public String getPlainTextUrl() {
-    TimestampFormat format = TimestampFormatProvider.get();
-    return format.getPlainTextUrl();
   }
 
   /**
@@ -98,5 +97,51 @@ public final class TimestampAnnotatorFactory2 extends
     // The start parameter is documented on the build's remote API page.
     String startParameter = request.getParameter("start");
     return startParameter == null ? 0 : Long.parseLong(startParameter);
+  }
+
+  /**
+   * Get the URL for displaying the plain text console and time-stamps in the
+   * current format.
+   * 
+   * @return the plain text URL
+   */
+  public String getPlainTextUrl() {
+    TimestampFormat format = TimestampFormatProvider.get();
+    return format.getPlainTextUrl();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean hasScript() {
+    return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @WebMethod(name = "script.js")
+  public void doScriptJs(StaplerRequest req, StaplerResponse rsp)
+      throws IOException, ServletException {
+    // This URL is cached for one day. Redirect to a URL which includes the
+    // plug-in version and is cached for 1 year. The script will be downloaded
+    // again when the plug-in version changes.
+    String url = req.getContextPath() + getResourcePath()
+        + "/plugin/timestamper/annotator.js";
+    rsp.sendRedirect2(url);
+  }
+
+  private String getResourcePath() {
+    Jenkins jenkins = Jenkins.getInstance();
+    if (jenkins != null) {
+      PluginWrapper plugin = jenkins.getPluginManager()
+          .getPlugin("timestamper");
+      if (plugin != null) {
+        return "/static/" + Util.rawEncode(plugin.getVersion());
+      }
+    }
+    return Jenkins.RESOURCE_PATH;
   }
 }
