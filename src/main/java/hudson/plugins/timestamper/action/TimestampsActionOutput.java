@@ -36,10 +36,12 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import com.google.common.base.Function;
@@ -75,6 +77,8 @@ import com.google.common.collect.ImmutableList;
  * <li>"endLine": Display the time-stamps ending at a certain line. Accepts a
  * positive integer to finish at that line, or a negative integer to finish that
  * many lines back from the end.</li>
+ * <li>"locale": Select the locale to use when displaying the system clock time.
+ * </li>
  * </ul>
  * 
  * @author Steven G. Brown
@@ -112,17 +116,20 @@ public class TimestampsActionOutput {
     List<QueryParameter> queryParameters = readQueryString(query);
 
     Optional<String> timeZoneId = Optional.absent();
+    Locale locale = Locale.getDefault();
     for (QueryParameter parameter : queryParameters) {
       if (parameter.name.equalsIgnoreCase("timeZone")) {
         // '+' was replaced with ' ' by URL decoding, so put it back.
         timeZoneId = Optional.of(parameter.value.replace("GMT ", "GMT+"));
+      } else if (parameter.name.equalsIgnoreCase("locale")) {
+        locale = LocaleUtils.toLocale(parameter.value);
       }
     }
 
     for (QueryParameter parameter : queryParameters) {
       if (parameter.name.equalsIgnoreCase("time")) {
         timestampFormats.add(new SystemTimestampFormat(parameter.value,
-            timeZoneId));
+            timeZoneId, locale));
       } else if (parameter.name.equalsIgnoreCase("elapsed")) {
         timestampFormats.add(new ElapsedTimestampFormat(parameter.value));
       } else if (parameter.name.equalsIgnoreCase("precision")) {

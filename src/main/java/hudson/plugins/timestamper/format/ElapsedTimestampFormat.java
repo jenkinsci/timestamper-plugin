@@ -94,7 +94,7 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("elapsedTimeFormat", elapsedTimeFormat).toString();
+    return Objects.toStringHelper(this).add("format", elapsedTimeFormat)
+        .toString();
   }
 }

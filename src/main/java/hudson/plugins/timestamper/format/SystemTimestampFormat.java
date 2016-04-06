@@ -26,6 +26,7 @@ package hudson.plugins.timestamper.format;
 import hudson.plugins.timestamper.Timestamp;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
@@ -53,7 +54,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
   private final Optional<String> timeZoneId;
 
   public SystemTimestampFormat(String systemTimeFormat,
-      Optional<String> timeZoneId) {
+      Optional<String> timeZoneId, Locale locale) {
     TimeZone timeZone = null;
     if (timeZoneId.isPresent()) {
       timeZone = TimeZone.getTimeZone(timeZoneId.get());
@@ -63,7 +64,8 @@ public final class SystemTimestampFormat extends TimestampFormat {
         timeZone = TimeZone.getTimeZone(timeZoneProperty);
       }
     }
-    this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone);
+    this.format = FastDateFormat
+        .getInstance(systemTimeFormat, timeZone, locale);
     this.timeZoneId = timeZoneId;
   }
 
@@ -86,7 +88,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
 
     return "timestamps?time=" + timeParamValue
         + (timeZoneId.isPresent() ? "&timeZone=" + timeZoneId.get() : "")
-        + "&appendLog";
+        + "&appendLog" + "&locale=" + format.getLocale();
   }
 
   /**
@@ -114,6 +116,8 @@ public final class SystemTimestampFormat extends TimestampFormat {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("format", format).toString();
+    return Objects.toStringHelper(this).add("format", format.getPattern())
+        .add("timeZoneId", format.getTimeZone().getID())
+        .add("locale", format.getLocale()).toString();
   }
 }

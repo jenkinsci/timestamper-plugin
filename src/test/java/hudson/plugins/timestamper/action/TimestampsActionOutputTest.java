@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -106,6 +107,16 @@ public class TimestampsActionOutputTest {
             "time=dd:HH:mm:ss&timeZone=GMT-10",
             asList("31:14:00:01", "31:14:01:00", "31:15:00:00", "01:14:00:00",
                 "02:14:00:00", "03:14:00:00") },
+        {
+            "time=EEEE, d MMMM&locale=en",
+            asList("Thursday, 1 January", "Thursday, 1 January",
+                "Thursday, 1 January", "Friday, 2 January",
+                "Saturday, 3 January", "Sunday, 4 January") },
+        {
+            "time=EEEE, d MMMM&locale=de",
+            asList("Donnerstag, 1 Januar", "Donnerstag, 1 Januar",
+                "Donnerstag, 1 Januar", "Freitag, 2 Januar",
+                "Samstag, 3 Januar", "Sonntag, 4 Januar") },
         { "elapsed=s.SSS",
             asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
         {
@@ -136,6 +147,8 @@ public class TimestampsActionOutputTest {
 
   private TimeZone systemDefaultTimeZone;
 
+  private Locale systemDefaultLocale;
+
   /**
    * @throws Exception
    */
@@ -143,6 +156,9 @@ public class TimestampsActionOutputTest {
   public void setUp() throws Exception {
     systemDefaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+
+    systemDefaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.ENGLISH);
 
     timestampsReader = mock(TimestampsReader.class);
     OngoingStubbing<Optional<Timestamp>> s = when(timestampsReader.read());
@@ -174,6 +190,7 @@ public class TimestampsActionOutputTest {
   @After
   public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
+    Locale.setDefault(systemDefaultLocale);
   }
 
   /**

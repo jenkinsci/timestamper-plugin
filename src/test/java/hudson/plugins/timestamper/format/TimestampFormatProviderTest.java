@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -117,12 +118,12 @@ public class TimestampFormatProviderTest {
 
   private static SystemTimestampFormat system() {
     return new SystemTimestampFormat(SYSTEM_TIME_FORMAT,
-        Optional.<String> absent());
+        Optional.<String> absent(), Locale.ENGLISH);
   }
 
   private static SystemTimestampFormat system(String timeZoneId) {
     return new SystemTimestampFormat(SYSTEM_TIME_FORMAT,
-        Optional.of(timeZoneId));
+        Optional.of(timeZoneId), Locale.ENGLISH);
   }
 
   private static ElapsedTimestampFormat elapsed() {
@@ -146,7 +147,7 @@ public class TimestampFormatProviderTest {
   @Test
   public void testGet() {
     assertThat(TimestampFormatProvider.get(SYSTEM_TIME_FORMAT,
-        ELAPSED_TIME_FORMAT, Optional.fromNullable(request)),
+        ELAPSED_TIME_FORMAT, Optional.fromNullable(request), Locale.ENGLISH),
         is(expectedTimestampFormat));
   }
 }

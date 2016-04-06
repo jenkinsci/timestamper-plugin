@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.format;
 
 import hudson.plugins.timestamper.TimestamperConfig;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
@@ -51,7 +52,7 @@ public class TimestampFormatProvider {
       Optional<StaplerRequest> request = Optional.fromNullable(Stapler
           .getCurrentRequest());
       return TimestampFormatProvider.get(config.getSystemTimeFormat(),
-          config.getElapsedTimeFormat(), request);
+          config.getElapsedTimeFormat(), request, Locale.getDefault());
     }
   };
 
@@ -65,7 +66,7 @@ public class TimestampFormatProvider {
   }
 
   static TimestampFormat get(String systemTimeFormat, String elapsedTimeFormat,
-      Optional<? extends HttpServletRequest> request) {
+      Optional<? extends HttpServletRequest> request, Locale locale) {
 
     String mode = null;
     Boolean local = null;
@@ -105,7 +106,7 @@ public class TimestampFormatProvider {
         String localTimeZoneId = convertOffsetToTimeZoneId(offset);
         timeZoneId = Optional.of(localTimeZoneId);
       }
-      return new SystemTimestampFormat(systemTimeFormat, timeZoneId);
+      return new SystemTimestampFormat(systemTimeFormat, timeZoneId, locale);
     }
   }
 
