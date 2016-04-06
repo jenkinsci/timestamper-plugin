@@ -42,12 +42,6 @@ function init() {
         'local': document.getElementById('timestamper-localTime')
     };
 
-    // Delete cookies added with the wrong path by Timestamper 1.7.2. See JENKINS-32074.
-    var attributes = '; path=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    document.cookie = 'jenkins-timestamper=' + attributes;
-    document.cookie = 'jenkins-timestamper-local=' + attributes;
-    document.cookie = 'jenkins-timestamper-offset=' + attributes;
-
     // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
     var mode = getCookie() || 'system';
     if (mode == 'local') {
@@ -82,9 +76,6 @@ function init() {
 
     // Disable invalid options depending on the mode.
     options['local'].disabled = !modes['system'].checked;
-
-    var offsetMS = new Date().getTimezoneOffset() * 60 * 1000;
-    setCookie(offsetMS.toString(), 'offset');
 }
 
 function onModeClick(modes) {
@@ -177,6 +168,20 @@ function onLoad() {
         observer.disconnect();
         displaySettings();
     }
+}
+
+// Delete cookies added with the wrong path by Timestamper 1.7.2. See JENKINS-32074.
+var attributes = '; path=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+document.cookie = 'jenkins-timestamper=' + attributes;
+document.cookie = 'jenkins-timestamper-local=' + attributes;
+document.cookie = 'jenkins-timestamper-offset=' + attributes;
+
+// Make browser time zone available to the server
+var offset = getCookie('offset');
+var newOffset = (new Date().getTimezoneOffset() * 60 * 1000).toString();
+if (newOffset !== offset) {
+    setCookie(newOffset, 'offset');
+    document.location.reload();
 }
 
 // Run on page load
