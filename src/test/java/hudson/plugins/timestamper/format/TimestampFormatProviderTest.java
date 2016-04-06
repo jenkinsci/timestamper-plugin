@@ -73,7 +73,7 @@ public class TimestampFormatProviderTest {
             // local (system with browser time zone)
             {
                 request("jenkins-timestamper-local=true",
-                    "jenkins-timestamper-offset=0"), system("GMT+00:00") },
+                    "jenkins-timestamper-offset=0"), system("GMT") },
             {
                 request("jenkins-timestamper-local=true",
                     "jenkins-timestamper-offset=" + HALF_HOUR),

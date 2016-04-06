@@ -26,7 +26,6 @@ package hudson.plugins.timestamper.format;
 import hudson.plugins.timestamper.TimestamperConfig;
 
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -112,10 +111,8 @@ public class TimestampFormatProvider {
   }
 
   private static String convertOffsetToTimeZoneId(String offset) {
-    long minutes = TimeUnit.MILLISECONDS.toMinutes(Integer.parseInt(offset));
     // Reverse sign due to return value of the Date.getTimezoneOffset function.
-    String sign = minutes > 0 ? "-" : "+";
-    return String.format("GMT%s%02d:%02d", sign, Math.abs(minutes / 60),
-        Math.abs(minutes % 60));
+    long offsetInMillis = -Integer.parseInt(offset);
+    return TimeZoneUtils.getTimeZoneId(offsetInMillis);
   }
 }
