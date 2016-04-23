@@ -46,7 +46,6 @@ import org.junit.rules.TemporaryFolder;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
 /**
@@ -94,14 +93,16 @@ public class LogFileReaderTest {
     gzippedLogFile = tempFolder.newFile("logFile.gz");
     FileOutputStream fileOutputStream = null;
     GZIPOutputStream gzipOutputStream = null;
+    boolean threw = true;
     try {
       fileOutputStream = new FileOutputStream(gzippedLogFile);
       gzipOutputStream = new GZIPOutputStream(fileOutputStream);
       gzipOutputStream
           .write(logFileContents.getBytes(Charset.defaultCharset()));
+      threw = false;
     } finally {
-      Closeables.close(gzipOutputStream, true);
-      Closeables.close(fileOutputStream, true);
+      Closeables.close(gzipOutputStream, threw);
+      Closeables.close(fileOutputStream, threw);
     }
 
     // Non-existant log file

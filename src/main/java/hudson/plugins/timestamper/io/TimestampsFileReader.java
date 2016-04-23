@@ -36,7 +36,6 @@ import java.io.Serializable;
 
 import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
 
 /**

@@ -34,7 +34,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 import com.google.common.base.Optional;
-import com.google.common.io.Closeables;
 
 /**
  * Read the time-stamp console notes for a build from the log file.

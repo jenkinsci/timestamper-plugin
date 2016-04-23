@@ -36,6 +36,7 @@ import hudson.plugins.timestamper.io.TimestampsWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -67,6 +68,13 @@ public class TimestamperOutputStreamTest {
     timestamperOutputStream = new TimestamperOutputStream(delegate, writer);
     data = new byte[] { 'a', (byte) NEWLINE };
     dataTwoLines = new byte[] { 'a', (byte) NEWLINE, 'b', (byte) NEWLINE };
+  }
+
+  /**
+   */
+  @After
+  public void tearDown() throws Exception {
+    timestamperOutputStream.close();
   }
 
   /**

@@ -38,7 +38,6 @@ import javax.annotation.CheckForNull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Closeables;
 import com.google.common.io.CountingInputStream;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -91,16 +90,14 @@ class TimeShiftsReader implements Serializable {
     Map<Long, Long> timeShifts = new HashMap<Long, Long>();
     CountingInputStream inputStream = new CountingInputStream(
         new BufferedInputStream(new FileInputStream(timeShiftsFile)));
-    boolean threw = true;
     try {
       while (inputStream.getCount() < timeShiftsFile.length()) {
         long entry = Varint.read(inputStream);
         long shift = Varint.read(inputStream);
         timeShifts.put(entry, shift);
       }
-      threw = false;
     } finally {
-      Closeables.close(inputStream, threw);
+      Closeables.closeQuietly(inputStream);
     }
     return timeShifts;
   }

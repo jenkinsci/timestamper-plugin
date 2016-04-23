@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,7 +59,6 @@ import org.mockito.stubbing.Answer;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Supplier;
-import com.google.common.io.Closeables;
 
 /**
  * Unit test for the {@link TimestampAnnotator} class.
@@ -93,6 +93,8 @@ public class TimestampAnnotatorTest {
 
   private static List<Timestamp> capturedTimestamps;
 
+  private TimestampsWriter writer;
+
   /**
    * @throws Exception
    */
@@ -103,6 +105,16 @@ public class TimestampAnnotatorTest {
 
     logPosition = new ConsoleLogParserImpl.Result();
     capturedTimestamps = new ArrayList<Timestamp>();
+
+    writer = new TimestampsWriter(build);
+  }
+
+  /**
+   * @throws Exception
+   */
+  @After
+  public void tearDown() throws Exception {
+    writer.close();
   }
 
   /**
@@ -149,17 +161,9 @@ public class TimestampAnnotatorTest {
 
   private List<Timestamp> writeTimestamps(int count) throws Exception {
     List<Timestamp> timestamps = new ArrayList<Timestamp>();
-    TimestampsWriter writer = null;
-    boolean threw = true;
-    try {
-      writer = new TimestampsWriter(build);
-      for (int i = 0; i < count; i++) {
-        writer.write(i, 1);
-        timestamps.add(new Timestamp(i, i));
-      }
-      threw = false;
-    } finally {
-      Closeables.close(writer, threw);
+    for (int i = 0; i < count; i++) {
+      writer.write(i, 1);
+      timestamps.add(new Timestamp(i, i));
     }
     return timestamps;
   }

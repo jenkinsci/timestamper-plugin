@@ -24,14 +24,13 @@
 package hudson.plugins.timestamper.annotator;
 
 import hudson.model.Run;
+import hudson.plugins.timestamper.io.Closeables;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.concurrent.Immutable;
-
-import com.google.common.io.Closeables;
 
 /**
  * Implementation of ConsoleLogParser.
@@ -65,7 +64,6 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
     result.atNewLine = true;
     InputStream inputStream = new BufferedInputStream(build.getLogInputStream());
-    boolean threw = true;
     try {
       long posFromStart = pos;
       if (pos < 0) {
@@ -82,9 +80,8 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
           result.lineNumber++;
         }
       }
-      threw = false;
     } finally {
-      Closeables.close(inputStream, threw);
+      Closeables.closeQuietly(inputStream);
     }
     return result;
   }

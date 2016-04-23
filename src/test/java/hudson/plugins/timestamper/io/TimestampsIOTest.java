@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,6 +54,10 @@ public class TimestampsIOTest {
 
   private Run<?, ?> build;
 
+  private TimestampsWriter writer;
+
+  private TimestampsFileReader reader;
+
   /**
    * @throws Exception
    */
@@ -61,6 +66,18 @@ public class TimestampsIOTest {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     Whitebox.setInternalState(build, "timestamp", 1l);
+
+    reader = new TimestampsFileReader(build);
+    writer = new TimestampsWriter(build);
+  }
+
+  /**
+   * @throws Exception
+   */
+  @After
+  public void tearDown() throws Exception {
+    reader.close();
+    writer.close();
   }
 
   /**
@@ -68,23 +85,14 @@ public class TimestampsIOTest {
    */
   @Test
   public void testReadFromStartWhileWriting() throws Exception {
-    TimestampsWriter writer = new TimestampsWriter(build);
-    TimestampsFileReader reader = new TimestampsFileReader(build);
-    try {
-      writer.write(2, 1);
-      assertThat(reader.read(), is(Optional.of(new Timestamp(1, 2))));
-      writer.write(3, 1);
-      assertThat(reader.read(), is(Optional.of(new Timestamp(2, 3))));
-      writer.write(4, 2);
-      assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
-      assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
-      writer.write(5, 1);
-      assertThat(reader.read(), is(Optional.of(new Timestamp(4, 5))));
-    } finally {
-      if (reader != null) {
-        reader.close();
-      }
-      writer.close();
-    }
+    writer.write(2, 1);
+    assertThat(reader.read(), is(Optional.of(new Timestamp(1, 2))));
+    writer.write(3, 1);
+    assertThat(reader.read(), is(Optional.of(new Timestamp(2, 3))));
+    writer.write(4, 2);
+    assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
+    assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
+    writer.write(5, 1);
+    assertThat(reader.read(), is(Optional.of(new Timestamp(4, 5))));
   }
 }

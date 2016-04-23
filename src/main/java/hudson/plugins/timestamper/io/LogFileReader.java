@@ -31,7 +31,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import com.google.common.base.Optional;
-import com.google.common.io.Closeables;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 

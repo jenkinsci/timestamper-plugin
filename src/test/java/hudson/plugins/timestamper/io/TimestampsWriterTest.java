@@ -98,7 +98,9 @@ public class TimestampsWriterTest {
    */
   @After
   public void tearDown() throws Exception {
-    timestampsWriter.close();
+    if (timestampsWriter != null) {
+      timestampsWriter.close();
+    }
   }
 
   /**

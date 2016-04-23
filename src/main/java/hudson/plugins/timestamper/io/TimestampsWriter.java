@@ -40,7 +40,6 @@ import javax.annotation.CheckForNull;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 
 /**
@@ -205,6 +204,8 @@ public class TimestampsWriter implements Closeable {
    */
   @Override
   public void close() throws IOException {
-    Closeables.close(timestampsOutput, false);
+    if (timestampsOutput != null) {
+      timestampsOutput.close();
+    }
   }
 }

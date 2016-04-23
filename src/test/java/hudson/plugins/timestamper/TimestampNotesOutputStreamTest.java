@@ -36,7 +36,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.io.Closeables;
 import com.google.common.primitives.Bytes;
 
 /**
@@ -66,8 +65,8 @@ public class TimestampNotesOutputStreamTest {
    */
   @After
   public void tearDown() throws IOException {
-    Closeables.close(delegateOutputStream, true);
-    Closeables.close(timestampNotesOutputStream, true);
+    delegateOutputStream.close();
+    timestampNotesOutputStream.close();
   }
 
   /**
