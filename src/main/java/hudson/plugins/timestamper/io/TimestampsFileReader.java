@@ -34,6 +34,8 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import javax.annotation.CheckForNull;
+
 import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
@@ -60,6 +62,7 @@ public final class TimestampsFileReader implements TimestampsReader,
 
   private final TimeShiftsReader timeShiftsReader;
 
+  @CheckForNull
   private transient InputStream inputStream;
 
   /**

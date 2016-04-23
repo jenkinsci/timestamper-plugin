@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper.api;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.io.LogFileReader;
@@ -37,7 +38,6 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 
 /**
  * Timestamper API intended for use by other plug-ins.
@@ -62,7 +62,7 @@ public class TimestamperAPI {
   private StringBuilder buffer = new StringBuilder();
 
   TimestamperAPI(TimestampsActionOutput output) {
-    this.output = Preconditions.checkNotNull(output);
+    this.output = checkNotNull(output);
   }
 
   /**

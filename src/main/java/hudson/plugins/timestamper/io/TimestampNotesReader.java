@@ -33,6 +33,8 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import javax.annotation.CheckForNull;
+
 import com.google.common.base.Optional;
 
 /**
@@ -44,6 +46,7 @@ public class TimestampNotesReader implements TimestampsReader {
 
   private final Run<?, ?> build;
 
+  @CheckForNull
   private DataInputStream dataInputStream;
 
   /**

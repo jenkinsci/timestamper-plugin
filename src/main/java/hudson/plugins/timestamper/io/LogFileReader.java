@@ -30,6 +30,8 @@ import hudson.model.Run;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import javax.annotation.CheckForNull;
+
 import com.google.common.base.Optional;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -43,6 +45,7 @@ public class LogFileReader {
 
   private final Run<?, ?> build;
 
+  @CheckForNull
   private BufferedReader reader;
 
   /**

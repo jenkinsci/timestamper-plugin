@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.lang.LocaleUtils;
@@ -87,7 +88,7 @@ public class TimestampsActionOutput {
 
   private int startLine;
 
-  private Integer endLine;
+  private Optional<Integer> endLine;
 
   private final List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
 
@@ -95,6 +96,7 @@ public class TimestampsActionOutput {
 
   private int linesRead;
 
+  @CheckForNull
   private Integer cachedLineCount;
 
   public TimestampsActionOutput() {
@@ -109,7 +111,7 @@ public class TimestampsActionOutput {
    */
   public void setQuery(String query) {
     startLine = 0;
-    endLine = null;
+    endLine = Optional.absent();
     timestampFormats.clear();
     appendLogLine = false;
 
@@ -141,7 +143,7 @@ public class TimestampsActionOutput {
       } else if (parameter.name.equalsIgnoreCase("startLine")) {
         startLine = Integer.parseInt(parameter.value);
       } else if (parameter.name.equalsIgnoreCase("endLine")) {
-        endLine = Integer.valueOf(parameter.value);
+        endLine = Optional.of(Integer.valueOf(parameter.value));
       }
     }
 
@@ -208,7 +210,7 @@ public class TimestampsActionOutput {
 
     linesRead += readToStartLine(timestampsReader, logFileReader);
     resolveEndLine(logFileReader);
-    if (endLine != null && linesRead >= endLine) {
+    if (endLine.isPresent() && linesRead >= endLine.get()) {
       return Optional.absent();
     }
 
@@ -252,9 +254,9 @@ public class TimestampsActionOutput {
   }
 
   private void resolveEndLine(LogFileReader logFileReader) throws IOException {
-    if (endLine != null && endLine < 0) {
+    if (endLine.isPresent() && endLine.get() < 0) {
       int lineCount = getLineCount(logFileReader);
-      endLine = lineCount + endLine + 1;
+      endLine = Optional.of(lineCount + endLine.get() + 1);
     }
   }
 
