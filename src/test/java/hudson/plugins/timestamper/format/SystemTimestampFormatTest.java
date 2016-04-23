@@ -36,6 +36,7 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Optional;
 
@@ -46,6 +47,9 @@ import com.google.common.base.Optional;
  */
 public class SystemTimestampFormatTest {
 
+  private static final String TIME_ZONE_PROPERTY = Whitebox.getInternalState(
+      SystemTimestampFormat.class, "TIME_ZONE_PROPERTY");
+
   private TimeZone systemDefaultTimeZone;
 
   /**
@@ -54,7 +58,7 @@ public class SystemTimestampFormatTest {
   public void setUp() {
     systemDefaultTimeZone = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    System.clearProperty(SystemTimestampFormat.TIME_ZONE_PROPERTY);
+    System.clearProperty(TIME_ZONE_PROPERTY);
   }
 
   /**
@@ -62,7 +66,7 @@ public class SystemTimestampFormatTest {
   @After
   public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
-    System.clearProperty(SystemTimestampFormat.TIME_ZONE_PROPERTY);
+    System.clearProperty(TIME_ZONE_PROPERTY);
   }
 
   /**
@@ -93,7 +97,7 @@ public class SystemTimestampFormatTest {
    */
   @Test
   public void testApply_withSystemProperty() {
-    System.setProperty(SystemTimestampFormat.TIME_ZONE_PROPERTY, "GMT+2");
+    System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
 
     String systemTimeFormat = "HH:mm:ss";
     Timestamp timestamp = new Timestamp(123, 42000);
@@ -116,7 +120,7 @@ public class SystemTimestampFormatTest {
    */
   @Test
   public void testApply_withSystemPropertyAndProvidedTimeZone() {
-    System.setProperty(SystemTimestampFormat.TIME_ZONE_PROPERTY, "GMT+2");
+    System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
 
     String systemTimeFormat = "HH:mm:ss";
     Timestamp timestamp = new Timestamp(123, 42000);

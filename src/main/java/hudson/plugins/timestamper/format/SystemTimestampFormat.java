@@ -47,7 +47,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
    * This System property is used to configure the time zone. See the
    * "Change time zone" Jenkins wiki page.
    */
-  static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
+  private static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
 
   private final FastDateFormat format;
 
