@@ -103,6 +103,9 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
       LOGGER.log(Level.WARNING,
           "Error reading timestamps for " + build.getFullDisplayName(), ex);
     }
+    if (timestampsReader != null) {
+      timestampsReader.close();
+    }
     return null; // do not annotate the following lines
   }
 
