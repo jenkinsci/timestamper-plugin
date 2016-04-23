@@ -47,9 +47,10 @@ public class TimestampFormatProvider {
     @Override
     public TimestampFormat get() {
       TimestamperConfig config = TimestamperConfig.get();
-      // JENKINS-16778: The request can be null when the slave goes off-line.
-      Optional<StaplerRequest> request = Optional.fromNullable(Stapler
-          .getCurrentRequest());
+      StaplerRequest request = Stapler.getCurrentRequest();
+      if (config == null || request == null) {
+        return EmptyTimestampFormat.INSTANCE;
+      }
       return TimestampFormatProvider.get(config.getSystemTimeFormat(),
           config.getElapsedTimeFormat(), request, Locale.getDefault());
     }
@@ -65,28 +66,27 @@ public class TimestampFormatProvider {
   }
 
   static TimestampFormat get(String systemTimeFormat, String elapsedTimeFormat,
-      Optional<? extends HttpServletRequest> request, Locale locale) {
+      HttpServletRequest request, Locale locale) {
 
     String mode = null;
     Boolean local = null;
     String offset = null;
-    if (request.isPresent()) {
-      Cookie[] cookies = request.get().getCookies();
-      if (cookies != null) {
-        for (Cookie cookie : cookies) {
-          if (mode == null && "jenkins-timestamper".equals(cookie.getName())) {
-            mode = cookie.getValue();
-          }
 
-          if (local == null
-              && "jenkins-timestamper-local".equals(cookie.getName())) {
-            local = Boolean.valueOf(cookie.getValue());
-          }
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (mode == null && "jenkins-timestamper".equals(cookie.getName())) {
+          mode = cookie.getValue();
+        }
 
-          if (offset == null
-              && "jenkins-timestamper-offset".equals(cookie.getName())) {
-            offset = cookie.getValue();
-          }
+        if (local == null
+            && "jenkins-timestamper-local".equals(cookie.getName())) {
+          local = Boolean.valueOf(cookie.getValue());
+        }
+
+        if (offset == null
+            && "jenkins-timestamper-offset".equals(cookie.getName())) {
+          offset = cookie.getValue();
         }
       }
     }

@@ -53,7 +53,8 @@ public final class TimestamperConfig extends GlobalConfiguration {
   /**
    * Get the current Timestamper global configuration.
    * 
-   * @return the Timestamper configuration
+   * @return the Timestamper configuration, or {@code null} if Jenkins has been
+   *         shut down
    */
   public static TimestamperConfig get() {
     Jenkins jenkins = Jenkins.getInstance();
@@ -64,7 +65,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
         return config;
       }
     }
-    return new TimestamperConfig(null, null);
+    return null;
   }
 
   /**
@@ -96,14 +97,6 @@ public final class TimestamperConfig extends GlobalConfiguration {
    */
   public TimestamperConfig() {
     load();
-  }
-
-  /**
-   * Constructor.
-   */
-  private TimestamperConfig(String timestampFormat, String elapsedTimeFormat) {
-    this.timestampFormat = timestampFormat;
-    this.elapsedTimeFormat = elapsedTimeFormat;
   }
 
   /**

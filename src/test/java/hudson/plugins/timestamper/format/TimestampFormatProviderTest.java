@@ -95,8 +95,7 @@ public class TimestampFormatProviderTest {
             // none
             { request("jenkins-timestamper=none"), empty() },
             // other
-            { request(), system() }, { request((String[]) null), system() },
-            { null, system() } });
+            { request(), system() }, { request((String[]) null), system() } });
   }
 
   private static HttpServletRequest request(String... cookies) {
@@ -147,7 +146,7 @@ public class TimestampFormatProviderTest {
   @Test
   public void testGet() {
     assertThat(TimestampFormatProvider.get(SYSTEM_TIME_FORMAT,
-        ELAPSED_TIME_FORMAT, Optional.fromNullable(request), Locale.ENGLISH),
+        ELAPSED_TIME_FORMAT, request, Locale.ENGLISH),
         is(expectedTimestampFormat));
   }
 }

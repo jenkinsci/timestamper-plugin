@@ -25,6 +25,7 @@ package hudson.plugins.timestamper;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -86,27 +87,9 @@ public class TimestamperConfigTest {
   /**
    */
   @Test
-  public void testDefaultSystemTimeFormat_noJenkinsInstance() {
-    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
-    TimestamperConfig config = TimestamperConfig.get();
-    assertThat(config.getSystemTimeFormat(), containsString("HH:mm:ss"));
-  }
-
-  /**
-   */
-  @Test
   public void testDefaultElapsedTimeFormat() {
     assertThat(new TimestamperConfig().getElapsedTimeFormat(),
         containsString("HH:mm:ss.S"));
-  }
-
-  /**
-   */
-  @Test
-  public void testDefaultElapsedTimeFormat_noJenkinsInstance() {
-    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
-    TimestamperConfig config = TimestamperConfig.get();
-    assertThat(config.getElapsedTimeFormat(), containsString("HH:mm:ss.S"));
   }
 
   /**
@@ -143,6 +126,15 @@ public class TimestamperConfigTest {
     TimestamperConfig config = new TimestamperConfig();
     config.setElapsedTimeFormat("");
     assertThat(config.getElapsedTimeFormat(), is(""));
+  }
+
+  /**
+   */
+  @Test
+  public void testNoJenkinsInstance() {
+    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
+    TimestamperConfig config = TimestamperConfig.get();
+    assertThat(config, is(nullValue()));
   }
 
   /**
