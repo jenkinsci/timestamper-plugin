@@ -147,7 +147,7 @@ function displaySettings() {
 }
 
 function onLoad() {
-    if (!window.MutationObserver) {
+    if (!window.MutationObserver || document.querySelector('span.timestamp')) {
         displaySettings();
         return;
     }
@@ -164,10 +164,6 @@ function onLoad() {
         });
     });
     observer.observe(document, { childList: true, subtree: true });
-    if (document.querySelector('span.timestamp')) {
-        observer.disconnect();
-        displaySettings();
-    }
 }
 
 // Delete cookies added with the wrong path by Timestamper 1.7.2. See JENKINS-32074.
