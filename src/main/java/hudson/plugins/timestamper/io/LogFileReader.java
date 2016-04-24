@@ -26,12 +26,18 @@ package hudson.plugins.timestamper.io;
 import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.TimestampNote;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import javax.annotation.CheckForNull;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -42,6 +48,39 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Steven G. Brown
  */
 public class LogFileReader {
+
+  public static class Line {
+
+    public final String contents;
+
+    public final Optional<Timestamp> timestamp;
+
+    public Line(String contents, Optional<Timestamp> timestamp) {
+      this.contents = checkNotNull(contents);
+      this.timestamp = checkNotNull(timestamp);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(contents, timestamp);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof Line) {
+        Line other = (Line) obj;
+        return contents.equals(other.contents)
+            && timestamp.equals(other.timestamp);
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(this).add("contents", contents)
+          .add("timestamp", timestamp).toString();
+    }
+  }
 
   private final Run<?, ?> build;
 
@@ -64,7 +103,7 @@ public class LogFileReader {
    *         read
    * @throws IOException
    */
-  public Optional<String> nextLine() throws IOException {
+  public Optional<Line> nextLine() throws IOException {
     if (!build.getLogFile().exists()) {
       return Optional.absent();
     }
@@ -75,7 +114,41 @@ public class LogFileReader {
     if (line == null) {
       return Optional.absent();
     }
-    return Optional.of(ConsoleNote.removeNotes(line));
+    Optional<Timestamp> timestamp = readTimestamp(line);
+    line = ConsoleNote.removeNotes(line);
+    return Optional.of(new Line(line, timestamp));
+  }
+
+  private Optional<Timestamp> readTimestamp(String line) throws IOException {
+    Charset charset = build.getCharset();
+    DataInputStream dataInputStream = new DataInputStream(
+        new ByteArrayInputStream(line.getBytes(charset)));
+    try {
+      while (true) {
+        dataInputStream.mark(1);
+        int currentByte = dataInputStream.read();
+        if (currentByte == -1) {
+          return Optional.absent();
+        }
+        if (currentByte == ConsoleNote.PREAMBLE[0]) {
+          dataInputStream.reset();
+          ConsoleNote<?> consoleNote;
+          try {
+            consoleNote = ConsoleNote.readFrom(dataInputStream);
+          } catch (ClassNotFoundException ex) {
+            // Unknown console note. Ignore.
+            continue;
+          }
+          if (consoleNote instanceof TimestampNote) {
+            TimestampNote timestampNote = (TimestampNote) consoleNote;
+            Timestamp timestamp = timestampNote.getTimestamp(build);
+            return Optional.of(timestamp);
+          }
+        }
+      }
+    } finally {
+      Closeables.closeQuietly(dataInputStream);
+    }
   }
 
   /**

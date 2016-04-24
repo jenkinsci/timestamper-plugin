@@ -40,7 +40,7 @@ import org.powermock.reflect.Whitebox;
 import com.google.common.base.Optional;
 
 /**
- * Test for integration between the {@link TimestampsFileReader} and
+ * Test for integration between the {@link TimestampsReader} and
  * {@link TimestampsWriter} classes.
  * 
  * @author Steven G. Brown
@@ -56,7 +56,7 @@ public class TimestampsIOTest {
 
   private TimestampsWriter writer;
 
-  private TimestampsFileReader reader;
+  private TimestampsReader reader;
 
   /**
    * @throws Exception
@@ -67,7 +67,7 @@ public class TimestampsIOTest {
     when(build.getRootDir()).thenReturn(folder.getRoot());
     Whitebox.setInternalState(build, "timestamp", 1l);
 
-    reader = new TimestampsFileReader(build);
+    reader = new TimestampsReader(build);
     writer = new TimestampsWriter(build);
   }
 

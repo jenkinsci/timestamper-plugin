@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.LogFileReader;
+import hudson.plugins.timestamper.io.LogFileReader.Line;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.BufferedReader;
@@ -226,18 +227,21 @@ public class TimestampsActionOutputTest {
   @Before
   public void setUp() throws Exception {
     timestampsReader = mock(TimestampsReader.class);
-    OngoingStubbing<Optional<Timestamp>> s = when(timestampsReader.read());
+    OngoingStubbing<Optional<Timestamp>> readStubbing = when(timestampsReader
+        .read());
     for (Timestamp timestamp : TIMESTAMPS) {
-      s = s.thenReturn(Optional.of(timestamp));
+      readStubbing = readStubbing.thenReturn(Optional.of(timestamp));
     }
-    s.thenReturn(Optional.<Timestamp> absent());
+    readStubbing.thenReturn(Optional.<Timestamp> absent());
 
     logFileReader = mock(LogFileReader.class);
-    when(logFileReader.nextLine()).thenReturn(Optional.of("line1"))
-        .thenReturn(Optional.of("line2")).thenReturn(Optional.of("line3"))
-        .thenReturn(Optional.of("line4")).thenReturn(Optional.of("line5"))
-        .thenReturn(Optional.of("line6"))
-        .thenReturn(Optional.<String> absent());
+    OngoingStubbing<Optional<Line>> nextLineStubbing = when(logFileReader
+        .nextLine());
+    for (int i = 1; i <= TIMESTAMPS.size(); i++) {
+      nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(new Line(
+          "line" + i, Optional.<Timestamp> absent())));
+    }
+    nextLineStubbing.thenReturn(Optional.<Line> absent());
     when(logFileReader.lineCount()).thenReturn(6);
 
     reader = TimestampsActionOutput
@@ -302,6 +306,24 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
+  public void testWrite_timestampsInLogFileOnly() throws Exception {
+    when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
+
+    OngoingStubbing<Optional<Line>> nextLineStubbing = when(logFileReader
+        .nextLine());
+    for (int i = 1; i <= TIMESTAMPS.size(); i++) {
+      nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(new Line(
+          "line" + i, Optional.of(TIMESTAMPS.get(i - 1)))));
+    }
+    nextLineStubbing.thenReturn(Optional.<Line> absent());
+
+    assertThat(readLines(), is(expectedLines));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
   public void testWrite_noLogFile() throws Exception {
     if (query.appendLogLine) {
       // Remove log line from expected result
@@ -313,7 +335,7 @@ public class TimestampsActionOutputTest {
             }
           });
     }
-    when(logFileReader.nextLine()).thenReturn(Optional.<String> absent());
+    when(logFileReader.nextLine()).thenReturn(Optional.<Line> absent());
     assertThat(readLines(), is(expectedLines));
   }
 
@@ -323,7 +345,7 @@ public class TimestampsActionOutputTest {
   @Test
   public void testWrite_noTimestampsAndNoLogFile() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
-    when(logFileReader.nextLine()).thenReturn(Optional.<String> absent());
+    when(logFileReader.nextLine()).thenReturn(Optional.<Line> absent());
     assertThat(readLines(), is(Collections.<String> emptyList()));
   }
 

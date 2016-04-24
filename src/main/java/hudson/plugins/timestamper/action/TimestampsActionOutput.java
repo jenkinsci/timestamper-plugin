@@ -27,9 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.TimestampNotesReader;
-import hudson.plugins.timestamper.io.TimestamperPaths;
-import hudson.plugins.timestamper.io.TimestampsFileReader;
+import hudson.plugins.timestamper.io.LogFileReader.Line;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.BufferedReader;
@@ -90,13 +88,7 @@ public class TimestampsActionOutput {
    * @return a {@link BufferedReader}
    */
   public static BufferedReader open(Run<?, ?> build, TimestampsActionQuery query) {
-    TimestampsReader timestampsReader;
-    if (TimestamperPaths.timestampsFile(build).isFile()) {
-      timestampsReader = new TimestampsFileReader(build);
-    } else {
-      timestampsReader = new TimestampNotesReader(build);
-    }
-
+    TimestampsReader timestampsReader = new TimestampsReader(build);
     LogFileReader logFileReader = new LogFileReader(build);
 
     return open(timestampsReader, logFileReader, query);
@@ -162,6 +154,11 @@ public class TimestampsActionOutput {
           throws IOException {
 
         Optional<Timestamp> timestamp = timestampsReader.read();
+        Optional<Line> logFileLine = logFileReader.nextLine();
+        if (logFileLine.isPresent() && !timestamp.isPresent()) {
+          timestamp = logFileLine.get().timestamp;
+        }
+
         String result = "";
         if (timestamp.isPresent()) {
           List<String> parts = new ArrayList<String>();
@@ -170,10 +167,11 @@ public class TimestampsActionOutput {
           }
           result = Joiner.on(' ').join(parts);
         }
-
         if (query.appendLogLine) {
-          Optional<String> logFileLine = logFileReader.nextLine();
-          result += " " + logFileLine.or("");
+          result += " ";
+          if (logFileLine.isPresent()) {
+            result += logFileLine.get().contents;
+          }
         }
 
         if (result.trim().isEmpty()) {

@@ -27,25 +27,31 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import hudson.PluginManager;
 import hudson.model.AbstractBuild;
+import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestampNote;
+import hudson.plugins.timestamper.io.LogFileReader.Line;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
+
+import jenkins.model.Jenkins;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
 /**
@@ -63,6 +69,8 @@ public class LogFileReaderTest {
   private AbstractBuild<?, ?> build;
 
   private LogFileReader logFileReader;
+
+  private Timestamp timestamp;
 
   private String logFileContents;
 
@@ -83,7 +91,10 @@ public class LogFileReaderTest {
 
     logFileReader = new LogFileReader(build);
 
-    logFileContents = "line1\nline2" + new TimestampNote(0, 0).encode() + "\n";
+    timestamp = new Timestamp(42, 1000);
+    logFileContents = "line1\nline2"
+        + new TimestampNote(timestamp.elapsedMillis, timestamp.millisSinceEpoch)
+            .encode() + "\n";
 
     // Uncompressed log file
     uncompressedLogFile = tempFolder.newFile();
@@ -107,12 +118,19 @@ public class LogFileReaderTest {
 
     // Non-existant log file
     nonExistantFile = new File(tempFolder.getRoot(), "logFile");
+
+    // Need to mock Jenkins to read the console notes.
+    Jenkins jenkins = mock(Jenkins.class);
+    Whitebox.setInternalState(jenkins, "pluginManager",
+        mock(PluginManager.class));
+    Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
   }
 
   /**
    */
   @After
   public void tearDown() {
+    Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
     logFileReader.close();
   }
 
@@ -135,13 +153,14 @@ public class LogFileReaderTest {
   }
 
   private void testNextLine() throws Exception {
-    List<Optional<String>> lines = new ArrayList<Optional<String>>();
+    List<Optional<Line>> lines = new ArrayList<Optional<Line>>();
     for (int i = 0; i < 3; i++) {
       lines.add(logFileReader.nextLine());
     }
-    @SuppressWarnings("unchecked")
-    List<Optional<String>> expectedLines = Arrays.asList(Optional.of("line1"),
-        Optional.of("line2"), Optional.<String> absent());
+    List<Optional<Line>> expectedLines = ImmutableList.of(
+        Optional.of(new Line("line1", Optional.<Timestamp> absent())),
+        Optional.of(new Line("line2", Optional.of(timestamp))),
+        Optional.<Line> absent());
     assertThat(lines, is(expectedLines));
   }
 
@@ -151,7 +170,7 @@ public class LogFileReaderTest {
   @Test
   public void testNextLine_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);
-    assertThat(logFileReader.nextLine(), is(Optional.<String> absent()));
+    assertThat(logFileReader.nextLine(), is(Optional.<Line> absent()));
   }
 
   /**

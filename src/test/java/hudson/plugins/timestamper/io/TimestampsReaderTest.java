@@ -53,12 +53,12 @@ import org.junit.runners.Parameterized.Parameters;
 import com.google.common.base.Optional;
 
 /**
- * Unit test for the {@link TimestampsFileReader} class.
+ * Unit test for the {@link TimestampsReader} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
-public class TimestampsFileReaderTest {
+public class TimestampsReaderTest {
 
   /**
    * @return parameterised test data
@@ -80,7 +80,7 @@ public class TimestampsFileReaderTest {
 
   private Run<?, ?> build;
 
-  private TimestampsFileReader timestampsReader;
+  private TimestampsReader timestampsReader;
 
   /**
    * @throws Exception
@@ -89,7 +89,7 @@ public class TimestampsFileReaderTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    timestampsReader = new TimestampsFileReader(build);
+    timestampsReader = new TimestampsReader(build);
   }
 
   /**
@@ -217,7 +217,7 @@ public class TimestampsFileReaderTest {
     int iterations = 0;
     while (true) {
       if (serialize) {
-        timestampsReader = (TimestampsFileReader) SerializationUtils
+        timestampsReader = (TimestampsReader) SerializationUtils
             .clone(timestampsReader);
       }
       Optional<Timestamp> next = timestampsReader.read();
