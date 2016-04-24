@@ -55,7 +55,6 @@ public final class TimestampsActionFactory extends TransientActionFactory<Run> {
    */
   @Override
   public Collection<? extends Action> createFor(Run target) {
-    TimestampsActionOutput output = new TimestampsActionOutput();
-    return Collections.singleton(new TimestampsAction(target, output));
+    return Collections.singleton(new TimestampsAction(target));
   }
 }

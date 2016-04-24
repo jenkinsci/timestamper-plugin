@@ -23,21 +23,11 @@
  */
 package hudson.plugins.timestamper.api;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
-import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.TimestampNotesReader;
-import hudson.plugins.timestamper.io.TimestamperPaths;
-import hudson.plugins.timestamper.io.TimestampsFileReader;
-import hudson.plugins.timestamper.io.TimestampsReader;
+import hudson.plugins.timestamper.action.TimestampsActionQuery;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-
-import com.google.common.base.Optional;
 
 /**
  * Timestamper API intended for use by other plug-ins.
@@ -54,15 +44,10 @@ public class TimestamperAPI {
    * @since Timestamper 1.8
    */
   public static TimestamperAPI get() {
-    return new TimestamperAPI(new TimestampsActionOutput());
+    return new TimestamperAPI();
   }
 
-  private TimestampsActionOutput output;
-
-  private StringBuilder buffer = new StringBuilder();
-
-  TimestamperAPI(TimestampsActionOutput output) {
-    this.output = checkNotNull(output);
+  private TimestamperAPI() {
   }
 
   /**
@@ -78,42 +63,7 @@ public class TimestamperAPI {
    * @since Timestamper 1.8
    */
   public BufferedReader read(Run<?, ?> build, String query) {
-    output.setQuery(query);
-
-    final TimestampsReader timestampsReader;
-    if (TimestamperPaths.timestampsFile(build).isFile()) {
-      timestampsReader = new TimestampsFileReader(build);
-    } else {
-      timestampsReader = new TimestampNotesReader(build);
-    }
-
-    final LogFileReader logFileReader = new LogFileReader(build);
-
-    Reader reader = new Reader() {
-
-      @Override
-      public int read(char[] cbuf, int off, int len) throws IOException {
-        while (buffer.length() < len) {
-          Optional<String> nextLine = output.nextLine(timestampsReader,
-              logFileReader);
-          if (!nextLine.isPresent()) {
-            break;
-          }
-          buffer.append(nextLine.get());
-          buffer.append("\n");
-        }
-        int numRead = new StringReader(buffer.toString()).read(cbuf, off, len);
-        buffer.delete(0, (numRead >= 0 ? numRead : buffer.length()));
-        return numRead;
-      }
-
-      @Override
-      public void close() throws IOException {
-        timestampsReader.close();
-        logFileReader.close();
-      }
-    };
-
-    return new BufferedReader(reader);
+    return TimestampsActionOutput.open(build,
+        TimestampsActionQuery.create(query));
   }
 }

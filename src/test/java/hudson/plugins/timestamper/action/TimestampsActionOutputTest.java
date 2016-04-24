@@ -23,26 +23,24 @@
  */
 package hudson.plugins.timestamper.action;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
+import java.io.BufferedReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,8 +51,10 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.stubbing.OngoingStubbing;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * Unit test for the {@link TimestampsActionOutput} class.
@@ -64,110 +64,172 @@ import com.google.common.base.Strings;
 @RunWith(Parameterized.class)
 public class TimestampsActionOutputTest {
 
+  private static final Optional<Integer> NO_ENDLINE = Optional.absent();
+
+  private static final Function<Timestamp, String> FORMAT = new Function<Timestamp, String>() {
+    @Override
+    public String apply(@Nonnull Timestamp timestamp) {
+      return String.valueOf(timestamp.millisSinceEpoch);
+    }
+  };
+
+  private static final Function<Timestamp, String> ELAPSED_FORMAT = new Function<Timestamp, String>() {
+    @Override
+    public String apply(@Nonnull Timestamp timestamp) {
+      return String.valueOf(timestamp.elapsedMillis);
+    }
+  };
+
+  private static final List<Timestamp> TIMESTAMPS = ImmutableList.of(
+      new Timestamp(0, 1),
+      //
+      new Timestamp(1, 2),
+      //
+      new Timestamp(10, 3),
+      //
+      new Timestamp(100, 4),
+      //
+      new Timestamp(1000, 5),
+      //
+      new Timestamp(10000, 6));
+
   /**
    * @return the test data
    */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    return asList(new Object[][] {
-        { "", DEFAULT_OUTPUT },
-        { null, DEFAULT_OUTPUT },
-        { "precision=0", asList("0", "0", "0", "0", "1", "10") },
-        { "precision=0&precision=1",
-            asList("0 0.0", "0 0.0", "0 0.0", "0 0.1", "1 1.0", "10 10.0") },
-        { "precision=seconds", asList("0", "0", "0", "0", "1", "10") },
-        { "precision=1", asList("0.0", "0.0", "0.0", "0.1", "1.0", "10.0") },
-        { "precision=2",
-            asList("0.00", "0.00", "0.01", "0.10", "1.00", "10.00") },
-        { "precision=3",
-            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
-        { "precision=milliseconds",
-            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
-        {
-            "precision=6",
-            asList("0.000000", "0.001000", "0.010000", "0.100000", "1.000000",
-                "10.000000") },
-        {
-            "precision=microseconds",
-            asList("0.000000", "0.001000", "0.010000", "0.100000", "1.000000",
-                "10.000000") },
-        {
-            "precision=nanoseconds",
-            asList("0.000000000", "0.001000000", "0.010000000", "0.100000000",
-                "1.000000000", "10.000000000") },
-        {
-            "time=dd:HH:mm:ss",
-            asList("01:00:00:01", "01:00:01:00", "01:01:00:00", "02:00:00:00",
-                "03:00:00:00", "04:00:00:00") },
-        {
-            "time=dd:HH:mm:ss&timeZone=GMT+10",
-            asList("01:10:00:01", "01:10:01:00", "01:11:00:00", "02:10:00:00",
-                "03:10:00:00", "04:10:00:00") },
-        {
-            "time=dd:HH:mm:ss&timeZone=GMT-10",
-            asList("31:14:00:01", "31:14:01:00", "31:15:00:00", "01:14:00:00",
-                "02:14:00:00", "03:14:00:00") },
-        {
-            "time=EEEE, d MMMM&locale=en",
-            asList("Thursday, 1 January", "Thursday, 1 January",
-                "Thursday, 1 January", "Friday, 2 January",
-                "Saturday, 3 January", "Sunday, 4 January") },
-        {
-            "time=EEEE, d MMMM&locale=de",
-            asList("Donnerstag, 1 Januar", "Donnerstag, 1 Januar",
-                "Donnerstag, 1 Januar", "Freitag, 2 Januar",
-                "Samstag, 3 Januar", "Sonntag, 4 Januar") },
-        { "elapsed=s.SSS",
-            asList("0.000", "0.001", "0.010", "0.100", "1.000", "10.000") },
-        {
-            "time=dd:HH:mm:ss&elapsed=s.SSS",
-            asList("01:00:00:01 0.000", "01:00:01:00 0.001",
-                "01:01:00:00 0.010", "02:00:00:00 0.100", "03:00:00:00 1.000",
-                "04:00:00:00 10.000") } });
-  }
+    List<Object[]> testCases = new ArrayList<Object[]>();
 
-  private static final List<String> DEFAULT_OUTPUT = asList("0.000", "0.001",
-      "0.010", "0.100", "1.000", "10.000");
+    testCases
+        .addAll(Arrays.asList(new Object[][] {
+            {
+                "format",
+                new TimestampsActionQuery(0, NO_ENDLINE, Collections
+                    .singletonList(FORMAT), false),
+                Arrays.asList("1", "2", "3", "4", "5", "6") },
+            {
+                "format + elapsed_format",
+                new TimestampsActionQuery(0, NO_ENDLINE, ImmutableList.of(
+                    FORMAT, ELAPSED_FORMAT), false),
+                Arrays.asList("1 0", "2 1", "3 10", "4 100", "5 1000",
+                    "6 10000") },
+            {
+                "appendLogLine",
+                new TimestampsActionQuery(0, NO_ENDLINE, Collections
+                    .singletonList(FORMAT), true),
+                Arrays.asList("1 line1", "2 line2", "3 line3", "4 line4",
+                    "5 line5", "6 line6") } }));
+
+    // start line
+    testCases
+        .addAll(Arrays.asList(new Object[][] {
+            {
+                "start 2",
+                new TimestampsActionQuery(2, NO_ENDLINE, Collections
+                    .singletonList(FORMAT), true),
+                Arrays.asList("2 line2", "3 line3", "4 line4", "5 line5",
+                    "6 line6") },
+            {
+                "start 1",
+                new TimestampsActionQuery(1, NO_ENDLINE, Collections
+                    .singletonList(FORMAT), true),
+                Arrays.asList("1 line1", "2 line2", "3 line3", "4 line4",
+                    "5 line5", "6 line6") },
+            {
+                "start -1",
+                new TimestampsActionQuery(-1, NO_ENDLINE, Collections
+                    .singletonList(FORMAT), true), Arrays.asList("6 line6") },
+            {
+                "start -2",
+                new TimestampsActionQuery(-2, NO_ENDLINE, Collections
+                    .singletonList(FORMAT), true),
+                Arrays.asList("5 line5", "6 line6") } }));
+
+    // end line
+    testCases
+        .addAll(Arrays.asList(new Object[][] {
+            {
+                "end 2",
+                new TimestampsActionQuery(0, Optional.of(2), Collections
+                    .singletonList(FORMAT), true),
+                Arrays.asList("1 line1", "2 line2") },
+            {
+                "end 1",
+                new TimestampsActionQuery(0, Optional.of(1), Collections
+                    .singletonList(FORMAT), true), Arrays.asList("1 line1") },
+            {
+                "end 0",
+                new TimestampsActionQuery(0, Optional.of(0), Collections
+                    .singletonList(FORMAT), true), Collections.emptyList() },
+            {
+                "end -1",
+                new TimestampsActionQuery(0, Optional.of(-1), Collections
+                    .singletonList(FORMAT), true),
+                Arrays.asList("1 line1", "2 line2", "3 line3", "4 line4",
+                    "5 line5", "6 line6") },
+            {
+                "end -2",
+                new TimestampsActionQuery(0, Optional.of(-2), Collections
+                    .singletonList(FORMAT), true),
+                Arrays.asList("1 line1", "2 line2", "3 line3", "4 line4",
+                    "5 line5") }, }));
+
+    // start line and end line
+    testCases.addAll(Arrays.asList(new Object[][] {
+        {
+            "start 2, end -2",
+            new TimestampsActionQuery(2, Optional.of(-2), Collections
+                .singletonList(FORMAT), true),
+            Arrays.asList("2 line2", "3 line3", "4 line4", "5 line5") },
+        {
+            "start 2, end 5",
+            new TimestampsActionQuery(2, Optional.of(5), Collections
+                .singletonList(FORMAT), true),
+            Arrays.asList("2 line2", "3 line3", "4 line4", "5 line5") },
+        {
+            "start -4, end -2",
+            new TimestampsActionQuery(-4, Optional.of(-2), Collections
+                .singletonList(FORMAT), true),
+            Arrays.asList("3 line3", "4 line4", "5 line5") },
+        {
+            "start 4, end -4",
+            new TimestampsActionQuery(4, Optional.of(-4), Collections
+                .singletonList(FORMAT), true), Collections.emptyList() } }));
+
+    return testCases;
+  }
 
   /**
    */
   @Parameter(0)
-  public String query;
+  public String testCaseDescription;
 
   /**
    */
   @Parameter(1)
-  public List<String> expectedResult;
+  public TimestampsActionQuery query;
+
+  /**
+   */
+  @Parameter(2)
+  public List<String> expectedLines;
 
   private TimestampsReader timestampsReader;
 
   private LogFileReader logFileReader;
 
-  private TimestampsActionOutput output;
-
-  private TimeZone systemDefaultTimeZone;
-
-  private Locale systemDefaultLocale;
+  private BufferedReader reader;
 
   /**
    * @throws Exception
    */
   @Before
   public void setUp() throws Exception {
-    systemDefaultTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-
-    systemDefaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.ENGLISH);
-
     timestampsReader = mock(TimestampsReader.class);
     OngoingStubbing<Optional<Timestamp>> s = when(timestampsReader.read());
-    s = s.thenReturn(ts(0, TimeUnit.SECONDS.toMillis(1)));
-    s = s.thenReturn(ts(1, TimeUnit.MINUTES.toMillis(1)));
-    s = s.thenReturn(ts(10, TimeUnit.HOURS.toMillis(1)));
-    s = s.thenReturn(ts(100, TimeUnit.DAYS.toMillis(1)));
-    s = s.thenReturn(ts(1000, TimeUnit.DAYS.toMillis(2)));
-    s = s.thenReturn(ts(10000, TimeUnit.DAYS.toMillis(3)));
+    for (Timestamp timestamp : TIMESTAMPS) {
+      s = s.thenReturn(Optional.of(timestamp));
+    }
     s.thenReturn(Optional.<Timestamp> absent());
 
     logFileReader = mock(LogFileReader.class);
@@ -178,235 +240,41 @@ public class TimestampsActionOutputTest {
         .thenReturn(Optional.<String> absent());
     when(logFileReader.lineCount()).thenReturn(6);
 
-    output = new TimestampsActionOutput();
-  }
-
-  private Optional<Timestamp> ts(long elapsedMillis, long millisSinceEpoch) {
-    return Optional.of(new Timestamp(elapsedMillis, millisSinceEpoch));
+    reader = TimestampsActionOutput
+        .open(timestampsReader, logFileReader, query);
   }
 
   /**
+   * @throws Exception
    */
   @After
-  public void tearDown() {
-    TimeZone.setDefault(systemDefaultTimeZone);
-    Locale.setDefault(systemDefaultLocale);
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite() throws Exception {
-    output.setQuery(query);
-    assertThat(readLines(), is(expectedResult));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_appendLog() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog"));
-    assertThat(readLines(), is(appendLog(expectedResult)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_appendLog_true() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog=true"));
-    assertThat(readLines(), is(appendLog(expectedResult)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_appendLog_false() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog=false"));
-    assertThat(readLines(), is(expectedResult));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_appendLog_prepend() throws Exception {
-    output.setQuery(prependToQuery(query, "appendLog"));
-    assertThat(readLines(), is(appendLog(expectedResult)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_changeCaseOfQueryParameterNames() throws Exception {
-    output.setQuery(changeCaseOfQueryParameterNames(appendToQuery(query,
-        "appendLog")));
-    assertThat(readLines(), is(appendLog(expectedResult)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLine_two() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=2"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 6)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLine_one() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=1"));
-    assertThat(readLines(), is(appendLog(expectedResult)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLine_zero() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=0"));
-    assertThat(readLines(), is(appendLog(expectedResult)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLine_negative() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=-1"));
-    assertThat(readLines(), is(asList(appendLog(expectedResult).get(5))));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_endLine_two() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&endLine=2"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(0, 2)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_endLine_one() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&endLine=1"));
-    assertThat(readLines(), is(asList(appendLog(expectedResult).get(0))));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_endLine_zero() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&endLine=0"));
-    assertThat(readLines(), is(Collections.<String> emptyList()));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_endLine_negativeOne() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&endLine=-1"));
-    assertThat(readLines(), is(appendLog(expectedResult)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_endLine_negativeTwo() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&endLine=-2"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(0, 5)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLineAndEndLine() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=2&endLine=-2"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 5)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLineAndEndLine_lowercase() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startline=2&endline=-2"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 5)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLineAndEndLine_bothPositive() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=2&endLine=5"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(1, 5)));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_startLineAndEndLine_bothNegative() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=-4&endLine=-2"));
-    assertThat(readLines(), is(appendLog(expectedResult).subList(2, 5)));
-
+  public void tearDown() throws Exception {
     // for efficiency, avoid counting the number of lines more than once
-    verify(logFileReader, times(1)).lineCount();
+    verify(logFileReader, atMost(1)).lineCount();
+
+    reader.close();
   }
 
   /**
-   * @throws Exception
    */
   @Test
-  public void testWrite_startLineAndEndLine_overlap() throws Exception {
-    output.setQuery(appendToQuery(query, "appendLog&startLine=4&endLine=-4"));
-    assertThat(readLines(), is(Collections.<String> emptyList()));
+  public void testReadEachCharacter() throws Exception {
+    StringBuilder result = new StringBuilder();
+    int character;
+    while ((character = reader.read()) != -1) {
+      result.append((char) character);
+    }
+    assertThat(result.toString(), is(joinLines(expectedLines)));
   }
 
   /**
-   * @throws Exception
    */
-  @Test(expected = IllegalArgumentException.class)
-  public void testWrite_negativePrecision() throws Exception {
-    output.setQuery(appendToQuery(query, "precision=-1"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test(expected = NumberFormatException.class)
-  public void testWrite_invalidPrecision() throws Exception {
-    output.setQuery(appendToQuery(query, "precision=invalid"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test(expected = NumberFormatException.class)
-  public void testWrite_invalidStartLine() throws Exception {
-    output.setQuery(appendToQuery(query, "startLine=invalid"));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test(expected = NumberFormatException.class)
-  public void testWrite_invalidEndLine() throws Exception {
-    output.setQuery(appendToQuery(query, "endLine=invalid"));
+  @Test
+  public void testReadAllAtOnce() throws Exception {
+    String expectedResult = joinLines(expectedLines);
+    char[] result = new char[expectedResult.length()];
+    reader.read(result, 0, result.length);
+    assertThat(String.valueOf(result), is(expectedResult));
   }
 
   /**
@@ -414,20 +282,20 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_noTimestamps() throws Exception {
+    // Remove formatted timestamps from expected result
+    if (query.appendLogLine) {
+      expectedLines = Lists.transform(expectedLines,
+          new Function<String, String>() {
+            @Override
+            public String apply(@Nonnull String input) {
+              return input.replaceFirst("^.*( \\w*)$", "$1");
+            }
+          });
+    } else {
+      expectedLines = Collections.emptyList();
+    }
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
-    output.setQuery(query);
-    assertThat(readLines(), is(Collections.<String> emptyList()));
-  }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void testWrite_noTimestamps_appendLog() throws Exception {
-    when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
-    output.setQuery(appendToQuery(query, "appendLog"));
-    assertThat(readLines(),
-        is(appendLog(listOfEmptyStrings(expectedResult.size()))));
+    assertThat(readLines(), is(expectedLines));
   }
 
   /**
@@ -435,125 +303,44 @@ public class TimestampsActionOutputTest {
    */
   @Test
   public void testWrite_noLogFile() throws Exception {
+    if (query.appendLogLine) {
+      // Remove log line from expected result
+      expectedLines = Lists.transform(expectedLines,
+          new Function<String, String>() {
+            @Override
+            public String apply(@Nonnull String input) {
+              return input.replaceFirst(" \\w*$", " ");
+            }
+          });
+    }
     when(logFileReader.nextLine()).thenReturn(Optional.<String> absent());
-    output.setQuery(query);
-    assertThat(readLines(), is(expectedResult));
+    assertThat(readLines(), is(expectedLines));
   }
 
   /**
    * @throws Exception
    */
   @Test
-  public void testWrite_noLogFile_appendLog() throws Exception {
+  public void testWrite_noTimestampsAndNoLogFile() throws Exception {
+    when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
     when(logFileReader.nextLine()).thenReturn(Optional.<String> absent());
-    output.setQuery(appendToQuery(query, "appendLog"));
-    assertThat(readLines(), is(expectedResult));
+    assertThat(readLines(), is(Collections.<String> emptyList()));
   }
 
-  /**
-   * Append additional parameters to the query string.
-   * 
-   * @param query
-   * @param additional
-   * @return the combined query string
-   */
-  private String appendToQuery(String query, String additional) {
-    if (Strings.isNullOrEmpty(query)) {
-      return additional;
-    }
-    return query + "&" + additional;
-  }
-
-  /**
-   * Prepend an additional parameter to the query string.
-   * 
-   * @param query
-   * @param additional
-   * @return the combined query string
-   */
-  private String prependToQuery(String query, String additional) {
-    if (Strings.isNullOrEmpty(query)) {
-      return additional;
-    }
-    return additional + "&" + query;
-  }
-
-  /**
-   * Append the expected log lines to the expected result.
-   * 
-   * @param lines
-   * @return the expected result including the contents of the log
-   */
-  private List<String> appendLog(List<String> lines) {
-    int i = 1;
-    List<String> result = new ArrayList<String>();
+  private String joinLines(List<String> lines) {
+    StringBuilder result = new StringBuilder();
     for (String line : lines) {
-      String logLine = "line" + i;
-      i++;
-
-      result.add(line.isEmpty() ? logLine : line + " " + logLine);
+      result.append(line).append("\n");
     }
-    return result;
+    return result.toString();
   }
 
-  /**
-   * Change the case of all query parameter names.
-   * 
-   * @param query
-   * @return the modified query
-   */
-  private String changeCaseOfQueryParameterNames(String query) {
-    if (Strings.isNullOrEmpty(query)) {
-      return query;
-    }
-
-    Pattern paramNamePattern = Pattern.compile("(^|\\&)(.+?)(\\=|\\&|$)");
-    Matcher m = paramNamePattern.matcher(query);
-    StringBuffer sb = new StringBuffer();
-    while (m.find()) {
-      String name = m.group();
-      name = (name.toLowerCase().equals(name) ? name.toUpperCase() : name
-          .toLowerCase());
-      m.appendReplacement(sb, name);
-    }
-    m.appendTail(sb);
-    String result = sb.toString();
-
-    if (result.equals(query)) {
-      throw new IllegalStateException(
-          "Invalid test. No changes made to query: " + query);
-    }
-    return result;
-  }
-
-  /**
-   * Create a list of empty strings.
-   * 
-   * @param size
-   * @return a new list
-   */
-  private List<String> listOfEmptyStrings(int size) {
-    List<String> emptyStrings = new ArrayList<String>();
-    for (int i = 0; i < size; i++) {
-      emptyStrings.add("");
-    }
-    return emptyStrings;
-  }
-
-  /**
-   * Read all lines from the {@link TimestampsActionOutput}.
-   * 
-   * @return the output lines
-   * @throws Exception
-   */
   private List<String> readLines() throws Exception {
     List<String> lines = new ArrayList<String>();
-    while (true) {
-      Optional<String> line = output.nextLine(timestampsReader, logFileReader);
-      if (!line.isPresent()) {
-        return lines;
-      }
-      lines.add(line.get());
+    String line;
+    while ((line = reader.readLine()) != null) {
+      lines.add(line);
     }
+    return lines;
   }
 }

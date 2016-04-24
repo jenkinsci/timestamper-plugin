@@ -24,32 +24,28 @@
 package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
-import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import hudson.plugins.timestamper.io.LogFileReader;
+import hudson.plugins.timestamper.io.TimestampNotesReader;
+import hudson.plugins.timestamper.io.TimestamperPaths;
+import hudson.plugins.timestamper.io.TimestampsFileReader;
 import hudson.plugins.timestamper.io.TimestampsReader;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.io.Reader;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
-import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Generate a page of time-stamps on behalf of {@link TimestampsAction}.
@@ -86,227 +82,134 @@ import com.google.common.collect.ImmutableList;
  */
 public class TimestampsActionOutput {
 
-  private int startLine;
-
-  private Optional<Integer> endLine;
-
-  private final List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
-
-  private boolean appendLogLine;
-
-  private int linesRead;
-
-  @CheckForNull
-  private Integer cachedLineCount;
-
-  public TimestampsActionOutput() {
-    setQuery(null);
-  }
-
   /**
-   * Set the query string.
+   * Open a reader which provides the page of time-stamps.
    * 
+   * @param build
    * @param query
-   *          the query string
+   * @return a {@link BufferedReader}
    */
-  public void setQuery(String query) {
-    startLine = 0;
-    endLine = Optional.absent();
-    timestampFormats.clear();
-    appendLogLine = false;
+  public static BufferedReader open(Run<?, ?> build, TimestampsActionQuery query) {
+    TimestampsReader timestampsReader;
+    if (TimestamperPaths.timestampsFile(build).isFile()) {
+      timestampsReader = new TimestampsFileReader(build);
+    } else {
+      timestampsReader = new TimestampNotesReader(build);
+    }
 
-    List<QueryParameter> queryParameters = readQueryString(query);
+    LogFileReader logFileReader = new LogFileReader(build);
 
-    Optional<String> timeZoneId = Optional.absent();
-    Locale locale = Locale.getDefault();
-    for (QueryParameter parameter : queryParameters) {
-      if (parameter.name.equalsIgnoreCase("timeZone")) {
-        // '+' was replaced with ' ' by URL decoding, so put it back.
-        timeZoneId = Optional.of(parameter.value.replace("GMT ", "GMT+"));
-      } else if (parameter.name.equalsIgnoreCase("locale")) {
-        locale = LocaleUtils.toLocale(parameter.value);
+    return open(timestampsReader, logFileReader, query);
+  }
+
+  static BufferedReader open(final TimestampsReader timestampsReader,
+      final LogFileReader logFileReader, final TimestampsActionQuery query) {
+    final StringBuilder buffer = new StringBuilder();
+
+    Reader reader = new Reader() {
+      int linesRead;
+      Optional<Integer> endLine = Optional.absent();
+      boolean started;
+
+      @Override
+      public int read(char[] cbuf, int off, int len) throws IOException {
+        if (!started) {
+          LineCountSupplier lineCount = new LineCountSupplier(logFileReader);
+          linesRead = readToStartLine(query, lineCount);
+          endLine = resolveEndLine(query, lineCount);
+          started = true;
+        }
+        while (buffer.length() < len) {
+          Optional<String> nextLine = readNextLine(query);
+          if (!nextLine.isPresent()) {
+            break;
+          }
+          linesRead++;
+          if (endLine.isPresent() && linesRead > endLine.get()) {
+            break;
+          }
+          buffer.append(nextLine.get());
+          buffer.append("\n");
+        }
+        int numRead = new StringReader(buffer.toString()).read(cbuf, off, len);
+        buffer.delete(0, (numRead >= 0 ? numRead : buffer.length()));
+        return numRead;
       }
-    }
 
-    for (QueryParameter parameter : queryParameters) {
-      if (parameter.name.equalsIgnoreCase("time")) {
-        timestampFormats.add(new SystemTimestampFormat(parameter.value,
-            timeZoneId, locale));
-      } else if (parameter.name.equalsIgnoreCase("elapsed")) {
-        timestampFormats.add(new ElapsedTimestampFormat(parameter.value));
-      } else if (parameter.name.equalsIgnoreCase("precision")) {
-        int precision = readPrecision(parameter.value);
-        timestampFormats.add(new PrecisionTimestampFormat(precision));
-      } else if (parameter.name.equalsIgnoreCase("appendLog")) {
-        appendLogLine = (parameter.value.isEmpty() || Boolean
-            .parseBoolean(parameter.value));
-      } else if (parameter.name.equalsIgnoreCase("startLine")) {
-        startLine = Integer.parseInt(parameter.value);
-      } else if (parameter.name.equalsIgnoreCase("endLine")) {
-        endLine = Optional.of(Integer.valueOf(parameter.value));
+      private int readToStartLine(TimestampsActionQuery query,
+          LineCountSupplier lineCount) throws IOException {
+        int linesToSkip = Math.max(query.startLine - 1, 0);
+        if (query.startLine < 0) {
+          linesToSkip = lineCount.get() + query.startLine;
+        }
+
+        for (int line = 0; line < linesToSkip; line++) {
+          timestampsReader.read();
+          logFileReader.nextLine();
+        }
+        return linesToSkip;
       }
-    }
 
-    if (timestampFormats.isEmpty()) {
-      // Default
-      timestampFormats.add(new PrecisionTimestampFormat(3));
-    }
-  }
-
-  private List<QueryParameter> readQueryString(String query) {
-    ImmutableList.Builder<QueryParameter> parameters = new ImmutableList.Builder<QueryParameter>();
-    if (query != null) {
-      String[] pairs = query.split("&");
-      for (String pair : pairs) {
-        String[] nameAndValue = pair.split("=", 2);
-        String name = urlDecode(nameAndValue[0]);
-        String value = (nameAndValue.length == 1 ? ""
-            : urlDecode(nameAndValue[1]));
-        parameters.add(new QueryParameter(name, value));
+      private Optional<Integer> resolveEndLine(TimestampsActionQuery query,
+          LineCountSupplier lineCount) throws IOException {
+        if (query.endLine.isPresent() && query.endLine.get() < 0) {
+          return Optional.of(lineCount.get() + query.endLine.get() + 1);
+        }
+        return query.endLine;
       }
-    }
-    return parameters.build();
-  }
 
-  private String urlDecode(String string) {
-    try {
-      return URLDecoder.decode(string, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
-  }
+      private Optional<String> readNextLine(TimestampsActionQuery query)
+          throws IOException {
 
-  private int readPrecision(String precision) {
-    if ("seconds".equalsIgnoreCase(precision)) {
-      return 0;
-    }
-    if ("milliseconds".equalsIgnoreCase(precision)) {
-      return 3;
-    }
-    if ("microseconds".equalsIgnoreCase(precision)) {
-      return 6;
-    }
-    if ("nanoseconds".equalsIgnoreCase(precision)) {
-      return 9;
-    }
-    int intPrecision = Integer.parseInt(precision);
-    if (intPrecision < 0) {
-      throw new IllegalArgumentException(
-          "Expected non-negative precision, but was: " + precision);
-    }
-    return intPrecision;
-  }
+        Optional<Timestamp> timestamp = timestampsReader.read();
+        String result = "";
+        if (timestamp.isPresent()) {
+          List<String> parts = new ArrayList<String>();
+          for (Function<Timestamp, String> format : query.timestampFormats) {
+            parts.add(format.apply(timestamp.get()));
+          }
+          result = Joiner.on(' ').join(parts);
+        }
 
-  /**
-   * Generate the next line in the page of time-stamps.
-   * 
-   * @param timestampsReader
-   * @param logFileReader
-   * @return the next line
-   * @throws IOException
-   */
-  public Optional<String> nextLine(TimestampsReader timestampsReader,
-      LogFileReader logFileReader) throws IOException {
+        if (query.appendLogLine) {
+          Optional<String> logFileLine = logFileReader.nextLine();
+          result += " " + logFileLine.or("");
+        }
 
-    linesRead += readToStartLine(timestampsReader, logFileReader);
-    resolveEndLine(logFileReader);
-    if (endLine.isPresent() && linesRead >= endLine.get()) {
-      return Optional.absent();
-    }
-
-    List<String> parts = new ArrayList<String>();
-
-    Optional<Timestamp> timestamp = timestampsReader.read();
-    linesRead++;
-    if (timestamp.isPresent()) {
-      for (Function<Timestamp, String> format : timestampFormats) {
-        parts.add(format.apply(timestamp.get()));
+        if (result.trim().isEmpty()) {
+          return Optional.absent();
+        }
+        return Optional.of(result);
       }
-    }
 
-    if (appendLogLine) {
-      Optional<String> logFileLine = logFileReader.nextLine();
-      if (logFileLine.isPresent()) {
-        parts.add(logFileLine.get());
+      @Override
+      public void close() throws IOException {
+        timestampsReader.close();
+        logFileReader.close();
       }
-    }
+    };
 
-    if (parts.isEmpty()) {
-      return Optional.absent();
-    }
-    return Optional.of(Joiner.on(' ').join(parts));
+    return new BufferedReader(reader);
   }
 
-  private int readToStartLine(TimestampsReader timestampsReader,
-      LogFileReader logFileReader) throws IOException {
-    int linesToSkip = Math.max(startLine - 1, 0);
-    if (startLine < 0) {
-      int lineCount = getLineCount(logFileReader);
-      linesToSkip = lineCount + startLine;
-    }
-    startLine = 0;
+  private static class LineCountSupplier {
 
-    for (int line = 0; line < linesToSkip; line++) {
-      timestampsReader.read();
-      logFileReader.nextLine();
-    }
-    return linesToSkip;
-  }
+    private final LogFileReader logFileReader;
 
-  private void resolveEndLine(LogFileReader logFileReader) throws IOException {
-    if (endLine.isPresent() && endLine.get() < 0) {
-      int lineCount = getLineCount(logFileReader);
-      endLine = Optional.of(lineCount + endLine.get() + 1);
-    }
-  }
+    private Optional<Integer> lineCount = Optional.absent();
 
-  private int getLineCount(LogFileReader logFileReader) throws IOException {
-    if (cachedLineCount == null) {
-      cachedLineCount = logFileReader.lineCount();
-    }
-    return cachedLineCount;
-  }
-
-  private static class QueryParameter {
-
-    final String name;
-
-    final String value;
-
-    QueryParameter(String name, String value) {
-      this.name = checkNotNull(name);
-      this.value = checkNotNull(value);
+    LineCountSupplier(LogFileReader logFileReader) {
+      this.logFileReader = checkNotNull(logFileReader);
     }
 
-    @Override
-    public String toString() {
-      return name + "=" + value;
-    }
-  }
-
-  private static class PrecisionTimestampFormat implements
-      Function<Timestamp, String> {
-
-    private final int precision;
-
-    PrecisionTimestampFormat(int precision) {
-      this.precision = precision;
-    }
-
-    @Override
-    public String apply(@Nonnull Timestamp timestamp) {
-      long seconds = timestamp.elapsedMillis / 1000;
-      if (precision == 0) {
-        return String.valueOf(seconds);
+    int get() throws IOException {
+      if (!lineCount.isPresent()) {
+        lineCount = Optional.of(logFileReader.lineCount());
       }
-      long millis = timestamp.elapsedMillis % 1000;
-      String fractional = String.format("%03d", millis);
-      if (precision <= 3) {
-        fractional = fractional.substring(0, precision);
-      } else {
-        fractional += Strings.repeat("0", precision - 3);
-      }
-      return String.valueOf(seconds) + "." + fractional;
+      return lineCount.get();
     }
+  }
+
+  private TimestampsActionOutput() {
   }
 }

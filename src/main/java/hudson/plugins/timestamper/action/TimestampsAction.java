@@ -26,12 +26,9 @@ package hudson.plugins.timestamper.action;
 import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Action;
 import hudson.model.Run;
-import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.TimestampNotesReader;
-import hudson.plugins.timestamper.io.TimestamperPaths;
-import hudson.plugins.timestamper.io.TimestampsFileReader;
-import hudson.plugins.timestamper.io.TimestampsReader;
+import hudson.plugins.timestamper.io.Closeables;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
@@ -39,8 +36,6 @@ import java.util.logging.Logger;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import com.google.common.base.Optional;
 
 /**
  * Action which serves a page of time-stamps. The format of this page will not
@@ -61,21 +56,13 @@ public final class TimestampsAction implements Action {
   private final Run<?, ?> build;
 
   /**
-   * Generates the page of time-stamps.
-   */
-  private final TimestampsActionOutput output;
-
-  /**
    * Create a {@link TimestampsAction} for the given build.
    * 
    * @param build
    *          the build to inspect
-   * @param output
-   *          generates the page of time-stamps
    */
-  TimestampsAction(Run<?, ?> build, TimestampsActionOutput output) {
+  TimestampsAction(Run<?, ?> build) {
     this.build = checkNotNull(build);
-    this.output = checkNotNull(output);
   }
 
   /**
@@ -113,25 +100,16 @@ public final class TimestampsAction implements Action {
       throws IOException {
     response.setContentType("text/plain;charset=UTF-8");
 
-    TimestampsReader timestampsReader;
-    if (TimestamperPaths.timestampsFile(build).isFile()) {
-      timestampsReader = new TimestampsFileReader(build);
-    } else {
-      timestampsReader = new TimestampNotesReader(build);
-    }
-
-    LogFileReader logFileReader = new LogFileReader(build);
-
     PrintWriter writer = response.getWriter();
+
+    TimestampsActionQuery query = TimestampsActionQuery.create(request
+        .getQueryString());
+    BufferedReader reader = TimestampsActionOutput.open(build, query);
+
     try {
-      output.setQuery(request.getQueryString());
-      while (true) {
-        Optional<String> line = output
-            .nextLine(timestampsReader, logFileReader);
-        if (!line.isPresent()) {
-          break;
-        }
-        writer.println(line.get());
+      String line;
+      while ((line = reader.readLine()) != null) {
+        writer.println(line);
       }
     } catch (Exception e) {
       String urlWithQueryString = request.getRequestURLWithQueryString()
@@ -140,8 +118,7 @@ public final class TimestampsAction implements Action {
       writer.println(e.getClass().getSimpleName() + ": " + e.getMessage());
       LOGGER.log(Level.WARNING, urlWithQueryString, e);
     } finally {
-      timestampsReader.close();
-      logFileReader.close();
+      Closeables.closeQuietly(reader);
       writer.flush();
     }
   }
