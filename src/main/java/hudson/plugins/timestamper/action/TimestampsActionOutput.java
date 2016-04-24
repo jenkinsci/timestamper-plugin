@@ -168,7 +168,7 @@ public class TimestampsActionOutput {
           result = Joiner.on(' ').join(parts);
         }
         if (query.appendLogLine) {
-          result += " ";
+          result += "  ";
           if (logFileLine.isPresent()) {
             result += logFileLine.get().contents;
           }
