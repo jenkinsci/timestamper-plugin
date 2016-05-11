@@ -260,7 +260,7 @@ public class TimestampsActionOutputTest {
   /**
    */
   @Test
-  public void testReadEachCharacter() throws Exception {
+  public void testRead_eachCharacter() throws Exception {
     StringBuilder result = new StringBuilder();
     int character;
     while ((character = reader.read()) != -1) {
@@ -272,7 +272,7 @@ public class TimestampsActionOutputTest {
   /**
    */
   @Test
-  public void testReadAllAtOnce() throws Exception {
+  public void testRead_allAtOnce() throws Exception {
     String expectedResult = joinLines(expectedLines);
     char[] result = new char[expectedResult.length()];
     reader.read(result, 0, result.length);
@@ -283,7 +283,7 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_noTimestamps() throws Exception {
+  public void testRead_noTimestamps() throws Exception {
     // Remove formatted timestamps from expected result
     if (query.appendLogLine) {
       expectedLines = Lists.transform(expectedLines,
@@ -304,7 +304,7 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_timestampsInLogFileOnly() throws Exception {
+  public void testRead_timestampsInLogFileOnly() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
 
     OngoingStubbing<Optional<Line>> nextLineStubbing = when(logFileReader
@@ -322,7 +322,7 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_noLogFile() throws Exception {
+  public void testRead_noLogFile() throws Exception {
     if (query.appendLogLine) {
       // Remove log line from expected result
       expectedLines = Lists.transform(expectedLines,
@@ -341,7 +341,7 @@ public class TimestampsActionOutputTest {
    * @throws Exception
    */
   @Test
-  public void testWrite_noTimestampsAndNoLogFile() throws Exception {
+  public void testRead_noTimestampsAndNoLogFile() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
     when(logFileReader.nextLine()).thenReturn(Optional.<Line> absent());
     assertThat(readLines(), is(Collections.<String> emptyList()));
