@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>timestamper</artifactId>
-  <version>1.8.3</version>
+  <version>1.8.4-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Timestamper</name>
@@ -36,7 +36,7 @@
     <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/timestamper-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/timestamper-plugin</url>
-    <tag>timestamper-1.8.3</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <repositories>
