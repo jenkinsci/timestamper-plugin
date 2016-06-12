@@ -38,6 +38,8 @@ import java.io.Serializable;
 
 import javax.annotation.Nonnull;
 
+import jenkins.YesNoMaybe;
+
 import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
@@ -100,7 +102,7 @@ public class TimestamperStep extends AbstractStepImpl {
   /**
    * Descriptor for {@link TimestamperStep}.
    */
-  @Extension
+  @Extension(dynamicLoadable = YesNoMaybe.YES)
   public static class DescriptorImpl extends AbstractStepDescriptorImpl {
 
     /**
