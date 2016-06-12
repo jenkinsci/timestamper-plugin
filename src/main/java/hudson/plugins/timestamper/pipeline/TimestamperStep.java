@@ -102,7 +102,7 @@ public class TimestamperStep extends AbstractStepImpl {
   /**
    * Descriptor for {@link TimestamperStep}.
    */
-  @Extension(dynamicLoadable = YesNoMaybe.YES)
+  @Extension(dynamicLoadable = YesNoMaybe.YES, optional = true)
   public static class DescriptorImpl extends AbstractStepDescriptorImpl {
 
     /**
