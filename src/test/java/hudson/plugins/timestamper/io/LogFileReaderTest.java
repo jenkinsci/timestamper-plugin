@@ -160,15 +160,23 @@ public class LogFileReaderTest {
   }
 
   private void testNextLine() throws Exception {
-    List<Optional<Line>> lines = new ArrayList<Optional<Line>>();
+    List<String> texts = new ArrayList<String>();
+    List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
     for (int i = 0; i < 3; i++) {
-      lines.add(logFileReader.nextLine());
+      Optional<Line> line = logFileReader.nextLine();
+      if (!line.isPresent()) {
+        break;
+      }
+      texts.add(line.get().getText());
+      timestamps.add(line.get().readTimestamp());
     }
-    List<Optional<Line>> expectedLines = ImmutableList.of(
-        Optional.of(new Line("line1", Optional.<Timestamp> absent())),
-        Optional.of(new Line("line2", Optional.of(timestamp))),
-        Optional.<Line> absent());
-    assertThat(lines, is(expectedLines));
+
+    List<String> expectedTexts = ImmutableList.of("line1", "line2");
+    assertThat("texts", texts, is(expectedTexts));
+
+    List<Optional<Timestamp>> expectedTimestamps = ImmutableList.of(
+        Optional.<Timestamp> absent(), Optional.of(timestamp));
+    assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
   /**
@@ -209,7 +217,7 @@ public class LogFileReaderTest {
       if (!line.isPresent()) {
         break;
       }
-      timestamps.add(line.get().timestamp);
+      timestamps.add(line.get().readTimestamp());
     }
 
     List<Optional<Timestamp>> expectedTimestamps = new ArrayList<Optional<Timestamp>>();

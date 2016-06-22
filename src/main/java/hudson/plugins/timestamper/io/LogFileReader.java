@@ -49,36 +49,93 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public class LogFileReader {
 
+  /**
+   * A line read from the log file of a build.
+   */
   public static class Line {
 
-    public final String contents;
+    private final String line;
 
-    public final Optional<Timestamp> timestamp;
+    private final Run<?, ?> build;
 
-    public Line(String contents, Optional<Timestamp> timestamp) {
-      this.contents = checkNotNull(contents);
-      this.timestamp = checkNotNull(timestamp);
+    private Line(String line, Run<?, ?> build) {
+      this.line = checkNotNull(line);
+      this.build = checkNotNull(build);
     }
 
+    /**
+     * Get the text from this line, without the console notes.
+     * 
+     * @return the text
+     */
+    public String getText() {
+      return ConsoleNote.removeNotes(line);
+    }
+
+    /**
+     * Read the time-stamp from this line, if it has one.
+     * 
+     * @return the time-stamp
+     */
+    public Optional<Timestamp> readTimestamp() {
+      byte[] bytes = line.getBytes(build.getCharset());
+      int length = bytes.length;
+
+      int index = 0;
+      while (true) {
+        index = ConsoleNote.findPreamble(bytes, index, length - index);
+        if (index == -1) {
+          return Optional.absent();
+        }
+        CountingInputStream inputStream = new CountingInputStream(
+            new ByteArrayInputStream(bytes, index, length - index));
+
+        try {
+          ConsoleNote<?> consoleNote = ConsoleNote
+              .readFrom(new DataInputStream(inputStream));
+          if (consoleNote instanceof TimestampNote) {
+            TimestampNote timestampNote = (TimestampNote) consoleNote;
+            Timestamp timestamp = timestampNote.getTimestamp(build);
+            return Optional.of(timestamp);
+          }
+        } catch (IOException e) {
+          // Error reading console note, e.g. end of stream. Ignore.
+        } catch (ClassNotFoundException e) {
+          // Unknown console note. Ignore.
+        }
+
+        // Advance at least one character to avoid an infinite loop.
+        index += Math.max(inputStream.getCount(), 1);
+      }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
-      return Objects.hashCode(contents, timestamp);
+      return Objects.hashCode(line, build);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof Line) {
         Line other = (Line) obj;
-        return contents.equals(other.contents)
-            && timestamp.equals(other.timestamp);
+        return line.equals(other.line) && build.equals(other.build);
       }
       return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).add("contents", contents)
-          .add("timestamp", timestamp).toString();
+      return Objects.toStringHelper(this).add("line", line).add("build", build)
+          .toString();
     }
   }
 
@@ -114,41 +171,7 @@ public class LogFileReader {
     if (line == null) {
       return Optional.absent();
     }
-    Optional<Timestamp> timestamp = readTimestamp(line);
-    line = ConsoleNote.removeNotes(line);
-    return Optional.of(new Line(line, timestamp));
-  }
-
-  private Optional<Timestamp> readTimestamp(String line) {
-    byte[] bytes = line.getBytes(build.getCharset());
-    int length = bytes.length;
-
-    int index = 0;
-    while (true) {
-      index = ConsoleNote.findPreamble(bytes, index, length - index);
-      if (index == -1) {
-        return Optional.absent();
-      }
-      CountingInputStream inputStream = new CountingInputStream(
-          new ByteArrayInputStream(bytes, index, length - index));
-
-      try {
-        ConsoleNote<?> consoleNote = ConsoleNote.readFrom(new DataInputStream(
-            inputStream));
-        if (consoleNote instanceof TimestampNote) {
-          TimestampNote timestampNote = (TimestampNote) consoleNote;
-          Timestamp timestamp = timestampNote.getTimestamp(build);
-          return Optional.of(timestamp);
-        }
-      } catch (IOException e) {
-        // Error reading console note, e.g. end of stream. Ignore.
-      } catch (ClassNotFoundException e) {
-        // Unknown console note. Ignore.
-      }
-
-      // Advance at least one character to avoid an infinite loop.
-      index += Math.max(inputStream.getCount(), 1);
-    }
+    return Optional.of(new Line(line, build));
   }
 
   /**

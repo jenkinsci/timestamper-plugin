@@ -156,7 +156,7 @@ public class TimestampsActionOutput {
         Optional<Timestamp> timestamp = timestampsReader.read();
         Optional<Line> logFileLine = logFileReader.nextLine();
         if (logFileLine.isPresent() && !timestamp.isPresent()) {
-          timestamp = logFileLine.get().timestamp;
+          timestamp = logFileLine.get().readTimestamp();
         }
 
         String result = "";
@@ -170,7 +170,7 @@ public class TimestampsActionOutput {
         if (query.appendLogLine) {
           result += "  ";
           if (logFileLine.isPresent()) {
-            result += logFileLine.get().contents;
+            result += logFileLine.get().getText();
           }
         }
 

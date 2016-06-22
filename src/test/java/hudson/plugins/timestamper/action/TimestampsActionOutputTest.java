@@ -232,12 +232,19 @@ public class TimestampsActionOutputTest {
     }
     readStubbing.thenReturn(Optional.<Timestamp> absent());
 
+    List<Line> lines = new ArrayList<Line>();
+    for (int i = 1; i <= TIMESTAMPS.size(); i++) {
+      Line line = mock(Line.class);
+      when(line.getText()).thenReturn("line" + i);
+      when(line.readTimestamp()).thenReturn(Optional.<Timestamp> absent());
+      lines.add(line);
+    }
+
     logFileReader = mock(LogFileReader.class);
     OngoingStubbing<Optional<Line>> nextLineStubbing = when(logFileReader
         .nextLine());
-    for (int i = 1; i <= TIMESTAMPS.size(); i++) {
-      nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(new Line(
-          "line" + i, Optional.<Timestamp> absent())));
+    for (Line line : lines) {
+      nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
     nextLineStubbing.thenReturn(Optional.<Line> absent());
     when(logFileReader.lineCount()).thenReturn(6);
@@ -307,11 +314,20 @@ public class TimestampsActionOutputTest {
   public void testRead_timestampsInLogFileOnly() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp> absent());
 
+    List<Line> lines = new ArrayList<Line>();
+    int i = 1;
+    for (Timestamp timestamp : TIMESTAMPS) {
+      Line line = mock(Line.class);
+      when(line.getText()).thenReturn("line" + i);
+      when(line.readTimestamp()).thenReturn(Optional.of(timestamp));
+      lines.add(line);
+      i++;
+    }
+
     OngoingStubbing<Optional<Line>> nextLineStubbing = when(logFileReader
         .nextLine());
-    for (int i = 1; i <= TIMESTAMPS.size(); i++) {
-      nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(new Line(
-          "line" + i, Optional.of(TIMESTAMPS.get(i - 1)))));
+    for (Line line : lines) {
+      nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
     nextLineStubbing.thenReturn(Optional.<Line> absent());
 
