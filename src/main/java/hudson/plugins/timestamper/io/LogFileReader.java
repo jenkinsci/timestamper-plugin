@@ -33,12 +33,12 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import javax.annotation.CheckForNull;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
+import com.google.common.io.CountingInputStream;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -119,35 +119,35 @@ public class LogFileReader {
     return Optional.of(new Line(line, timestamp));
   }
 
-  private Optional<Timestamp> readTimestamp(String line) throws IOException {
-    Charset charset = build.getCharset();
-    DataInputStream dataInputStream = new DataInputStream(
-        new ByteArrayInputStream(line.getBytes(charset)));
-    try {
-      while (true) {
-        dataInputStream.mark(1);
-        int currentByte = dataInputStream.read();
-        if (currentByte == -1) {
-          return Optional.absent();
-        }
-        if (currentByte == ConsoleNote.PREAMBLE[0]) {
-          dataInputStream.reset();
-          ConsoleNote<?> consoleNote;
-          try {
-            consoleNote = ConsoleNote.readFrom(dataInputStream);
-          } catch (ClassNotFoundException ex) {
-            // Unknown console note. Ignore.
-            continue;
-          }
-          if (consoleNote instanceof TimestampNote) {
-            TimestampNote timestampNote = (TimestampNote) consoleNote;
-            Timestamp timestamp = timestampNote.getTimestamp(build);
-            return Optional.of(timestamp);
-          }
-        }
+  private Optional<Timestamp> readTimestamp(String line) {
+    byte[] bytes = line.getBytes(build.getCharset());
+    int length = bytes.length;
+
+    int index = 0;
+    while (true) {
+      index = ConsoleNote.findPreamble(bytes, index, length - index);
+      if (index == -1) {
+        return Optional.absent();
       }
-    } finally {
-      Closeables.closeQuietly(dataInputStream);
+      CountingInputStream inputStream = new CountingInputStream(
+          new ByteArrayInputStream(bytes, index, length - index));
+
+      try {
+        ConsoleNote<?> consoleNote = ConsoleNote.readFrom(new DataInputStream(
+            inputStream));
+        if (consoleNote instanceof TimestampNote) {
+          TimestampNote timestampNote = (TimestampNote) consoleNote;
+          Timestamp timestamp = timestampNote.getTimestamp(build);
+          return Optional.of(timestamp);
+        }
+      } catch (IOException e) {
+        // Error reading console note, e.g. end of stream. Ignore.
+      } catch (ClassNotFoundException e) {
+        // Unknown console note. Ignore.
+      }
+
+      // Advance at least one character to avoid an infinite loop.
+      index += Math.max(inputStream.getCount(), 1);
     }
   }
 

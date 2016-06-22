@@ -28,20 +28,25 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.PluginManager;
+import hudson.console.ConsoleNote;
 import hudson.model.AbstractBuild;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.io.LogFileReader.Line;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import jenkins.model.Jenkins;
 
+import org.apache.commons.codec.binary.Base64OutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,6 +55,7 @@ import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
@@ -88,6 +94,7 @@ public class LogFileReaderTest {
     build = mock(AbstractBuild.class);
     when(build.getLogInputStream()).thenCallRealMethod();
     when(build.getLogReader()).thenCallRealMethod();
+    Whitebox.setInternalState(build, "charset", Charsets.UTF_8.name());
 
     logFileReader = new LogFileReader(build);
 
@@ -171,6 +178,62 @@ public class LogFileReaderTest {
   public void testNextLine_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);
     assertThat(logFileReader.nextLine(), is(Optional.<Line> absent()));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testReadTimestamp_logContainsEscapeCharacters() throws Exception {
+    File logFile = tempFolder.newFile();
+    when(build.getLogFile()).thenReturn(logFile);
+
+    List<String> logFileContents = Arrays.asList(
+        "\u001B[35m\u001B[1mScanning dependencies of target\u001B[0m",
+        //
+        "abc" + ConsoleNote.PREAMBLE_STR, "abc" + ConsoleNote.PREAMBLE_STR
+            + "def",
+        //
+        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, ""),
+        //
+        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, "de")
+            + ConsoleNote.POSTAMBLE_STR.substring(0, 2),
+        //
+        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, "de")
+            + ConsoleNote.POSTAMBLE_STR);
+    Files.write(Joiner.on('\n').join(logFileContents), logFile, Charsets.UTF_8);
+
+    List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
+    for (int i = 0; i <= logFileContents.size(); i++) {
+      Optional<Line> line = logFileReader.nextLine();
+      if (!line.isPresent()) {
+        break;
+      }
+      timestamps.add(line.get().timestamp);
+    }
+
+    List<Optional<Timestamp>> expectedTimestamps = new ArrayList<Optional<Timestamp>>();
+    for (int i = 0; i < logFileContents.size(); i++) {
+      expectedTimestamps.add(Optional.<Timestamp> absent());
+    }
+    assertThat(timestamps, is(expectedTimestamps));
+  }
+
+  private String encodeConsoleNote(int size, String content) throws Exception {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    DataOutputStream dataOutputStream = new DataOutputStream(
+        new Base64OutputStream(byteArrayOutputStream, true, -1, null));
+
+    boolean threw = true;
+    try {
+      dataOutputStream.writeInt(size);
+      dataOutputStream.writeBytes(content);
+      threw = false;
+    } finally {
+      Closeables.close(dataOutputStream, threw);
+    }
+
+    return byteArrayOutputStream.toString();
   }
 
   /**
