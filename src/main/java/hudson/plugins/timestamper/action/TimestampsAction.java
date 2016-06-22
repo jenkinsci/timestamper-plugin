@@ -37,6 +37,8 @@ import java.util.logging.Logger;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import com.google.common.base.Strings;
+
 /**
  * Action which serves a page of time-stamps. The format of this page will not
  * change, so it can be safely parsed by scripts.
@@ -115,7 +117,9 @@ public final class TimestampsAction implements Action {
       String urlWithQueryString = request.getRequestURLWithQueryString()
           .toString();
       writer.println(urlWithQueryString);
-      writer.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+      String exceptionMessage = Strings.nullToEmpty(e.getMessage());
+      writer.println(e.getClass().getSimpleName()
+          + (exceptionMessage.isEmpty() ? "" : ": " + exceptionMessage));
       LOGGER.log(Level.WARNING, urlWithQueryString, e);
     } finally {
       Closeables.closeQuietly(reader);
