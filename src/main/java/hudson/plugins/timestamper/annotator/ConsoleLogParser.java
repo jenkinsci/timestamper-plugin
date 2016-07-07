@@ -40,12 +40,12 @@ interface ConsoleLogParser extends Serializable {
   /**
    * Skip to a position in the console log file.
    * 
-   * @param build
+   * @param text
    *          the build to inspect
    * @return the result
    * @throws IOException
    */
-  Result seek(Run<?, ?> build) throws IOException;
+  Result seek(String text, long length) throws IOException;
 
   static final class Result {
 

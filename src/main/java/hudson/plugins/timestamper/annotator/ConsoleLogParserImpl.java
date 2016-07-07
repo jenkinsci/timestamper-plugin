@@ -23,10 +23,8 @@
  */
 package hudson.plugins.timestamper.annotator;
 
-import hudson.model.Run;
 import hudson.plugins.timestamper.io.Closeables;
-
-import java.io.BufferedInputStream;
+import org.apache.tools.ant.filters.StringInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -60,14 +58,14 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
    * {@inheritDoc}
    */
   @Override
-  public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
+  public ConsoleLogParser.Result seek(String text, long length) throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
     result.atNewLine = true;
-    InputStream inputStream = new BufferedInputStream(build.getLogInputStream());
+    InputStream inputStream = new StringInputStream(text);
     try {
       long posFromStart = pos;
       if (pos < 0) {
-        posFromStart = build.getLogText().length() + pos;
+        posFromStart = length + pos;
       }
       for (long i = 0; i < posFromStart; i++) {
         int value = inputStream.read();

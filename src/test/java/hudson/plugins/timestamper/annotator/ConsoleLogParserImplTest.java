@@ -25,12 +25,6 @@ package hudson.plugins.timestamper.annotator;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import hudson.console.AnnotatedLargeText;
-import hudson.model.Run;
-
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -72,7 +66,7 @@ public class ConsoleLogParserImplTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  private Run<?, ?> build;
+  private String consoleLog;
 
   private int logLength;
 
@@ -81,16 +75,9 @@ public class ConsoleLogParserImplTest {
    */
   @Before
   public void setUp() throws Exception {
-    build = mock(Run.class);
-    when(build.getRootDir()).thenReturn(folder.getRoot());
-    byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE,
-        0x61, NEWLINE };
-    logLength = consoleLog.length;
-    when(build.getLogInputStream()).thenReturn(
-        new ByteArrayInputStream(consoleLog));
-    AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
-    when(logText.length()).thenReturn((long) logLength);
-    when(build.getLogText()).thenReturn(logText);
+    consoleLog = new String(new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE,
+            0x61, NEWLINE });
+    logLength = consoleLog.length();
   }
 
   /**
@@ -185,6 +172,6 @@ public class ConsoleLogParserImplTest {
     if (serialize) {
       parser = (ConsoleLogParserImpl) SerializationUtils.clone(parser);
     }
-    return parser.seek(build);
+    return parser.seek(consoleLog, logLength);
   }
 }

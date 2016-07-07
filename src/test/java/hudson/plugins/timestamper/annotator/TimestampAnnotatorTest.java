@@ -37,6 +37,7 @@ import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,6 +103,7 @@ public class TimestampAnnotatorTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
+    when(build.getLogFile()).thenReturn(mock(File.class));
 
     logPosition = new ConsoleLogParserImpl.Result();
     capturedTimestamps = new ArrayList<Timestamp>();
@@ -178,7 +180,9 @@ public class TimestampAnnotatorTest {
       if (serialize) {
         annotator = (ConsoleAnnotator) SerializationUtils.clone(annotator);
       }
-      annotator = annotator.annotate(build, mock(MarkupText.class));
+      MarkupText text = mock(MarkupText.class);
+      when(text.getText()).thenReturn("Something");
+      annotator = annotator.annotate(build, text);
       iterations++;
       if (iterations > 100) {
         throw new AssertionError("annotator is not terminating");
@@ -212,7 +216,7 @@ public class TimestampAnnotatorTest {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public Result seek(Run<?, ?> build) throws IOException {
+    public Result seek(String ignored1, long ignored2) throws IOException {
       return logPosition;
     }
   }
