@@ -41,7 +41,9 @@ interface ConsoleLogParser extends Serializable {
    * Skip to a position in the console log file.
    * 
    * @param text
-   *          the build to inspect
+   *          the text to parse
+   * @param length
+   *          the length of log file
    * @return the result
    * @throws IOException
    */
