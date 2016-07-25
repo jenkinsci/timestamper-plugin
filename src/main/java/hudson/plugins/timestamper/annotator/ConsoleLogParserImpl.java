@@ -24,7 +24,6 @@
 package hudson.plugins.timestamper.annotator;
 
 import hudson.model.Run;
-import hudson.plugins.timestamper.io.Closeables;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -34,7 +33,7 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * Implementation of ConsoleLogParser.
- * 
+ *
  * @author Steven G. Brown
  */
 @Immutable
@@ -46,7 +45,7 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
 
   /**
    * Create a new {@link ConsoleLogParserImpl}.
-   * 
+   *
    * @param pos
    *          the position to find in the console log file. A non-negative
    *          position is from the start of the file, and a negative position is
@@ -63,8 +62,7 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
   public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
     result.atNewLine = true;
-    InputStream inputStream = new BufferedInputStream(build.getLogInputStream());
-    try {
+    try (InputStream inputStream = new BufferedInputStream(build.getLogInputStream())) {
       long posFromStart = pos;
       if (pos < 0) {
         posFromStart = build.getLogText().length() + pos;
@@ -80,8 +78,6 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
           result.lineNumber++;
         }
       }
-    } finally {
-      Closeables.closeQuietly(inputStream);
     }
     return result;
   }
