@@ -49,8 +49,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
   private static final long serialVersionUID = 1L;
 
-  private static final Logger LOGGER = Logger
-      .getLogger(TimestampAnnotator.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(TimestampAnnotator.class.getName());
 
   private final ConsoleLogParser logParser;
 
@@ -86,6 +85,13 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
         if (logPosition.endOfFile) {
           return null; // do not annotate the following lines
         }
+
+        if (logPosition.lineNumber < 0) {
+          TimestampsReader temproryTimestampsReader = new TimestampsReader(build);
+          logPosition.lineNumber = temproryTimestampsReader.getAbs(logPosition.lineNumber);
+          temproryTimestampsReader.close();
+        }
+
         timestampsReader = new TimestampsReader(build);
         timestampsReader.skip(logPosition.lineNumber);
         Optional<Timestamp> timestamp = timestampsReader.read();

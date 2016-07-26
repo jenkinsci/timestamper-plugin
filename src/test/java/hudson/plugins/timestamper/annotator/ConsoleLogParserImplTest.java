@@ -83,6 +83,7 @@ public class ConsoleLogParserImplTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
+    when(build.isBuilding()).thenReturn(true);
     byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE,
         0x61, NEWLINE };
     logLength = consoleLog.length;

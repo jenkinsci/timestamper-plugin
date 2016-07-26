@@ -91,6 +91,38 @@ public class TimestampsReader implements Serializable {
     }
   }
 
+
+  /**
+   * Convert negative line number
+   * that was calculated from end of file to absolute line number (from head)
+   *
+   * @param lineNumber line number (should be negative)
+   * @return absolute line
+   * @throws IOException
+   */
+  public int getAbs(int lineNumber) throws IOException {
+    int toSkip = lineNumber * (-1);
+    Optional<Timestamp> timestamp;
+
+    for (int i = 0; i <= toSkip; i++) {
+      timestamp = read();
+      if (!timestamp.isPresent()) {
+        throw new IOException("It should contain at least " + toSkip + " timestamps");
+      }
+    }
+
+    int numberOfTimestampsFromStart = 0;
+
+    do {
+      timestamp = read();
+      numberOfTimestampsFromStart++;
+    } while (timestamp.isPresent());
+
+    numberOfTimestampsFromStart--; // Last increment timestamp didn't present
+
+    return numberOfTimestampsFromStart;
+  }
+
   /**
    * Read the next time-stamp.
    * 
@@ -134,8 +166,7 @@ public class TimestampsReader implements Serializable {
     long elapsedMillisDiff = Varint.read(countingInputStream);
 
     elapsedMillis += elapsedMillisDiff;
-    millisSinceEpoch = timeShiftsReader.getTime(entry).or(
-        millisSinceEpoch + elapsedMillisDiff);
+    millisSinceEpoch = timeShiftsReader.getTime(entry).or(millisSinceEpoch + elapsedMillisDiff);
     filePointer += countingInputStream.getCount();
     entry++;
     return new Timestamp(elapsedMillis, millisSinceEpoch);
