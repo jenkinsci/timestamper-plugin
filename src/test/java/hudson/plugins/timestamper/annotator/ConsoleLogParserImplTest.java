@@ -83,6 +83,7 @@ public class ConsoleLogParserImplTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
+    when(build.isBuilding()).thenReturn(true);
     byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE,
         0x61, NEWLINE };
     logLength = consoleLog.length;
@@ -91,6 +92,7 @@ public class ConsoleLogParserImplTest {
     AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
     when(logText.length()).thenReturn((long) logLength);
     when(build.getLogText()).thenReturn(logText);
+    when(build.isBuilding()).thenReturn(false);
   }
 
   /**
@@ -165,8 +167,19 @@ public class ConsoleLogParserImplTest {
   @Test
   public void testSeekWithinLineNegative() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 0;
+    result.lineNumber = -4;
     assertThat(seek(1 - logLength), is(result));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testSeekNextLineNegative() throws Exception {
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = -3;
+    result.atNewLine = true;
+    assertThat(seek(2 - logLength), is(result));
   }
 
   /**

@@ -24,7 +24,6 @@
 package hudson.plugins.timestamper.annotator;
 
 import hudson.model.Run;
-import hudson.plugins.timestamper.io.Closeables;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -32,9 +31,13 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.io.input.BoundedInputStream;
+
+import com.google.common.io.ByteStreams;
+
 /**
  * Implementation of ConsoleLogParser.
- * 
+ *
  * @author Steven G. Brown
  */
 @Immutable
@@ -46,7 +49,7 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
 
   /**
    * Create a new {@link ConsoleLogParserImpl}.
-   * 
+   *
    * @param pos
    *          the position to find in the console log file. A non-negative
    *          position is from the start of the file, and a negative position is
@@ -61,28 +64,57 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
    */
   @Override
   public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.atNewLine = true;
-    InputStream inputStream = new BufferedInputStream(build.getLogInputStream());
-    try {
-      long posFromStart = pos;
-      if (pos < 0) {
-        posFromStart = build.getLogText().length() + pos;
-      }
-      for (long i = 0; i < posFromStart; i++) {
-        int value = inputStream.read();
-        if (value == -1) {
-          result.endOfFile = true;
-          break;
-        }
-        result.atNewLine = value == 0x0A;
-        if (result.atNewLine) {
-          result.lineNumber++;
-        }
-      }
-    } finally {
-      Closeables.closeQuietly(inputStream);
+    long logLength = build.getLogText().length();
+    if (pos == 0 || logLength + pos <= 0) {
+      ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+      result.atNewLine = true;
+      return result;
     }
+
+    try (InputStream inputStream = new BufferedInputStream(build.getLogInputStream())) {
+      if (build.isBuilding() || pos > 0) {
+        return parseFromStart(inputStream);
+      } else {
+        ByteStreams.skipFully(inputStream, logLength + pos - 1);
+        return parseFromFinish(new BoundedInputStream(inputStream, -pos));
+      }
+    }
+  }
+
+  private ConsoleLogParser.Result parseFromStart(InputStream inputStream) throws IOException {
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+
+    for (long i = 0; i < pos; i++) {
+      int value = inputStream.read();
+      if (value == -1) {
+        result.endOfFile = true;
+        break;
+      }
+      result.atNewLine = isNewLine(value);
+      if (result.atNewLine) {
+        result.lineNumber++;
+      }
+    }
+
     return result;
+  }
+
+  private ConsoleLogParser.Result parseFromFinish(InputStream inputStream) throws IOException {
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+
+    int value = inputStream.read();
+    result.atNewLine = isNewLine(value);
+
+    while ((value = inputStream.read()) != -1) {
+      if (isNewLine(value)) {
+        result.lineNumber--;
+      }
+    }
+
+    return result;
+  }
+
+  private boolean isNewLine(int character) {
+    return character == 0x0A;
   }
 }
