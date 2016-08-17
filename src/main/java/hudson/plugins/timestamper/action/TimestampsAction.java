@@ -103,15 +103,18 @@ public final class TimestampsAction implements Action {
 
     PrintWriter writer = response.getWriter();
 
-    TimestampsActionQuery query = TimestampsActionQuery.create(request
-        .getQueryString());
+    try {
+      TimestampsActionQuery query = TimestampsActionQuery.create(request
+          .getQueryString()); // throws RuntimeException for invalid query
 
-    try (BufferedReader reader = TimestampsActionOutput.open(build, query)) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        writer.println(line);
+      try (BufferedReader reader = TimestampsActionOutput.open(build, query)) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+          writer.println(line);
+        }
       }
-    } catch (IOException e) {
+
+    } catch (RuntimeException | IOException e) {
       String urlWithQueryString = request.getRequestURLWithQueryString()
           .toString();
       writer.println(urlWithQueryString);
