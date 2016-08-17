@@ -27,6 +27,7 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,7 +46,7 @@ import com.google.common.io.CountingInputStream;
  * 
  * @author Steven G. Brown
  */
-public class TimestampsReader implements Serializable {
+public class TimestampsReader implements Serializable, Closeable {
 
   private static final long serialVersionUID = 1L;
 
@@ -149,6 +150,7 @@ public class TimestampsReader implements Serializable {
   /**
    * Close this reader.
    */
+  @Override
   public void close() {
     Closeables.closeQuietly(inputStream);
     inputStream = null;

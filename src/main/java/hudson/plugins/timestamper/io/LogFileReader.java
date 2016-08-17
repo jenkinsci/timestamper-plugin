@@ -31,6 +31,7 @@ import hudson.plugins.timestamper.TimestampNote;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -47,7 +48,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * 
  * @author Steven G. Brown
  */
-public class LogFileReader {
+public class LogFileReader implements Closeable {
 
   /**
    * A line read from the log file of a build.
@@ -197,6 +198,7 @@ public class LogFileReader {
   /**
    * Close this reader.
    */
+  @Override
   public void close() {
     Closeables.closeQuietly(reader);
   }

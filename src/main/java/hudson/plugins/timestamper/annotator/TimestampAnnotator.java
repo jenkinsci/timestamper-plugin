@@ -87,11 +87,8 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
         }
 
         if (logPosition.lineNumber < 0) {
-          TimestampsReader temporaryTimestampsReader = new TimestampsReader(build);
-          try {
+          try (TimestampsReader temporaryTimestampsReader = new TimestampsReader(build)) {
             logPosition.lineNumber = temporaryTimestampsReader.getAbs(logPosition.lineNumber);
-          } finally {
-            temporaryTimestampsReader.close();
           }
         }
 
