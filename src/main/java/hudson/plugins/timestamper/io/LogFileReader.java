@@ -186,13 +186,10 @@ public class LogFileReader {
       return 0;
     }
     int lineCount = 0;
-    BufferedReader reader = new BufferedReader(build.getLogReader());
-    try {
+    try (BufferedReader reader = new BufferedReader(build.getLogReader())) {
       while (reader.readLine() != null) {
         lineCount++;
       }
-    } finally {
-      Closeables.closeQuietly(reader);
     }
     return lineCount;
   }

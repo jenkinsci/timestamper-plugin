@@ -88,16 +88,13 @@ class TimeShiftsReader implements Serializable {
       return Collections.emptyMap();
     }
     Map<Long, Long> timeShifts = new HashMap<Long, Long>();
-    CountingInputStream inputStream = new CountingInputStream(
-        new BufferedInputStream(new FileInputStream(timeShiftsFile)));
-    try {
+    try (CountingInputStream inputStream = new CountingInputStream(
+        new BufferedInputStream(new FileInputStream(timeShiftsFile)))) {
       while (inputStream.getCount() < timeShiftsFile.length()) {
         long entry = Varint.read(inputStream);
         long shift = Varint.read(inputStream);
         timeShifts.put(entry, shift);
       }
-    } finally {
-      Closeables.closeQuietly(inputStream);
     }
     return timeShifts;
   }

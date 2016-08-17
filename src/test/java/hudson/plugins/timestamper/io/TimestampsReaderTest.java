@@ -197,18 +197,12 @@ public class TimestampsReaderTest {
 
   private void writeToFile(List<Integer> data, File file) throws Exception {
     file.getParentFile().mkdirs();
-    OutputStream outputStream = null;
-    boolean threw = true;
-    try {
-      outputStream = new FileOutputStream(file, true);
+    try (OutputStream outputStream = new FileOutputStream(file, true)) {
       byte[] buffer = new byte[10];
       for (Integer value : data) {
         int len = Varint.write(value, buffer, 0);
         outputStream.write(buffer, 0, len);
       }
-      threw = false;
-    } finally {
-      Closeables.close(outputStream, threw);
     }
   }
 

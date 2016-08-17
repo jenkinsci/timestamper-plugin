@@ -109,18 +109,12 @@ public class LogFileReaderTest {
 
     // Gzipped log file
     gzippedLogFile = tempFolder.newFile("logFile.gz");
-    FileOutputStream fileOutputStream = null;
-    GZIPOutputStream gzipOutputStream = null;
-    boolean threw = true;
-    try {
-      fileOutputStream = new FileOutputStream(gzippedLogFile);
-      gzipOutputStream = new GZIPOutputStream(fileOutputStream);
+    try (FileOutputStream fileOutputStream = new FileOutputStream(
+        gzippedLogFile);
+        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(
+            fileOutputStream);) {
       gzipOutputStream
           .write(logFileContents.getBytes(Charset.defaultCharset()));
-      threw = false;
-    } finally {
-      Closeables.close(gzipOutputStream, threw);
-      Closeables.close(fileOutputStream, threw);
     }
 
     // Non-existant log file
@@ -229,16 +223,11 @@ public class LogFileReaderTest {
 
   private String encodeConsoleNote(int size, String content) throws Exception {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    DataOutputStream dataOutputStream = new DataOutputStream(
-        new Base64OutputStream(byteArrayOutputStream, true, -1, null));
 
-    boolean threw = true;
-    try {
+    try (DataOutputStream dataOutputStream = new DataOutputStream(
+        new Base64OutputStream(byteArrayOutputStream, true, -1, null))) {
       dataOutputStream.writeInt(size);
       dataOutputStream.writeBytes(content);
-      threw = false;
-    } finally {
-      Closeables.close(dataOutputStream, threw);
     }
 
     return byteArrayOutputStream.toString();

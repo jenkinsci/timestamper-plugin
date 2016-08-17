@@ -26,7 +26,6 @@ package hudson.plugins.timestamper.action;
 import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.model.Action;
 import hudson.model.Run;
-import hudson.plugins.timestamper.io.Closeables;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -106,14 +105,13 @@ public final class TimestampsAction implements Action {
 
     TimestampsActionQuery query = TimestampsActionQuery.create(request
         .getQueryString());
-    BufferedReader reader = TimestampsActionOutput.open(build, query);
 
-    try {
+    try (BufferedReader reader = TimestampsActionOutput.open(build, query)) {
       String line;
       while ((line = reader.readLine()) != null) {
         writer.println(line);
       }
-    } catch (Exception e) {
+    } catch (IOException e) {
       String urlWithQueryString = request.getRequestURLWithQueryString()
           .toString();
       writer.println(urlWithQueryString);
@@ -122,7 +120,6 @@ public final class TimestampsAction implements Action {
           + (exceptionMessage.isEmpty() ? "" : ": " + exceptionMessage));
       LOGGER.log(Level.WARNING, urlWithQueryString, e);
     } finally {
-      Closeables.closeQuietly(reader);
       writer.flush();
     }
   }
