@@ -28,9 +28,12 @@ import hudson.model.Run;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 
 import javax.annotation.concurrent.Immutable;
+
+import org.apache.commons.io.input.BoundedInputStream;
+
+import com.google.common.io.ByteStreams;
 
 /**
  * Implementation of ConsoleLogParser.
@@ -61,71 +64,57 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
    */
   @Override
   public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
-    if (pos == 0) {
+    long logLength = build.getLogText().length();
+    if (pos == 0 || logLength + pos <= 0) {
       ConsoleLogParser.Result result = new ConsoleLogParser.Result();
       result.atNewLine = true;
       return result;
     }
 
-    if (build.isBuilding() || pos > 0) {
-      return parseFromStart(build);
-    }
-    else {
-      return parseFromFinish(build);
-    }
-  }
-
-  private ConsoleLogParser.Result parseFromStart(Run<?, ?> build) throws IOException {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.atNewLine = true;
-
     try (InputStream inputStream = new BufferedInputStream(build.getLogInputStream())) {
-      long posFromStart = pos;
-      if (pos < 0) {
-        posFromStart = build.getLogText().length() + pos;
+      if (build.isBuilding() || pos > 0) {
+        return parseFromStart(inputStream);
+      } else {
+        ByteStreams.skipFully(inputStream, logLength + pos - 1);
+        return parseFromFinish(new BoundedInputStream(inputStream, -pos));
       }
-      for (long i = 0; i < posFromStart; i++) {
-        int value = inputStream.read();
-        if (value == -1) {
-          result.endOfFile = true;
-          break;
-        }
-        result.atNewLine = value == 0x0A;
-        if (result.atNewLine) {
-          result.lineNumber++;
-        }
+    }
+  }
+
+  private ConsoleLogParser.Result parseFromStart(InputStream inputStream) throws IOException {
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+
+    for (long i = 0; i < pos; i++) {
+      int value = inputStream.read();
+      if (value == -1) {
+        result.endOfFile = true;
+        break;
+      }
+      result.atNewLine = isNewLine(value);
+      if (result.atNewLine) {
+        result.lineNumber++;
       }
     }
 
     return result;
   }
 
-  private ConsoleLogParser.Result parseFromFinish(Run<?, ?> build) throws IOException {
+  private ConsoleLogParser.Result parseFromFinish(InputStream inputStream) throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.atNewLine = true;
 
-    long offset = pos;
-    int lines = 0;
+    int value = inputStream.read();
+    result.atNewLine = isNewLine(value);
 
-    try (RandomAccessFile fileHandler = new RandomAccessFile(build.getLogFile(), "r")) {
-      long fileLength = fileHandler.length() - 1;
-
-      for (long filePointer = fileLength; filePointer != -1 && offset != 0; filePointer--) {
-        fileHandler.seek(filePointer);
-        int readByte = fileHandler.readByte();
-
-        if (readByte == 0x0A) {
-          if (filePointer < fileLength) {
-            lines = lines + 1;
-          }
-        }
-
-        offset++;
+    while ((value = inputStream.read()) != -1) {
+      if (isNewLine(value)) {
+        result.lineNumber--;
       }
     }
 
-    result.lineNumber = lines * (-1);
-
     return result;
+  }
+
+  private boolean isNewLine(int character) {
+    return character == 0x0A;
   }
 }
