@@ -224,10 +224,10 @@ public class ConsoleLogParserImplTest {
     assertThat(seek(-logLength - 1), is(result));
   }
 
-  private ConsoleLogParserImpl.Result seek(long pos) throws Exception {
-    ConsoleLogParserImpl parser = new ConsoleLogParserImpl(pos);
+  private ConsoleLogParser.Result seek(long pos) throws Exception {
+    ConsoleLogParser parser = new ConsoleLogParser(pos);
     if (serialize) {
-      parser = (ConsoleLogParserImpl) SerializationUtils.clone(parser);
+      parser = (ConsoleLogParser) SerializationUtils.clone(parser);
     }
     return parser.seek(build);
   }

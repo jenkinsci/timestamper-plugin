@@ -68,7 +68,7 @@ public final class TimestampAnnotatorFactory2 extends
       return null; // do not annotate
     }
     long offset = getOffset(request);
-    ConsoleLogParser logParser = new ConsoleLogParserImpl(offset);
+    ConsoleLogParser logParser = new ConsoleLogParser(offset);
     return new TimestampAnnotator(logParser);
   }
 

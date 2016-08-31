@@ -25,17 +25,41 @@ package hudson.plugins.timestamper.annotator;
 
 import hudson.model.Run;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 
+import javax.annotation.concurrent.Immutable;
+
+import org.apache.commons.io.input.BoundedInputStream;
+
 import com.google.common.base.Objects;
+import com.google.common.io.ByteStreams;
 
 /**
  * Parser that is able to find a position in the console log file of a build.
  * 
  * @author Steven G. Brown
  */
-interface ConsoleLogParser extends Serializable {
+@Immutable
+class ConsoleLogParser implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+
+  private final long pos;
+
+  /**
+   * Create a new {@link ConsoleLogParser}.
+   * 
+   * @param pos
+   *          the position to find in the console log file. A non-negative
+   *          position is from the start of the file, and a negative position is
+   *          back from the end of the file.
+   */
+  ConsoleLogParser(long pos) {
+    this.pos = pos;
+  }
 
   /**
    * Skip to a position in the console log file.
@@ -45,7 +69,67 @@ interface ConsoleLogParser extends Serializable {
    * @return the result
    * @throws IOException
    */
-  Result seek(Run<?, ?> build) throws IOException;
+  public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
+    long logLength = build.getLogText().length();
+    if (pos == 0 || logLength + pos <= 0) {
+      ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+      result.atNewLine = true;
+      return result;
+    }
+
+    try (InputStream inputStream = new BufferedInputStream(
+        build.getLogInputStream())) {
+      if (build.isBuilding() || pos > 0) {
+        long posFromStart = pos;
+        if (pos < 0) {
+          posFromStart = logLength + pos;
+        }
+        return parseFromStart(inputStream, posFromStart);
+      } else {
+        ByteStreams.skipFully(inputStream, logLength + pos - 1);
+        return parseFromFinish(new BoundedInputStream(inputStream, -pos));
+      }
+    }
+  }
+
+  private ConsoleLogParser.Result parseFromStart(InputStream inputStream,
+      long posFromStart) throws IOException {
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+
+    for (long i = 0; i < posFromStart; i++) {
+      int value = inputStream.read();
+      if (value == -1) {
+        result.endOfFile = true;
+        break;
+      }
+      result.atNewLine = isNewLine(value);
+      if (result.atNewLine) {
+        result.lineNumber++;
+      }
+    }
+
+    return result;
+  }
+
+  private ConsoleLogParser.Result parseFromFinish(InputStream inputStream)
+      throws IOException {
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+
+    int value = inputStream.read();
+    result.atNewLine = isNewLine(value);
+
+    while ((value = inputStream.read()) != -1) {
+      if (isNewLine(value)) {
+        result.lineNumber--;
+      }
+    }
+
+    return result;
+  }
+
+  private boolean isNewLine(int character) {
+    return character == 0x0A;
+  }
 
   static final class Result {
 

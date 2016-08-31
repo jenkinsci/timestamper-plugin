@@ -81,7 +81,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
     try {
       if (timestampsReader == null) {
-        ConsoleLogParserImpl.Result logPosition = logParser.seek(build);
+        ConsoleLogParser.Result logPosition = logParser.seek(build);
         if (logPosition.endOfFile) {
           return null; // do not annotate the following lines
         }

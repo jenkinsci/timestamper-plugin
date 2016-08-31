@@ -89,7 +89,7 @@ public class TimestampAnnotatorTest {
 
   private Run<?, ?> build;
 
-  private static ConsoleLogParserImpl.Result logPosition;
+  private static ConsoleLogParser.Result logPosition;
 
   private static List<Timestamp> capturedTimestamps;
 
@@ -103,7 +103,7 @@ public class TimestampAnnotatorTest {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
 
-    logPosition = new ConsoleLogParserImpl.Result();
+    logPosition = new ConsoleLogParser.Result();
     capturedTimestamps = new ArrayList<Timestamp>();
 
     writer = new TimestampsWriter(build);
@@ -207,9 +207,13 @@ public class TimestampAnnotatorTest {
         });
   }
 
-  private static class MockConsoleLogParser implements ConsoleLogParser {
+  private static class MockConsoleLogParser extends ConsoleLogParser {
 
     private static final long serialVersionUID = 1L;
+
+    MockConsoleLogParser() {
+      super(0);
+    }
 
     @Override
     public Result seek(Run<?, ?> build) throws IOException {
