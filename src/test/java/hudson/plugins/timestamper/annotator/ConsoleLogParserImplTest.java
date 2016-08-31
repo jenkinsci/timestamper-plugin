@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.annotator;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import hudson.console.AnnotatedLargeText;
@@ -57,15 +58,21 @@ public class ConsoleLogParserImplTest {
   /**
    * @return parameterised test data
    */
-  @Parameters
+  @Parameters(name = "serialize={0},isBuilding={1}")
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[] { false }, new Object[] { true });
+    return Arrays.asList(new Object[] { false, false }, new Object[] { false,
+        true }, new Object[] { true, false }, new Object[] { true, true });
   }
 
   /**
    */
-  @Parameter
+  @Parameter(0)
   public boolean serialize;
+
+  /**
+   */
+  @Parameter(1)
+  public boolean isBuilding;
 
   /**
    */
@@ -83,7 +90,6 @@ public class ConsoleLogParserImplTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    when(build.isBuilding()).thenReturn(true);
     byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE,
         0x61, NEWLINE };
     logLength = consoleLog.length;
@@ -92,7 +98,7 @@ public class ConsoleLogParserImplTest {
     AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
     when(logText.length()).thenReturn((long) logLength);
     when(build.getLogText()).thenReturn(logText);
-    when(build.isBuilding()).thenReturn(false);
+    when(build.isBuilding()).thenReturn(isBuilding);
   }
 
   /**
@@ -165,7 +171,19 @@ public class ConsoleLogParserImplTest {
    * @throws Exception
    */
   @Test
-  public void testSeekWithinLineNegative() throws Exception {
+  public void testSeekWithinLineNegative_isBuilding() throws Exception {
+    assumeThat(isBuilding, is(true));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 0;
+    assertThat(seek(1 - logLength), is(result));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testSeekWithinLineNegative_notBuilding() throws Exception {
+    assumeThat(isBuilding, is(false));
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
     result.lineNumber = -4;
     assertThat(seek(1 - logLength), is(result));
@@ -175,7 +193,20 @@ public class ConsoleLogParserImplTest {
    * @throws Exception
    */
   @Test
-  public void testSeekNextLineNegative() throws Exception {
+  public void testSeekNextLineNegative_isBuilding() throws Exception {
+    assumeThat(isBuilding, is(true));
+    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = 1;
+    result.atNewLine = true;
+    assertThat(seek(2 - logLength), is(result));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testSeekNextLineNegative_notBuilding() throws Exception {
+    assumeThat(isBuilding, is(false));
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
     result.lineNumber = -3;
     result.atNewLine = true;

@@ -73,7 +73,11 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
 
     try (InputStream inputStream = new BufferedInputStream(build.getLogInputStream())) {
       if (build.isBuilding() || pos > 0) {
-        return parseFromStart(inputStream);
+        long posFromStart = pos;
+        if (pos < 0) {
+          posFromStart = logLength + pos;
+        }
+        return parseFromStart(inputStream, posFromStart);
       } else {
         ByteStreams.skipFully(inputStream, logLength + pos - 1);
         return parseFromFinish(new BoundedInputStream(inputStream, -pos));
@@ -81,10 +85,10 @@ class ConsoleLogParserImpl implements ConsoleLogParser {
     }
   }
 
-  private ConsoleLogParser.Result parseFromStart(InputStream inputStream) throws IOException {
+  private ConsoleLogParser.Result parseFromStart(InputStream inputStream, long posFromStart) throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
 
-    for (long i = 0; i < pos; i++) {
+    for (long i = 0; i < posFromStart; i++) {
       int value = inputStream.read();
       if (value == -1) {
         result.endOfFile = true;
