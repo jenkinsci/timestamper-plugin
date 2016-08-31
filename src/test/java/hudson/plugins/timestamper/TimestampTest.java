@@ -44,7 +44,6 @@ public class TimestampTest {
   /**
    */
   @Test
-  @SuppressWarnings("unchecked")
   public void testConstructor() {
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(Arrays.asList(timestamp.elapsedMillis,
@@ -55,7 +54,6 @@ public class TimestampTest {
   /**
    */
   @Test
-  @SuppressWarnings("unchecked")
   public void testConstructor_unknownElapsed() {
     Timestamp timestamp = new Timestamp(null, 42000);
     assertThat(Arrays.asList(timestamp.elapsedMillis,
