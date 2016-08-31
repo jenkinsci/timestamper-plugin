@@ -46,12 +46,12 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- * Unit test for the ConsoleLogParserImpl class.
+ * Unit test for the {@link ConsoleLogParser} class.
  * 
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
-public class ConsoleLogParserImplTest {
+public class ConsoleLogParserTest {
 
   private static final char NEWLINE = 0x0A;
 
