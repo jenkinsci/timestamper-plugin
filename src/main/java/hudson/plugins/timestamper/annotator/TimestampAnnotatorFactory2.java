@@ -126,6 +126,14 @@ public final class TimestampAnnotatorFactory2 extends
    * {@inheritDoc}
    */
   @Override
+  public boolean hasStylesheet() {
+    return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   @WebMethod(name = "script.js")
   public void doScriptJs(StaplerRequest req, StaplerResponse rsp)
       throws IOException, ServletException {
@@ -142,6 +150,20 @@ public final class TimestampAnnotatorFactory2 extends
     // gives the wrong result when running behind a proxy. Redirects to
     // relative URLs are allowed by RFC 7231 and the most popular web browsers.
     // https://en.wikipedia.org/wiki/HTTP_location
+    rsp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+    rsp.setHeader(HttpHeaders.LOCATION, ResponseImpl.encode(url));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @WebMethod(name = "style.css")
+  public void doStyleCss(StaplerRequest req, StaplerResponse rsp)
+      throws IOException, ServletException {
+    // See the comments in doScriptJs for more details.
+    String url = req.getContextPath() + getResourcePath()
+        + "/plugin/timestamper/style.css";
     rsp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     rsp.setHeader(HttpHeaders.LOCATION, ResponseImpl.encode(url));
   }
