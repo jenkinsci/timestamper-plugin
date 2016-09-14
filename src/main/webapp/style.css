@@ -1,8 +1,0 @@
-
-/* Override style changes made by the AnsiColor plugin. */
-.timestamp {
-  color: #333;
-  background-color: white;
-  font-weight: normal;
-  display: inline-block;
-}

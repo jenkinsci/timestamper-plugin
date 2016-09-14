@@ -24,28 +24,14 @@
 package hudson.plugins.timestamper.annotator;
 
 import hudson.Extension;
-import hudson.Util;
-import hudson.PluginWrapper;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
 import jenkins.YesNoMaybe;
-import jenkins.model.Jenkins;
 
-import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.WebMethod;
-
-import com.google.common.net.HttpHeaders;
 
 /**
  * Provides the initial {@link TimestampAnnotator} for an annotated console
@@ -112,71 +98,5 @@ public final class TimestampAnnotatorFactory2 extends
   public String getPlainTextUrl() {
     TimestampFormat format = TimestampFormatProvider.get();
     return format.getPlainTextUrl();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasScript() {
-    return true;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasStylesheet() {
-    return true;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @WebMethod(name = "script.js")
-  public void doScriptJs(StaplerRequest req, StaplerResponse rsp)
-      throws IOException, ServletException {
-
-    // This URL is cached for one day. Redirect to a URL which includes the
-    // plug-in version and is cached for 1 year. The script will be downloaded
-    // again when the plug-in version changes.
-    String url = req.getContextPath() + getResourcePath()
-        + "/plugin/timestamper/annotator.js";
-
-    // Send the redirect manually and allow the relative URL to be handled by
-    // the browser. Do not use the sendRedirect method, which resolves the
-    // relative URL to an absolute URL within the servlet container and so
-    // gives the wrong result when running behind a proxy. Redirects to
-    // relative URLs are allowed by RFC 7231 and the most popular web browsers.
-    // https://en.wikipedia.org/wiki/HTTP_location
-    rsp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-    rsp.setHeader(HttpHeaders.LOCATION, ResponseImpl.encode(url));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @WebMethod(name = "style.css")
-  public void doStyleCss(StaplerRequest req, StaplerResponse rsp)
-      throws IOException, ServletException {
-    // See the comments in doScriptJs for more details.
-    String url = req.getContextPath() + getResourcePath()
-        + "/plugin/timestamper/style.css";
-    rsp.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-    rsp.setHeader(HttpHeaders.LOCATION, ResponseImpl.encode(url));
-  }
-
-  private String getResourcePath() {
-    Jenkins jenkins = Jenkins.getInstance();
-    if (jenkins != null) {
-      PluginWrapper plugin = jenkins.getPluginManager()
-          .getPlugin("timestamper");
-      if (plugin != null) {
-        return "/static/" + Util.rawEncode(plugin.getVersion());
-      }
-    }
-    return Jenkins.RESOURCE_PATH;
   }
 }
