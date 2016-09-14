@@ -96,7 +96,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
    */
   @Override
   public int hashCode() {
-    return format.hashCode();
+    return java.util.Objects.hash(format, timeZoneId);
   }
 
   /**
@@ -106,7 +106,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
   public boolean equals(Object obj) {
     if (obj instanceof SystemTimestampFormat) {
       SystemTimestampFormat other = (SystemTimestampFormat) obj;
-      return format.equals(other.format);
+      return format.equals(other.format) && timeZoneId.equals(other.timeZoneId);
     }
     return false;
   }
@@ -117,7 +117,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("format", format.getPattern())
-        .add("timeZoneId", format.getTimeZone().getID())
+        .add("timeZoneId", timeZoneId)
         .add("locale", format.getLocale()).toString();
   }
 }

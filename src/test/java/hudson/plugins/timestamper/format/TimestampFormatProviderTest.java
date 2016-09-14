@@ -77,19 +77,19 @@ public class TimestampFormatProviderTest {
             {
                 request("jenkins-timestamper-local=true",
                     "jenkins-timestamper-offset=" + HALF_HOUR),
-                system("GMT-00:30") },
+                system("GMT-0:30") },
             {
                 request("jenkins-timestamper-local=true",
                     "jenkins-timestamper-offset=" + ONE_HOUR),
-                system("GMT-01:00") },
+                system("GMT-1") },
             {
                 request("jenkins-timestamper-local=true",
                     "jenkins-timestamper-offset=-" + HALF_HOUR),
-                system("GMT+00:30") },
+                system("GMT+0:30") },
             {
                 request("jenkins-timestamper-local=true",
                     "jenkins-timestamper-offset=-" + ONE_HOUR),
-                system("GMT+01:00") },
+                system("GMT+1") },
             // elapsed
             { request("jenkins-timestamper=elapsed"), elapsed() },
             // none
