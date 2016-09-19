@@ -9,6 +9,9 @@
       <deny>
         <to class="com.google.common.base.Objects.ToStringHelper"/>
       </deny>
+      <deny>
+        <to class="com.google.common.io.Closeables"/>
+      </deny>
     </access-rule>
   </ruleset>
 </macker>

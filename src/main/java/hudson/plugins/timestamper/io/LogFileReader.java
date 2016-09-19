@@ -38,6 +38,7 @@ import java.util.Objects;
 
 import javax.annotation.CheckForNull;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.google.common.base.Optional;
@@ -202,6 +203,6 @@ public class LogFileReader implements Closeable {
    */
   @Override
   public void close() {
-    Closeables.closeQuietly(reader);
+    IOUtils.closeQuietly(reader);
   }
 }

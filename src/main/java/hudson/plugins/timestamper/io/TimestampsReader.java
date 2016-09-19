@@ -37,6 +37,8 @@ import java.io.Serializable;
 
 import javax.annotation.CheckForNull;
 
+import org.apache.commons.io.IOUtils;
+
 import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
@@ -143,7 +145,7 @@ public class TimestampsReader implements Serializable, Closeable {
    */
   @Override
   public void close() {
-    Closeables.closeQuietly(inputStream);
+    IOUtils.closeQuietly(inputStream);
     inputStream = null;
   }
 
@@ -167,6 +169,6 @@ public class TimestampsReader implements Serializable, Closeable {
 
   private void writeObject(ObjectOutputStream out) throws IOException {
     out.defaultWriteObject();
-    Closeables.closeQuietly(inputStream);
+    IOUtils.closeQuietly(inputStream);
   }
 }
