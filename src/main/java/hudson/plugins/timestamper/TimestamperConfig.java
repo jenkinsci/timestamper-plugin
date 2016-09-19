@@ -39,8 +39,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
-import com.google.common.base.Objects;
-
 /**
  * Global configuration for the Timestamper plug-in, as shown on the Jenkins
  * Configure System page.
@@ -105,7 +103,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @return the system clock time format
    */
   public String getSystemTimeFormat() {
-    return Objects.firstNonNull(timestampFormat, DEFAULT_TIMESTAMP_FORMAT);
+    return timestampFormat == null ? DEFAULT_TIMESTAMP_FORMAT : timestampFormat;
   }
 
   /**
@@ -124,7 +122,8 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @return the elapsed time format
    */
   public String getElapsedTimeFormat() {
-    return Objects.firstNonNull(elapsedTimeFormat, DEFAULT_ELAPSED_TIME_FORMAT);
+    return elapsedTimeFormat == null ? DEFAULT_ELAPSED_TIME_FORMAT
+        : elapsedTimeFormat;
   }
 
   /**

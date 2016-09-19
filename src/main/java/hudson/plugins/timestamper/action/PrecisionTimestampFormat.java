@@ -29,8 +29,9 @@ import hudson.plugins.timestamper.Timestamp;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 /**
@@ -96,6 +97,6 @@ final class PrecisionTimestampFormat implements Function<Timestamp, String> {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("precision", precision).toString();
+    return new ToStringBuilder(this).append("precision", precision).toString();
   }
 }

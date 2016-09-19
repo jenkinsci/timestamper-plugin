@@ -36,6 +36,7 @@ import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import java.util.Arrays;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +47,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 
 /**
@@ -84,13 +84,13 @@ public class TimestampNoteTest {
     Run<?, ?> build = mock(Run.class);
     Whitebox.setInternalState(build, "timestamp", BUILD_START);
     when(build.toString()).thenReturn(
-        Objects.toStringHelper("Run").add("startTime", BUILD_START).toString());
+        new ToStringBuilder("Run").append("startTime", BUILD_START).toString());
     return build;
   }
 
   private static TimestampNote note(Long elapsedMillis, long millisSinceEpoch) {
-    TimestampNote note = new TimestampNote(Objects.firstNonNull(elapsedMillis,
-        0l), millisSinceEpoch);
+    TimestampNote note = new TimestampNote(elapsedMillis == null ? 0l
+        : elapsedMillis, millisSinceEpoch);
     if (elapsedMillis == null) {
       Whitebox.setInternalState(note, "elapsedMillis", (Object) null);
     }

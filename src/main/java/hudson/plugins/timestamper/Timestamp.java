@@ -23,9 +23,11 @@
  */
 package hudson.plugins.timestamper;
 
+import java.util.Objects;
+
 import javax.annotation.concurrent.Immutable;
 
-import com.google.common.base.Objects;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * A time-stamp, consisting of the elapsed time and the clock time.
@@ -82,8 +84,7 @@ public final class Timestamp {
    */
   @Override
   public int hashCode() {
-    return Objects
-        .hashCode(elapsedMillis, elapsedMillisKnown, millisSinceEpoch);
+    return Objects.hash(elapsedMillis, elapsedMillisKnown, millisSinceEpoch);
   }
 
   /**
@@ -105,8 +106,9 @@ public final class Timestamp {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("elapsedMillis", elapsedMillisKnown ? elapsedMillis : "(unknown)")
-        .add("millisSinceEpoch", millisSinceEpoch).toString();
+    return new ToStringBuilder(this)
+        .append("elapsedMillis",
+            elapsedMillisKnown ? elapsedMillis : "(unknown)")
+        .append("millisSinceEpoch", millisSinceEpoch).toString();
   }
 }

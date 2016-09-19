@@ -34,10 +34,12 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.annotation.CheckForNull;
 
-import com.google.common.base.Objects;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.google.common.base.Optional;
 import com.google.common.io.CountingInputStream;
 
@@ -115,7 +117,7 @@ public class LogFileReader implements Closeable {
      */
     @Override
     public int hashCode() {
-      return Objects.hashCode(line, build);
+      return Objects.hash(line, build);
     }
 
     /**
@@ -135,8 +137,8 @@ public class LogFileReader implements Closeable {
      */
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).add("line", line).add("build", build)
-          .toString();
+      return new ToStringBuilder(this).append("line", line)
+          .append("build", build).toString();
     }
   }
 

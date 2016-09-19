@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE macker PUBLIC "-//innig//DTD Macker 0.4//EN" "http://innig.net/macker/dtd/macker-0.4.dtd">
+<macker>
+  <ruleset name="guava: deprecated or removed">
+    <access-rule>
+      <deny>
+        <to class="com.google.common.base.Objects"/>
+      </deny>
+      <deny>
+        <to class="com.google.common.base.Objects.ToStringHelper"/>
+      </deny>
+    </access-rule>
+  </ruleset>
+</macker>

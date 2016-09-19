@@ -76,6 +76,22 @@
           <threshold>Low</threshold>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>de.andrena.tools.macker</groupId>
+        <artifactId>macker-maven-plugin</artifactId>
+        <version>1.0.2</version>
+        <configuration>
+          <rule>src/macker/macker-rules.xml</rule>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>macker</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

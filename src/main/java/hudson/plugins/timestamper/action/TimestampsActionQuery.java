@@ -33,11 +33,12 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
@@ -186,8 +187,7 @@ public final class TimestampsActionQuery {
    */
   @Override
   public int hashCode() {
-    return Objects
-        .hashCode(startLine, endLine, timestampFormats, appendLogLine);
+    return Objects.hash(startLine, endLine, timestampFormats, appendLogLine);
   }
 
   /**
@@ -209,8 +209,9 @@ public final class TimestampsActionQuery {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("startLine", startLine)
-        .add("endLine", endLine).add("timestampFormats", timestampFormats)
-        .add("appendLogLine", appendLogLine).toString();
+    return new ToStringBuilder(this).append("startLine", startLine)
+        .append("endLine", endLine)
+        .append("timestampFormats", timestampFormats)
+        .append("appendLogLine", appendLogLine).toString();
   }
 }

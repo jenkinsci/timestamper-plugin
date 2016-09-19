@@ -28,9 +28,8 @@ import hudson.plugins.timestamper.Timestamp;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.DurationFormatUtils;
-
-import com.google.common.base.Objects;
 
 /**
  * Converts a time-stamp to the elapsed time format.
@@ -94,7 +93,7 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("format", elapsedTimeFormat)
+    return new ToStringBuilder(this).append("format", elapsedTimeFormat)
         .toString();
   }
 }

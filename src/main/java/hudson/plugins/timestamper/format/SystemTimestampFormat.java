@@ -31,9 +31,9 @@ import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.FastDateFormat;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
 /**
@@ -116,8 +116,8 @@ public final class SystemTimestampFormat extends TimestampFormat {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("format", format.getPattern())
-        .add("timeZoneId", timeZoneId)
-        .add("locale", format.getLocale()).toString();
+    return new ToStringBuilder(this).append("format", format.getPattern())
+        .append("timeZoneId", timeZoneId).append("locale", format.getLocale())
+        .toString();
   }
 }

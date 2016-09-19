@@ -32,7 +32,7 @@ import hudson.plugins.timestamper.action.TimestampsAction;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 
-import com.google.common.base.Objects;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Time-stamp console note.
@@ -130,7 +130,7 @@ public final class TimestampNote extends ConsoleNote<Object> {
    */
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("elapsedMillis", elapsedMillis)
-        .add("millisSinceEpoch", millisSinceEpoch).toString();
+    return new ToStringBuilder(this).append("elapsedMillis", elapsedMillis)
+        .append("millisSinceEpoch", millisSinceEpoch).toString();
   }
 }

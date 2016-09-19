@@ -29,12 +29,13 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.io.input.BoundedInputStream;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.google.common.base.Objects;
 import com.google.common.io.ByteStreams;
 
 /**
@@ -154,7 +155,7 @@ class ConsoleLogParser implements Serializable {
      */
     @Override
     public int hashCode() {
-      return Objects.hashCode(lineNumber, atNewLine, endOfFile);
+      return Objects.hash(lineNumber, atNewLine, endOfFile);
     }
 
     /**
@@ -175,8 +176,9 @@ class ConsoleLogParser implements Serializable {
      */
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).add("lineNumber", lineNumber)
-          .add("atNewLine", atNewLine).add("endOfFile", endOfFile).toString();
+      return new ToStringBuilder(this).append("lineNumber", lineNumber)
+          .append("atNewLine", atNewLine).append("endOfFile", endOfFile)
+          .toString();
     }
   }
 }
