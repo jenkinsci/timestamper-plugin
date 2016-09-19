@@ -114,6 +114,7 @@ class ConsoleLogParser implements Serializable {
   private ConsoleLogParser.Result parseFromFinish(InputStream inputStream)
       throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+    result.lineNumber = -1;
 
     int value = inputStream.read();
     result.atNewLine = isNewLine(value);

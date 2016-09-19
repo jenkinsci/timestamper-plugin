@@ -132,6 +132,17 @@ public class TimestampAnnotatorTest {
    * @throws Exception
    */
   @Test
+  public void testStartOfLogFile_negativeLineNumber() throws Exception {
+    List<Timestamp> timestamps = writeTimestamps(2);
+    logPosition.lineNumber = -2;
+    logPosition.atNewLine = true;
+    assertThat(annotate(), is(timestamps));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
   public void testWithinFirstLine() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
     logPosition.lineNumber = 0;
@@ -143,9 +154,31 @@ public class TimestampAnnotatorTest {
    * @throws Exception
    */
   @Test
+  public void testWithinFirstLine_negativeLineNumber() throws Exception {
+    List<Timestamp> timestamps = writeTimestamps(2);
+    logPosition.lineNumber = -2;
+    logPosition.atNewLine = false;
+    assertThat(annotate(), is(timestamps.subList(1, 2)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
   public void testNextLine() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
     logPosition.lineNumber = 1;
+    logPosition.atNewLine = true;
+    assertThat(annotate(), is(timestamps.subList(1, 2)));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testNextLine_negativeLineNumber() throws Exception {
+    List<Timestamp> timestamps = writeTimestamps(2);
+    logPosition.lineNumber = -1;
     logPosition.atNewLine = true;
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }

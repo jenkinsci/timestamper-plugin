@@ -185,7 +185,7 @@ public class ConsoleLogParserTest {
   public void testSeekWithinLineNegative_notBuilding() throws Exception {
     assumeThat(isBuilding, is(false));
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = -4;
+    result.lineNumber = -5;
     assertThat(seek(1 - logLength), is(result));
   }
 
@@ -208,7 +208,7 @@ public class ConsoleLogParserTest {
   public void testSeekNextLineNegative_notBuilding() throws Exception {
     assumeThat(isBuilding, is(false));
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = -3;
+    result.lineNumber = -4;
     result.atNewLine = true;
     assertThat(seek(2 - logLength), is(result));
   }

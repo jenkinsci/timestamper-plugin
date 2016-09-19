@@ -104,7 +104,7 @@ public class TimestampsReader implements Serializable, Closeable {
   public int getAbs(int lineNumber) throws IOException {
     int toSkip = lineNumber * (-1);
 
-    for (int i = 0; i <= toSkip; i++) {
+    for (int i = 0; i < toSkip; i++) {
       read();
     }
 
