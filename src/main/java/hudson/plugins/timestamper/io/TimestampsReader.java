@@ -94,31 +94,25 @@ public class TimestampsReader implements Serializable, Closeable {
 
 
   /**
-   * Convert negative line number
-   * that was calculated from end of file to absolute line number (from head)
-   *
-   * @param lineNumber line number (should be negative)
+   * Convert negative line number that was calculated from end of file to
+   * absolute line number (from head)
+   * 
+   * @param lineNumber
+   *          line number (should be negative)
    * @return absolute line
    * @throws IOException
    */
   public int getAbs(int lineNumber) throws IOException {
-    int toSkip = lineNumber * (-1);
-
-    for (int i = 0; i < toSkip; i++) {
-      read();
-    }
+    skip(-lineNumber);
 
     int numberOfTimestampsFromStart = 0;
-    Optional<Timestamp> timestamp;
-
-    do {
-      timestamp = read();
+    while (true) {
+      Optional<Timestamp> timestamp = read();
+      if (!timestamp.isPresent()) {
+        return numberOfTimestampsFromStart;
+      }
       numberOfTimestampsFromStart++;
-    } while (timestamp.isPresent());
-
-    numberOfTimestampsFromStart--; // Last increment timestamp didn't present
-
-    return numberOfTimestampsFromStart;
+    }
   }
 
   /**
