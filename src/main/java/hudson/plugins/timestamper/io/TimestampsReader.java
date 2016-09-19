@@ -103,16 +103,13 @@ public class TimestampsReader implements Serializable, Closeable {
    */
   public int getAbs(int lineNumber) throws IOException {
     int toSkip = lineNumber * (-1);
-    Optional<Timestamp> timestamp;
 
     for (int i = 0; i <= toSkip; i++) {
-      timestamp = read();
-      if (!timestamp.isPresent()) {
-        throw new IOException("It should contain at least " + toSkip + " timestamps");
-      }
+      read();
     }
 
     int numberOfTimestampsFromStart = 0;
+    Optional<Timestamp> timestamp;
 
     do {
       timestamp = read();
