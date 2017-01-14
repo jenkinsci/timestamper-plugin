@@ -48,6 +48,16 @@ public class TimestampNotesOutputStream extends LineTransformationOutputStream {
   private final long buildStartTime;
 
   /**
+   * The last note time.
+   */
+  private long lastTime;
+
+  /**
+   * The last encoded note. We can re-use this if the time hasn't since changed.
+   */
+  private byte[] lastNote;
+
+  /**
    * Create a new {@link TimestampNotesOutputStream}.
    * 
    * @param delegate
@@ -58,6 +68,7 @@ public class TimestampNotesOutputStream extends LineTransformationOutputStream {
   public TimestampNotesOutputStream(OutputStream delegate, long buildStartTime) {
     this.delegate = checkNotNull(delegate);
     this.buildStartTime = buildStartTime;
+    this.lastTime = 0;
   }
 
   /**
@@ -66,7 +77,11 @@ public class TimestampNotesOutputStream extends LineTransformationOutputStream {
   @Override
   protected void eol(byte[] b, int len) throws IOException {
     long now = System.currentTimeMillis();
-    new TimestampNote(now - buildStartTime, now).encodeTo(delegate);
+    if (now != lastTime) {
+        lastNote = new TimestampNote(now - buildStartTime, now).encode().getBytes("UTF-8");
+        lastTime = now;
+    }
+    delegate.write(lastNote);
     delegate.write(b, 0, len);
   }
 
