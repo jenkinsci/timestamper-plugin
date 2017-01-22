@@ -95,8 +95,7 @@ public class LogFileReader implements Closeable {
             new ByteArrayInputStream(bytes, index, length - index));
 
         try {
-          ConsoleNote<?> consoleNote = ConsoleNote
-              .readFrom(new DataInputStream(inputStream));
+          ConsoleNote<?> consoleNote = ConsoleNote.readFrom(new DataInputStream(inputStream));
           if (consoleNote instanceof TimestampNote) {
             TimestampNote timestampNote = (TimestampNote) consoleNote;
             Timestamp timestamp = timestampNote.getTimestamp(build);
@@ -138,8 +137,7 @@ public class LogFileReader implements Closeable {
      */
     @Override
     public String toString() {
-      return new ToStringBuilder(this).append("line", line)
-          .append("build", build).toString();
+      return new ToStringBuilder(this).append("line", line).append("build", build).toString();
     }
   }
 

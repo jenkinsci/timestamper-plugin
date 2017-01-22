@@ -40,7 +40,7 @@ public class ConsoleLogParserResultTest {
    */
   @Test
   public void testResultEqualsAndHashCode() {
-    EqualsVerifier.forClass(ConsoleLogParser.Result.class)
-        .suppress(Warning.NONFINAL_FIELDS).verify();
+    EqualsVerifier.forClass(ConsoleLogParser.Result.class).suppress(Warning.NONFINAL_FIELDS)
+        .verify();
   }
 }

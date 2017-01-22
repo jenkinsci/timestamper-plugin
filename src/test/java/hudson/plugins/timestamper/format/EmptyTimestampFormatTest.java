@@ -48,7 +48,6 @@ public class EmptyTimestampFormatTest {
    */
   @Test
   public void testGetPlainTextUrl() {
-    assertThat(EmptyTimestampFormat.INSTANCE.getPlainTextUrl(),
-        is("consoleText"));
+    assertThat(EmptyTimestampFormat.INSTANCE.getPlainTextUrl(), is("consoleText"));
   }
 }

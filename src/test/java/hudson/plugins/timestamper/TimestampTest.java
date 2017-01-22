@@ -46,9 +46,8 @@ public class TimestampTest {
   @Test
   public void testConstructor() {
     Timestamp timestamp = new Timestamp(123, 42000);
-    assertThat(Arrays.asList(timestamp.elapsedMillis,
-        timestamp.elapsedMillisKnown, timestamp.millisSinceEpoch),
-        is(Arrays.asList(123l, true, 42000l)));
+    assertThat(Arrays.asList(timestamp.elapsedMillis, timestamp.elapsedMillisKnown,
+        timestamp.millisSinceEpoch), is(Arrays.asList(123l, true, 42000l)));
   }
 
   /**
@@ -56,16 +55,14 @@ public class TimestampTest {
   @Test
   public void testConstructor_unknownElapsed() {
     Timestamp timestamp = new Timestamp(null, 42000);
-    assertThat(Arrays.asList(timestamp.elapsedMillis,
-        timestamp.elapsedMillisKnown, timestamp.millisSinceEpoch),
-        is(Arrays.asList(0l, false, 42000l)));
+    assertThat(Arrays.asList(timestamp.elapsedMillis, timestamp.elapsedMillisKnown,
+        timestamp.millisSinceEpoch), is(Arrays.asList(0l, false, 42000l)));
   }
 
   /**
    */
   @Test
   public void testHashcodeAndEquals() {
-    EqualsVerifier.forClass(Timestamp.class)
-        .suppress(Warning.STRICT_INHERITANCE).verify();
+    EqualsVerifier.forClass(Timestamp.class).suppress(Warning.STRICT_INHERITANCE).verify();
   }
 }

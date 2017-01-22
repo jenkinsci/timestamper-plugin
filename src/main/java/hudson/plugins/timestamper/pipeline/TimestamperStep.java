@@ -151,8 +151,7 @@ public class TimestamperStep extends AbstractStepImpl {
      * @param response
      * @throws IOException
      */
-    public void doHelp(StaplerRequest request, StaplerResponse response)
-        throws IOException {
+    public void doHelp(StaplerRequest request, StaplerResponse response) throws IOException {
       response.setContentType("text/html;charset=UTF-8");
       PrintWriter writer = response.getWriter();
       writer.println(Messages.Description());
@@ -184,8 +183,8 @@ public class TimestamperStep extends AbstractStepImpl {
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public OutputStream decorateLogger(AbstractBuild _ignore,
-        OutputStream logger) throws IOException, InterruptedException {
+    public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger)
+        throws IOException, InterruptedException {
       return new TimestampNotesOutputStream(logger, startTime);
     }
   }

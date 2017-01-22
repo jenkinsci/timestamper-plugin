@@ -56,8 +56,7 @@ public class TimestampNotesOutputStreamTest {
   @Before
   public void setUp() {
     delegateOutputStream = new ByteArrayOutputStream();
-    timestampNotesOutputStream = new TimestampNotesOutputStream(
-        delegateOutputStream, 0);
+    timestampNotesOutputStream = new TimestampNotesOutputStream(delegateOutputStream, 0);
   }
 
   /**
@@ -79,7 +78,6 @@ public class TimestampNotesOutputStreamTest {
     byte[] result = delegateOutputStream.toByteArray();
 
     assertThat(Bytes.asList(result), hasSize(greaterThan(line.length)));
-    assertThat(Arrays.copyOfRange(result, result.length - 2, result.length),
-        is(line));
+    assertThat(Arrays.copyOfRange(result, result.length - 2, result.length), is(line));
   }
 }

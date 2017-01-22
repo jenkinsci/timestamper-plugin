@@ -80,16 +80,14 @@ public class TimestamperConfigTest {
    */
   @Test
   public void testDefaultSystemTimeFormat() {
-    assertThat(new TimestamperConfig().getSystemTimeFormat(),
-        containsString("HH:mm:ss"));
+    assertThat(new TimestamperConfig().getSystemTimeFormat(), containsString("HH:mm:ss"));
   }
 
   /**
    */
   @Test
   public void testDefaultElapsedTimeFormat() {
-    assertThat(new TimestamperConfig().getElapsedTimeFormat(),
-        containsString("HH:mm:ss.S"));
+    assertThat(new TimestamperConfig().getElapsedTimeFormat(), containsString("HH:mm:ss.S"));
   }
 
   /**
@@ -169,11 +167,8 @@ public class TimestamperConfigTest {
   public void testFromXmlDefault() {
     TimestamperConfig config = fromXml(defaultXml());
     TimestamperConfig defaultConfig = new TimestamperConfig();
-    assertThat(
-        Arrays.asList(config.getSystemTimeFormat(),
-            config.getElapsedTimeFormat()),
-        is(Arrays.asList(defaultConfig.getSystemTimeFormat(),
-            defaultConfig.getElapsedTimeFormat())));
+    assertThat(Arrays.asList(config.getSystemTimeFormat(), config.getElapsedTimeFormat()), is(
+        Arrays.asList(defaultConfig.getSystemTimeFormat(), defaultConfig.getElapsedTimeFormat())));
   }
 
   /**
@@ -197,9 +192,8 @@ public class TimestamperConfigTest {
   @Test
   public void testFromXmlEmptyFormat() {
     TimestamperConfig config = fromXml(xml("", ""));
-    assertThat(
-        Arrays.asList(config.getSystemTimeFormat(),
-            config.getElapsedTimeFormat()), is(Arrays.asList("", "")));
+    assertThat(Arrays.asList(config.getSystemTimeFormat(), config.getElapsedTimeFormat()),
+        is(Arrays.asList("", "")));
   }
 
   private String toXml(TimestamperConfig config) {
@@ -222,8 +216,7 @@ public class TimestamperConfigTest {
       xml += "  <timestampFormat>" + systemTimeFormat + "</timestampFormat>\n";
     }
     if (elapsedTimeFormat != null) {
-      xml += "  <elapsedTimeFormat>" + elapsedTimeFormat
-          + "</elapsedTimeFormat>\n";
+      xml += "  <elapsedTimeFormat>" + elapsedTimeFormat + "</elapsedTimeFormat>\n";
     }
     xml += "</hudson.plugins.timestamper.TimestamperConfig>";
     return xml;

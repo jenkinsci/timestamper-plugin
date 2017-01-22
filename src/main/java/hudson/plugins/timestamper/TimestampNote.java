@@ -118,8 +118,7 @@ public final class TimestampNote extends ConsoleNote<Object> {
    * {@inheritDoc}
    */
   @Override
-  public ConsoleAnnotator<Object> annotate(Object context, MarkupText text,
-      int charPos) {
+  public ConsoleAnnotator<Object> annotate(Object context, MarkupText text, int charPos) {
     TimestampFormat format = TimestampFormatProvider.get();
     Timestamp timestamp = getTimestamp(context);
     format.markup(text, timestamp);

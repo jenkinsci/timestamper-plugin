@@ -50,8 +50,7 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
   @Override
   public String apply(@Nonnull Timestamp timestamp) {
     if (timestamp.elapsedMillisKnown) {
-      return DurationFormatUtils.formatDuration(timestamp.elapsedMillis,
-          elapsedTimeFormat);
+      return DurationFormatUtils.formatDuration(timestamp.elapsedMillis, elapsedTimeFormat);
     }
     return "";
   }
@@ -93,7 +92,6 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
    */
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("format", elapsedTimeFormat)
-        .toString();
+    return new ToStringBuilder(this).append("format", elapsedTimeFormat).toString();
   }
 }

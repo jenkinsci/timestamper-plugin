@@ -78,8 +78,7 @@ class ConsoleLogParser implements Serializable {
       return result;
     }
 
-    try (InputStream inputStream = new BufferedInputStream(
-        build.getLogInputStream())) {
+    try (InputStream inputStream = new BufferedInputStream(build.getLogInputStream())) {
       if (build.isBuilding() || pos > 0) {
         long posFromStart = pos;
         if (pos < 0) {
@@ -93,8 +92,8 @@ class ConsoleLogParser implements Serializable {
     }
   }
 
-  private ConsoleLogParser.Result parseFromStart(InputStream inputStream,
-      long posFromStart) throws IOException {
+  private ConsoleLogParser.Result parseFromStart(InputStream inputStream, long posFromStart)
+      throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
 
     for (long i = 0; i < posFromStart; i++) {
@@ -112,8 +111,7 @@ class ConsoleLogParser implements Serializable {
     return result;
   }
 
-  private ConsoleLogParser.Result parseFromFinish(InputStream inputStream)
-      throws IOException {
+  private ConsoleLogParser.Result parseFromFinish(InputStream inputStream) throws IOException {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
     result.lineNumber = -1;
 
@@ -177,8 +175,7 @@ class ConsoleLogParser implements Serializable {
     @Override
     public String toString() {
       return new ToStringBuilder(this).append("lineNumber", lineNumber)
-          .append("atNewLine", atNewLine).append("endOfFile", endOfFile)
-          .toString();
+          .append("atNewLine", atNewLine).append("endOfFile", endOfFile).toString();
     }
   }
 }

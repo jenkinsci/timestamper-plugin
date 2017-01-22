@@ -78,16 +78,14 @@ public final class TimestampsActionQuery {
 
     for (QueryParameter parameter : queryParameters) {
       if (parameter.name.equalsIgnoreCase("time")) {
-        timestampFormats.add(new SystemTimestampFormat(parameter.value,
-            timeZoneId, locale));
+        timestampFormats.add(new SystemTimestampFormat(parameter.value, timeZoneId, locale));
       } else if (parameter.name.equalsIgnoreCase("elapsed")) {
         timestampFormats.add(new ElapsedTimestampFormat(parameter.value));
       } else if (parameter.name.equalsIgnoreCase("precision")) {
         int precision = readPrecision(parameter.value);
         timestampFormats.add(new PrecisionTimestampFormat(precision));
       } else if (parameter.name.equalsIgnoreCase("appendLog")) {
-        appendLogLine = (parameter.value.isEmpty() || Boolean
-            .parseBoolean(parameter.value));
+        appendLogLine = (parameter.value.isEmpty() || Boolean.parseBoolean(parameter.value));
       } else if (parameter.name.equalsIgnoreCase("startLine")) {
         startLine = Integer.parseInt(parameter.value);
       } else if (parameter.name.equalsIgnoreCase("endLine")) {
@@ -100,8 +98,7 @@ public final class TimestampsActionQuery {
       timestampFormats.add(new PrecisionTimestampFormat(3));
     }
 
-    return new TimestampsActionQuery(startLine, endLine, timestampFormats,
-        appendLogLine);
+    return new TimestampsActionQuery(startLine, endLine, timestampFormats, appendLogLine);
   }
 
   private static List<QueryParameter> readQueryString(String query) {
@@ -111,8 +108,7 @@ public final class TimestampsActionQuery {
       for (String pair : pairs) {
         String[] nameAndValue = pair.split("=", 2);
         String name = urlDecode(nameAndValue[0]);
-        String value = (nameAndValue.length == 1 ? ""
-            : urlDecode(nameAndValue[1]));
+        String value = (nameAndValue.length == 1 ? "" : urlDecode(nameAndValue[1]));
         parameters.add(new QueryParameter(name, value));
       }
     }
@@ -142,8 +138,7 @@ public final class TimestampsActionQuery {
     }
     int intPrecision = Integer.parseInt(precision);
     if (intPrecision < 0) {
-      throw new IllegalArgumentException(
-          "Expected non-negative precision, but was: " + precision);
+      throw new IllegalArgumentException("Expected non-negative precision, but was: " + precision);
     }
     return intPrecision;
   }
@@ -174,8 +169,7 @@ public final class TimestampsActionQuery {
   final boolean appendLogLine;
 
   TimestampsActionQuery(int startLine, Optional<Integer> endLine,
-      List<? extends Function<Timestamp, String>> timestampFormats,
-      boolean appendLogLine) {
+      List<? extends Function<Timestamp, String>> timestampFormats, boolean appendLogLine) {
     this.startLine = startLine;
     this.endLine = checkNotNull(endLine);
     this.timestampFormats = ImmutableList.copyOf(timestampFormats);

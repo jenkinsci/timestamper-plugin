@@ -60,8 +60,7 @@ public final class DumpTimestamps {
     dump(timestamperDir, "timeshifts", 2);
   }
 
-  private static void dump(File parent, String filename, int columns)
-      throws IOException {
+  private static void dump(File parent, String filename, int columns) throws IOException {
     System.out.println(filename);
     File file = new File(parent, filename);
     if (!file.isFile()) {

@@ -57,8 +57,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
   public static TimestamperConfig get() {
     Jenkins jenkins = Jenkins.getInstance();
     if (jenkins != null) {
-      TimestamperConfig config = jenkins
-          .getDescriptorByType(TimestamperConfig.class);
+      TimestamperConfig config = jenkins.getDescriptorByType(TimestamperConfig.class);
       if (config != null) {
         return config;
       }
@@ -122,8 +121,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @return the elapsed time format
    */
   public String getElapsedTimeFormat() {
-    return elapsedTimeFormat == null ? DEFAULT_ELAPSED_TIME_FORMAT
-        : elapsedTimeFormat;
+    return elapsedTimeFormat == null ? DEFAULT_ELAPSED_TIME_FORMAT : elapsedTimeFormat;
   }
 
   /**
@@ -140,8 +138,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * {@inheritDoc}
    */
   @Override
-  public boolean configure(StaplerRequest req, JSONObject json)
-      throws Descriptor.FormException {
+  public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
     req.bindJSON(this, json);
     save();
     return true;

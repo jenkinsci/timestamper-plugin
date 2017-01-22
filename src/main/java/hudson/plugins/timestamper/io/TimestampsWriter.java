@@ -72,7 +72,7 @@ public class TimestampsWriter implements Closeable {
    * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
-    this(build, Optional.<MessageDigest> absent());
+    this(build, Optional.<MessageDigest>absent());
   }
 
   /**
@@ -83,14 +83,12 @@ public class TimestampsWriter implements Closeable {
    *          (optional)
    * @throws IOException
    */
-  public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest)
-      throws IOException {
-    this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(),
-        digest);
+  public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest) throws IOException {
+    this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(), digest);
   }
 
-  public TimestampsWriter(File timestampsFile, long buildStartTime,
-      Optional<MessageDigest> digest) throws IOException {
+  public TimestampsWriter(File timestampsFile, long buildStartTime, Optional<MessageDigest> digest)
+      throws IOException {
     this.timestampsFile = timestampsFile;
     this.previousCurrentTimeMillis = buildStartTime;
     this.timestampsDigest = checkNotNull(digest);
@@ -137,8 +135,7 @@ public class TimestampsWriter implements Closeable {
   private OutputStream openTimestampsStream() throws FileNotFoundException {
     OutputStream outputStream = new FileOutputStream(timestampsFile);
     if (timestampsDigest.isPresent()) {
-      outputStream = new DigestOutputStream(outputStream,
-          timestampsDigest.get());
+      outputStream = new DigestOutputStream(outputStream, timestampsDigest.get());
     }
     return outputStream;
   }
@@ -150,8 +147,7 @@ public class TimestampsWriter implements Closeable {
    * @param values
    * @throws IOException
    */
-  private void writeVarintsTo(OutputStream outputStream, long... values)
-      throws IOException {
+  private void writeVarintsTo(OutputStream outputStream, long... values) throws IOException {
     int offset = 0;
     for (long value : values) {
       offset = Varint.write(value, buffer, offset);
@@ -166,8 +162,7 @@ public class TimestampsWriter implements Closeable {
    * @param outputStream
    * @param n
    */
-  private void writeZerosTo(OutputStream outputStream, int n)
-      throws IOException {
+  private void writeZerosTo(OutputStream outputStream, int n) throws IOException {
     Arrays.fill(buffer, (byte) 0);
     while (n > 0) {
       int bytesToWrite = Math.min(n, buffer.length);

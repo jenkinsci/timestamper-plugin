@@ -66,36 +66,26 @@ public class TimestampFormatProviderTest {
    */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    return Arrays
-        .asList(new Object[][] {
-            // system
-            { request("jenkins-timestamper=system"), system() },
-            // local (system with browser time zone)
-            {
-                request("jenkins-timestamper-local=true",
-                    "jenkins-timestamper-offset=0"), system("GMT") },
-            {
-                request("jenkins-timestamper-local=true",
-                    "jenkins-timestamper-offset=" + HALF_HOUR),
-                system("GMT-0:30") },
-            {
-                request("jenkins-timestamper-local=true",
-                    "jenkins-timestamper-offset=" + ONE_HOUR),
-                system("GMT-1") },
-            {
-                request("jenkins-timestamper-local=true",
-                    "jenkins-timestamper-offset=-" + HALF_HOUR),
-                system("GMT+0:30") },
-            {
-                request("jenkins-timestamper-local=true",
-                    "jenkins-timestamper-offset=-" + ONE_HOUR),
-                system("GMT+1") },
-            // elapsed
-            { request("jenkins-timestamper=elapsed"), elapsed() },
-            // none
-            { request("jenkins-timestamper=none"), empty() },
-            // other
-            { request(), system() }, { request((String[]) null), system() } });
+    return Arrays.asList(new Object[][] {
+        // system
+        { request("jenkins-timestamper=system"), system() },
+        // local (system with browser time zone)
+        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"),
+            system("GMT") },
+        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + HALF_HOUR),
+            system("GMT-0:30") },
+        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + ONE_HOUR),
+            system("GMT-1") },
+        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + HALF_HOUR),
+            system("GMT+0:30") },
+        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + ONE_HOUR),
+            system("GMT+1") },
+        // elapsed
+        { request("jenkins-timestamper=elapsed"), elapsed() },
+        // none
+        { request("jenkins-timestamper=none"), empty() },
+        // other
+        { request(), system() }, { request((String[]) null), system() } });
   }
 
   private static HttpServletRequest request(String... cookies) {
@@ -109,20 +99,17 @@ public class TimestampFormatProviderTest {
       }
     }
     when(request.getCookies()).thenReturn(requestCookies);
-    when(request.toString()).thenReturn(
-        HttpServletRequest.class.getSimpleName() + " "
-            + Arrays.toString(cookies));
+    when(request.toString())
+        .thenReturn(HttpServletRequest.class.getSimpleName() + " " + Arrays.toString(cookies));
     return request;
   }
 
   private static SystemTimestampFormat system() {
-    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT,
-        Optional.<String> absent(), Locale.ENGLISH);
+    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.<String>absent(), Locale.ENGLISH);
   }
 
   private static SystemTimestampFormat system(String timeZoneId) {
-    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT,
-        Optional.of(timeZoneId), Locale.ENGLISH);
+    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.of(timeZoneId), Locale.ENGLISH);
   }
 
   private static ElapsedTimestampFormat elapsed() {
@@ -145,8 +132,7 @@ public class TimestampFormatProviderTest {
    */
   @Test
   public void testGet() {
-    assertThat(TimestampFormatProvider.get(SYSTEM_TIME_FORMAT,
-        ELAPSED_TIME_FORMAT, request, Locale.ENGLISH),
-        is(expectedTimestampFormat));
+    assertThat(TimestampFormatProvider.get(SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT, request,
+        Locale.ENGLISH), is(expectedTimestampFormat));
   }
 }

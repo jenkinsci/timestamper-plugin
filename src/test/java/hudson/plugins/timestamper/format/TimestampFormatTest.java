@@ -43,8 +43,7 @@ public class TimestampFormatTest {
 
   private String timestampString = "TIMESTAMP";
 
-  private String prefix = "<span class=\"timestamp\">" + timestampString
-      + "</span>";
+  private String prefix = "<span class=\"timestamp\">" + timestampString + "</span>";
 
   /**
    */

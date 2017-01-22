@@ -89,8 +89,7 @@ public class TimestampsWriterTest {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     timestampsFile = TimestamperPaths.timestampsFile(build);
-    timestampsHashFile = new File(timestampsFile.getParent(),
-        timestampsFile.getName() + ".SHA-1");
+    timestampsHashFile = new File(timestampsFile.getParent(), timestampsFile.getName() + ".SHA-1");
   }
 
   /**
@@ -134,7 +133,7 @@ public class TimestampsWriterTest {
   public void testWriteZeroTimes() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(0, 0);
-    assertThat(writtenTimestampData(), is(Collections.<Integer> emptyList()));
+    assertThat(writtenTimestampData(), is(Collections.<Integer>emptyList()));
   }
 
   /**
@@ -154,15 +153,13 @@ public class TimestampsWriterTest {
    */
   @Test
   public void testWriteSameTimestampManyTimes() throws Exception {
-    int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE")
-        .getInt(null);
+    int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE").getInt(null);
     int times = bufferSize + 1000; // larger than the buffer
     timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(10000, times);
     List<Integer> writtenTimestampData = writtenTimestampData();
     assertThat(writtenTimestampData.get(0), is(10000));
-    assertThat(writtenTimestampData.subList(1, writtenTimestampData.size()),
-        everyItem(equalTo(0)));
+    assertThat(writtenTimestampData.subList(1, writtenTimestampData.size()), everyItem(equalTo(0)));
     assertThat(writtenTimestampData, hasSize(times));
   }
 
@@ -180,8 +177,7 @@ public class TimestampsWriterTest {
     timestampsWriter.close();
 
     byte[] fileContents = Files.toByteArray(timestampsFile);
-    byte[] expectedHash = MessageDigest.getInstance("SHA-1").digest(
-        fileContents);
+    byte[] expectedHash = MessageDigest.getInstance("SHA-1").digest(fileContents);
     assertThat(Files.toString(timestampsHashFile, Charsets.US_ASCII).trim(),
         is(DatatypeConverter.printHexBinary(expectedHash).toLowerCase()));
   }
@@ -197,8 +193,7 @@ public class TimestampsWriterTest {
     timestampsWriter.write(3, 1);
     timestampsWriter.writeDigest();
     timestampsWriter.close();
-    assertThat(timestampsHashFile.getParentFile().listFiles(),
-        is(new File[] { timestampsFile }));
+    assertThat(timestampsHashFile.getParentFile().listFiles(), is(new File[] { timestampsFile }));
   }
 
   /**

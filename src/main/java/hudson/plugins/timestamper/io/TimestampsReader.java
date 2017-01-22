@@ -94,7 +94,6 @@ public class TimestampsReader implements Serializable, Closeable {
     }
   }
 
-
   /**
    * Convert negative line number that was calculated from end of file to
    * absolute line number (from head)
@@ -156,8 +155,7 @@ public class TimestampsReader implements Serializable, Closeable {
    * @return the next time-stamp
    */
   private Timestamp readNext(InputStream inputStream) throws IOException {
-    CountingInputStream countingInputStream = new CountingInputStream(
-        inputStream);
+    CountingInputStream countingInputStream = new CountingInputStream(inputStream);
     long elapsedMillisDiff = Varint.read(countingInputStream);
 
     elapsedMillis += elapsedMillisDiff;

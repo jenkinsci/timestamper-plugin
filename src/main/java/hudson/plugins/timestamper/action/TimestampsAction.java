@@ -48,8 +48,7 @@ import com.google.common.base.Strings;
  */
 public final class TimestampsAction implements Action {
 
-  private static final Logger LOGGER = Logger.getLogger(TimestampsAction.class
-      .getName());
+  private static final Logger LOGGER = Logger.getLogger(TimestampsAction.class.getName());
 
   /**
    * The build to inspect.
@@ -97,15 +96,14 @@ public final class TimestampsAction implements Action {
    * @param response
    * @throws IOException
    */
-  public void doIndex(StaplerRequest request, StaplerResponse response)
-      throws IOException {
+  public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
     response.setContentType("text/plain;charset=UTF-8");
 
     PrintWriter writer = response.getWriter();
 
     try {
-      TimestampsActionQuery query = TimestampsActionQuery.create(request
-          .getQueryString()); // throws RuntimeException for invalid query
+      // throws RuntimeException for invalid query
+      TimestampsActionQuery query = TimestampsActionQuery.create(request.getQueryString());
 
       try (BufferedReader reader = TimestampsActionOutput.open(build, query)) {
         String line;
@@ -115,8 +113,7 @@ public final class TimestampsAction implements Action {
       }
 
     } catch (RuntimeException | IOException e) {
-      String urlWithQueryString = request.getRequestURLWithQueryString()
-          .toString();
+      String urlWithQueryString = request.getRequestURLWithQueryString().toString();
       writer.println(urlWithQueryString);
       String exceptionMessage = Strings.nullToEmpty(e.getMessage());
       writer.println(e.getClass().getSimpleName()

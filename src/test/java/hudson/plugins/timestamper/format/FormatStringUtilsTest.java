@@ -60,8 +60,7 @@ public class FormatStringUtilsTest {
    */
   @Test
   public void testStripTags_strong() {
-    assertThat(FormatStringUtils.stripHtmlTags("1<strong>2</strong>3"),
-        is("123"));
+    assertThat(FormatStringUtils.stripHtmlTags("1<strong>2</strong>3"), is("123"));
   }
 
   /**
@@ -75,9 +74,7 @@ public class FormatStringUtilsTest {
    */
   @Test
   public void testStripTags_span() {
-    assertThat(
-        FormatStringUtils
-            .stripHtmlTags("1<span style=\"color: blue;\">2</span>3"),
+    assertThat(FormatStringUtils.stripHtmlTags("1<span style=\"color: blue;\">2</span>3"),
         is("123"));
   }
 

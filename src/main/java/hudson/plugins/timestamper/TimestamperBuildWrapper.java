@@ -63,8 +63,7 @@ import com.google.common.base.Optional;
  */
 public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
 
-  private static final Logger LOGGER = Logger
-      .getLogger(TimestamperBuildWrapper.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(TimestamperBuildWrapper.class.getName());
 
   /**
    * Create a new {@link TimestamperBuildWrapper}.
@@ -77,9 +76,8 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
    * {@inheritDoc}
    */
   @Override
-  public void setUp(Context context, Run<?, ?> build, FilePath workspace,
-      Launcher launcher, TaskListener listener, EnvVars initialEnvironment)
-      throws IOException, InterruptedException {
+  public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher,
+      TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
     // nothing to do
   }
 
@@ -91,8 +89,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
     return new ConsoleLogFilterImpl(build);
   }
 
-  private static class ConsoleLogFilterImpl extends ConsoleLogFilter implements
-      Serializable {
+  private static class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
     private static final long serialVersionUID = 1;
     private final File timestampsFile;
     private final long buildStartTime;
@@ -107,8 +104,8 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public OutputStream decorateLogger(AbstractBuild _ignore,
-        OutputStream logger) throws IOException, InterruptedException {
+    public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger)
+        throws IOException, InterruptedException {
       if (useTimestampNotes) {
         return new TimestampNotesOutputStream(logger, buildStartTime);
       }

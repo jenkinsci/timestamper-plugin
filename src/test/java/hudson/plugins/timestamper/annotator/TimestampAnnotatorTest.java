@@ -189,7 +189,7 @@ public class TimestampAnnotatorTest {
   @Test
   public void testEndOfLogFile() throws Exception {
     logPosition.endOfFile = true;
-    assertThat(annotate(), is(Collections.<Timestamp> emptyList()));
+    assertThat(annotate(), is(Collections.<Timestamp>emptyList()));
   }
 
   private List<Timestamp> writeTimestamps(int count) throws Exception {

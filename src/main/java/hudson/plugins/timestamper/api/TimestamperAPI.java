@@ -63,7 +63,6 @@ public class TimestamperAPI {
    * @since Timestamper 1.8
    */
   public BufferedReader read(Run<?, ?> build, String query) {
-    return TimestampsActionOutput.open(build,
-        TimestampsActionQuery.create(query));
+    return TimestampsActionOutput.open(build, TimestampsActionQuery.create(query));
   }
 }

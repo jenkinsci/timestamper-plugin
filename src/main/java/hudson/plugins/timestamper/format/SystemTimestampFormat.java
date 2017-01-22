@@ -53,8 +53,8 @@ public final class SystemTimestampFormat extends TimestampFormat {
 
   private final Optional<String> timeZoneId;
 
-  public SystemTimestampFormat(String systemTimeFormat,
-      Optional<String> timeZoneId, Locale locale) {
+  public SystemTimestampFormat(String systemTimeFormat, Optional<String> timeZoneId,
+      Locale locale) {
     TimeZone timeZone = null;
     if (timeZoneId.isPresent()) {
       timeZone = TimeZone.getTimeZone(timeZoneId.get());
@@ -64,8 +64,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
         timeZone = TimeZone.getTimeZone(timeZoneProperty);
       }
     }
-    this.format = FastDateFormat
-        .getInstance(systemTimeFormat, timeZone, locale);
+    this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone, locale);
     this.timeZoneId = timeZoneId;
   }
 
@@ -117,7 +116,6 @@ public final class SystemTimestampFormat extends TimestampFormat {
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("format", format.getPattern())
-        .append("timeZoneId", timeZoneId).append("locale", format.getLocale())
-        .toString();
+        .append("timeZoneId", timeZoneId).append("locale", format.getLocale()).toString();
   }
 }

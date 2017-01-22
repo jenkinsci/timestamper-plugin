@@ -52,16 +52,14 @@ public class VarintTest {
   /**
    */
   @DataPoint
-  public static VarintValue MIN = new VarintValue(
-      Long.MIN_VALUE,
-      binary("10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000 00000001"));
+  public static VarintValue MIN = new VarintValue(Long.MIN_VALUE, binary(
+      "10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000 00000001"));
 
   /**
    */
   @DataPoint
-  public static VarintValue NEGATIVE_ONE = new VarintValue(
-      -1,
-      binary("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 00000001"));
+  public static VarintValue NEGATIVE_ONE = new VarintValue(-1, binary(
+      "11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 00000001"));
 
   /**
    */
@@ -77,33 +75,28 @@ public class VarintTest {
    * Maximum value that can be stored in a single byte.
    */
   @DataPoint
-  public static VarintValue ONE_BYTE_MAX = new VarintValue(127,
-      binary("01111111"));
+  public static VarintValue ONE_BYTE_MAX = new VarintValue(127, binary("01111111"));
 
   /**
    * Higher than {@link #ONE_BYTE_MAX}. Need two bytes.
    */
   @DataPoint
-  public static VarintValue TWO_BYTES_MIN = new VarintValue(128,
-      binary("10000000 00000001"));
+  public static VarintValue TWO_BYTES_MIN = new VarintValue(128, binary("10000000 00000001"));
 
   /**
    */
   @DataPoint
-  public static VarintValue THREE_HUNDRED = new VarintValue(300,
-      binary("10101100 00000010"));
+  public static VarintValue THREE_HUNDRED = new VarintValue(300, binary("10101100 00000010"));
 
   /**
    */
   @DataPoint
-  public static VarintValue FIVE_HUNDRED = new VarintValue(500,
-      binary("11110100 00000011"));
+  public static VarintValue FIVE_HUNDRED = new VarintValue(500, binary("11110100 00000011"));
 
   /**
    */
   @DataPoint
-  public static VarintValue MAX = new VarintValue(
-      Long.MAX_VALUE,
+  public static VarintValue MAX = new VarintValue(Long.MAX_VALUE,
       binary("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 01111111"));
 
   static class VarintValue {
@@ -134,8 +127,7 @@ public class VarintTest {
    */
   @Theory
   public void testReadSingleVarint(VarintValue value) throws Exception {
-    long readValue = Varint
-        .read(new ByteArrayInputStream(value.varintEncoding));
+    long readValue = Varint.read(new ByteArrayInputStream(value.varintEncoding));
     assertThat(readValue, is(value.value));
   }
 
@@ -145,14 +137,11 @@ public class VarintTest {
    * @throws Exception
    */
   @Theory
-  public void testWriteTwoVarints(VarintValue valueOne, VarintValue valueTwo)
-      throws Exception {
-    byte[] buffer = new byte[valueOne.varintEncoding.length
-        + valueTwo.varintEncoding.length];
+  public void testWriteTwoVarints(VarintValue valueOne, VarintValue valueTwo) throws Exception {
+    byte[] buffer = new byte[valueOne.varintEncoding.length + valueTwo.varintEncoding.length];
     int offset = Varint.write(valueOne.value, buffer, 0);
     Varint.write(valueTwo.value, buffer, offset);
-    assertThat(buffer,
-        is(Bytes.concat(valueOne.varintEncoding, valueTwo.varintEncoding)));
+    assertThat(buffer, is(Bytes.concat(valueOne.varintEncoding, valueTwo.varintEncoding)));
   }
 
   /**
@@ -161,10 +150,9 @@ public class VarintTest {
    * @throws Exception
    */
   @Theory
-  public void testReadTwoVarints(VarintValue valueOne, VarintValue valueTwo)
-      throws Exception {
-    InputStream inputStream = new ByteArrayInputStream(Bytes.concat(
-        valueOne.varintEncoding, valueTwo.varintEncoding));
+  public void testReadTwoVarints(VarintValue valueOne, VarintValue valueTwo) throws Exception {
+    InputStream inputStream = new ByteArrayInputStream(
+        Bytes.concat(valueOne.varintEncoding, valueTwo.varintEncoding));
     long readValueOne = Varint.read(inputStream);
     assertThat("first value", readValueOne, is(valueOne.value));
     long readValueTwo = Varint.read(inputStream);

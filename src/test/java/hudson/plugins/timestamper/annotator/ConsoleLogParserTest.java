@@ -60,8 +60,8 @@ public class ConsoleLogParserTest {
    */
   @Parameters(name = "serialize={0},isBuilding={1}")
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[] { false, false }, new Object[] { false,
-        true }, new Object[] { true, false }, new Object[] { true, true });
+    return Arrays.asList(new Object[] { false, false }, new Object[] { false, true },
+        new Object[] { true, false }, new Object[] { true, true });
   }
 
   /**
@@ -90,11 +90,9 @@ public class ConsoleLogParserTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE,
-        0x61, NEWLINE };
+    byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE, 0x61, NEWLINE };
     logLength = consoleLog.length;
-    when(build.getLogInputStream()).thenReturn(
-        new ByteArrayInputStream(consoleLog));
+    when(build.getLogInputStream()).thenReturn(new ByteArrayInputStream(consoleLog));
     AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
     when(logText.length()).thenReturn((long) logLength);
     when(build.getLogText()).thenReturn(logText);

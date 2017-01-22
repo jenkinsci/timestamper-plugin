@@ -107,8 +107,7 @@ public final class Timestamp {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("elapsedMillis",
-            elapsedMillisKnown ? elapsedMillis : "(unknown)")
+        .append("elapsedMillis", elapsedMillisKnown ? elapsedMillis : "(unknown)")
         .append("millisSinceEpoch", millisSinceEpoch).toString();
   }
 }

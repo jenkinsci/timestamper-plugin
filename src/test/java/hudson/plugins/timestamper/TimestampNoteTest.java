@@ -83,14 +83,14 @@ public class TimestampNoteTest {
   private static Run<?, ?> build() {
     Run<?, ?> build = mock(Run.class);
     Whitebox.setInternalState(build, "timestamp", BUILD_START);
-    when(build.toString()).thenReturn(
-        new ToStringBuilder("Run").append("startTime", BUILD_START).toString());
+    when(build.toString())
+        .thenReturn(new ToStringBuilder("Run").append("startTime", BUILD_START).toString());
     return build;
   }
 
   private static TimestampNote note(Long elapsedMillis, long millisSinceEpoch) {
-    TimestampNote note = new TimestampNote(elapsedMillis == null ? 0l
-        : elapsedMillis, millisSinceEpoch);
+    TimestampNote note = new TimestampNote(elapsedMillis == null ? 0l : elapsedMillis,
+        millisSinceEpoch);
     if (elapsedMillis == null) {
       Whitebox.setInternalState(note, "elapsedMillis", (Object) null);
     }
@@ -122,13 +122,12 @@ public class TimestampNoteTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    Whitebox.setInternalState(TimestampFormatProvider.class,
-        new Supplier<TimestampFormat>() {
-          @Override
-          public TimestampFormat get() {
-            return format;
-          }
-        });
+    Whitebox.setInternalState(TimestampFormatProvider.class, new Supplier<TimestampFormat>() {
+      @Override
+      public TimestampFormat get() {
+        return format;
+      }
+    });
   }
 
   /**

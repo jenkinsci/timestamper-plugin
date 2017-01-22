@@ -80,8 +80,7 @@ public class TimestamperBuildWrapperTest {
    */
   @Test
   public void testDecorate() throws Exception {
-    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build,
-        outputStream);
+    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
     assertThat(decoratedOutputStream, instanceOf(TimestamperOutputStream.class));
   }
 
@@ -91,9 +90,7 @@ public class TimestamperBuildWrapperTest {
   @Test
   public void testDecorateWithTimestampNoteSystemProperty() throws Exception {
     System.setProperty(TimestampNote.getSystemProperty(), "true");
-    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build,
-        outputStream);
-    assertThat(decoratedOutputStream,
-        instanceOf(TimestampNotesOutputStream.class));
+    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
+    assertThat(decoratedOutputStream, instanceOf(TimestampNotesOutputStream.class));
   }
 }

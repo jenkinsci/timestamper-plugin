@@ -128,8 +128,8 @@ public class TimestampsActionOutput {
         return numRead;
       }
 
-      private int readToStartLine(TimestampsActionQuery query,
-          LineCountSupplier lineCount) throws IOException {
+      private int readToStartLine(TimestampsActionQuery query, LineCountSupplier lineCount)
+          throws IOException {
         int linesToSkip = Math.max(query.startLine - 1, 0);
         if (query.startLine < 0) {
           linesToSkip = lineCount.get() + query.startLine;
@@ -150,8 +150,7 @@ public class TimestampsActionOutput {
         return query.endLine;
       }
 
-      private Optional<String> readNextLine(TimestampsActionQuery query)
-          throws IOException {
+      private Optional<String> readNextLine(TimestampsActionQuery query) throws IOException {
 
         Optional<Timestamp> timestamp = timestampsReader.read();
         Optional<Line> logFileLine = logFileReader.nextLine();

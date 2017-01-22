@@ -100,8 +100,7 @@ public class LogFileReaderTest {
 
     timestamp = new Timestamp(42, 1000);
     logFileContents = "line1\nline2"
-        + new TimestampNote(timestamp.elapsedMillis, timestamp.millisSinceEpoch)
-            .encode() + "\n";
+        + new TimestampNote(timestamp.elapsedMillis, timestamp.millisSinceEpoch).encode() + "\n";
 
     // Uncompressed log file
     uncompressedLogFile = tempFolder.newFile();
@@ -109,12 +108,9 @@ public class LogFileReaderTest {
 
     // Gzipped log file
     gzippedLogFile = tempFolder.newFile("logFile.gz");
-    try (FileOutputStream fileOutputStream = new FileOutputStream(
-        gzippedLogFile);
-        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(
-            fileOutputStream);) {
-      gzipOutputStream
-          .write(logFileContents.getBytes(Charset.defaultCharset()));
+    try (FileOutputStream fileOutputStream = new FileOutputStream(gzippedLogFile);
+        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream);) {
+      gzipOutputStream.write(logFileContents.getBytes(Charset.defaultCharset()));
     }
 
     // Non-existant log file
@@ -122,8 +118,7 @@ public class LogFileReaderTest {
 
     // Need to mock Jenkins to read the console notes.
     Jenkins jenkins = mock(Jenkins.class);
-    Whitebox.setInternalState(jenkins, "pluginManager",
-        mock(PluginManager.class));
+    Whitebox.setInternalState(jenkins, "pluginManager", mock(PluginManager.class));
     Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
   }
 
@@ -168,8 +163,8 @@ public class LogFileReaderTest {
     List<String> expectedTexts = ImmutableList.of("line1", "line2");
     assertThat("texts", texts, is(expectedTexts));
 
-    List<Optional<Timestamp>> expectedTimestamps = ImmutableList.of(
-        Optional.<Timestamp> absent(), Optional.of(timestamp));
+    List<Optional<Timestamp>> expectedTimestamps = ImmutableList.of(Optional.<Timestamp>absent(),
+        Optional.of(timestamp));
     assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
@@ -179,7 +174,7 @@ public class LogFileReaderTest {
   @Test
   public void testNextLine_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);
-    assertThat(logFileReader.nextLine(), is(Optional.<Line> absent()));
+    assertThat(logFileReader.nextLine(), is(Optional.<Line>absent()));
   }
 
   /**
@@ -193,16 +188,14 @@ public class LogFileReaderTest {
     List<String> logFileContents = Arrays.asList(
         "\u001B[35m\u001B[1mScanning dependencies of target\u001B[0m",
         //
-        "abc" + ConsoleNote.PREAMBLE_STR, "abc" + ConsoleNote.PREAMBLE_STR
-            + "def",
+        "abc" + ConsoleNote.PREAMBLE_STR, "abc" + ConsoleNote.PREAMBLE_STR + "def",
         //
         "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, ""),
         //
         "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, "de")
             + ConsoleNote.POSTAMBLE_STR.substring(0, 2),
         //
-        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, "de")
-            + ConsoleNote.POSTAMBLE_STR);
+        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, "de") + ConsoleNote.POSTAMBLE_STR);
     Files.write(Joiner.on('\n').join(logFileContents), logFile, Charsets.UTF_8);
 
     List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
@@ -216,7 +209,7 @@ public class LogFileReaderTest {
 
     List<Optional<Timestamp>> expectedTimestamps = new ArrayList<Optional<Timestamp>>();
     for (int i = 0; i < logFileContents.size(); i++) {
-      expectedTimestamps.add(Optional.<Timestamp> absent());
+      expectedTimestamps.add(Optional.<Timestamp>absent());
     }
     assertThat(timestamps, is(expectedTimestamps));
   }

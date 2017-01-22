@@ -104,7 +104,7 @@ public class TimestampsReaderTest {
    */
   @Test
   public void testNoTimestampsToRead() throws Exception {
-    assertThat(readTimestamps(), is(Collections.<Timestamp> emptyList()));
+    assertThat(readTimestamps(), is(Collections.<Timestamp>emptyList()));
   }
 
   /**
@@ -113,8 +113,7 @@ public class TimestampsReaderTest {
   @Test
   public void testReadFromStart() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
-    assertThat(readTimestamps(),
-        is(Arrays.asList(t(1, 1), t(2, 2), t(3, 3), t(4, 4))));
+    assertThat(readTimestamps(), is(Arrays.asList(t(1, 1), t(2, 2), t(3, 3), t(4, 4))));
   }
 
   /**
@@ -124,8 +123,7 @@ public class TimestampsReaderTest {
   public void testSkipZero() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
     timestampsReader.skip(0);
-    assertThat(readTimestamps(),
-        is(Arrays.asList(t(1, 1), t(2, 2), t(3, 3), t(4, 4))));
+    assertThat(readTimestamps(), is(Arrays.asList(t(1, 1), t(2, 2), t(3, 3), t(4, 4))));
   }
 
   /**
@@ -155,7 +153,7 @@ public class TimestampsReaderTest {
   public void testSkipToEnd() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
     timestampsReader.skip(4);
-    assertThat(readTimestamps(), is(Collections.<Timestamp> emptyList()));
+    assertThat(readTimestamps(), is(Collections.<Timestamp>emptyList()));
   }
 
   /**
@@ -165,7 +163,7 @@ public class TimestampsReaderTest {
   public void testSkipPastEnd() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
     timestampsReader.skip(5);
-    assertThat(readTimestamps(), is(Collections.<Timestamp> emptyList()));
+    assertThat(readTimestamps(), is(Collections.<Timestamp>emptyList()));
   }
 
   /**
@@ -211,8 +209,7 @@ public class TimestampsReaderTest {
     int iterations = 0;
     while (true) {
       if (serialize) {
-        timestampsReader = (TimestampsReader) SerializationUtils
-            .clone(timestampsReader);
+        timestampsReader = (TimestampsReader) SerializationUtils.clone(timestampsReader);
       }
       Optional<Timestamp> next = timestampsReader.read();
       if (!next.isPresent()) {
@@ -222,8 +219,7 @@ public class TimestampsReaderTest {
       iterations++;
       if (iterations > 10000) {
         throw new IllegalStateException(
-            "time-stamps do not appear to terminate. read so far: "
-                + timestamps);
+            "time-stamps do not appear to terminate. read so far: " + timestamps);
       }
     }
   }
