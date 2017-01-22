@@ -39,8 +39,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * <p>
  * These are inserted into the log file when:
  * <ul>
- * <li>The build does not extend {@link AbstractBuild}, e.g. a pipeline job.</li>
- * <li>Running the Timestamper plugin prior to version 1.4.</li>
+ * <li>Running a pipeline build or any other build which does not extend
+ * {@link AbstractBuild} OR</li>
+ * <li>Running the Timestamper plugin prior to version 1.4 OR</li>
  * <li>The system property is set: ({@link #getSystemProperty()}). The is
  * intended to support scripts that were written prior to Timestamper 1.4 to
  * parse the log files. New scripts should query the {@code /timestamps} URL
