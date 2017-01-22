@@ -51,7 +51,6 @@ import org.mockito.stubbing.OngoingStubbing;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -222,8 +221,8 @@ public class TimestampsActionOutputTest {
     nextLineStubbing.thenReturn(Optional.<Line>absent());
     when(logFileReader.lineCount()).thenReturn(6);
 
-    reader = TimestampsActionOutput.open(Suppliers.ofInstance(timestampsReader),
-        Suppliers.ofInstance(logFileReader), query, new Timestamp(42, 1));
+    reader = TimestampsActionOutput.open(timestampsReader, logFileReader, query,
+        new Timestamp(42, 1));
   }
 
   /**
