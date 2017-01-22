@@ -63,6 +63,7 @@ public final class TimestampsActionQuery {
     Optional<Integer> endLine = Optional.absent();
     List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
     boolean appendLogLine = false;
+    boolean currentTime = false;
 
     List<QueryParameter> queryParameters = readQueryString(query);
 
@@ -87,6 +88,8 @@ public final class TimestampsActionQuery {
         timestampFormats.add(new PrecisionTimestampFormat(precision));
       } else if (parameter.name.equalsIgnoreCase("appendLog")) {
         appendLogLine = (parameter.value.isEmpty() || Boolean.parseBoolean(parameter.value));
+      } else if (parameter.name.equalsIgnoreCase("currentTime")) {
+        currentTime = (parameter.value.isEmpty() || Boolean.parseBoolean(parameter.value));
       } else if (parameter.name.equalsIgnoreCase("startLine")) {
         startLine = Integer.parseInt(parameter.value);
       } else if (parameter.name.equalsIgnoreCase("endLine")) {
@@ -99,7 +102,8 @@ public final class TimestampsActionQuery {
       timestampFormats.add(new PrecisionTimestampFormat(3));
     }
 
-    return new TimestampsActionQuery(startLine, endLine, timestampFormats, appendLogLine);
+    return new TimestampsActionQuery(startLine, endLine, timestampFormats, appendLogLine,
+        currentTime);
   }
 
   private static List<QueryParameter> readQueryString(String query) {
@@ -169,12 +173,16 @@ public final class TimestampsActionQuery {
 
   final boolean appendLogLine;
 
+  final boolean currentTime;
+
   TimestampsActionQuery(int startLine, Optional<Integer> endLine,
-      List<? extends Function<Timestamp, String>> timestampFormats, boolean appendLogLine) {
+      List<? extends Function<Timestamp, String>> timestampFormats, boolean appendLogLine,
+      boolean currentTime) {
     this.startLine = startLine;
     this.endLine = checkNotNull(endLine);
     this.timestampFormats = ImmutableList.copyOf(timestampFormats);
     this.appendLogLine = appendLogLine;
+    this.currentTime = currentTime;
   }
 
   /**
@@ -182,7 +190,7 @@ public final class TimestampsActionQuery {
    */
   @Override
   public int hashCode() {
-    return Objects.hash(startLine, endLine, timestampFormats, appendLogLine);
+    return Objects.hash(startLine, endLine, timestampFormats, appendLogLine, currentTime);
   }
 
   /**
@@ -193,8 +201,8 @@ public final class TimestampsActionQuery {
     if (obj instanceof TimestampsActionQuery) {
       TimestampsActionQuery other = (TimestampsActionQuery) obj;
       return startLine == other.startLine && endLine.equals(other.endLine)
-          && timestampFormats.equals(other.timestampFormats)
-          && appendLogLine == other.appendLogLine;
+          && timestampFormats.equals(other.timestampFormats) && appendLogLine == other.appendLogLine
+          && currentTime == other.currentTime;
     }
     return false;
   }
@@ -204,9 +212,8 @@ public final class TimestampsActionQuery {
    */
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("startLine", startLine)
-        .append("endLine", endLine)
-        .append("timestampFormats", timestampFormats)
-        .append("appendLogLine", appendLogLine).toString();
+    return new ToStringBuilder(this).append("startLine", startLine).append("endLine", endLine)
+        .append("timestampFormats", timestampFormats).append("appendLogLine", appendLogLine)
+        .append("currentTime", currentTime).toString();
   }
 }

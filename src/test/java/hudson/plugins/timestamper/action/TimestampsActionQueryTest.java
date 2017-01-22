@@ -68,7 +68,7 @@ public class TimestampsActionQueryTest {
   private static final Optional<String> NO_TIMEZONE = Optional.absent();
 
   private static final TimestampsActionQuery DEFAULT = new TimestampsActionQuery(0, NO_ENDLINE,
-      Collections.singletonList(new PrecisionTimestampFormat(3)), false);
+      Collections.singletonList(new PrecisionTimestampFormat(3)), false, false);
 
   /**
    * @return the test data
@@ -83,68 +83,61 @@ public class TimestampsActionQueryTest {
 
     // Precision format
     for (int precision = 0; precision <= 9; precision++) {
-      testCases.add(new Object[] { "precision=" + precision, new TimestampsActionQuery(0,
-          NO_ENDLINE, Collections.singletonList(new PrecisionTimestampFormat(precision)), false) });
+      testCases
+          .add(new Object[] { "precision=" + precision, new TimestampsActionQuery(0, NO_ENDLINE,
+              Collections.singletonList(new PrecisionTimestampFormat(precision)), false, false) });
     }
     List<String> precisionStrings = Arrays.asList("seconds", "milliseconds", "microseconds",
         "nanoseconds");
     for (int i = 0; i < precisionStrings.size(); i++) {
-      testCases
-          .add(new Object[] { "precision=" + precisionStrings.get(i), new TimestampsActionQuery(0,
-              NO_ENDLINE, Collections.singletonList(new PrecisionTimestampFormat(i * 3)), false) });
+      testCases.add(new Object[] { "precision=" + precisionStrings.get(i),
+          new TimestampsActionQuery(0, NO_ENDLINE,
+              Collections.singletonList(new PrecisionTimestampFormat(i * 3)), false, false) });
     }
     testCases
         .addAll(Arrays.asList(new Object[][] { { "precision=-1", IllegalArgumentException.class },
             { "precision=invalid", NumberFormatException.class } }));
 
     // Time format
-    testCases
-        .addAll(
-            Arrays.asList(new Object[][] {
-                { "time=dd:HH:mm:ss",
-                    new TimestampsActionQuery(0, NO_ENDLINE,
-                        Collections.singletonList(new SystemTimestampFormat("dd:HH:mm:ss",
-                            NO_TIMEZONE, Locale.getDefault())),
-                        false) },
-                { "time=dd:HH:mm:ss&timeZone=GMT+10",
-                    new TimestampsActionQuery(0, NO_ENDLINE,
-                        Collections.singletonList(new SystemTimestampFormat("dd:HH:mm:ss",
-                            Optional.of("GMT+10"), Locale.getDefault())),
-                        false) },
-                { "time=dd:HH:mm:ss&timeZone=GMT-10",
-                    new TimestampsActionQuery(0, NO_ENDLINE,
-                        Collections.singletonList(new SystemTimestampFormat("dd:HH:mm:ss",
-                            Optional.of("GMT-10"), Locale.getDefault())),
-                        false) },
-                { "time=EEEE, d MMMM&locale=en",
-                    new TimestampsActionQuery(0, NO_ENDLINE,
-                        Collections.singletonList(
-                            new SystemTimestampFormat("EEEE, d MMMM", NO_TIMEZONE, Locale.ENGLISH)),
-                        false) },
-                { "time=EEEE, d MMMM&locale=de",
-                    new TimestampsActionQuery(0, NO_ENDLINE,
-                        Collections.singletonList(
-                            new SystemTimestampFormat("EEEE, d MMMM", NO_TIMEZONE, Locale.GERMAN)),
-                        false) } }));
+    testCases.add(new Object[] { "time=dd:HH:mm:ss",
+        new TimestampsActionQuery(0, NO_ENDLINE,
+            Collections.singletonList(
+                new SystemTimestampFormat("dd:HH:mm:ss", NO_TIMEZONE, Locale.getDefault())),
+            false, false) });
+    testCases.add(new Object[] { "time=dd:HH:mm:ss&timeZone=GMT+10",
+        new TimestampsActionQuery(0, NO_ENDLINE, Collections.singletonList(
+            new SystemTimestampFormat("dd:HH:mm:ss", Optional.of("GMT+10"), Locale.getDefault())),
+            false, false) });
+    testCases.add(new Object[] { "time=dd:HH:mm:ss&timeZone=GMT-10",
+        new TimestampsActionQuery(0, NO_ENDLINE, Collections.singletonList(
+            new SystemTimestampFormat("dd:HH:mm:ss", Optional.of("GMT-10"), Locale.getDefault())),
+            false, false) });
+    testCases.add(new Object[] { "time=EEEE, d MMMM&locale=en",
+        new TimestampsActionQuery(0, NO_ENDLINE,
+            Collections.singletonList(
+                new SystemTimestampFormat("EEEE, d MMMM", NO_TIMEZONE, Locale.ENGLISH)),
+            false, false) });
+    testCases.add(new Object[] { "time=EEEE, d MMMM&locale=de",
+        new TimestampsActionQuery(0, NO_ENDLINE,
+            Collections.singletonList(
+                new SystemTimestampFormat("EEEE, d MMMM", NO_TIMEZONE, Locale.GERMAN)),
+            false, false) });
 
     // Elapsed format
     testCases.add(new Object[] { "elapsed=s.SSS", new TimestampsActionQuery(0, NO_ENDLINE,
-        Collections.singletonList(new ElapsedTimestampFormat("s.SSS")), false) });
+        Collections.singletonList(new ElapsedTimestampFormat("s.SSS")), false, false) });
 
     // Multiple formats
-    testCases
-        .addAll(
-            Arrays.asList(new Object[][] {
-                { "precision=0&precision=1",
-                    new TimestampsActionQuery(0, NO_ENDLINE,
-                        ImmutableList.of(new PrecisionTimestampFormat(0),
-                            new PrecisionTimestampFormat(1)),
-                        false) },
-                { "time=dd:HH:mm:ss&elapsed=s.SSS",
-                    new TimestampsActionQuery(0, NO_ENDLINE,
-                        ImmutableList.of(new SystemTimestampFormat("dd:HH:mm:ss", NO_TIMEZONE,
-                            Locale.getDefault()), new ElapsedTimestampFormat("s.SSS")),
-                        false) } }));
+    testCases.add(new Object[] { "precision=0&precision=1",
+        new TimestampsActionQuery(0, NO_ENDLINE,
+            ImmutableList.of(new PrecisionTimestampFormat(0), new PrecisionTimestampFormat(1)),
+            false, false) });
+    testCases.add(new Object[] { "time=dd:HH:mm:ss&elapsed=s.SSS",
+        new TimestampsActionQuery(0, NO_ENDLINE,
+            ImmutableList.of(
+                new SystemTimestampFormat("dd:HH:mm:ss", NO_TIMEZONE, Locale.getDefault()),
+                new ElapsedTimestampFormat("s.SSS")),
+            false, false) });
 
     // Start line and end line
     List<Optional<Integer>> lineValues = ImmutableList.of(Optional.of(-1), Optional.of(0),
@@ -162,13 +155,12 @@ public class TimestampsActionQueryTest {
 
         if (!query.isEmpty()) {
           testCases.add(new Object[] { query, new TimestampsActionQuery(startLine.or(0), endLine,
-              DEFAULT.timestampFormats, false) });
+              DEFAULT.timestampFormats, false, false) });
         }
       }
     }
-    testCases
-        .addAll(Arrays.asList(new Object[][] { { "startLine=invalid", NumberFormatException.class },
-            { "endLine=invalid", NumberFormatException.class } }));
+    testCases.add(new Object[] { "startLine=invalid", NumberFormatException.class });
+    testCases.add(new Object[] { "endLine=invalid", NumberFormatException.class });
 
     // Append log line
     Map<String, Boolean> appendLogParams = ImmutableMap.of("appendLog", true, "appendLog=true",
@@ -177,17 +169,31 @@ public class TimestampsActionQueryTest {
       String appendLogParam = mapEntry.getKey();
       boolean appendLog = mapEntry.getValue();
 
-      testCases
-          .addAll(
-              Arrays.asList(new Object[][] {
-                  { appendLogParam,
-                      new TimestampsActionQuery(0, NO_ENDLINE, DEFAULT.timestampFormats,
-                          appendLog) },
-                  { "precision=0&" + appendLogParam,
-                      new TimestampsActionQuery(0, NO_ENDLINE,
-                          Collections.singletonList(new PrecisionTimestampFormat(0)), appendLog) },
-                  { appendLogParam + "&precision=0", new TimestampsActionQuery(0, NO_ENDLINE,
-                      Collections.singletonList(new PrecisionTimestampFormat(0)), appendLog) } }));
+      testCases.add(new Object[] { appendLogParam,
+          new TimestampsActionQuery(0, NO_ENDLINE, DEFAULT.timestampFormats, appendLog, false) });
+      testCases.add(
+          new Object[] { "precision=0&" + appendLogParam, new TimestampsActionQuery(0, NO_ENDLINE,
+              Collections.singletonList(new PrecisionTimestampFormat(0)), appendLog, false) });
+      testCases.add(
+          new Object[] { appendLogParam + "&precision=0", new TimestampsActionQuery(0, NO_ENDLINE,
+              Collections.singletonList(new PrecisionTimestampFormat(0)), appendLog, false) });
+    }
+
+    // Current time
+    Map<String, Boolean> currentTimeParams = ImmutableMap.of("currentTime", true,
+        "currentTime=true", true, "currentTime=false", false);
+    for (Map.Entry<String, Boolean> mapEntry : currentTimeParams.entrySet()) {
+      String currentTimeParam = mapEntry.getKey();
+      boolean currentTime = mapEntry.getValue();
+
+      testCases.add(new Object[] { currentTimeParam,
+          new TimestampsActionQuery(0, NO_ENDLINE, DEFAULT.timestampFormats, false, currentTime) });
+      testCases.add(
+          new Object[] { "precision=0&" + currentTimeParam, new TimestampsActionQuery(0, NO_ENDLINE,
+              Collections.singletonList(new PrecisionTimestampFormat(0)), false, currentTime) });
+      testCases.add(
+          new Object[] { currentTimeParam + "&precision=0", new TimestampsActionQuery(0, NO_ENDLINE,
+              Collections.singletonList(new PrecisionTimestampFormat(0)), false, currentTime) });
     }
 
     return testCases;

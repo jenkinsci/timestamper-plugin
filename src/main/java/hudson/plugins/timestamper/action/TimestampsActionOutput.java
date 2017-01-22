@@ -39,6 +39,8 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -75,6 +77,9 @@ import hudson.plugins.timestamper.io.TimestampsReader;
  * many lines back from the end.</li>
  * <li>"locale": Select the locale to use when displaying the system clock time.
  * </li>
+ * <li>"currentTime": Display the current time instead of reading time-stamps
+ * from the build.
+ * <li>
  * </ul>
  * 
  * @author Steven G. Brown
@@ -89,14 +94,32 @@ public class TimestampsActionOutput {
    * @return a {@link BufferedReader}
    */
   public static BufferedReader open(Run<?, ?> build, TimestampsActionQuery query) {
-    TimestampsReader timestampsReader = new TimestampsReader(build);
-    LogFileReader logFileReader = new LogFileReader(build);
+    Supplier<TimestampsReader> timestampsReaderSupplier = Suppliers
+        .ofInstance(new TimestampsReader(build));
+    Supplier<LogFileReader> logFileReaderSupplier = Suppliers.ofInstance(new LogFileReader(build));
 
-    return open(timestampsReader, logFileReader, query);
+    long buildStartTime = build.getStartTimeInMillis();
+    long millisSinceEpoch = System.currentTimeMillis();
+    Timestamp currentTimestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+
+    return open(timestampsReaderSupplier, logFileReaderSupplier, query, currentTimestamp);
   }
 
-  static BufferedReader open(final TimestampsReader timestampsReader,
-      final LogFileReader logFileReader, final TimestampsActionQuery query) {
+  static BufferedReader open(Supplier<TimestampsReader> timestampsReaderSupplier,
+      Supplier<LogFileReader> logFileReaderSupplier, final TimestampsActionQuery query,
+      Timestamp currentTimestamp) {
+    if (query.currentTime) {
+      List<String> parts = new ArrayList<String>();
+      for (Function<Timestamp, String> format : query.timestampFormats) {
+        parts.add(format.apply(currentTimestamp));
+      }
+      String result = Joiner.on(' ').join(parts) + "\n";
+      return new BufferedReader(new StringReader(result));
+    }
+
+    final TimestampsReader timestampsReader = timestampsReaderSupplier.get();
+    final LogFileReader logFileReader = logFileReaderSupplier.get();
+
     final StringBuilder buffer = new StringBuilder();
 
     Reader reader = new Reader() {
