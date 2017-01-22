@@ -25,9 +25,10 @@ package hudson.plugins.timestamper.format;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import hudson.plugins.timestamper.Timestamp;
 
 import org.junit.Test;
+
+import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Unit test for the {@link EmptyTimestampFormat} class.

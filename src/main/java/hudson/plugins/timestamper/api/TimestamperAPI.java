@@ -23,11 +23,11 @@
  */
 package hudson.plugins.timestamper.api;
 
+import java.io.BufferedReader;
+
 import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.action.TimestampsActionQuery;
-
-import java.io.BufferedReader;
 
 /**
  * Timestamper API intended for use by other plug-ins.

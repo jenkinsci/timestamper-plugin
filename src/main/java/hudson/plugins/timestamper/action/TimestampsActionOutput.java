@@ -24,11 +24,6 @@
 package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.LogFileReader.Line;
-import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,6 +39,12 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.io.LogFileReader;
+import hudson.plugins.timestamper.io.LogFileReader.Line;
+import hudson.plugins.timestamper.io.TimestampsReader;
 
 /**
  * Generate a page of time-stamps on behalf of {@link TimestampsAction}.

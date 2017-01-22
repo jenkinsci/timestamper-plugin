@@ -23,20 +23,6 @@
  */
 package hudson.plugins.timestamper;
 
-import hudson.EnvVars;
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.console.ConsoleLogFilter;
-import hudson.model.TaskListener;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Run;
-import hudson.plugins.timestamper.io.TimestamperPaths;
-import hudson.plugins.timestamper.io.TimestampsWriter;
-import hudson.tasks.BuildWrapper;
-import hudson.tasks.BuildWrapperDescriptor;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,12 +32,25 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jenkins.YesNoMaybe;
-import jenkins.tasks.SimpleBuildWrapper;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.google.common.base.Optional;
+
+import hudson.EnvVars;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.console.ConsoleLogFilter;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.plugins.timestamper.io.TimestamperPaths;
+import hudson.plugins.timestamper.io.TimestampsWriter;
+import hudson.tasks.BuildWrapper;
+import hudson.tasks.BuildWrapperDescriptor;
+import jenkins.YesNoMaybe;
+import jenkins.tasks.SimpleBuildWrapper;
 
 /**
  * Build wrapper that decorates the build's logger to record time-stamps as each

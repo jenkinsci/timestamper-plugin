@@ -26,13 +26,14 @@ package hudson.plugins.timestamper.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
+
 import hudson.MarkupText;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.tasks._ant.AntTargetNote;
-
-import org.junit.Test;
 
 /**
  * Unit test for the {@link TimestampFormat} class.

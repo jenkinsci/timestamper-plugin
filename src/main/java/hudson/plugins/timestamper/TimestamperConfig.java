@@ -24,20 +24,19 @@
  */
 package hudson.plugins.timestamper;
 
-import hudson.Extension;
-import hudson.model.Descriptor;
-
 import java.text.SimpleDateFormat;
 
 import javax.annotation.CheckForNull;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
+import org.kohsuke.stapler.StaplerRequest;
+
+import hudson.Extension;
+import hudson.model.Descriptor;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-
-import org.apache.commons.lang.time.DurationFormatUtils;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Global configuration for the Timestamper plug-in, as shown on the Jenkins

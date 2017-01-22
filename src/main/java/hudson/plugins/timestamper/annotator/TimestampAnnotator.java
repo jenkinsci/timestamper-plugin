@@ -24,13 +24,6 @@
 package hudson.plugins.timestamper.annotator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.MarkupText;
-import hudson.console.ConsoleAnnotator;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.format.TimestampFormat;
-import hudson.plugins.timestamper.format.TimestampFormatProvider;
-import hudson.plugins.timestamper.io.TimestampsReader;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -39,6 +32,14 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 
 import com.google.common.base.Optional;
+
+import hudson.MarkupText;
+import hudson.console.ConsoleAnnotator;
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.format.TimestampFormat;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
+import hudson.plugins.timestamper.io.TimestampsReader;
 
 /**
  * Inserts formatted time-stamps into the annotated console output.

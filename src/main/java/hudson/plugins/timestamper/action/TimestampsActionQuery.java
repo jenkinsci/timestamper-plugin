@@ -24,9 +24,6 @@
 package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
-import hudson.plugins.timestamper.format.SystemTimestampFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -41,6 +38,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
+import hudson.plugins.timestamper.format.SystemTimestampFormat;
 
 /**
  * Query for retrieving a page of time-stamps from

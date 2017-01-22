@@ -27,8 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,6 +49,9 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.common.base.Optional;
+
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Unit test for the {@link TimestampsReader} class.

@@ -23,8 +23,6 @@
  */
 package hudson.plugins.timestamper.format;
 
-import hudson.plugins.timestamper.Timestamp;
-
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -35,6 +33,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.FastDateFormat;
 
 import com.google.common.base.Optional;
+
+import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Converts a time-stamp to the system clock time format.

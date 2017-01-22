@@ -23,22 +23,12 @@
  */
 package hudson.plugins.timestamper.pipeline;
 
-import hudson.Extension;
-import hudson.console.ConsoleLogFilter;
-import hudson.model.AbstractBuild;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Messages;
-import hudson.plugins.timestamper.TimestampNote;
-import hudson.plugins.timestamper.TimestampNotesOutputStream;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 
 import javax.annotation.Nonnull;
-
-import jenkins.YesNoMaybe;
 
 import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
@@ -49,6 +39,15 @@ import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+
+import hudson.Extension;
+import hudson.console.ConsoleLogFilter;
+import hudson.model.AbstractBuild;
+import hudson.model.Run;
+import hudson.plugins.timestamper.Messages;
+import hudson.plugins.timestamper.TimestampNote;
+import hudson.plugins.timestamper.TimestampNotesOutputStream;
+import jenkins.YesNoMaybe;
 
 /**
  * Pipeline plug-in step for recording time-stamps.

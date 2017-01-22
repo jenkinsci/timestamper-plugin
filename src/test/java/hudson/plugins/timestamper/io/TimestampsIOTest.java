@@ -27,8 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,6 +36,9 @@ import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Optional;
+
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Test for integration between the {@link TimestampsReader} and

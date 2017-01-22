@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.model.AbstractBuild;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -37,6 +36,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import hudson.model.AbstractBuild;
 
 /**
  * Test for the {@link TimestamperBuildWrapper} class.

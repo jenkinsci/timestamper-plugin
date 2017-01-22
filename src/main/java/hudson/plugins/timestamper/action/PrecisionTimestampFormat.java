@@ -24,7 +24,6 @@
 package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import hudson.plugins.timestamper.Timestamp;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -33,6 +32,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
+
+import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Formats time-stamps as the elapsed time in seconds, with a certain number of

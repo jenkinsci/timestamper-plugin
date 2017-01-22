@@ -24,7 +24,6 @@
 package hudson.plugins.timestamper.io;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.model.Run;
 
 import java.io.Closeable;
 import java.io.File;
@@ -41,6 +40,8 @@ import javax.annotation.CheckForNull;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.io.Files;
+
+import hudson.model.Run;
 
 /**
  * Write the time-stamps for a build to disk.

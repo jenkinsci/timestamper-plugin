@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.model.Run;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -55,6 +54,8 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.Files;
+
+import hudson.model.Run;
 
 /**
  * Unit test for the {@link TimestampsWriter} class.

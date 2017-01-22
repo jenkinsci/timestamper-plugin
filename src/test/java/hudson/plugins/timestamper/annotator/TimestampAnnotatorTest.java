@@ -29,13 +29,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.MarkupText;
-import hudson.console.ConsoleAnnotator;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.format.TimestampFormat;
-import hudson.plugins.timestamper.format.TimestampFormatProvider;
-import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,6 +52,14 @@ import org.mockito.stubbing.Answer;
 import org.powermock.reflect.Whitebox;
 
 import com.google.common.base.Supplier;
+
+import hudson.MarkupText;
+import hudson.console.ConsoleAnnotator;
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.format.TimestampFormat;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
+import hudson.plugins.timestamper.io.TimestampsWriter;
 
 /**
  * Unit test for the {@link TimestampAnnotator} class.

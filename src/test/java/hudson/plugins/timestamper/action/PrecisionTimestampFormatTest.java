@@ -26,15 +26,12 @@ package hudson.plugins.timestamper.action;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import hudson.plugins.timestamper.Timestamp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import nl.jqno.equalsverifier.EqualsVerifier;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +40,9 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.common.collect.ImmutableList;
+
+import hudson.plugins.timestamper.Timestamp;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 /**
  * Unit test for the {@link PrecisionTimestampFormat} class.

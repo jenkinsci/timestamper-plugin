@@ -28,10 +28,10 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 
+import org.junit.Test;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-
-import org.junit.Test;
 
 /**
  * Unit test for the {@link Timestamp} class.

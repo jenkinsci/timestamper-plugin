@@ -23,8 +23,6 @@
  */
 package hudson.plugins.timestamper.format;
 
-import hudson.plugins.timestamper.TimestamperConfig;
-
 import java.util.Locale;
 
 import javax.servlet.http.Cookie;
@@ -35,6 +33,8 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
+
+import hudson.plugins.timestamper.TimestamperConfig;
 
 /**
  * Provides a {@link TimestampFormat} based on the current settings.

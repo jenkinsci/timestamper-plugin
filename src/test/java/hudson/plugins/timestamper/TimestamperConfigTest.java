@@ -29,11 +29,8 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.util.XStream2;
 
 import java.util.Arrays;
-
-import jenkins.model.Jenkins;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +38,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
+
+import hudson.util.XStream2;
+import jenkins.model.Jenkins;
 
 /**
  * Test for the {@link TimestamperConfig} class.

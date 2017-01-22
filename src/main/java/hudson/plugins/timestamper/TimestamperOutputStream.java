@@ -24,12 +24,13 @@
 package hudson.plugins.timestamper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import hudson.plugins.timestamper.io.TimestampsWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import hudson.plugins.timestamper.io.TimestampsWriter;
 
 /**
  * Output stream that records time-stamps into a separate file while inspecting
