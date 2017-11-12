@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2012 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -41,17 +41,14 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 
 /**
- * Test for integration between the {@link TimestampsReader} and
- * {@link TimestampsWriter} classes.
- * 
+ * Test for integration between the {@link TimestampsReader} and {@link TimestampsWriter} classes.
+ *
  * @author Steven G. Brown
  */
 public class TimestampsIOTest {
 
-  /**
-   */
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
+  /** */
+  @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private Run<?, ?> build;
 
@@ -59,9 +56,7 @@ public class TimestampsIOTest {
 
   private TimestampsReader reader;
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(Run.class);
@@ -72,18 +67,14 @@ public class TimestampsIOTest {
     writer = new TimestampsWriter(build);
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     reader.close();
     writer.close();
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testReadFromStartWhileWriting() throws Exception {
     writer.write(2, 1);

@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -59,20 +59,16 @@ import hudson.model.Run;
 
 /**
  * Unit test for the {@link TimestampsWriter} class.
- * 
+ *
  * @author Steven G. Brown
  */
 public class TimestampsWriterTest {
 
-  /**
-   */
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
+  /** */
+  @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-  /**
-   */
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  /** */
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
   private Run<?, ?> build;
 
@@ -82,9 +78,7 @@ public class TimestampsWriterTest {
 
   private TimestampsWriter timestampsWriter;
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(Run.class);
@@ -93,9 +87,7 @@ public class TimestampsWriterTest {
     timestampsHashFile = new File(timestampsFile.getParent(), timestampsFile.getName() + ".SHA-1");
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     if (timestampsWriter != null) {
@@ -103,9 +95,7 @@ public class TimestampsWriterTest {
     }
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testWriteIncreasing() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -115,9 +105,7 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Arrays.asList(1, 1, 1)));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testWriteDecreasing() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -127,9 +115,7 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Arrays.asList(3, -1, -1)));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testWriteZeroTimes() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -137,9 +123,7 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Collections.<Integer>emptyList()));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testWriteSeveralTimes() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -149,9 +133,7 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Arrays.asList(1, 5, 0, 0, 0, 1)));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testWriteSameTimestampManyTimes() throws Exception {
     int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE").getInt(null);
@@ -164,9 +146,7 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData, hasSize(times));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testHashFile() throws Exception {
     MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -179,13 +159,12 @@ public class TimestampsWriterTest {
 
     byte[] fileContents = Files.toByteArray(timestampsFile);
     byte[] expectedHash = MessageDigest.getInstance("SHA-1").digest(fileContents);
-    assertThat(Files.toString(timestampsHashFile, Charsets.US_ASCII).trim(),
+    assertThat(
+        Files.toString(timestampsHashFile, Charsets.US_ASCII).trim(),
         is(DatatypeConverter.printHexBinary(expectedHash).toLowerCase()));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testNoHashFile() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -194,12 +173,10 @@ public class TimestampsWriterTest {
     timestampsWriter.write(3, 1);
     timestampsWriter.writeDigest();
     timestampsWriter.close();
-    assertThat(timestampsHashFile.getParentFile().listFiles(), is(new File[] { timestampsFile }));
+    assertThat(timestampsHashFile.getParentFile().listFiles(), is(new File[] {timestampsFile}));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testOnlyOneWriterPerBuild() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -209,8 +186,8 @@ public class TimestampsWriterTest {
 
   private List<Integer> writtenTimestampData() throws Exception {
     byte[] fileContents = Files.toByteArray(timestampsFile);
-    CountingInputStream inputStream = new CountingInputStream(
-        new ByteArrayInputStream(fileContents));
+    CountingInputStream inputStream =
+        new CountingInputStream(new ByteArrayInputStream(fileContents));
     List<Integer> timestampData = new ArrayList<Integer>();
     while (inputStream.getCount() < fileContents.length) {
       timestampData.add((int) Varint.read(inputStream));

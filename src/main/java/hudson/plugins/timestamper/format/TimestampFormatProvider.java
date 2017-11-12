@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,35 +38,42 @@ import hudson.plugins.timestamper.TimestamperConfig;
 
 /**
  * Provides a {@link TimestampFormat} based on the current settings.
- * 
+ *
  * @author Steven G. Brown
  */
 public class TimestampFormatProvider {
 
-  private static Supplier<TimestampFormat> SUPPLIER = new Supplier<TimestampFormat>() {
-    @Override
-    public TimestampFormat get() {
-      TimestamperConfig config = TimestamperConfig.get();
-      StaplerRequest request = Stapler.getCurrentRequest();
-      if (config == null || request == null) {
-        return EmptyTimestampFormat.INSTANCE;
-      }
-      return TimestampFormatProvider.get(config.getSystemTimeFormat(),
-          config.getElapsedTimeFormat(), request, Locale.getDefault());
-    }
-  };
+  private static Supplier<TimestampFormat> SUPPLIER =
+      new Supplier<TimestampFormat>() {
+        @Override
+        public TimestampFormat get() {
+          TimestamperConfig config = TimestamperConfig.get();
+          StaplerRequest request = Stapler.getCurrentRequest();
+          if (config == null || request == null) {
+            return EmptyTimestampFormat.INSTANCE;
+          }
+          return TimestampFormatProvider.get(
+              config.getSystemTimeFormat(),
+              config.getElapsedTimeFormat(),
+              request,
+              Locale.getDefault());
+        }
+      };
 
   /**
    * Get the currently selected time-stamp format.
-   * 
+   *
    * @return the time-stamp format
    */
   public static TimestampFormat get() {
     return SUPPLIER.get();
   }
 
-  static TimestampFormat get(String systemTimeFormat, String elapsedTimeFormat,
-      HttpServletRequest request, Locale locale) {
+  static TimestampFormat get(
+      String systemTimeFormat,
+      String elapsedTimeFormat,
+      HttpServletRequest request,
+      Locale locale) {
 
     String mode = null;
     Boolean local = null;

@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,58 +33,43 @@ import java.util.logging.Logger;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 
 /**
- * Output stream that records time-stamps into a separate file while inspecting
- * the delegate output stream.
- * 
+ * Output stream that records time-stamps into a separate file while inspecting the delegate output
+ * stream.
+ *
  * @author Steven G. Brown
  */
 final class TimestamperOutputStream extends OutputStream {
 
   private static final Logger LOGGER = Logger.getLogger(TimestamperOutputStream.class.getName());
 
-  /**
-   * The delegate output stream.
-   */
+  /** The delegate output stream. */
   private final OutputStream delegate;
 
-  /**
-   * Writer for the time-stamps.
-   */
+  /** Writer for the time-stamps. */
   private final TimestampsWriter timestampsWriter;
 
-  /**
-   * Byte array that is re-used each time the {@link #write(int)} method is
-   * called.
-   */
+  /** Byte array that is re-used each time the {@link #write(int)} method is called. */
   private final byte[] oneElementByteArray = new byte[1];
 
-  /**
-   * The last processed character, or {@code -1} for the start of the stream.
-   */
+  /** The last processed character, or {@code -1} for the start of the stream. */
   private int previousCharacter = -1;
 
-  /**
-   * Set to {@code true} when an error occurs while writing the time-stamps.
-   */
+  /** Set to {@code true} when an error occurs while writing the time-stamps. */
   private boolean writeError;
 
   /**
    * Create a new {@link TimestamperOutputStream}.
-   * 
-   * @param delegate
-   *          the delegate output stream
-   * @param timestampsWriter
-   *          will be used by this output stream to write the time-stamps and
-   *          closed when the {@link #close()} method is called
+   *
+   * @param delegate the delegate output stream
+   * @param timestampsWriter will be used by this output stream to write the time-stamps and closed
+   *     when the {@link #close()} method is called
    */
   TimestamperOutputStream(OutputStream delegate, TimestampsWriter timestampsWriter) {
     this.delegate = checkNotNull(delegate);
     this.timestampsWriter = checkNotNull(timestampsWriter);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void write(int b) throws IOException {
     oneElementByteArray[0] = (byte) b;
@@ -92,18 +77,14 @@ final class TimestamperOutputStream extends OutputStream {
     delegate.write(b);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void write(byte[] b) throws IOException {
     writeTimestamps(b, 0, b.length);
     delegate.write(b);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
     writeTimestamps(b, off, len);
@@ -131,17 +112,13 @@ final class TimestamperOutputStream extends OutputStream {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void flush() throws IOException {
     delegate.flush();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void close() throws IOException {
     try {

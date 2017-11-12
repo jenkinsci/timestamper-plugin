@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -48,7 +48,7 @@ import hudson.model.Run;
 
 /**
  * Unit test for the {@link ConsoleLogParser} class.
- * 
+ *
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
@@ -56,42 +56,37 @@ public class ConsoleLogParserTest {
 
   private static final char NEWLINE = 0x0A;
 
-  /**
-   * @return parameterised test data
-   */
+  /** @return parameterised test data */
   @Parameters(name = "serialize={0},isBuilding={1}")
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[] { false, false }, new Object[] { false, true },
-        new Object[] { true, false }, new Object[] { true, true });
+    return Arrays.asList(
+        new Object[] {false, false},
+        new Object[] {false, true},
+        new Object[] {true, false},
+        new Object[] {true, true});
   }
 
-  /**
-   */
+  /** */
   @Parameter(0)
   public boolean serialize;
 
-  /**
-   */
+  /** */
   @Parameter(1)
   public boolean isBuilding;
 
-  /**
-   */
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
+  /** */
+  @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private Run<?, ?> build;
 
   private int logLength;
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    byte[] consoleLog = new byte[] { 0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE, 0x61, NEWLINE };
+    byte[] consoleLog = new byte[] {0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE, 0x61, NEWLINE};
     logLength = consoleLog.length;
     when(build.getLogInputStream()).thenReturn(new ByteArrayInputStream(consoleLog));
     AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
@@ -100,9 +95,7 @@ public class ConsoleLogParserTest {
     when(build.isBuilding()).thenReturn(isBuilding);
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekStart() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -111,9 +104,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(0), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekWithinLine() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -121,9 +112,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(1), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekNextLine() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -132,9 +121,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(2), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekEnd() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -143,9 +130,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(logLength), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekPastEnd() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -155,9 +140,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(logLength + 1), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekStartNegative() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -166,9 +149,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(-logLength), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekWithinLineNegative_isBuilding() throws Exception {
     assumeThat(isBuilding, is(true));
@@ -177,9 +158,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(1 - logLength), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekWithinLineNegative_notBuilding() throws Exception {
     assumeThat(isBuilding, is(false));
@@ -188,9 +167,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(1 - logLength), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekNextLineNegative_isBuilding() throws Exception {
     assumeThat(isBuilding, is(true));
@@ -200,9 +177,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(2 - logLength), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekNextLineNegative_notBuilding() throws Exception {
     assumeThat(isBuilding, is(false));
@@ -212,9 +187,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(2 - logLength), is(result));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testSeekPastStartNegative() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();

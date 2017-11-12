@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -47,7 +47,7 @@ import com.google.common.base.Optional;
 
 /**
  * Unit test for the {@link TimestampFormatProvider} class.
- * 
+ *
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
@@ -61,31 +61,41 @@ public class TimestampFormatProviderTest {
 
   private static final String ELAPSED_TIME_FORMAT = "ss.S";
 
-  /**
-   * @return parameterised test data
-   */
+  /** @return parameterised test data */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        // system
-        { request("jenkins-timestamper=system"), system() },
-        // local (system with browser time zone)
-        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"),
-            system("GMT") },
-        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + HALF_HOUR),
-            system("GMT-0:30") },
-        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + ONE_HOUR),
-            system("GMT-1") },
-        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + HALF_HOUR),
-            system("GMT+0:30") },
-        { request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + ONE_HOUR),
-            system("GMT+1") },
-        // elapsed
-        { request("jenkins-timestamper=elapsed"), elapsed() },
-        // none
-        { request("jenkins-timestamper=none"), empty() },
-        // other
-        { request(), system() }, { request((String[]) null), system() } });
+    return Arrays.asList(
+        new Object[][] {
+          // system
+          {request("jenkins-timestamper=system"), system()},
+          // local (system with browser time zone)
+          {
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"), system("GMT")
+          },
+          {
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + HALF_HOUR),
+            system("GMT-0:30")
+          },
+          {
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + ONE_HOUR),
+            system("GMT-1")
+          },
+          {
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + HALF_HOUR),
+            system("GMT+0:30")
+          },
+          {
+            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + ONE_HOUR),
+            system("GMT+1")
+          },
+          // elapsed
+          {request("jenkins-timestamper=elapsed"), elapsed()},
+          // none
+          {request("jenkins-timestamper=none"), empty()},
+          // other
+          {request(), system()},
+          {request((String[]) null), system()}
+        });
   }
 
   private static HttpServletRequest request(String... cookies) {
@@ -123,16 +133,16 @@ public class TimestampFormatProviderTest {
   @Parameter(0)
   public HttpServletRequest request;
 
-  /**
-   */
+  /** */
   @Parameter(1)
   public TimestampFormat expectedTimestampFormat;
 
-  /**
-   */
+  /** */
   @Test
   public void testGet() {
-    assertThat(TimestampFormatProvider.get(SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT, request,
-        Locale.ENGLISH), is(expectedTimestampFormat));
+    assertThat(
+        TimestampFormatProvider.get(
+            SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT, request, Locale.ENGLISH),
+        is(expectedTimestampFormat));
   }
 }

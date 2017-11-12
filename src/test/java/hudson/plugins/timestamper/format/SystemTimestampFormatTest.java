@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,18 +42,17 @@ import nl.jqno.equalsverifier.Warning;
 
 /**
  * Unit test for the {@link SystemTimestampFormat} class.
- * 
+ *
  * @author Steven G. Brown
  */
 public class SystemTimestampFormatTest {
 
-  private static final String TIME_ZONE_PROPERTY = Whitebox
-      .getInternalState(SystemTimestampFormat.class, "TIME_ZONE_PROPERTY");
+  private static final String TIME_ZONE_PROPERTY =
+      Whitebox.getInternalState(SystemTimestampFormat.class, "TIME_ZONE_PROPERTY");
 
   private TimeZone systemDefaultTimeZone;
 
-  /**
-   */
+  /** */
   @Before
   public void setUp() {
     systemDefaultTimeZone = TimeZone.getDefault();
@@ -61,16 +60,14 @@ public class SystemTimestampFormatTest {
     System.clearProperty(TIME_ZONE_PROPERTY);
   }
 
-  /**
-   */
+  /** */
   @After
   public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
     System.clearProperty(TIME_ZONE_PROPERTY);
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testApply() {
     String systemTimeFormat = "HH:mm:ss";
@@ -81,8 +78,7 @@ public class SystemTimestampFormatTest {
         is("00:00:42"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testApply_withDifferentTimeZone() {
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
@@ -95,8 +91,7 @@ public class SystemTimestampFormatTest {
         is("01:00:42"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testApply_withSystemProperty() {
     System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
@@ -109,30 +104,31 @@ public class SystemTimestampFormatTest {
         is("02:00:42"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testApply_withProvidedTimeZone() {
     String systemTimeFormat = "HH:mm:ss";
     Timestamp timestamp = new Timestamp(123, 42000);
-    assertThat(new SystemTimestampFormat(systemTimeFormat, Optional.of("GMT+3"), Locale.ENGLISH)
-        .apply(timestamp), is("03:00:42"));
+    assertThat(
+        new SystemTimestampFormat(systemTimeFormat, Optional.of("GMT+3"), Locale.ENGLISH)
+            .apply(timestamp),
+        is("03:00:42"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testApply_withSystemPropertyAndProvidedTimeZone() {
     System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
 
     String systemTimeFormat = "HH:mm:ss";
     Timestamp timestamp = new Timestamp(123, 42000);
-    assertThat(new SystemTimestampFormat(systemTimeFormat, Optional.of("GMT+3"), Locale.ENGLISH)
-        .apply(timestamp), is("03:00:42"));
+    assertThat(
+        new SystemTimestampFormat(systemTimeFormat, Optional.of("GMT+3"), Locale.ENGLISH)
+            .apply(timestamp),
+        is("03:00:42"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testApply_englishLocale() {
     String systemTimeFormat = "EEEE, d MMMM";
@@ -143,46 +139,46 @@ public class SystemTimestampFormatTest {
         is("Thursday, 1 January"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testApply_germanLocale() {
     String systemTimeFormat = "EEEE, d MMMM";
     Timestamp timestamp = new Timestamp(123, 42000);
-    assertThat(new SystemTimestampFormat(systemTimeFormat, Optional.<String>absent(), Locale.GERMAN)
-        .apply(timestamp), is("Donnerstag, 1 Januar"));
+    assertThat(
+        new SystemTimestampFormat(systemTimeFormat, Optional.<String>absent(), Locale.GERMAN)
+            .apply(timestamp),
+        is("Donnerstag, 1 Januar"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testGetPlainTextUrl() {
-    SystemTimestampFormat format = new SystemTimestampFormat("'<b>'HH:mm:ss'</b> '",
-        Optional.<String>absent(), Locale.ENGLISH);
+    SystemTimestampFormat format =
+        new SystemTimestampFormat(
+            "'<b>'HH:mm:ss'</b> '", Optional.<String>absent(), Locale.ENGLISH);
     assertThat(format.getPlainTextUrl(), is("timestamps?time=HH:mm:ss&appendLog&locale=en"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testGetPlainTextUrl_excessWhitespace() {
-    SystemTimestampFormat format = new SystemTimestampFormat(" ' <b> ' HH:mm:ss ' </b> ' ",
-        Optional.<String>absent(), Locale.ENGLISH);
+    SystemTimestampFormat format =
+        new SystemTimestampFormat(
+            " ' <b> ' HH:mm:ss ' </b> ' ", Optional.<String>absent(), Locale.ENGLISH);
     assertThat(format.getPlainTextUrl(), is("timestamps?time=HH:mm:ss&appendLog&locale=en"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testGetPlainTextUrl_withTimeZone() {
-    SystemTimestampFormat format = new SystemTimestampFormat("'<b>'HH:mm:ss'</b> '",
-        Optional.of("GMT+1"), Locale.ENGLISH);
-    assertThat(format.getPlainTextUrl(),
+    SystemTimestampFormat format =
+        new SystemTimestampFormat("'<b>'HH:mm:ss'</b> '", Optional.of("GMT+1"), Locale.ENGLISH);
+    assertThat(
+        format.getPlainTextUrl(),
         is("timestamps?time=HH:mm:ss&timeZone=GMT+1&appendLog&locale=en"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(SystemTimestampFormat.class).suppress(Warning.NULL_FIELDS).verify();

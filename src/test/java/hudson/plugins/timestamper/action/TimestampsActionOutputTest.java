@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -61,7 +61,7 @@ import hudson.plugins.timestamper.io.TimestampsReader;
 
 /**
  * Unit test for the {@link TimestampsActionOutput} class.
- * 
+ *
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
@@ -69,121 +69,176 @@ public class TimestampsActionOutputTest {
 
   private static final Optional<Integer> NO_ENDLINE = Optional.absent();
 
-  private static final Function<Timestamp, String> FORMAT = new Function<Timestamp, String>() {
-    @Override
-    public String apply(@Nonnull Timestamp timestamp) {
-      return String.valueOf(timestamp.millisSinceEpoch);
-    }
-  };
+  private static final Function<Timestamp, String> FORMAT =
+      new Function<Timestamp, String>() {
+        @Override
+        public String apply(@Nonnull Timestamp timestamp) {
+          return String.valueOf(timestamp.millisSinceEpoch);
+        }
+      };
 
-  private static final Function<Timestamp, String> ELAPSED_FORMAT = new Function<Timestamp, String>() {
-    @Override
-    public String apply(@Nonnull Timestamp timestamp) {
-      return String.valueOf(timestamp.elapsedMillis);
-    }
-  };
+  private static final Function<Timestamp, String> ELAPSED_FORMAT =
+      new Function<Timestamp, String>() {
+        @Override
+        public String apply(@Nonnull Timestamp timestamp) {
+          return String.valueOf(timestamp.elapsedMillis);
+        }
+      };
 
-  private static final List<Timestamp> TIMESTAMPS = ImmutableList.of(new Timestamp(0, 1),
-      //
-      new Timestamp(1, 2),
-      //
-      new Timestamp(10, 3),
-      //
-      new Timestamp(100, 4),
-      //
-      new Timestamp(1000, 5),
-      //
-      new Timestamp(10000, 6));
+  private static final List<Timestamp> TIMESTAMPS =
+      ImmutableList.of(
+          new Timestamp(0, 1),
+          //
+          new Timestamp(1, 2),
+          //
+          new Timestamp(10, 3),
+          //
+          new Timestamp(100, 4),
+          //
+          new Timestamp(1000, 5),
+          //
+          new Timestamp(10000, 6));
 
-  /**
-   * @return the test data
-   */
+  /** @return the test data */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
     List<Object[]> testCases = new ArrayList<Object[]>();
 
-    testCases.add(new Object[] { "format",
-        new TimestampsActionQuery(0, NO_ENDLINE, Collections.singletonList(FORMAT), false, false),
-        Arrays.asList("1", "2", "3", "4", "5", "6") });
+    testCases.add(
+        new Object[] {
+          "format",
+          new TimestampsActionQuery(0, NO_ENDLINE, Collections.singletonList(FORMAT), false, false),
+          Arrays.asList("1", "2", "3", "4", "5", "6")
+        });
 
-    testCases.add(new Object[] {
-        "format + elapsed_format", new TimestampsActionQuery(0, NO_ENDLINE,
-            ImmutableList.of(FORMAT, ELAPSED_FORMAT), false, false),
-        Arrays.asList("1 0", "2 1", "3 10", "4 100", "5 1000", "6 10000") });
+    testCases.add(
+        new Object[] {
+          "format + elapsed_format",
+          new TimestampsActionQuery(
+              0, NO_ENDLINE, ImmutableList.of(FORMAT, ELAPSED_FORMAT), false, false),
+          Arrays.asList("1 0", "2 1", "3 10", "4 100", "5 1000", "6 10000")
+        });
 
-    testCases.add(new Object[] { "appendLogLine",
-        new TimestampsActionQuery(0, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5", "6  line6") });
+    testCases.add(
+        new Object[] {
+          "appendLogLine",
+          new TimestampsActionQuery(0, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5", "6  line6")
+        });
 
-    testCases.add(new Object[] { "currentTime",
-        new TimestampsActionQuery(0, NO_ENDLINE, ImmutableList.of(FORMAT, ELAPSED_FORMAT), false, true),
-        Arrays.asList("1 42") });
+    testCases.add(
+        new Object[] {
+          "currentTime",
+          new TimestampsActionQuery(
+              0, NO_ENDLINE, ImmutableList.of(FORMAT, ELAPSED_FORMAT), false, true),
+          Arrays.asList("1 42")
+        });
 
     // start line
-    testCases.add(new Object[] { "start 2",
-        new TimestampsActionQuery(2, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("2  line2", "3  line3", "4  line4", "5  line5", "6  line6") });
-    testCases.add(new Object[] { "start 1",
-        new TimestampsActionQuery(1, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5", "6  line6") });
-    testCases.add(new Object[] { "start -1",
-        new TimestampsActionQuery(-1, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("6  line6") });
-    testCases.add(new Object[] { "start -2",
-        new TimestampsActionQuery(-2, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("5  line5", "6  line6") });
+    testCases.add(
+        new Object[] {
+          "start 2",
+          new TimestampsActionQuery(2, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("2  line2", "3  line3", "4  line4", "5  line5", "6  line6")
+        });
+    testCases.add(
+        new Object[] {
+          "start 1",
+          new TimestampsActionQuery(1, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5", "6  line6")
+        });
+    testCases.add(
+        new Object[] {
+          "start -1",
+          new TimestampsActionQuery(-1, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("6  line6")
+        });
+    testCases.add(
+        new Object[] {
+          "start -2",
+          new TimestampsActionQuery(-2, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("5  line5", "6  line6")
+        });
 
     // end line
-    testCases
-        .add(
-            new Object[] {
-                "end 2", new TimestampsActionQuery(0, Optional.of(2),
-                    Collections.singletonList(FORMAT), true, false),
-                Arrays.asList("1  line1", "2  line2") });
-    testCases.add(new Object[] { "end 1", new TimestampsActionQuery(0, Optional.of(1),
-        Collections.singletonList(FORMAT), true, false), Arrays.asList("1  line1") });
-    testCases.add(new Object[] { "end 0", new TimestampsActionQuery(0, Optional.of(0),
-        Collections.singletonList(FORMAT), true, false), Collections.emptyList() });
-    testCases.add(new Object[] { "end -1",
-        new TimestampsActionQuery(0, Optional.of(-1), Collections.singletonList(FORMAT), true,
-            false),
-        Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5", "6  line6") });
-    testCases.add(new Object[] {
-        "end -2", new TimestampsActionQuery(0, Optional.of(-2), Collections.singletonList(FORMAT),
-            true, false),
-        Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5") });
+    testCases.add(
+        new Object[] {
+          "end 2",
+          new TimestampsActionQuery(
+              0, Optional.of(2), Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("1  line1", "2  line2")
+        });
+    testCases.add(
+        new Object[] {
+          "end 1",
+          new TimestampsActionQuery(
+              0, Optional.of(1), Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("1  line1")
+        });
+    testCases.add(
+        new Object[] {
+          "end 0",
+          new TimestampsActionQuery(
+              0, Optional.of(0), Collections.singletonList(FORMAT), true, false),
+          Collections.emptyList()
+        });
+    testCases.add(
+        new Object[] {
+          "end -1",
+          new TimestampsActionQuery(
+              0, Optional.of(-1), Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5", "6  line6")
+        });
+    testCases.add(
+        new Object[] {
+          "end -2",
+          new TimestampsActionQuery(
+              0, Optional.of(-2), Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("1  line1", "2  line2", "3  line3", "4  line4", "5  line5")
+        });
 
     // start line and end line
-    testCases.add(new Object[] {
-        "start 2, end -2", new TimestampsActionQuery(2, Optional.of(-2),
-            Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("2  line2", "3  line3", "4  line4", "5  line5") });
-    testCases.add(new Object[] {
-        "start 2, end 5", new TimestampsActionQuery(2, Optional.of(5),
-            Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("2  line2", "3  line3", "4  line4", "5  line5") });
-    testCases.add(new Object[] {
-        "start -4, end -2", new TimestampsActionQuery(-4, Optional.of(-2),
-            Collections.singletonList(FORMAT), true, false),
-        Arrays.asList("3  line3", "4  line4", "5  line5") });
-    testCases.add(new Object[] { "start 4, end -4", new TimestampsActionQuery(4, Optional.of(-4),
-        Collections.singletonList(FORMAT), true, false), Collections.emptyList() });
+    testCases.add(
+        new Object[] {
+          "start 2, end -2",
+          new TimestampsActionQuery(
+              2, Optional.of(-2), Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("2  line2", "3  line3", "4  line4", "5  line5")
+        });
+    testCases.add(
+        new Object[] {
+          "start 2, end 5",
+          new TimestampsActionQuery(
+              2, Optional.of(5), Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("2  line2", "3  line3", "4  line4", "5  line5")
+        });
+    testCases.add(
+        new Object[] {
+          "start -4, end -2",
+          new TimestampsActionQuery(
+              -4, Optional.of(-2), Collections.singletonList(FORMAT), true, false),
+          Arrays.asList("3  line3", "4  line4", "5  line5")
+        });
+    testCases.add(
+        new Object[] {
+          "start 4, end -4",
+          new TimestampsActionQuery(
+              4, Optional.of(-4), Collections.singletonList(FORMAT), true, false),
+          Collections.emptyList()
+        });
 
     return testCases;
   }
 
-  /**
-   */
+  /** */
   @Parameter(0)
   public String testCaseDescription;
 
-  /**
-   */
+  /** */
   @Parameter(1)
   public TimestampsActionQuery query;
 
-  /**
-   */
+  /** */
   @Parameter(2)
   public List<String> expectedLines;
 
@@ -193,9 +248,7 @@ public class TimestampsActionOutputTest {
 
   private BufferedReader reader;
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     timestampsReader = mock(TimestampsReader.class);
@@ -221,13 +274,11 @@ public class TimestampsActionOutputTest {
     nextLineStubbing.thenReturn(Optional.<Line>absent());
     when(logFileReader.lineCount()).thenReturn(6);
 
-    reader = TimestampsActionOutput.open(timestampsReader, logFileReader, query,
-        new Timestamp(42, 1));
+    reader =
+        TimestampsActionOutput.open(timestampsReader, logFileReader, query, new Timestamp(42, 1));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     // for efficiency, avoid counting the number of lines more than once
@@ -236,8 +287,7 @@ public class TimestampsActionOutputTest {
     reader.close();
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testRead_eachCharacter() throws Exception {
     StringBuilder result = new StringBuilder();
@@ -248,8 +298,7 @@ public class TimestampsActionOutputTest {
     assertThat(result.toString(), is(joinLines(expectedLines)));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testRead_allAtOnce() throws Exception {
     String expectedResult = joinLines(expectedLines);
@@ -258,21 +307,22 @@ public class TimestampsActionOutputTest {
     assertThat(String.valueOf(result), is(expectedResult));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testRead_noTimestamps() throws Exception {
     assumeThat(query.currentTime, is(false));
 
     // Remove formatted timestamps from expected result
     if (query.appendLogLine) {
-      expectedLines = Lists.transform(expectedLines, new Function<String, String>() {
-        @Override
-        public String apply(@Nonnull String input) {
-          return input.replaceFirst("^.*(  \\w*)$", "$1");
-        }
-      });
+      expectedLines =
+          Lists.transform(
+              expectedLines,
+              new Function<String, String>() {
+                @Override
+                public String apply(@Nonnull String input) {
+                  return input.replaceFirst("^.*(  \\w*)$", "$1");
+                }
+              });
     } else {
       expectedLines = Collections.emptyList();
     }
@@ -280,9 +330,7 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testRead_timestampsInLogFileOnly() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
@@ -306,27 +354,26 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testRead_noLogFile() throws Exception {
     if (query.appendLogLine) {
       // Remove log line from expected result
-      expectedLines = Lists.transform(expectedLines, new Function<String, String>() {
-        @Override
-        public String apply(@Nonnull String input) {
-          return input.replaceFirst("\\w*$", "");
-        }
-      });
+      expectedLines =
+          Lists.transform(
+              expectedLines,
+              new Function<String, String>() {
+                @Override
+                public String apply(@Nonnull String input) {
+                  return input.replaceFirst("\\w*$", "");
+                }
+              });
     }
     when(logFileReader.nextLine()).thenReturn(Optional.<Line>absent());
     assertThat(readLines(), is(expectedLines));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testRead_noTimestampsAndNoLogFile() throws Exception {
     assumeThat(query.currentTime, is(false));

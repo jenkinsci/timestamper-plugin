@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,14 +38,14 @@ import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Converts a time-stamp to the system clock time format.
- * 
+ *
  * @author Steven G. Brown
  */
 public final class SystemTimestampFormat extends TimestampFormat {
 
   /**
-   * This System property is used to configure the time zone. See the
-   * "Change time zone" Jenkins wiki page.
+   * This System property is used to configure the time zone. See the "Change time zone" Jenkins
+   * wiki page.
    */
   private static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
 
@@ -53,8 +53,8 @@ public final class SystemTimestampFormat extends TimestampFormat {
 
   private final Optional<String> timeZoneId;
 
-  public SystemTimestampFormat(String systemTimeFormat, Optional<String> timeZoneId,
-      Locale locale) {
+  public SystemTimestampFormat(
+      String systemTimeFormat, Optional<String> timeZoneId, Locale locale) {
     TimeZone timeZone = null;
     if (timeZoneId.isPresent()) {
       timeZone = TimeZone.getTimeZone(timeZoneId.get());
@@ -68,39 +68,34 @@ public final class SystemTimestampFormat extends TimestampFormat {
     this.timeZoneId = timeZoneId;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String apply(@Nonnull Timestamp timestamp) {
     return format.format(new Date(timestamp.millisSinceEpoch));
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String getPlainTextUrl() {
     String timeParamValue = format.getPattern();
     timeParamValue = FormatStringUtils.stripHtmlTags(timeParamValue);
     timeParamValue = FormatStringUtils.trim(timeParamValue);
 
-    return "timestamps?time=" + timeParamValue
+    return "timestamps?time="
+        + timeParamValue
         + (timeZoneId.isPresent() ? "&timeZone=" + timeZoneId.get() : "")
-        + "&appendLog" + "&locale=" + format.getLocale();
+        + "&appendLog"
+        + "&locale="
+        + format.getLocale();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     return java.util.Objects.hash(format, timeZoneId);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof SystemTimestampFormat) {
@@ -110,12 +105,13 @@ public final class SystemTimestampFormat extends TimestampFormat {
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("format", format.getPattern())
-        .append("timeZoneId", timeZoneId).append("locale", format.getLocale()).toString();
+    return new ToStringBuilder(this)
+        .append("format", format.getPattern())
+        .append("timeZoneId", timeZoneId)
+        .append("locale", format.getLocale())
+        .toString();
   }
 }

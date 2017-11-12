@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,24 +44,23 @@ import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
 import hudson.plugins.timestamper.format.SystemTimestampFormat;
 
 /**
- * Query for retrieving a page of time-stamps from
- * {@link TimestampsActionOutput}.
- * 
+ * Query for retrieving a page of time-stamps from {@link TimestampsActionOutput}.
+ *
  * @author Steven G. Brown
  */
 public final class TimestampsActionQuery {
 
   /**
    * Create a new {@link TimestampsActionQuery}.
-   * 
-   * @param query
-   *          the query string
+   *
+   * @param query the query string
    * @return a new query
    */
   public static TimestampsActionQuery create(String query) {
     int startLine = 0;
     Optional<Integer> endLine = Optional.absent();
-    List<Function<Timestamp, String>> timestampFormats = new ArrayList<Function<Timestamp, String>>();
+    List<Function<Timestamp, String>> timestampFormats =
+        new ArrayList<Function<Timestamp, String>>();
     boolean appendLogLine = false;
     boolean currentTime = false;
 
@@ -102,8 +101,8 @@ public final class TimestampsActionQuery {
       timestampFormats.add(new PrecisionTimestampFormat(3));
     }
 
-    return new TimestampsActionQuery(startLine, endLine, timestampFormats, appendLogLine,
-        currentTime);
+    return new TimestampsActionQuery(
+        startLine, endLine, timestampFormats, appendLogLine, currentTime);
   }
 
   private static List<QueryParameter> readQueryString(String query) {
@@ -175,8 +174,11 @@ public final class TimestampsActionQuery {
 
   final boolean currentTime;
 
-  TimestampsActionQuery(int startLine, Optional<Integer> endLine,
-      List<? extends Function<Timestamp, String>> timestampFormats, boolean appendLogLine,
+  TimestampsActionQuery(
+      int startLine,
+      Optional<Integer> endLine,
+      List<? extends Function<Timestamp, String>> timestampFormats,
+      boolean appendLogLine,
       boolean currentTime) {
     this.startLine = startLine;
     this.endLine = checkNotNull(endLine);
@@ -185,35 +187,35 @@ public final class TimestampsActionQuery {
     this.currentTime = currentTime;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     return Objects.hash(startLine, endLine, timestampFormats, appendLogLine, currentTime);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof TimestampsActionQuery) {
       TimestampsActionQuery other = (TimestampsActionQuery) obj;
-      return startLine == other.startLine && endLine.equals(other.endLine)
-          && timestampFormats.equals(other.timestampFormats) && appendLogLine == other.appendLogLine
+      return startLine == other.startLine
+          && endLine.equals(other.endLine)
+          && timestampFormats.equals(other.timestampFormats)
+          && appendLogLine == other.appendLogLine
           && currentTime == other.currentTime;
     }
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("startLine", startLine).append("endLine", endLine)
-        .append("timestampFormats", timestampFormats).append("appendLogLine", appendLogLine)
-        .append("currentTime", currentTime).toString();
+    return new ToStringBuilder(this)
+        .append("startLine", startLine)
+        .append("endLine", endLine)
+        .append("timestampFormats", timestampFormats)
+        .append("appendLogLine", appendLogLine)
+        .append("currentTime", currentTime)
+        .toString();
   }
 }

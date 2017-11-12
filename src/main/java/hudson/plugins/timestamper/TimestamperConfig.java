@@ -1,19 +1,19 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2012 Frederik Fromm
  * Copyright (c) 2012 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,9 +39,8 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 /**
- * Global configuration for the Timestamper plug-in, as shown on the Jenkins
- * Configure System page.
- * 
+ * Global configuration for the Timestamper plug-in, as shown on the Jenkins Configure System page.
+ *
  * @author Frederik Fromm
  */
 @Extension(dynamicLoadable = YesNoMaybe.YES)
@@ -49,9 +48,8 @@ public final class TimestamperConfig extends GlobalConfiguration {
 
   /**
    * Get the current Timestamper global configuration.
-   * 
-   * @return the Timestamper configuration, or {@code null} if Jenkins has been
-   *         shut down
+   *
+   * @return the Timestamper configuration, or {@code null} if Jenkins has been shut down
    */
   public static TimestamperConfig get() {
     Jenkins jenkins = Jenkins.getInstance();
@@ -64,40 +62,32 @@ public final class TimestamperConfig extends GlobalConfiguration {
     return null;
   }
 
-  /**
-   * The default {@link #timestampFormat}.
-   */
+  /** The default {@link #timestampFormat}. */
   private static final String DEFAULT_TIMESTAMP_FORMAT = "'<b>'HH:mm:ss'</b> '";
 
-  /**
-   * The default {@link #elapsedTimeFormat}.
-   */
+  /** The default {@link #elapsedTimeFormat}. */
   private static final String DEFAULT_ELAPSED_TIME_FORMAT = "'<b>'HH:mm:ss.S'</b> '";
 
   /**
-   * The chosen format for displaying the system clock time, as recognised by
-   * {@link SimpleDateFormat}.
+   * The chosen format for displaying the system clock time, as recognised by {@link
+   * SimpleDateFormat}.
    */
-  @CheckForNull
-  private String timestampFormat;
+  @CheckForNull private String timestampFormat;
 
   /**
-   * The chosen format for displaying the elapsed time, as recognised by
-   * {@link DurationFormatUtils}.
+   * The chosen format for displaying the elapsed time, as recognised by {@link
+   * DurationFormatUtils}.
    */
-  @CheckForNull
-  private String elapsedTimeFormat;
+  @CheckForNull private String elapsedTimeFormat;
 
-  /**
-   * Constructor.
-   */
+  /** Constructor. */
   public TimestamperConfig() {
     load();
   }
 
   /**
    * Get the format for displaying the system clock time.
-   * 
+   *
    * @return the system clock time format
    */
   public String getSystemTimeFormat() {
@@ -106,9 +96,8 @@ public final class TimestamperConfig extends GlobalConfiguration {
 
   /**
    * Set the format for displaying the system clock time.
-   * 
-   * @param timestampFormat
-   *          the system clock time format in {@link SimpleDateFormat} pattern
+   *
+   * @param timestampFormat the system clock time format in {@link SimpleDateFormat} pattern
    */
   public void setSystemTimeFormat(@CheckForNull String timestampFormat) {
     this.timestampFormat = timestampFormat;
@@ -116,7 +105,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
 
   /**
    * Get the format for displaying the elapsed time.
-   * 
+   *
    * @return the elapsed time format
    */
   public String getElapsedTimeFormat() {
@@ -125,17 +114,14 @@ public final class TimestamperConfig extends GlobalConfiguration {
 
   /**
    * Set the format for displaying the elapsed time.
-   * 
-   * @param elapsedTimeFormat
-   *          the elapsed time format in {@link DurationFormatUtils} pattern
+   *
+   * @param elapsedTimeFormat the elapsed time format in {@link DurationFormatUtils} pattern
    */
   public void setElapsedTimeFormat(@CheckForNull String elapsedTimeFormat) {
     this.elapsedTimeFormat = elapsedTimeFormat;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
     req.bindJSON(this, json);

@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -48,14 +48,12 @@ import hudson.plugins.timestamper.TimestampNote;
 
 /**
  * Reader for the build log file which skips over the console notes.
- * 
+ *
  * @author Steven G. Brown
  */
 public class LogFileReader implements Closeable {
 
-  /**
-   * A line read from the log file of a build.
-   */
+  /** A line read from the log file of a build. */
   public static class Line {
 
     private final String line;
@@ -69,7 +67,7 @@ public class LogFileReader implements Closeable {
 
     /**
      * Get the text from this line, without the console notes.
-     * 
+     *
      * @return the text
      */
     public String getText() {
@@ -78,7 +76,7 @@ public class LogFileReader implements Closeable {
 
     /**
      * Read the time-stamp from this line, if it has one.
-     * 
+     *
      * @return the time-stamp
      */
     public Optional<Timestamp> readTimestamp() {
@@ -91,8 +89,8 @@ public class LogFileReader implements Closeable {
         if (index == -1) {
           return Optional.absent();
         }
-        CountingInputStream inputStream = new CountingInputStream(
-            new ByteArrayInputStream(bytes, index, length - index));
+        CountingInputStream inputStream =
+            new CountingInputStream(new ByteArrayInputStream(bytes, index, length - index));
 
         try {
           ConsoleNote<?> consoleNote = ConsoleNote.readFrom(new DataInputStream(inputStream));
@@ -112,17 +110,13 @@ public class LogFileReader implements Closeable {
       }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
       return Objects.hash(line, build);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof Line) {
@@ -132,9 +126,7 @@ public class LogFileReader implements Closeable {
       return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
       return new ToStringBuilder(this).append("line", line).append("build", build).toString();
@@ -143,12 +135,11 @@ public class LogFileReader implements Closeable {
 
   private final Run<?, ?> build;
 
-  @CheckForNull
-  private BufferedReader reader;
+  @CheckForNull private BufferedReader reader;
 
   /**
    * Create a log file reader for the given build.
-   * 
+   *
    * @param build
    */
   public LogFileReader(Run<?, ?> build) {
@@ -157,9 +148,8 @@ public class LogFileReader implements Closeable {
 
   /**
    * Read the next line from the log file.
-   * 
-   * @return the next line, or {@link Optional#absent()} if there are no more to
-   *         read
+   *
+   * @return the next line, or {@link Optional#absent()} if there are no more to read
    * @throws IOException
    */
   public Optional<Line> nextLine() throws IOException {
@@ -178,7 +168,7 @@ public class LogFileReader implements Closeable {
 
   /**
    * Get the number of lines that can be read from the log file.
-   * 
+   *
    * @return the line count
    * @throws IOException
    */
@@ -196,9 +186,7 @@ public class LogFileReader implements Closeable {
     return lineCount;
   }
 
-  /**
-   * Close this reader.
-   */
+  /** Close this reader. */
   @Override
   public void close() {
     IOUtils.closeQuietly(reader);

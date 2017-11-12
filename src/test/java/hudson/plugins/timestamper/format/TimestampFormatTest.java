@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,7 +37,7 @@ import hudson.tasks._ant.AntTargetNote;
 
 /**
  * Unit test for the {@link TimestampFormat} class.
- * 
+ *
  * @author Steven G. Brown
  */
 public class TimestampFormatTest {
@@ -46,26 +46,25 @@ public class TimestampFormatTest {
 
   private String prefix = "<span class=\"timestamp\">" + timestampString + "</span>";
 
-  /**
-   */
+  /** */
   @Test
   public void testMarkup() {
     assertThat(markup("line").toString(true), is(prefix + "line"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testMarkupThenAntTargetNote() {
-    assertThat(annotate(markup("target:"), new AntTargetNote()).toString(true),
+    assertThat(
+        annotate(markup("target:"), new AntTargetNote()).toString(true),
         is(prefix + "<b class=ant-target>target</b>:"));
   }
 
-  /**
-   */
+  /** */
   @Test
   public void testAntTargetNoteThenMarkup() {
-    assertThat(markup(annotate("target:", new AntTargetNote())).toString(true),
+    assertThat(
+        markup(annotate("target:", new AntTargetNote())).toString(true),
         is(prefix + "<b class=ant-target>target</b>:"));
   }
 
@@ -74,18 +73,19 @@ public class TimestampFormatTest {
   }
 
   private MarkupText markup(MarkupText markupText) {
-    TimestampFormat format = new TimestampFormat() {
+    TimestampFormat format =
+        new TimestampFormat() {
 
-      @Override
-      public String apply(Timestamp timestamp) {
-        return timestampString;
-      }
+          @Override
+          public String apply(Timestamp timestamp) {
+            return timestampString;
+          }
 
-      @Override
-      public String getPlainTextUrl() {
-        return "";
-      }
-    };
+          @Override
+          public String getPlainTextUrl() {
+            return "";
+          }
+        };
     format.markup(markupText, new Timestamp(123, 42000));
     return markupText;
   }
@@ -96,7 +96,7 @@ public class TimestampFormatTest {
     return annotate(markupText, notes);
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private MarkupText annotate(MarkupText markupText, ConsoleNote... notes) {
     Object context = mock(Run.class);
     for (ConsoleNote note : notes) {

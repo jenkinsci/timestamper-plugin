@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,7 +40,7 @@ import hudson.model.Run;
 
 /**
  * Parser that is able to find a position in the console log file of a build.
- * 
+ *
  * @author Steven G. Brown
  */
 @Immutable
@@ -52,11 +52,9 @@ class ConsoleLogParser implements Serializable {
 
   /**
    * Create a new {@link ConsoleLogParser}.
-   * 
-   * @param pos
-   *          the position to find in the console log file. A non-negative
-   *          position is from the start of the file, and a negative position is
-   *          back from the end of the file.
+   *
+   * @param pos the position to find in the console log file. A non-negative position is from the
+   *     start of the file, and a negative position is back from the end of the file.
    */
   ConsoleLogParser(long pos) {
     this.pos = pos;
@@ -64,9 +62,8 @@ class ConsoleLogParser implements Serializable {
 
   /**
    * Skip to a position in the console log file.
-   * 
-   * @param build
-   *          the build to inspect
+   *
+   * @param build the build to inspect
    * @return the result
    * @throws IOException
    */
@@ -133,49 +130,41 @@ class ConsoleLogParser implements Serializable {
 
   static final class Result {
 
-    /**
-     * The current line number, starting at line zero.
-     */
+    /** The current line number, starting at line zero. */
     int lineNumber;
 
-    /**
-     * Whether the last-read character was a new line.
-     */
+    /** Whether the last-read character was a new line. */
     boolean atNewLine;
 
-    /**
-     * Whether the position is past the end of the file.
-     */
+    /** Whether the position is past the end of the file. */
     boolean endOfFile;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
       return Objects.hash(lineNumber, atNewLine, endOfFile);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof ConsoleLogParser.Result) {
         ConsoleLogParser.Result other = (ConsoleLogParser.Result) obj;
-        return lineNumber == other.lineNumber && atNewLine == other.atNewLine
+        return lineNumber == other.lineNumber
+            && atNewLine == other.atNewLine
             && endOfFile == other.endOfFile;
       }
       return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
-      return new ToStringBuilder(this).append("lineNumber", lineNumber)
-          .append("atNewLine", atNewLine).append("endOfFile", endOfFile).toString();
+      return new ToStringBuilder(this)
+          .append("lineNumber", lineNumber)
+          .append("atNewLine", atNewLine)
+          .append("endOfFile", endOfFile)
+          .toString();
     }
   }
 }

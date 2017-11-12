@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,19 +35,17 @@ import com.google.common.io.Files;
 
 /**
  * Debugging tool which outputs the contents of a timestamper directory.
- * 
+ *
  * @author Steven G. Brown
  */
 public final class DumpTimestamps {
 
   /**
-   * Read the values from the timestamper directory path given by the
-   * command-line arguments and output these values to the console. This is
-   * intended only for debugging. It is not invoked by Jenkins.
-   * 
-   * @param args
-   *          the command-line arguments, expected to contain a timestamper
-   *          directory path
+   * Read the values from the timestamper directory path given by the command-line arguments and
+   * output these values to the console. This is intended only for debugging. It is not invoked by
+   * Jenkins.
+   *
+   * @param args the command-line arguments, expected to contain a timestamper directory path
    * @throws IOException
    */
   public static void main(String... args) throws IOException {
@@ -68,8 +66,8 @@ public final class DumpTimestamps {
       return;
     }
     byte[] fileContents = Files.toByteArray(file);
-    CountingInputStream inputStream = new CountingInputStream(
-        new ByteArrayInputStream(fileContents));
+    CountingInputStream inputStream =
+        new CountingInputStream(new ByteArrayInputStream(fileContents));
     List<Long> values = new ArrayList<Long>();
     while (inputStream.getCount() < fileContents.length) {
       values.add(Varint.read(inputStream));
@@ -83,6 +81,5 @@ public final class DumpTimestamps {
     }
   }
 
-  private DumpTimestamps() {
-  }
+  private DumpTimestamps() {}
 }

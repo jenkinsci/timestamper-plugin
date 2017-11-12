@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -51,33 +51,29 @@ import jenkins.YesNoMaybe;
 
 /**
  * Pipeline plug-in step for recording time-stamps.
- * 
+ *
  * @author Steven G. Brown
  */
 public class TimestamperStep extends AbstractStepImpl {
 
-  /**
-   * Constructor.
-   */
+  /** Constructor. */
   @DataBoundConstructor
-  public TimestamperStep() {
-  }
+  public TimestamperStep() {}
 
-  /**
-   * Execution for {@link TimestamperStep}.
-   */
+  /** Execution for {@link TimestamperStep}. */
   public static class ExecutionImpl extends AbstractStepExecutionImpl {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean start() throws Exception {
       StepContext context = getContext();
-      context.newBodyInvoker().withContext(createConsoleLogFilter(context))
-          .withCallback(BodyExecutionCallback.wrap(context)).start();
+      context
+          .newBodyInvoker()
+          .withContext(createConsoleLogFilter(context))
+          .withCallback(BodyExecutionCallback.wrap(context))
+          .start();
       return false;
     }
 
@@ -89,55 +85,41 @@ public class TimestamperStep extends AbstractStepImpl {
       return BodyInvoker.mergeConsoleLogFilters(original, subsequent);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void stop(@Nonnull Throwable cause) throws Exception {
       getContext().onFailure(cause);
     }
   }
 
-  /**
-   * Descriptor for {@link TimestamperStep}.
-   */
+  /** Descriptor for {@link TimestamperStep}. */
   @Extension(dynamicLoadable = YesNoMaybe.YES, optional = true)
   public static class DescriptorImpl extends AbstractStepDescriptorImpl {
 
-    /**
-     * Constructor.
-     */
+    /** Constructor. */
     public DescriptorImpl() {
       super(ExecutionImpl.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDisplayName() {
       return Messages.Timestamps();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getFunctionName() {
       return "timestamps";
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean takesImplicitBlockArgument() {
       return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getHelpFile() {
       return getDescriptorFullUrl() + "/help";
@@ -145,7 +127,7 @@ public class TimestamperStep extends AbstractStepImpl {
 
     /**
      * Serve the help file.
-     * 
+     *
      * @param request
      * @param response
      * @throws IOException
@@ -158,9 +140,7 @@ public class TimestamperStep extends AbstractStepImpl {
     }
   }
 
-  /**
-   * {@link ConsoleLogFilter} that adds a {@link TimestampNote} to each line.
-   */
+  /** {@link ConsoleLogFilter} that adds a {@link TimestampNote} to each line. */
   private static class TimestampNotesConsoleLogFilter extends ConsoleLogFilter
       implements Serializable {
 
@@ -170,16 +150,14 @@ public class TimestamperStep extends AbstractStepImpl {
 
     /**
      * Create a new {@link TimestampNotesConsoleLogFilter} for the given build.
-     * 
+     *
      * @param build
      */
     TimestampNotesConsoleLogFilter(Run<?, ?> build) {
       this.startTime = build.getStartTimeInMillis();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @SuppressWarnings("rawtypes")
     @Override
     public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger)

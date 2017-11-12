@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -62,15 +62,13 @@ import jenkins.model.Jenkins;
 
 /**
  * Unit test for {@link LogFileReader}.
- * 
+ *
  * @author Steven G. Brown
  */
 public class LogFileReaderTest {
 
-  /**
-   */
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
+  /** */
+  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
   private AbstractBuild<?, ?> build;
 
@@ -86,9 +84,7 @@ public class LogFileReaderTest {
 
   private File nonExistantFile;
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(AbstractBuild.class);
@@ -99,8 +95,10 @@ public class LogFileReaderTest {
     logFileReader = new LogFileReader(build);
 
     timestamp = new Timestamp(42, 1000);
-    logFileContents = "line1\nline2"
-        + new TimestampNote(timestamp.elapsedMillis, timestamp.millisSinceEpoch).encode() + "\n";
+    logFileContents =
+        "line1\nline2"
+            + new TimestampNote(timestamp.elapsedMillis, timestamp.millisSinceEpoch).encode()
+            + "\n";
 
     // Uncompressed log file
     uncompressedLogFile = tempFolder.newFile();
@@ -109,7 +107,7 @@ public class LogFileReaderTest {
     // Gzipped log file
     gzippedLogFile = tempFolder.newFile("logFile.gz");
     try (FileOutputStream fileOutputStream = new FileOutputStream(gzippedLogFile);
-        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream);) {
+        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream); ) {
       gzipOutputStream.write(logFileContents.getBytes(Charset.defaultCharset()));
     }
 
@@ -122,26 +120,21 @@ public class LogFileReaderTest {
     Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
   }
 
-  /**
-   */
+  /** */
   @After
   public void tearDown() {
     Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
     logFileReader.close();
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testNextLine_logFileExists() throws Exception {
     when(build.getLogFile()).thenReturn(uncompressedLogFile);
     testNextLine();
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testNextLine_zippedLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(gzippedLogFile);
@@ -163,39 +156,42 @@ public class LogFileReaderTest {
     List<String> expectedTexts = ImmutableList.of("line1", "line2");
     assertThat("texts", texts, is(expectedTexts));
 
-    List<Optional<Timestamp>> expectedTimestamps = ImmutableList.of(Optional.<Timestamp>absent(),
-        Optional.of(timestamp));
+    List<Optional<Timestamp>> expectedTimestamps =
+        ImmutableList.of(Optional.<Timestamp>absent(), Optional.of(timestamp));
     assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testNextLine_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);
     assertThat(logFileReader.nextLine(), is(Optional.<Line>absent()));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testReadTimestamp_logContainsEscapeCharacters() throws Exception {
     File logFile = tempFolder.newFile();
     when(build.getLogFile()).thenReturn(logFile);
 
-    List<String> logFileContents = Arrays.asList(
-        "\u001B[35m\u001B[1mScanning dependencies of target\u001B[0m",
-        //
-        "abc" + ConsoleNote.PREAMBLE_STR, "abc" + ConsoleNote.PREAMBLE_STR + "def",
-        //
-        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, ""),
-        //
-        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, "de")
-            + ConsoleNote.POSTAMBLE_STR.substring(0, 2),
-        //
-        "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, "de") + ConsoleNote.POSTAMBLE_STR);
+    List<String> logFileContents =
+        Arrays.asList(
+            "\u001B[35m\u001B[1mScanning dependencies of target\u001B[0m",
+            //
+            "abc" + ConsoleNote.PREAMBLE_STR,
+            "abc" + ConsoleNote.PREAMBLE_STR + "def",
+            //
+            "abc" + ConsoleNote.PREAMBLE_STR + encodeConsoleNote(2, ""),
+            //
+            "abc"
+                + ConsoleNote.PREAMBLE_STR
+                + encodeConsoleNote(2, "de")
+                + ConsoleNote.POSTAMBLE_STR.substring(0, 2),
+            //
+            "abc"
+                + ConsoleNote.PREAMBLE_STR
+                + encodeConsoleNote(2, "de")
+                + ConsoleNote.POSTAMBLE_STR);
     Files.write(Joiner.on('\n').join(logFileContents), logFile, Charsets.UTF_8);
 
     List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
@@ -217,8 +213,8 @@ public class LogFileReaderTest {
   private String encodeConsoleNote(int size, String content) throws Exception {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-    try (DataOutputStream dataOutputStream = new DataOutputStream(
-        new Base64OutputStream(byteArrayOutputStream, true, -1, null))) {
+    try (DataOutputStream dataOutputStream =
+        new DataOutputStream(new Base64OutputStream(byteArrayOutputStream, true, -1, null))) {
       dataOutputStream.writeInt(size);
       dataOutputStream.writeBytes(content);
     }
@@ -226,27 +222,21 @@ public class LogFileReaderTest {
     return byteArrayOutputStream.toString();
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testLineCount_logFileExists() throws Exception {
     when(build.getLogFile()).thenReturn(uncompressedLogFile);
     assertThat(logFileReader.lineCount(), is(2));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testLineCount_zippedLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(gzippedLogFile);
     assertThat(logFileReader.lineCount(), is(2));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testLineCount_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);

@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,14 +30,14 @@ import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Format for displaying time-stamps.
- * 
+ *
  * @author Steven G. Brown
  */
 public abstract class TimestampFormat implements Function<Timestamp, String> {
 
   /**
    * Format the given time-stamp as a string.
-   * 
+   *
    * @return the formatted time-stamp
    */
   @Override
@@ -45,11 +45,9 @@ public abstract class TimestampFormat implements Function<Timestamp, String> {
 
   /**
    * Format the given time-stamp and add it to the mark-up text.
-   * 
-   * @param text
-   *          the mark-up text
-   * @param timestamp
-   *          the time-stamp to format
+   *
+   * @param text the mark-up text
+   * @param timestamp the time-stamp to format
    */
   public void markup(MarkupText text, Timestamp timestamp) {
     String timestampString = apply(timestamp);
@@ -62,9 +60,8 @@ public abstract class TimestampFormat implements Function<Timestamp, String> {
   }
 
   /**
-   * Get the URL for displaying the plain text console and time-stamps in this
-   * format.
-   * 
+   * Get the URL for displaying the plain text console and time-stamps in this format.
+   *
    * @return the plain text URL
    */
   public abstract String getPlainTextUrl();

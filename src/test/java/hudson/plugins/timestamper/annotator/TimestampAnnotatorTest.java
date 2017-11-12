@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2012 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -63,30 +63,24 @@ import hudson.plugins.timestamper.io.TimestampsWriter;
 
 /**
  * Unit test for the {@link TimestampAnnotator} class.
- * 
+ *
  * @author Steven G. Brown
  */
 @RunWith(Parameterized.class)
 public class TimestampAnnotatorTest {
 
-  /**
-   * @return parameterised test data
-   */
+  /** @return parameterised test data */
   @SuppressWarnings("boxing")
   @Parameters
   public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[] { false }, new Object[] { true });
+    return Arrays.asList(new Object[] {false}, new Object[] {true});
   }
 
-  /**
-   */
-  @Parameter
-  public boolean serialize;
+  /** */
+  @Parameter public boolean serialize;
 
-  /**
-   */
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
+  /** */
+  @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private Run<?, ?> build;
 
@@ -96,9 +90,7 @@ public class TimestampAnnotatorTest {
 
   private TimestampsWriter writer;
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(Run.class);
@@ -110,17 +102,13 @@ public class TimestampAnnotatorTest {
     writer = new TimestampsWriter(build);
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     writer.close();
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testStartOfLogFile() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -129,9 +117,7 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testStartOfLogFile_negativeLineNumber() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -140,9 +126,7 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testWithinFirstLine() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -151,9 +135,7 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testWithinFirstLine_negativeLineNumber() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -162,9 +144,7 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testNextLine() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -173,9 +153,7 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testNextLine_negativeLineNumber() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -184,9 +162,7 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /**
-   * @throws Exception
-   */
+  /** @throws Exception */
   @Test
   public void testEndOfLogFile() throws Exception {
     logPosition.endOfFile = true;
@@ -202,7 +178,7 @@ public class TimestampAnnotatorTest {
     return timestamps;
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private List<Timestamp> annotate() throws Exception {
     ConsoleLogParser logParser = new MockConsoleLogParser();
     ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
@@ -223,16 +199,21 @@ public class TimestampAnnotatorTest {
 
   private void captureFormattedTimestamps() {
     final TimestampFormat format = mock(TimestampFormat.class);
-    doAnswer(new Answer<Void>() {
+    doAnswer(
+            new Answer<Void>() {
 
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
-        capturedTimestamps.add(timestamp);
-        return null;
-      }
-    }).when(format).markup(any(MarkupText.class), any(Timestamp.class));
-    Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class,
+              @Override
+              public Void answer(InvocationOnMock invocation) throws Throwable {
+                Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
+                capturedTimestamps.add(timestamp);
+                return null;
+              }
+            })
+        .when(format)
+        .markup(any(MarkupText.class), any(Timestamp.class));
+    Whitebox.setInternalState(
+        TimestampFormatProvider.class,
+        Supplier.class,
         new Supplier<TimestampFormat>() {
           @Override
           public TimestampFormat get() {

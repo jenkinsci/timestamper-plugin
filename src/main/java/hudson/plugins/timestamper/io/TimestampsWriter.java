@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,7 +45,7 @@ import hudson.model.Run;
 
 /**
  * Write the time-stamps for a build to disk.
- * 
+ *
  * @author Steven G. Brown
  */
 public class TimestampsWriter implements Closeable {
@@ -56,19 +56,16 @@ public class TimestampsWriter implements Closeable {
 
   private final Optional<MessageDigest> timestampsDigest;
 
-  @CheckForNull
-  private OutputStream timestampsOutput;
+  @CheckForNull private OutputStream timestampsOutput;
 
-  /**
-   * Buffer that is used to store Varints prior to writing to a file.
-   */
+  /** Buffer that is used to store Varints prior to writing to a file. */
   private final byte[] buffer = new byte[BUFFER_SIZE];
 
   private long previousCurrentTimeMillis;
 
   /**
    * Create a time-stamps writer for the given build.
-   * 
+   *
    * @param build
    * @throws IOException
    */
@@ -78,10 +75,9 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Create a time-stamps writer for the given build.
-   * 
+   *
    * @param build
-   * @param digest
-   *          (optional)
+   * @param digest (optional)
    * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest) throws IOException {
@@ -103,11 +99,9 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Write a time-stamp for a line of the console log.
-   * 
-   * @param currentTimeMillis
-   *          {@link System#currentTimeMillis()}
-   * @param times
-   *          the number of times to write the time-stamp
+   *
+   * @param currentTimeMillis {@link System#currentTimeMillis()}
+   * @param times the number of times to write the time-stamp
    * @throws IOException
    */
   public void write(long currentTimeMillis, int times) throws IOException {
@@ -129,7 +123,7 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Open an output stream for writing to the time-stamps file.
-   * 
+   *
    * @return the output stream
    * @throws FileNotFoundException
    */
@@ -143,7 +137,7 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Write each value to the given output stream as a Base 128 Varint.
-   * 
+   *
    * @param outputStream
    * @param values
    * @throws IOException
@@ -159,7 +153,7 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Write n bytes of 0 to the given output stream.
-   * 
+   *
    * @param outputStream
    * @param n
    */
@@ -175,7 +169,7 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Write a time-stamps digest file for the build.
-   * 
+   *
    * @throws IOException
    */
   public void writeDigest() throws IOException {
@@ -190,14 +184,14 @@ public class TimestampsWriter implements Closeable {
       hash.append(String.format("%02x", b));
     }
     hash.append("\n");
-    File digestFile = new File(timestampsFile.getParent(),
-        timestampsFile.getName() + "." + timestampsDigest.getAlgorithm());
+    File digestFile =
+        new File(
+            timestampsFile.getParent(),
+            timestampsFile.getName() + "." + timestampsDigest.getAlgorithm());
     Files.write(hash.toString(), digestFile, Charsets.US_ASCII);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void close() throws IOException {
     if (timestampsOutput != null) {

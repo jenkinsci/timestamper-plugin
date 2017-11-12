@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2013 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,7 +45,7 @@ import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Read the time-stamps for a build from disk.
- * 
+ *
  * @author Steven G. Brown
  */
 public class TimestampsReader implements Serializable, Closeable {
@@ -64,12 +64,11 @@ public class TimestampsReader implements Serializable, Closeable {
 
   private final TimeShiftsReader timeShiftsReader;
 
-  @CheckForNull
-  private transient InputStream inputStream;
+  @CheckForNull private transient InputStream inputStream;
 
   /**
    * Create a time-stamps reader for the given build.
-   * 
+   *
    * @param build
    */
   public TimestampsReader(Run<?, ?> build) {
@@ -80,9 +79,8 @@ public class TimestampsReader implements Serializable, Closeable {
 
   /**
    * Skip past the given number of time-stamp entries.
-   * 
-   * @param count
-   *          the number of time-stamp entries to skip
+   *
+   * @param count the number of time-stamp entries to skip
    * @throws IOException
    */
   public void skip(int count) throws IOException {
@@ -95,11 +93,10 @@ public class TimestampsReader implements Serializable, Closeable {
   }
 
   /**
-   * Convert negative line number that was calculated from end of file to
-   * absolute line number (from head)
-   * 
-   * @param lineNumber
-   *          line number (should be negative)
+   * Convert negative line number that was calculated from end of file to absolute line number (from
+   * head)
+   *
+   * @param lineNumber line number (should be negative)
    * @return absolute line
    * @throws IOException
    */
@@ -118,9 +115,8 @@ public class TimestampsReader implements Serializable, Closeable {
 
   /**
    * Read the next time-stamp.
-   * 
-   * @return the next time-stamp, or {@link Optional#absent()} if there are no
-   *         more to read
+   *
+   * @return the next time-stamp, or {@link Optional#absent()} if there are no more to read
    * @throws IOException
    */
   public Optional<Timestamp> read() throws IOException {
@@ -139,9 +135,7 @@ public class TimestampsReader implements Serializable, Closeable {
     return timestamp;
   }
 
-  /**
-   * Close this reader.
-   */
+  /** Close this reader. */
   @Override
   public void close() {
     IOUtils.closeQuietly(inputStream);
@@ -150,7 +144,7 @@ public class TimestampsReader implements Serializable, Closeable {
 
   /**
    * Read the next time-stamp from the given input stream.
-   * 
+   *
    * @param inputStream
    * @return the next time-stamp
    */

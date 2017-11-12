@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2016 Steven G. Brown
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,27 +36,22 @@ import com.google.common.base.Strings;
 import hudson.plugins.timestamper.Timestamp;
 
 /**
- * Formats time-stamps as the elapsed time in seconds, with a certain number of
- * places after decimal point.
- * 
+ * Formats time-stamps as the elapsed time in seconds, with a certain number of places after decimal
+ * point.
+ *
  * @author Steven G. Brown
  */
 final class PrecisionTimestampFormat implements Function<Timestamp, String> {
 
-  /**
-   * The number of places to display after the decimal point.
-   */
-  @Nonnegative
-  private final int precision;
+  /** The number of places to display after the decimal point. */
+  @Nonnegative private final int precision;
 
   PrecisionTimestampFormat(int precision) {
     checkArgument(precision >= 0);
     this.precision = precision;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String apply(@Nonnull Timestamp timestamp) {
     long seconds = timestamp.elapsedMillis / 1000;
@@ -73,17 +68,13 @@ final class PrecisionTimestampFormat implements Function<Timestamp, String> {
     return String.valueOf(seconds) + "." + fractional;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     return Integer.valueOf(precision).hashCode();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof PrecisionTimestampFormat) {
@@ -93,9 +84,7 @@ final class PrecisionTimestampFormat implements Function<Timestamp, String> {
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("precision", precision).toString();
