@@ -25,12 +25,13 @@ package hudson.plugins.timestamper.io;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Scanner;
 
 import javax.annotation.CheckForNull;
 
@@ -135,7 +136,7 @@ public class LogFileReader implements Closeable {
 
   private final Run<?, ?> build;
 
-  @CheckForNull private BufferedReader reader;
+  @CheckForNull private Scanner reader;
 
   /**
    * Create a log file reader for the given build.
@@ -157,10 +158,13 @@ public class LogFileReader implements Closeable {
       return Optional.absent();
     }
     if (reader == null) {
-      reader = new BufferedReader(build.getLogReader());
+      reader = new Scanner(build.getLogReader());
+      reader.useDelimiter("\n");
     }
-    String line = reader.readLine();
-    if (line == null) {
+    String line;
+    try {
+      line = reader.next();
+    } catch (NoSuchElementException e) {
       return Optional.absent();
     }
     return Optional.of(new Line(line, build));
@@ -178,8 +182,10 @@ public class LogFileReader implements Closeable {
       return 0;
     }
     int lineCount = 0;
-    try (BufferedReader reader = new BufferedReader(build.getLogReader())) {
-      while (reader.readLine() != null) {
+    try (Scanner reader = new Scanner(build.getLogReader())) {
+      reader.useDelimiter("\n");
+      while (reader.hasNext()) {
+        reader.next();
         lineCount++;
       }
     }
