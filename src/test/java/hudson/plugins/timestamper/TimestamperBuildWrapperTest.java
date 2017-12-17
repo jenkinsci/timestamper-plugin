@@ -44,7 +44,6 @@ import hudson.model.AbstractBuild;
  *
  * @author Steven G. Brown
  */
-@SuppressWarnings("boxing")
 public class TimestamperBuildWrapperTest {
 
   /** */

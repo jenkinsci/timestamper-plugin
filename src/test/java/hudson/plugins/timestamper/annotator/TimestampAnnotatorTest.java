@@ -70,7 +70,6 @@ import hudson.plugins.timestamper.io.TimestampsWriter;
 public class TimestampAnnotatorTest {
 
   /** @return parameterised test data */
-  @SuppressWarnings("boxing")
   @Parameters
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[] {false}, new Object[] {true});

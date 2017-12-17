@@ -55,7 +55,6 @@ import hudson.plugins.timestamper.format.TimestampFormatProvider;
  *
  * @author Steven G. Brown
  */
-@SuppressWarnings("boxing")
 @RunWith(Parameterized.class)
 public class TimestampNoteTest {
 

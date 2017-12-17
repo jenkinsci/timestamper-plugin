@@ -38,7 +38,6 @@ import nl.jqno.equalsverifier.Warning;
  *
  * @author Steven G. Brown
  */
-@SuppressWarnings("boxing")
 public class TimestampTest {
 
   /** */
