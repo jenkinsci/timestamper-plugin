@@ -61,7 +61,7 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
     elapsedParamValue = FormatStringUtils.stripHtmlTags(elapsedParamValue);
     elapsedParamValue = FormatStringUtils.trim(elapsedParamValue);
 
-    return "timestamps?elapsed=" + elapsedParamValue + "&appendLog";
+    return "timestamps/?elapsed=" + elapsedParamValue + "&appendLog";
   }
 
   /** {@inheritDoc} */

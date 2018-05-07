@@ -156,7 +156,7 @@ public class SystemTimestampFormatTest {
     SystemTimestampFormat format =
         new SystemTimestampFormat(
             "'<b>'HH:mm:ss'</b> '", Optional.<String>absent(), Locale.ENGLISH);
-    assertThat(format.getPlainTextUrl(), is("timestamps?time=HH:mm:ss&appendLog&locale=en"));
+    assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 
   /** */
@@ -165,7 +165,7 @@ public class SystemTimestampFormatTest {
     SystemTimestampFormat format =
         new SystemTimestampFormat(
             " ' <b> ' HH:mm:ss ' </b> ' ", Optional.<String>absent(), Locale.ENGLISH);
-    assertThat(format.getPlainTextUrl(), is("timestamps?time=HH:mm:ss&appendLog&locale=en"));
+    assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 
   /** */
@@ -175,7 +175,7 @@ public class SystemTimestampFormatTest {
         new SystemTimestampFormat("'<b>'HH:mm:ss'</b> '", Optional.of("GMT+1"), Locale.ENGLISH);
     assertThat(
         format.getPlainTextUrl(),
-        is("timestamps?time=HH:mm:ss&timeZone=GMT+1&appendLog&locale=en"));
+        is("timestamps/?time=HH:mm:ss&timeZone=GMT+1&appendLog&locale=en"));
   }
 
   /** */

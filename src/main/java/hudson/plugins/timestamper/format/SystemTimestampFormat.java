@@ -81,7 +81,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
     timeParamValue = FormatStringUtils.stripHtmlTags(timeParamValue);
     timeParamValue = FormatStringUtils.trim(timeParamValue);
 
-    return "timestamps?time="
+    return "timestamps/?time="
         + timeParamValue
         + (timeZoneId.isPresent() ? "&timeZone=" + timeZoneId.get() : "")
         + "&appendLog"
