@@ -111,6 +111,9 @@ public final class TimestampNote extends ConsoleNote<Object> {
     TimestampFormat format = TimestampFormatProvider.get();
     Timestamp timestamp = getTimestamp(context);
     format.markup(text, timestamp);
+    if (!(context instanceof Run<?, ?>)) {
+      text.addMarkup(0, "<style>.timestamper-plain-text {visibility: hidden;}</style>");
+    }
     return null; // each time-stamp note affects one line only
   }
 

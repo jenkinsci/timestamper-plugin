@@ -29,7 +29,7 @@ THE SOFTWARE.
       <tr>
         <td class="pane-header">
           <span style="text-align:left;">${%Timestamps}</span>
-          <span style="float:right;"><a href="${it.plainTextUrl}">${%View as plain text}</a></span>
+          <span style="float:right;"><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
         </td>
       </tr>
       <tr>
