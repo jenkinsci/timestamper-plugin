@@ -313,19 +313,15 @@ public class TimestampsActionOutputTest {
     assumeThat(query.currentTime, is(false));
 
     // Remove formatted timestamps from expected result
-    if (query.appendLogLine) {
-      expectedLines =
-          Lists.transform(
-              expectedLines,
-              new Function<String, String>() {
-                @Override
-                public String apply(@Nonnull String input) {
-                  return input.replaceFirst("^.*(  \\w*)$", "$1");
-                }
-              });
-    } else {
-      expectedLines = Collections.emptyList();
-    }
+    expectedLines =
+        Lists.transform(
+            expectedLines,
+            new Function<String, String>() {
+              @Override
+              public String apply(@Nonnull String input) {
+                return query.appendLogLine ? input.replaceFirst("^.*(  \\w*)$", "$1") : "";
+              }
+            });
     when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
     assertThat(readLines(), is(expectedLines));
   }

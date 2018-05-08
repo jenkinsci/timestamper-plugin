@@ -190,7 +190,7 @@ public class TimestampsActionOutput {
               }
             }
 
-            if (result.trim().isEmpty()) {
+            if (!timestamp.isPresent() && !logFileLine.isPresent()) {
               return Optional.absent();
             }
             return Optional.of(result);
