@@ -39,7 +39,7 @@ import jenkins.YesNoMaybe;
  * @author Steven G. Brown
  */
 @Extension(dynamicLoadable = YesNoMaybe.YES)
-public final class TimestampAnnotatorFactory2 extends ConsoleAnnotatorFactory<Object> {
+public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Object> {
 
   /** {@inheritDoc} */
   @Override

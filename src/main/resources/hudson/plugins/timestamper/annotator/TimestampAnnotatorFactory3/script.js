@@ -149,7 +149,7 @@ function displaySettings() {
 
     new Ajax.Updater(
         element,
-        rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory2/usersettings',
+        rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings',
         { insertion: Insertion.Bottom, onComplete: init }
     );
 }
