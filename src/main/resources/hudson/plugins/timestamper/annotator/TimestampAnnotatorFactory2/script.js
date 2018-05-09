@@ -48,16 +48,16 @@ function init() {
     };
 
     // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
-    var mode = getCookie();
+    var mode = getCookie('');
     if (mode) {
         // Renew the cookie.
-        setCookie(mode);
+        setCookie('', mode);
     } else {
         // Initialize the cookie, defaulting to clock time in the browser's timezone.
         mode = 'system';
 
-        setCookie(mode);
-        setCookie('true', 'local');
+        setCookie('', mode);
+        setCookie('local', 'true');
     }
 
     if (mode == 'local') {
@@ -79,7 +79,7 @@ function init() {
         options[option].checked = (value === 'true');
 
         // Renew the cookie.
-        setCookie(value, option);
+        setCookie(option, value);
 
         // Set the click handler.
         options[option].observe('click', function() {
@@ -94,7 +94,7 @@ function init() {
 function onModeClick(modes) {
     for (var mode in modes) {
         if (modes[mode].checked) {
-            setCookie(mode);
+            setCookie('', mode);
             break;
         }
     }
@@ -104,15 +104,15 @@ function onModeClick(modes) {
 
 function onOptionClick(options) {
     for (var option in options) {
-        setCookie(options[option].checked ? 'true' : 'false', option);
+        setCookie(option, options[option].checked ? 'true' : 'false');
     }
 
     document.location.reload();
 }
 
-function setCookie(value, suffix) {
+function setCookie(suffix, value) {
     var name = cookieName;
-    if (typeof(suffix) !== 'undefined') {
+    if (suffix) {
         name += '-' + suffix;
     }
 
@@ -128,7 +128,7 @@ function setCookie(value, suffix) {
 
 function getCookie(suffix) {
     var name = cookieName;
-    if (typeof(suffix) !== 'undefined') {
+    if (suffix) {
         name += '-' + suffix;
     }
 
@@ -189,7 +189,7 @@ document.cookie = 'jenkins-timestamper-offset=' + attributes;
 var offset = getCookie('offset');
 var newOffset = (new Date().getTimezoneOffset() * 60 * 1000).toString();
 if (newOffset !== offset) {
-    setCookie(newOffset, 'offset');
+    setCookie('offset', newOffset);
     document.location.reload();
 }
 
