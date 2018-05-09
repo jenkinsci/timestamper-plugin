@@ -47,22 +47,17 @@ function init() {
         'local': document.getElementById('timestamper-localTime')
     };
 
-    // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
+    // Set the mode from a cookie or initialize it.
     var mode = getCookie('');
-    if (mode) {
+    if (mode && mode != 'local') {
         // Renew the cookie.
         setCookie('', mode);
     } else {
         // Initialize the cookie, defaulting to clock time in the browser's timezone.
+        // This also handles migrating from 'local' mode (deprecated) to the 'local' option.
         mode = 'system';
-
         setCookie('', mode);
         setCookie('local', 'true');
-    }
-
-    if (mode == 'local') {
-        options[mode].checked = true;
-        mode = 'system';
     }
     modes[mode].checked = true;
 
