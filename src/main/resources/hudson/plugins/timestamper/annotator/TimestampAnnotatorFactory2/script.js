@@ -48,15 +48,22 @@ function init() {
     };
 
     // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
-    var mode = getCookie() || 'system';
+    var mode = getCookie();
+    if (mode) {
+        setCookie(mode);
+    } else {
+        // Initialize the cookie, defaulting to clock time in the browser's timezone.
+        mode = 'system';
+
+        setCookie(mode);
+        setCookie('true', 'local');
+    }
+
     if (mode == 'local') {
         options[mode].checked = true;
         mode = 'system';
     }
     modes[mode].checked = true;
-
-    // Renew the cookie.
-    setCookie(mode);
 
     // Set the click handler.
     for (mode in modes) {
