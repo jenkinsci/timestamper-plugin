@@ -50,6 +50,7 @@ function init() {
     // Set the mode from a cookie or initialize it (also handle migrating old cookie values to new ones).
     var mode = getCookie();
     if (mode) {
+        // Renew the cookie.
         setCookie(mode);
     } else {
         // Initialize the cookie, defaulting to clock time in the browser's timezone.
