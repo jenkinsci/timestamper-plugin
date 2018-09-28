@@ -67,6 +67,10 @@ public final class TimestampNote extends ConsoleNote<Object> {
     return "timestamper-consolenotes";
   }
 
+  public static boolean useTimestampNotes(Run<?, ?> build) {
+      return !(build instanceof AbstractBuild) || Boolean.getBoolean(getSystemProperty());
+  }
+
   /**
    * The elapsed time in milliseconds since the start of the build.
    *
