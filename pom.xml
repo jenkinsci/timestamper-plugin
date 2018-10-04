@@ -5,7 +5,8 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.23</version>
+    <version>3.24</version>
+    <relativePath />
   </parent>
 
   <artifactId>timestamper</artifactId>
@@ -108,7 +109,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-api</artifactId>
-      <version>2.30-rc828.7aa7627c85df</version> <!-- TODO https://github.com/jenkinsci/workflow-api-plugin/pull/76 -->
+      <version>2.30-beta-1</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -149,13 +150,13 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-job</artifactId>
-      <version>2.26-rc850.755e848ee6f8</version> <!-- TODO https://github.com/jenkinsci/workflow-job-plugin/pull/105 -->
+      <version>2.26-beta-1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-cps</artifactId>
-      <version>2.56</version>
+      <version>2.58-beta-1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -175,7 +176,7 @@
       <dependency>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>structs</artifactId>
-        <version>1.15</version>
+        <version>1.16</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
