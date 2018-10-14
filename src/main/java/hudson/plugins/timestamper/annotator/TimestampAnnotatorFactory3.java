@@ -29,6 +29,8 @@ import org.kohsuke.stapler.StaplerRequest;
 import hudson.Extension;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
+import hudson.model.Run;
+import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import jenkins.YesNoMaybe;
@@ -44,6 +46,14 @@ public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Ob
   /** {@inheritDoc} */
   @Override
   public ConsoleAnnotator<Object> newInstance(Object context) {
+    // Prior to Jenkins 2.145, context was the build class (see 7bc431f)
+    Class<?> contextClass = context instanceof Class<?> ? (Class<?>) context : context.getClass();
+    if (!Run.class.isAssignableFrom(contextClass)) {
+      return null; // something else
+    }
+    if (TimestampNote.useTimestampNotes(contextClass)) {
+      return null; // not using this system
+    }
     StaplerRequest request = Stapler.getCurrentRequest();
     // JENKINS-16778: The request can be null when the slave goes off-line.
     if (request == null) {

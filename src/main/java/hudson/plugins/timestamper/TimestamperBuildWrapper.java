@@ -96,7 +96,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
       this.timestampsFile = TimestamperPaths.timestampsFile(build);
       this.buildStartTime = build.getStartTimeInMillis();
       useTimestampNotes =
-          !(build instanceof AbstractBuild)
+          TimestampNote.useTimestampNotes(build.getClass())
               || Boolean.getBoolean(TimestampNote.getSystemProperty());
     }
 

@@ -68,6 +68,14 @@ public final class TimestampNote extends ConsoleNote<Object> {
   }
 
   /**
+   * @param buildClass
+   * @return whether time-stamp notes apply to that type of build
+   */
+  public static boolean useTimestampNotes(Class<?> buildClass) {
+    return !AbstractBuild.class.isAssignableFrom(buildClass);
+  }
+
+  /**
    * The elapsed time in milliseconds since the start of the build.
    *
    * @since 1.7.4
