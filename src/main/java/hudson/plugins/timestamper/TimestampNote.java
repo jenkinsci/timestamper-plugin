@@ -67,8 +67,12 @@ public final class TimestampNote extends ConsoleNote<Object> {
     return "timestamper-consolenotes";
   }
 
+  /**
+   * @param build
+   * @return whether time-stamp notes apply to that type of build
+   */
   public static boolean useTimestampNotes(Run<?, ?> build) {
-      return !(build instanceof AbstractBuild) || Boolean.getBoolean(getSystemProperty());
+    return !(build instanceof AbstractBuild);
   }
 
   /**

@@ -95,7 +95,9 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
     ConsoleLogFilterImpl(Run<?, ?> build) {
       this.timestampsFile = TimestamperPaths.timestampsFile(build);
       this.buildStartTime = build.getStartTimeInMillis();
-      useTimestampNotes = TimestampNote.useTimestampNotes(build);
+      useTimestampNotes =
+          TimestampNote.useTimestampNotes(build)
+              || Boolean.getBoolean(TimestampNote.getSystemProperty());
     }
 
     @SuppressWarnings("rawtypes")
