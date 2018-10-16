@@ -28,27 +28,53 @@ import hudson.Extension;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
+import hudson.model.Queue;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
+import java.io.IOException;
 import java.text.ParsePosition;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
 
 /**
  * Interprets marks added by {@link GlobalDecorator}.
  */
-public final class GlobalAnnotator extends ConsoleAnnotator</* TODO pending https://github.com/jenkinsci/jenkins/pull/3662 in 2.145+ */Object> {
+public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
 
     private static final long serialVersionUID = 1;
 
+    private static final Logger LOGGER = Logger.getLogger(GlobalAnnotator.class.getName());
+
     @Override
     public ConsoleAnnotator<Object> annotate(Object context, MarkupText text) {
-        if (!(context instanceof Run)) {
+        Run<?, ?> build;
+        if (context instanceof Run) {
+            build = (Run<?, ?>) context;
+        } else if (context instanceof FlowNode) {
+            FlowExecutionOwner owner = ((FlowNode) context).getExecution().getOwner();
+            if (owner == null) {
+                return null;
+            }
+            Queue.Executable executable;
+            try {
+                executable = owner.getExecutable();
+            } catch (IOException x) {
+                LOGGER.log(Level.FINE, null, x);
+                return null;
+            }
+            if (executable instanceof Run) {
+                build = (Run) executable;
+            } else {
+                return null;
+            }
+        } else {
             return null;
         }
-        Run<?, ?> build = (Run<?, ?>) context;
         long buildStartTime = build.getStartTimeInMillis();
         String html = text.toString(true);
         int start;
@@ -80,7 +106,10 @@ public final class GlobalAnnotator extends ConsoleAnnotator</* TODO pending http
         public ConsoleAnnotator<Object> newInstance(Object context) {
             if (context instanceof Run && context instanceof FlowExecutionOwner.Executable) {
                 return new GlobalAnnotator();
+            } else if (context instanceof FlowNode) {
+                return new GlobalAnnotator();
             }
+            // Note that prior to 2.145, we actually get FlowNode.class here rather than a FlowNode, so there is no per-step annotation.
             return null;
         }
     }
