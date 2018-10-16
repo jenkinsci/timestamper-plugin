@@ -29,14 +29,12 @@ import java.text.SimpleDateFormat;
 import javax.annotation.CheckForNull;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.kohsuke.stapler.StaplerRequest;
 
 import hudson.Extension;
-import hudson.model.Descriptor;
+import hudson.ExtensionList;
+import hudson.plugins.timestamper.pipeline.GlobalDecorator;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
-import jenkins.model.Jenkins;
-import net.sf.json.JSONObject;
 
 /**
  * Global configuration for the Timestamper plug-in, as shown on the Jenkins Configure System page.
@@ -52,14 +50,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @return the Timestamper configuration, or {@code null} if Jenkins has been shut down
    */
   public static TimestamperConfig get() {
-    Jenkins jenkins = Jenkins.getInstance();
-    if (jenkins != null) {
-      TimestamperConfig config = jenkins.getDescriptorByType(TimestamperConfig.class);
-      if (config != null) {
-        return config;
-      }
-    }
-    return null;
+    return ExtensionList.lookupSingleton(TimestamperConfig.class);
   }
 
   /** The default {@link #timestampFormat}. */
@@ -79,6 +70,11 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * DurationFormatUtils}.
    */
   @CheckForNull private String elapsedTimeFormat;
+
+  /**
+   * Whether to activate {@link GlobalDecorator}.
+   */
+  private boolean allPipelines;
 
   /** Constructor. */
   public TimestamperConfig() {
@@ -101,6 +97,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    */
   public void setSystemTimeFormat(@CheckForNull String timestampFormat) {
     this.timestampFormat = timestampFormat;
+    save();
   }
 
   /**
@@ -119,13 +116,16 @@ public final class TimestamperConfig extends GlobalConfiguration {
    */
   public void setElapsedTimeFormat(@CheckForNull String elapsedTimeFormat) {
     this.elapsedTimeFormat = elapsedTimeFormat;
+    save();
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
-    req.bindJSON(this, json);
-    save();
-    return true;
+  public boolean isAllPipelines() {
+    return allPipelines;
   }
+
+  public void setAllPipelines(boolean allPipelines) {
+    this.allPipelines = allPipelines;
+    save();
+  }
+
 }

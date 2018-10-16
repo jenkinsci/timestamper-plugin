@@ -28,6 +28,7 @@ import hudson.Extension;
 import hudson.console.LineTransformationOutputStream;
 import hudson.model.Queue;
 import hudson.model.Run;
+import hudson.plugins.timestamper.TimestamperConfig;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +58,7 @@ public final class GlobalDecorator extends TaskListenerDecorator {
 
     private static final long serialVersionUID = 1;
 
-    private GlobalDecorator() {}
+    GlobalDecorator() {}
 
     @Override
     public OutputStream decorate(final OutputStream logger) throws IOException, InterruptedException {
@@ -79,8 +80,9 @@ public final class GlobalDecorator extends TaskListenerDecorator {
 
         @Override
         public TaskListenerDecorator of(FlowExecutionOwner owner) {
-            // TODO check a GlobalConfiguration to see if this should be enabled or not
-            // (and if so, make TimestamperStep just print a warning and add no notes)
+            if (!TimestamperConfig.get().isAllPipelines()) {
+                return null;
+            }
             try {
                 Queue.Executable executable = owner.getExecutable();
                 if (executable instanceof Run) { // we need at least getStartTimeInMillis

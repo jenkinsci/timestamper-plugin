@@ -30,9 +30,7 @@ import java.io.Serializable;
 
 import javax.annotation.Nonnull;
 
-import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
 import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
 import org.jenkinsci.plugins.workflow.steps.BodyInvoker;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -43,25 +41,37 @@ import org.kohsuke.stapler.StaplerResponse;
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.AbstractBuild;
-import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.timestamper.Messages;
-import hudson.plugins.timestamper.TimestampNote;
-import hudson.plugins.timestamper.TimestampNotesOutputStream;
+import hudson.plugins.timestamper.TimestamperConfig;
+import java.util.Collections;
+import java.util.Set;
 import jenkins.YesNoMaybe;
+import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
+import org.jenkinsci.plugins.workflow.steps.Step;
+import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
+import org.jenkinsci.plugins.workflow.steps.StepExecution;
 
 /**
  * Pipeline plug-in step for recording time-stamps.
- *
- * @author Steven G. Brown
  */
-public class TimestamperStep extends AbstractStepImpl {
+public class TimestamperStep extends Step {
 
   /** Constructor. */
   @DataBoundConstructor
   public TimestamperStep() {}
 
+  @Override
+  public StepExecution start(StepContext context) throws Exception {
+    return new ExecutionImpl(context);
+  }
+
   /** Execution for {@link TimestamperStep}. */
-  public static class ExecutionImpl extends AbstractStepExecutionImpl {
+  private static class ExecutionImpl extends AbstractStepExecutionImpl {
+      
+    ExecutionImpl(StepContext context) {
+      super(context);
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -69,20 +79,14 @@ public class TimestamperStep extends AbstractStepImpl {
     @Override
     public boolean start() throws Exception {
       StepContext context = getContext();
-      context
-          .newBodyInvoker()
-          .withContext(createConsoleLogFilter(context))
-          .withCallback(BodyExecutionCallback.wrap(context))
-          .start();
+        BodyInvoker invoker = context.newBodyInvoker().withCallback(BodyExecutionCallback.wrap(context));
+        if (TimestamperConfig.get().isAllPipelines()) {
+            context.get(TaskListener.class).getLogger().println("The timestamps step is unnecessary when timestamps are enabled for all Pipeline builds.");
+        } else {
+            invoker.withContext(TaskListenerDecorator.merge(context.get(TaskListenerDecorator.class), new GlobalDecorator()));
+        }
+        invoker.start();
       return false;
-    }
-
-    private ConsoleLogFilter createConsoleLogFilter(StepContext context)
-        throws IOException, InterruptedException {
-      ConsoleLogFilter original = context.get(ConsoleLogFilter.class);
-      Run<?, ?> build = context.get(Run.class);
-      ConsoleLogFilter subsequent = new TimestampNotesConsoleLogFilter(build);
-      return BodyInvoker.mergeConsoleLogFilters(original, subsequent);
     }
 
     /** {@inheritDoc} */
@@ -94,12 +98,7 @@ public class TimestamperStep extends AbstractStepImpl {
 
   /** Descriptor for {@link TimestamperStep}. */
   @Extension(dynamicLoadable = YesNoMaybe.YES, optional = true)
-  public static class DescriptorImpl extends AbstractStepDescriptorImpl {
-
-    /** Constructor. */
-    public DescriptorImpl() {
-      super(ExecutionImpl.class);
-    }
+  public static class DescriptorImpl extends StepDescriptor {
 
     /** {@inheritDoc} */
     @Override
@@ -138,31 +137,28 @@ public class TimestamperStep extends AbstractStepImpl {
       writer.println(Messages.Description());
       writer.flush();
     }
+    
+    @Override
+    public Set<? extends Class<?>> getRequiredContext() {
+      return Collections.singleton(TaskListener.class);
+    }
+
   }
 
-  /** {@link ConsoleLogFilter} that adds a {@link TimestampNote} to each line. */
+  /** @deprecated Only here for serial compatibility. */
+  @Deprecated
   private static class TimestampNotesConsoleLogFilter extends ConsoleLogFilter
       implements Serializable {
 
     private static final long serialVersionUID = 1;
 
-    private final long startTime;
-
-    /**
-     * Create a new {@link TimestampNotesConsoleLogFilter} for the given build.
-     *
-     * @param build
-     */
-    TimestampNotesConsoleLogFilter(Run<?, ?> build) {
-      this.startTime = build.getStartTimeInMillis();
-    }
 
     /** {@inheritDoc} */
     @SuppressWarnings("rawtypes")
     @Override
     public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger)
         throws IOException, InterruptedException {
-      return new TimestampNotesOutputStream(logger, startTime);
+      return logger;
     }
   }
 }
