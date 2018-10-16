@@ -87,6 +87,7 @@ public class LogFileReaderTest {
   /** @throws Exception */
   @Before
   public void setUp() throws Exception {
+    System.setProperty("hudson.console.ConsoleNote.INSECURE", "true"); // disable SECURITY-382
     build = mock(AbstractBuild.class);
     when(build.getLogInputStream()).thenCallRealMethod();
     when(build.getLogReader()).thenCallRealMethod();
