@@ -70,9 +70,6 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
   /** {@inheritDoc} */
   @Override
   public ConsoleAnnotator<Object> annotate(Object context, MarkupText text) {
-    if (!(context instanceof Run<?, ?>)) {
-      return null; // do not annotate the following lines
-    }
     Run<?, ?> build = (Run<?, ?>) context;
 
     try {
