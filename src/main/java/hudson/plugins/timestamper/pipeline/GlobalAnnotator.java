@@ -33,12 +33,13 @@ import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import java.text.ParsePosition;
+import java.util.Date;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 
 /**
  * Interprets marks added by {@link GlobalDecorator}.
  */
-public final class GlobalAnnotator extends ConsoleAnnotator</* TODO pending https://github.com/jenkinsci/jenkins/pull/3662 */Object> {
+public final class GlobalAnnotator extends ConsoleAnnotator</* TODO pending https://github.com/jenkinsci/jenkins/pull/3662 in 2.145+ */Object> {
 
     private static final long serialVersionUID = 1;
 
@@ -59,11 +60,14 @@ public final class GlobalAnnotator extends ConsoleAnnotator</* TODO pending http
         if (html.startsWith("[", start)) {
             int end = html.indexOf(']', start);
             if (end != -1) {
-                long millisSinceEpoch = GlobalDecorator.UTC_MILLIS.get().parse(html, new ParsePosition(start + 1)).getTime();
-                Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
-                TimestampFormat format = TimestampFormatProvider.get();
-                format.markup(text, timestamp);
-                text.addMarkup(0, 26, "<span style=\"display: none\">", "</span>");
+                Date date = GlobalDecorator.UTC_MILLIS.get().parse(html, new ParsePosition(start + 1));
+                if (date != null) {
+                    long millisSinceEpoch = date.getTime();
+                    Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+                    TimestampFormat format = TimestampFormatProvider.get();
+                    format.markup(text, timestamp);
+                    text.addMarkup(0, 26, "<span style=\"display: none\">", "</span>");
+                }
             }
         }
         return this;
