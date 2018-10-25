@@ -66,11 +66,13 @@ public final class GlobalDecorator extends TaskListenerDecorator {
         return new LineTransformationOutputStream() {
             @Override
             protected void eol(byte[] b, int len) throws IOException {
-                logger.write('[');
-                logger.write(f.format(new Date()).getBytes(StandardCharsets.US_ASCII));
-                logger.write(']');
-                logger.write(' ');
-                logger.write(b, 0, len);
+                synchronized (logger) { // typically this will be a PrintStream
+                    logger.write('[');
+                    logger.write(f.format(new Date()).getBytes(StandardCharsets.US_ASCII));
+                    logger.write(']');
+                    logger.write(' ');
+                    logger.write(b, 0, len);
+                }
             }
         };
     }
