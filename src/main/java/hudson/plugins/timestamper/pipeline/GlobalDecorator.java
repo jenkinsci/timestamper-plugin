@@ -74,6 +74,15 @@ public final class GlobalDecorator extends TaskListenerDecorator {
                     logger.write(b, 0, len);
                 }
             }
+            @Override
+            public void flush() throws IOException {
+                logger.flush();
+            }
+            @Override
+            public void close() throws IOException {
+                super.close();
+                logger.close();
+            }
         };
     }
 
