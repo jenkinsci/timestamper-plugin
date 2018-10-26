@@ -34,8 +34,8 @@ import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import java.io.IOException;
-import java.text.ParsePosition;
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -86,13 +86,15 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
         if (html.startsWith("[", start)) {
             int end = html.indexOf(']', start);
             if (end != -1) {
-                Date date = GlobalDecorator.UTC_MILLIS.get().parse(html, new ParsePosition(start + 1));
-                if (date != null) {
-                    long millisSinceEpoch = date.getTime();
+                try {
+                    long millisSinceEpoch = ZonedDateTime.parse(html.substring(start + 1, end), GlobalDecorator.UTC_MILLIS).toInstant().toEpochMilli();
+                    // Alternately: Instant.parse(html.substring(start + 1, end)).toEpochMilli()
                     Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
                     TimestampFormat format = TimestampFormatProvider.get();
                     format.markup(text, timestamp);
                     text.addMarkup(0, 26, "<span style=\"display: none\">", "</span>");
+                } catch (DateTimeParseException x) {
+                    // something else, ignore
                 }
             }
         }

@@ -32,11 +32,9 @@ import hudson.plugins.timestamper.TimestamperConfig;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.function.Supplier;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -49,12 +47,8 @@ public final class GlobalDecorator extends TaskListenerDecorator {
     
     private static final Logger LOGGER = Logger.getLogger(GlobalDecorator.class.getName());
 
-    // TODO java.time is thread-safe but I got lost figuring out how to use it… https://stackoverflow.com/a/29626123/12916 + https://stackoverflow.com/a/26539985/12916
-    static Supplier<DateFormat> UTC_MILLIS = () -> {
-        DateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // TODO java.time
-        f.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return f;
-    };
+    // Almost ISO_OFFSET_DATE_TIME, but uses .SSS instead of .nnnnnnnnn to show milliseconds instead of nanoseconds and uses X instead of Z so the offset shows up as `Z` rather than `+0000`.
+    static final DateTimeFormatter UTC_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     private static final long serialVersionUID = 1;
 
@@ -62,13 +56,12 @@ public final class GlobalDecorator extends TaskListenerDecorator {
 
     @Override
     public OutputStream decorate(final OutputStream logger) throws IOException, InterruptedException {
-        final DateFormat f = UTC_MILLIS.get();
         return new LineTransformationOutputStream() {
             @Override
             protected void eol(byte[] b, int len) throws IOException {
                 synchronized (logger) { // typically this will be a PrintStream
                     logger.write('[');
-                    logger.write(f.format(new Date()).getBytes(StandardCharsets.US_ASCII));
+                    logger.write(ZonedDateTime.now(ZoneOffset.UTC).format(UTC_MILLIS).getBytes(StandardCharsets.US_ASCII));
                     logger.write(']');
                     logger.write(' ');
                     logger.write(b, 0, len);
