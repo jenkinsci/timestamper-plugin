@@ -154,7 +154,7 @@ public class LogFileReader implements Closeable {
    * @throws IOException
    */
   public Optional<Line> nextLine() throws IOException {
-    if (!build.getLogFile().exists()) {
+    if (!build.getLogFile().exists()) { // TODO JENKINS-54128 rather use getLogText
       return Optional.absent();
     }
     if (reader == null) {
