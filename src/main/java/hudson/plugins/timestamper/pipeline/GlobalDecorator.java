@@ -31,6 +31,7 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.TimestamperConfig;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -60,11 +61,15 @@ public final class GlobalDecorator extends TaskListenerDecorator {
             @Override
             protected void eol(byte[] b, int len) throws IOException {
                 synchronized (logger) { // typically this will be a PrintStream
-                    logger.write('[');
-                    logger.write(ZonedDateTime.now(ZoneOffset.UTC).format(UTC_MILLIS).getBytes(StandardCharsets.US_ASCII));
-                    logger.write(']');
-                    logger.write(' ');
-                    logger.write(b, 0, len);
+                    ByteBuffer buffer = ByteBuffer.allocate(1 + 24 + 1 + 1 + len);
+                    buffer.put((byte)'[');
+                    buffer.put(ZonedDateTime.now(ZoneOffset.UTC).format(UTC_MILLIS).getBytes(StandardCharsets.US_ASCII));
+                    buffer.put((byte)']');
+                    buffer.put((byte)' ');
+                    buffer.put(b, 0, len);
+                    // ByteBuffer documentation specifies that `ByteBuffer#array` will succeed and that the underlying
+                    // array offset is 0, but does not specify what the underlying array length will be.
+                    logger.write(buffer.array(), 0, buffer.position());
                 }
             }
             @Override
