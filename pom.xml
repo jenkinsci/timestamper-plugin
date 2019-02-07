@@ -31,6 +31,10 @@
       <name>Steven Brown</name>
       <email>StevenGBrown@gmail.com</email>
     </developer>
+    <developer>
+      <id>jglick</id>
+      <name>Jesse Glick</name>
+    </developer>
   </developers>
 
   <scm>
@@ -62,7 +66,7 @@
   </distributionManagement>
 
   <properties>
-    <revision>1.8.11</revision>
+    <revision>1.9</revision>
     <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.121.1</jenkins.version>
     <java.level>8</java.level>
