@@ -32,5 +32,8 @@ THE SOFTWARE.
     <f:entry title="${%Elapsed time format}" field="elapsedTimeFormat">
       <f:textbox/>
     </f:entry>
+    <f:entry title="${%Enabled for all Pipeline builds}" field="allPipelines">
+      <f:checkbox/>
+    </f:entry>
   </f:section>
 </j:jelly>

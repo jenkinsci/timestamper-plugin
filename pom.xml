@@ -5,11 +5,12 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>2.37</version>
+    <version>3.25</version>
+    <relativePath />
   </parent>
 
   <artifactId>timestamper</artifactId>
-  <version>1.8.11-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>Timestamper</name>
@@ -36,7 +37,7 @@
     <connection>scm:git:git://github.com/jenkinsci/timestamper-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/timestamper-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/timestamper-plugin</url>
-    <tag>HEAD</tag>
+    <tag>${scmTag}</tag>
   </scm>
 
   <repositories>
@@ -61,8 +62,11 @@
   </distributionManagement>
 
   <properties>
-    <jenkins.version>1.608</jenkins.version> <!-- SimpleBuildWrapper.createLoggerDecorator -->
-    <java.level>7</java.level>
+    <revision>1.8.11</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <jenkins.version>2.121.1</jenkins.version>
+    <java.level>8</java.level>
+    <useBeta>true</useBeta>
   </properties>
 
   <build>
@@ -75,6 +79,7 @@
           <threshold>Low</threshold>
         </configuration>
       </plugin>
+      <!-- TODO pending https://github.com/andrena/macker-maven-plugin/pull/6 this is incompatible with Incrementals: target/target/generated-sources/localizer/hudson/plugins/timestamper/Messages.java:[20,8] duplicate class: hudson.plugins.timestamper.Messages
       <plugin>
         <groupId>de.andrena.tools.macker</groupId>
         <artifactId>macker-maven-plugin</artifactId>
@@ -91,6 +96,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
     </plugins>
   </build>
 
@@ -98,8 +104,12 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-step-api</artifactId>
-      <version>1.7</version>
-      <optional>true</optional>
+      <version>2.16</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-api</artifactId>
+      <version>2.30</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -137,5 +147,37 @@
       <version>2.4.6</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-job</artifactId>
+      <version>2.26</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-cps</artifactId>
+      <version>2.58</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-durable-task-step</artifactId>
+      <version>2.22</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jenkins-ci.plugins</groupId>
+        <artifactId>scm-api</artifactId>
+        <version>2.2.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jenkins-ci.plugins</groupId>
+        <artifactId>structs</artifactId>
+        <version>1.17</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

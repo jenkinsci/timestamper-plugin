@@ -58,6 +58,7 @@ import hudson.model.AbstractBuild;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.io.LogFileReader.Line;
+import java.lang.reflect.Field;
 import jenkins.model.Jenkins;
 
 /**
@@ -84,9 +85,14 @@ public class LogFileReaderTest {
 
   private File nonExistantFile;
 
+  private Field INSECURE; // SECURITY-382
+
   /** @throws Exception */
   @Before
   public void setUp() throws Exception {
+    INSECURE = ConsoleNote.class.getDeclaredField("INSECURE");
+    INSECURE.setAccessible(true);
+    INSECURE.set(null, true);
     build = mock(AbstractBuild.class);
     when(build.getLogInputStream()).thenCallRealMethod();
     when(build.getLogReader()).thenCallRealMethod();
@@ -122,9 +128,10 @@ public class LogFileReaderTest {
 
   /** */
   @After
-  public void tearDown() {
+  public void tearDown() throws Exception {
     Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
     logFileReader.close();
+    INSECURE.set(null, false);
   }
 
   /** @throws Exception */
