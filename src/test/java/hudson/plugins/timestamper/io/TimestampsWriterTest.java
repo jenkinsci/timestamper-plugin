@@ -40,8 +40,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -161,7 +159,7 @@ public class TimestampsWriterTest {
     byte[] expectedHash = MessageDigest.getInstance("SHA-1").digest(fileContents);
     assertThat(
         Files.toString(timestampsHashFile, Charsets.US_ASCII).trim(),
-        is(DatatypeConverter.printHexBinary(expectedHash).toLowerCase()));
+        is(bytesToHex(expectedHash).toLowerCase()));
   }
 
   /** @throws Exception */
@@ -193,5 +191,17 @@ public class TimestampsWriterTest {
       timestampData.add((int) Varint.read(inputStream));
     }
     return timestampData;
+  }
+
+  public static String bytesToHex(byte[] bytes) {
+    final char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+    char[] hexChars = new char[bytes.length * 2];
+    for ( int j = 0; j < bytes.length; j++ ) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = hexArray[v >>> 4];
+      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    }
+    return new String(hexChars);
   }
 }
