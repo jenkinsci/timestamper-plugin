@@ -193,7 +193,7 @@ public class TimestampsWriterTest {
     return timestampData;
   }
 
-  public static String bytesToHex(byte[] bytes) {
+  private String bytesToHex(byte[] bytes) {
     final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     char[] hexChars = new char[bytes.length * 2];
