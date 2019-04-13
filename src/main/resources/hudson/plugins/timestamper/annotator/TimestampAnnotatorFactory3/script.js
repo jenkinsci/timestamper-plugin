@@ -163,7 +163,9 @@ function onLoad() {
         mutations.forEach(function(mutation) {
             var addedNodes = mutation.addedNodes;
             for (var i = 0; i < addedNodes.length; i++) {
-                if (addedNodes[i].querySelector('span.timestamp')) {
+                var node = addedNodes[i];
+                // Element has querySelector, Node in general does not
+                if (node.querySelector && node.querySelector('span.timestamp')) {
                     observer.disconnect();
                     displaySettings();
                     return;
