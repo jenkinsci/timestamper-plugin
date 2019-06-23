@@ -181,17 +181,24 @@ public class TimestampAnnotatorTest {
   private List<Timestamp> annotate() throws Exception {
     ConsoleLogParser logParser = new MockConsoleLogParser();
     ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
+    Supplier<TimestampFormat> originalSupplier =
+        Whitebox.getInternalState(TimestampFormatProvider.class, Supplier.class);
+
     captureFormattedTimestamps();
-    int iterations = 0;
-    while (annotator != null) {
-      if (serialize) {
-        annotator = (ConsoleAnnotator) SerializationUtils.clone(annotator);
+    try {
+      int iterations = 0;
+      while (annotator != null) {
+        if (serialize) {
+          annotator = (ConsoleAnnotator) SerializationUtils.clone(annotator);
+        }
+        annotator = annotator.annotate(build, mock(MarkupText.class));
+        iterations++;
+        if (iterations > 100) {
+          throw new AssertionError("annotator is not terminating");
+        }
       }
-      annotator = annotator.annotate(build, mock(MarkupText.class));
-      iterations++;
-      if (iterations > 100) {
-        throw new AssertionError("annotator is not terminating");
-      }
+    } finally {
+      Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class, originalSupplier);
     }
     return capturedTimestamps;
   }

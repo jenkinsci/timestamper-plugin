@@ -33,6 +33,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,6 +64,8 @@ public class TimestampNoteTest {
   private static final long ELAPSED = 4;
 
   private static final long TIME = 3;
+
+  private Supplier<TimestampFormat> originalSupplier;
 
   /** @return the test cases */
   @Parameters(name = "{0}, {1}")
@@ -116,6 +119,7 @@ public class TimestampNoteTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
+    originalSupplier = Whitebox.getInternalState(TimestampFormatProvider.class, Supplier.class);
     Whitebox.setInternalState(
         TimestampFormatProvider.class,
         new Supplier<TimestampFormat>() {
@@ -124,6 +128,11 @@ public class TimestampNoteTest {
             return format;
           }
         });
+  }
+
+  @After
+  public void tearDown() {
+    Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class, originalSupplier);
   }
 
   /** */
