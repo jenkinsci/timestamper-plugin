@@ -46,14 +46,6 @@ public class PipelineTest {
     @Test
     public void globalDecoratorAnnotator() throws Exception {
         WorkflowJob project = r.createProject(WorkflowJob.class);
-        /*
-         * TODO: ansicolor 0.6.1 and earlier don't properly support multi-line color output, so the
-         * multi-line color portions of this test aren't effective with those versions of ansicolor.
-         * However, we can't bump ansicolor to 0.6.2 or later because it requires Jenkins 2.145 or
-         * later, which is too high a bump for this plugin at present. When the minimum Jenkins
-         * version for this plugin is 2.145 or later, we should bump ansicolor to 0.6.2 or later
-         * to ensure we are effectively testing multi-line color support.
-         */
         project.setDefinition(
                 new CpsFlowDefinition(
                         "node {\n"

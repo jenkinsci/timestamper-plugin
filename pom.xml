@@ -68,7 +68,7 @@
   <properties>
     <revision>1.10</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.121.2</jenkins.version>
+    <jenkins.version>2.150.3</jenkins.version>
     <java.level>8</java.level>
     <useBeta>true</useBeta>
   </properties>
@@ -154,7 +154,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>ansicolor</artifactId>
-      <version>0.5.3</version>
+      <version>0.6.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
