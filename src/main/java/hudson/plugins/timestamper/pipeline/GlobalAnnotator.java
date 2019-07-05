@@ -77,11 +77,14 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
         }
         long buildStartTime = build.getStartTimeInMillis();
         String html = text.toString(true);
-        int start;
-        if (html.startsWith("<span class=\"pipeline-new-node\" ")) { // cf. LogStorage.startStep
-            start = html.indexOf('>') + 1;
-        } else {
-            start = 0;
+        int start = 0;
+        // cf. LogStorage.startStep
+        if (html.startsWith("<span class=\"pipeline-new-node\" ", start)) {
+            start = html.indexOf('>', start) + 1;
+        }
+        // cf. AnsiHtmlOutputStream.setForegroundColor
+        if (html.startsWith("<span style=\"color", start)) {
+            start = html.indexOf('>', start) + 1;
         }
         if (html.startsWith("[", start)) {
             int end = html.indexOf(']', start);
