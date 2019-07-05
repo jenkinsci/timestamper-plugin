@@ -1,0 +1,2 @@
+_extends: .github
+tag-template: timestamper-$NEXT_MINOR_VERSION
