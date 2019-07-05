@@ -18,32 +18,24 @@ import java.util.stream.Collectors;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 
 public class PipelineTest {
 
-    private boolean originalAllPipelines;
-
-    @Rule public JenkinsRule r = new JenkinsRule();
-
     @Before
     public void setAllPipelines() {
         TimestamperConfig config = TimestamperConfig.get();
-        originalAllPipelines = config.isAllPipelines();
         config.setAllPipelines(true);
     }
 
-    @After
-    public void restoreAllPipelines() {
-        TimestamperConfig config = TimestamperConfig.get();
-        config.setAllPipelines(originalAllPipelines);
-    }
+    @Rule public JenkinsRule r = new JenkinsRule();
 
     @Test
+    @Issue("JENKINS-58102")
     public void globalDecoratorAnnotator() throws Exception {
         WorkflowJob project = r.createProject(WorkflowJob.class);
         project.setDefinition(
