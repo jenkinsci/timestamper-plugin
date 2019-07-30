@@ -46,7 +46,7 @@ import hudson.plugins.timestamper.io.TimestampsReader;
  *
  * @author Steven G. Brown
  */
-public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
+public final class TimestampAnnotator extends ConsoleAnnotator<Run<?, ?>> {
 
   private static final long serialVersionUID = 1L;
 
@@ -69,9 +69,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Object> {
 
   /** {@inheritDoc} */
   @Override
-  public ConsoleAnnotator<Object> annotate(Object context, MarkupText text) {
-    Run<?, ?> build = (Run<?, ?>) context;
-
+  public ConsoleAnnotator<Run<?, ?>> annotate(Run<?, ?> build, MarkupText text) {
     try {
       if (timestampsReader == null) {
         ConsoleLogParser.Result logPosition = logParser.seek(build);
