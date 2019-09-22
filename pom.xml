@@ -15,12 +15,12 @@
 
   <name>Timestamper</name>
   <description>Adds timestamps to the Console Output</description>
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Timestamper</url>
+  <url>https://wiki.jenkins.io/display/JENKINS/Timestamper</url>
 
   <licenses>
     <license>
       <name>The MIT License (MIT)</name>
-      <url>http://opensource.org/licenses/MIT</url>
+      <url>https://opensource.org/licenses/MIT</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -47,14 +47,14 @@
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
+      <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
+      <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
 
