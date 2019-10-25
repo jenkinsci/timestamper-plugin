@@ -86,6 +86,11 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
         if (html.startsWith("<span style=\"color", start)) {
             start = html.indexOf('>', start) + 1;
         }
+        // Generic wrapper style that any other ConsoleAnnotator can use
+        // to avoid conflict with Timestamper's detection.
+        if (html.startsWith("<span data-timestamper", start)) {
+            start = html.indexOf('>', start) + 1;
+        }
         if (html.startsWith("[", start)) {
             int end = html.indexOf(']', start);
             if (end != -1) {
