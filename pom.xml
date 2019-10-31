@@ -15,7 +15,7 @@
 
   <name>Timestamper</name>
   <description>Adds timestamps to the Console Output</description>
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Timestamper</url>
+  <url>https://github.com/jenkinsci/timestamper-plugin</url>
 
   <licenses>
     <license>
