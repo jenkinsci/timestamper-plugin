@@ -1,6 +1,6 @@
 # Jenkins Timestamper Plugin
 
-[![Jenkins Plugins](https://camo.githubusercontent.com/c40175c3a041f51ef54a8720643e53abf04a3d60/68747470733a2f2f696d672e736869656c64732e696f2f6a656e6b696e732f706c7567696e2f762f74696d657374616d706572)](https://plugins.jenkins.io/timestamper)
+[![Jenkins Plugins](https://img.shields.io/jenkins/plugin/v/timestamper)](https://plugins.jenkins.io/timestamper)
 
 The Timestamper Plugin adds timestamps to the Console Output of Jenkins jobs.
 
