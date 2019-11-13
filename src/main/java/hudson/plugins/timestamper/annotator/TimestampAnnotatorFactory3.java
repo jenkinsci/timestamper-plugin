@@ -41,17 +41,12 @@ import jenkins.YesNoMaybe;
  * @author Steven G. Brown
  */
 @Extension(dynamicLoadable = YesNoMaybe.YES)
-public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Object> {
+public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Run<?, ?>> {
 
   /** {@inheritDoc} */
   @Override
-  public ConsoleAnnotator<Object> newInstance(Object context) {
-    // Prior to Jenkins 2.145, context was the build class (see 7bc431f)
-    Class<?> contextClass = context instanceof Class<?> ? (Class<?>) context : context.getClass();
-    if (!Run.class.isAssignableFrom(contextClass)) {
-      return null; // something else
-    }
-    if (TimestampNote.useTimestampNotes(contextClass)) {
+  public ConsoleAnnotator<Run<?, ?>> newInstance(Run<?, ?> build) {
+    if (TimestampNote.useTimestampNotes(build.getClass())) {
       return null; // not using this system
     }
     StaplerRequest request = Stapler.getCurrentRequest();
