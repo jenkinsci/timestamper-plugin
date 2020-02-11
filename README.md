@@ -22,7 +22,7 @@ To enable timestamps for multiple builds at once, use the [Configuration Slicin
 
 **Since Timestamper 1.9**
 
-Set the global option to enable timestamps for all Pipeline builds (in "Manage Jenkins" -> "Configure"), or use the step as described below.
+Set the global option to enable timestamps for all Pipeline builds (in _**Manage Jenkins**_ -> _**Configure**_), or use the step as described below.
 
 ![](docs/images/allBuilds.png)
 
