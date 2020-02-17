@@ -70,7 +70,7 @@ public class SystemTimestampFormatTest {
     String systemTimeFormat = "HH:mm:ss";
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(
-        new SystemTimestampFormat(systemTimeFormat, Optional.<String>absent(), Locale.ENGLISH)
+        new SystemTimestampFormat(systemTimeFormat, Optional.absent(), Locale.ENGLISH)
             .apply(timestamp),
         is("00:00:42"));
   }
@@ -83,7 +83,7 @@ public class SystemTimestampFormatTest {
     String systemTimeFormat = "HH:mm:ss";
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(
-        new SystemTimestampFormat(systemTimeFormat, Optional.<String>absent(), Locale.ENGLISH)
+        new SystemTimestampFormat(systemTimeFormat, Optional.absent(), Locale.ENGLISH)
             .apply(timestamp),
         is("01:00:42"));
   }
@@ -96,7 +96,7 @@ public class SystemTimestampFormatTest {
     String systemTimeFormat = "HH:mm:ss";
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(
-        new SystemTimestampFormat(systemTimeFormat, Optional.<String>absent(), Locale.ENGLISH)
+        new SystemTimestampFormat(systemTimeFormat, Optional.absent(), Locale.ENGLISH)
             .apply(timestamp),
         is("02:00:42"));
   }
@@ -131,7 +131,7 @@ public class SystemTimestampFormatTest {
     String systemTimeFormat = "EEEE, d MMMM";
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(
-        new SystemTimestampFormat(systemTimeFormat, Optional.<String>absent(), Locale.ENGLISH)
+        new SystemTimestampFormat(systemTimeFormat, Optional.absent(), Locale.ENGLISH)
             .apply(timestamp),
         is("Thursday, 1 January"));
   }
@@ -142,7 +142,7 @@ public class SystemTimestampFormatTest {
     String systemTimeFormat = "EEEE, d MMMM";
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(
-        new SystemTimestampFormat(systemTimeFormat, Optional.<String>absent(), Locale.GERMAN)
+        new SystemTimestampFormat(systemTimeFormat, Optional.absent(), Locale.GERMAN)
             .apply(timestamp),
         is("Donnerstag, 1 Januar"));
   }
@@ -152,7 +152,7 @@ public class SystemTimestampFormatTest {
   public void testGetPlainTextUrl() {
     SystemTimestampFormat format =
         new SystemTimestampFormat(
-            "'<b>'HH:mm:ss'</b> '", Optional.<String>absent(), Locale.ENGLISH);
+            "'<b>'HH:mm:ss'</b> '", Optional.absent(), Locale.ENGLISH);
     assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 
@@ -161,7 +161,7 @@ public class SystemTimestampFormatTest {
   public void testGetPlainTextUrl_excessWhitespace() {
     SystemTimestampFormat format =
         new SystemTimestampFormat(
-            " ' <b> ' HH:mm:ss ' </b> ' ", Optional.<String>absent(), Locale.ENGLISH);
+            " ' <b> ' HH:mm:ss ' </b> ' ", Optional.absent(), Locale.ENGLISH);
     assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 

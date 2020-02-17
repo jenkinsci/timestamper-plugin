@@ -161,7 +161,7 @@ public class LogFileReaderTest {
     assertThat("texts", texts, is(expectedTexts));
 
     List<Optional<Timestamp>> expectedTimestamps =
-        ImmutableList.of(Optional.<Timestamp>absent(), Optional.of(timestamp));
+        ImmutableList.of(Optional.absent(), Optional.of(timestamp));
     assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
@@ -209,7 +209,7 @@ public class LogFileReaderTest {
 
     List<Optional<Timestamp>> expectedTimestamps = new ArrayList<Optional<Timestamp>>();
     for (int i = 0; i < logFileContents.size(); i++) {
-      expectedTimestamps.add(Optional.<Timestamp>absent());
+      expectedTimestamps.add(Optional.absent());
     }
     assertThat(timestamps, is(expectedTimestamps));
   }

@@ -112,7 +112,7 @@ public class TimestampFormatProviderTest {
   }
 
   private static SystemTimestampFormat system() {
-    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.<String>absent(), Locale.ENGLISH);
+    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.absent(), Locale.ENGLISH);
   }
 
   private static SystemTimestampFormat system(String timeZoneId) {

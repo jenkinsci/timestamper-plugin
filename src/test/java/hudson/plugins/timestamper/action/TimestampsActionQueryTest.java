@@ -209,7 +209,7 @@ public class TimestampsActionQueryTest {
     // Start line and end line
     List<Optional<Integer>> lineValues =
         ImmutableList.of(
-            Optional.of(-1), Optional.of(0), Optional.of(1), Optional.<Integer>absent());
+            Optional.of(-1), Optional.of(0), Optional.of(1), Optional.absent());
     for (Optional<Integer> startLine : lineValues) {
       for (Optional<Integer> endLine : lineValues) {
         List<String> params = new ArrayList<String>();

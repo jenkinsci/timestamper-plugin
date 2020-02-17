@@ -67,7 +67,7 @@ public class TimestampsWriter implements Closeable {
    * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
-    this(build, Optional.<MessageDigest>absent());
+    this(build, Optional.absent());
   }
 
   /**

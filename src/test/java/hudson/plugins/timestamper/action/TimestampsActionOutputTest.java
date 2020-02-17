@@ -252,13 +252,13 @@ public class TimestampsActionOutputTest {
     for (Timestamp timestamp : TIMESTAMPS) {
       readStubbing = readStubbing.thenReturn(Optional.of(timestamp));
     }
-    readStubbing.thenReturn(Optional.<Timestamp>absent());
+    readStubbing.thenReturn(Optional.absent());
 
     List<Line> lines = new ArrayList<Line>();
     for (int i = 1; i <= TIMESTAMPS.size(); i++) {
       Line line = mock(Line.class);
       when(line.getText()).thenReturn("line" + i);
-      when(line.readTimestamp()).thenReturn(Optional.<Timestamp>absent());
+      when(line.readTimestamp()).thenReturn(Optional.absent());
       lines.add(line);
     }
 
@@ -267,7 +267,7 @@ public class TimestampsActionOutputTest {
     for (Line line : lines) {
       nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
-    nextLineStubbing.thenReturn(Optional.<Line>absent());
+    nextLineStubbing.thenReturn(Optional.absent());
     when(logFileReader.lineCount()).thenReturn(6);
 
     reader =
@@ -318,14 +318,14 @@ public class TimestampsActionOutputTest {
                 return query.appendLogLine ? input.replaceFirst("^.*(  \\w*)$", "$1") : "";
               }
             });
-    when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
+    when(timestampsReader.read()).thenReturn(Optional.absent());
     assertThat(readLines(), is(expectedLines));
   }
 
   /** @throws Exception */
   @Test
   public void testRead_timestampsInLogFileOnly() throws Exception {
-    when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
+    when(timestampsReader.read()).thenReturn(Optional.absent());
 
     List<Line> lines = new ArrayList<Line>();
     int i = 1;
@@ -341,7 +341,7 @@ public class TimestampsActionOutputTest {
     for (Line line : lines) {
       nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
-    nextLineStubbing.thenReturn(Optional.<Line>absent());
+    nextLineStubbing.thenReturn(Optional.absent());
 
     assertThat(readLines(), is(expectedLines));
   }
@@ -361,7 +361,7 @@ public class TimestampsActionOutputTest {
                 }
               });
     }
-    when(logFileReader.nextLine()).thenReturn(Optional.<Line>absent());
+    when(logFileReader.nextLine()).thenReturn(Optional.absent());
     assertThat(readLines(), is(expectedLines));
   }
 
@@ -370,8 +370,8 @@ public class TimestampsActionOutputTest {
   public void testRead_noTimestampsAndNoLogFile() throws Exception {
     assumeThat(query.currentTime, is(false));
 
-    when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
-    when(logFileReader.nextLine()).thenReturn(Optional.<Line>absent());
+    when(timestampsReader.read()).thenReturn(Optional.absent());
+    when(logFileReader.nextLine()).thenReturn(Optional.absent());
     assertThat(readLines(), is(Collections.<String>emptyList()));
   }
 
