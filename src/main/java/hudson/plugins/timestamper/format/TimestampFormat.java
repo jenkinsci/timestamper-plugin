@@ -23,9 +23,9 @@
  */
 package hudson.plugins.timestamper.format;
 
-import com.google.common.base.Function;
 import hudson.MarkupText;
 import hudson.plugins.timestamper.Timestamp;
+import java.util.function.Function;
 
 /**
  * Format for displaying time-stamps.

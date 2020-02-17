@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.io;
 
-import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import hudson.model.Run;
@@ -36,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
 
@@ -112,19 +112,19 @@ public class TimestampsReader implements Serializable, Closeable {
   /**
    * Read the next time-stamp.
    *
-   * @return the next time-stamp, or {@link Optional#absent()} if there are no more to read
+   * @return the next time-stamp, or {@link Optional#empty()} if there are no more to read
    * @throws IOException
    */
   public Optional<Timestamp> read() throws IOException {
     if (inputStream == null) {
       if (!timestampsFile.isFile()) {
-        return Optional.absent();
+        return Optional.empty();
       }
       inputStream = new FileInputStream(timestampsFile);
       ByteStreams.skipFully(inputStream, filePointer);
       inputStream = new BufferedInputStream(inputStream);
     }
-    Optional<Timestamp> timestamp = Optional.absent();
+    Optional<Timestamp> timestamp = Optional.empty();
     if (filePointer < timestampsFile.length()) {
       timestamp = Optional.of(readNext(inputStream));
     }
@@ -149,7 +149,7 @@ public class TimestampsReader implements Serializable, Closeable {
     long elapsedMillisDiff = Varint.read(countingInputStream);
 
     elapsedMillis += elapsedMillisDiff;
-    millisSinceEpoch = timeShiftsReader.getTime(entry).or(millisSinceEpoch + elapsedMillisDiff);
+    millisSinceEpoch = timeShiftsReader.getTime(entry).orElse(millisSinceEpoch + elapsedMillisDiff);
     filePointer += countingInputStream.getCount();
     entry++;
     return new Timestamp(elapsedMillis, millisSinceEpoch);

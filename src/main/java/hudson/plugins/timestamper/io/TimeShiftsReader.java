@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.io;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CountingInputStream;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -36,6 +35,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 
 /**
@@ -67,7 +67,7 @@ class TimeShiftsReader implements Serializable {
   /**
    * Get the time recorded for the given time-stamp entry.
    *
-   * @return the recorded number of milliseconds since the epoch, or {@link Optional#absent()} if no
+   * @return the recorded number of milliseconds since the epoch, or {@link Optional#empty()} if no
    *     time shift was recorded for that time-stamp entry
    * @throws IOException
    */
@@ -75,7 +75,7 @@ class TimeShiftsReader implements Serializable {
     if (timeShifts == null) {
       timeShifts = ImmutableMap.copyOf(readTimeShifts());
     }
-    return Optional.fromNullable(timeShifts.get(timestampEntry));
+    return Optional.ofNullable(timeShifts.get(timestampEntry));
   }
 
   private Map<Long, Long> readTimeShifts() throws IOException {

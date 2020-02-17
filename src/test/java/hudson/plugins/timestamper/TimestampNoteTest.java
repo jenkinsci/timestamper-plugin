@@ -29,12 +29,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Supplier;
 import hudson.MarkupText;
 import hudson.model.Run;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import java.util.Arrays;
+import java.util.function.Supplier;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.After;

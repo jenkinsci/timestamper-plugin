@@ -31,10 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.LogFileReader.Line;
@@ -45,7 +42,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,23 +62,13 @@ import org.mockito.stubbing.OngoingStubbing;
 @RunWith(Parameterized.class)
 public class TimestampsActionOutputTest {
 
-  private static final Optional<Integer> NO_ENDLINE = Optional.absent();
+  private static final Optional<Integer> NO_ENDLINE = Optional.empty();
 
   private static final Function<Timestamp, String> FORMAT =
-      new Function<Timestamp, String>() {
-        @Override
-        public String apply(@Nonnull Timestamp timestamp) {
-          return String.valueOf(timestamp.millisSinceEpoch);
-        }
-      };
+      timestamp -> String.valueOf(timestamp.millisSinceEpoch);
 
   private static final Function<Timestamp, String> ELAPSED_FORMAT =
-      new Function<Timestamp, String>() {
-        @Override
-        public String apply(@Nonnull Timestamp timestamp) {
-          return String.valueOf(timestamp.elapsedMillis);
-        }
-      };
+      timestamp -> String.valueOf(timestamp.elapsedMillis);
 
   private static final List<Timestamp> TIMESTAMPS =
       ImmutableList.of(
@@ -252,13 +241,13 @@ public class TimestampsActionOutputTest {
     for (Timestamp timestamp : TIMESTAMPS) {
       readStubbing = readStubbing.thenReturn(Optional.of(timestamp));
     }
-    readStubbing.thenReturn(Optional.absent());
+    readStubbing.thenReturn(Optional.empty());
 
     List<Line> lines = new ArrayList<Line>();
     for (int i = 1; i <= TIMESTAMPS.size(); i++) {
       Line line = mock(Line.class);
       when(line.getText()).thenReturn("line" + i);
-      when(line.readTimestamp()).thenReturn(Optional.absent());
+      when(line.readTimestamp()).thenReturn(Optional.empty());
       lines.add(line);
     }
 
@@ -267,7 +256,7 @@ public class TimestampsActionOutputTest {
     for (Line line : lines) {
       nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
-    nextLineStubbing.thenReturn(Optional.absent());
+    nextLineStubbing.thenReturn(Optional.empty());
     when(logFileReader.lineCount()).thenReturn(6);
 
     reader =
@@ -310,22 +299,17 @@ public class TimestampsActionOutputTest {
 
     // Remove formatted timestamps from expected result
     expectedLines =
-        Lists.transform(
-            expectedLines,
-            new Function<String, String>() {
-              @Override
-              public String apply(@Nonnull String input) {
-                return query.appendLogLine ? input.replaceFirst("^.*(  \\w*)$", "$1") : "";
-              }
-            });
-    when(timestampsReader.read()).thenReturn(Optional.absent());
+        expectedLines.stream()
+            .map(input -> query.appendLogLine ? input.replaceFirst("^.*(  \\w*)$", "$1") : "")
+            .collect(Collectors.toList());
+    when(timestampsReader.read()).thenReturn(Optional.empty());
     assertThat(readLines(), is(expectedLines));
   }
 
   /** @throws Exception */
   @Test
   public void testRead_timestampsInLogFileOnly() throws Exception {
-    when(timestampsReader.read()).thenReturn(Optional.absent());
+    when(timestampsReader.read()).thenReturn(Optional.empty());
 
     List<Line> lines = new ArrayList<Line>();
     int i = 1;
@@ -341,7 +325,7 @@ public class TimestampsActionOutputTest {
     for (Line line : lines) {
       nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
-    nextLineStubbing.thenReturn(Optional.absent());
+    nextLineStubbing.thenReturn(Optional.empty());
 
     assertThat(readLines(), is(expectedLines));
   }
@@ -352,16 +336,11 @@ public class TimestampsActionOutputTest {
     if (query.appendLogLine) {
       // Remove log line from expected result
       expectedLines =
-          Lists.transform(
-              expectedLines,
-              new Function<String, String>() {
-                @Override
-                public String apply(@Nonnull String input) {
-                  return input.replaceFirst("\\w*$", "");
-                }
-              });
+          expectedLines.stream()
+              .map(input -> input.replaceFirst("\\w*$", ""))
+              .collect(Collectors.toList());
     }
-    when(logFileReader.nextLine()).thenReturn(Optional.absent());
+    when(logFileReader.nextLine()).thenReturn(Optional.empty());
     assertThat(readLines(), is(expectedLines));
   }
 
@@ -370,8 +349,8 @@ public class TimestampsActionOutputTest {
   public void testRead_noTimestampsAndNoLogFile() throws Exception {
     assumeThat(query.currentTime, is(false));
 
-    when(timestampsReader.read()).thenReturn(Optional.absent());
-    when(logFileReader.nextLine()).thenReturn(Optional.absent());
+    when(timestampsReader.read()).thenReturn(Optional.empty());
+    when(logFileReader.nextLine()).thenReturn(Optional.empty());
     assertThat(readLines(), is(Collections.<String>emptyList()));
   }
 

@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import hudson.PluginManager;
@@ -48,6 +47,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.GZIPOutputStream;
 import jenkins.model.Jenkins;
 import org.apache.commons.codec.binary.Base64OutputStream;
@@ -161,7 +161,7 @@ public class LogFileReaderTest {
     assertThat("texts", texts, is(expectedTexts));
 
     List<Optional<Timestamp>> expectedTimestamps =
-        ImmutableList.of(Optional.absent(), Optional.of(timestamp));
+        ImmutableList.of(Optional.empty(), Optional.of(timestamp));
     assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
@@ -169,7 +169,7 @@ public class LogFileReaderTest {
   @Test
   public void testNextLine_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);
-    assertThat(logFileReader.nextLine(), is(Optional.<Line>absent()));
+    assertThat(logFileReader.nextLine(), is(Optional.empty()));
   }
 
   /** @throws Exception */
@@ -209,7 +209,7 @@ public class LogFileReaderTest {
 
     List<Optional<Timestamp>> expectedTimestamps = new ArrayList<Optional<Timestamp>>();
     for (int i = 0; i < logFileContents.size(); i++) {
-      expectedTimestamps.add(Optional.absent());
+      expectedTimestamps.add(Optional.empty());
     }
     assertThat(timestamps, is(expectedTimestamps));
   }
