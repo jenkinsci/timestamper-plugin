@@ -25,19 +25,16 @@ package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Strings;
+import hudson.model.Action;
+import hudson.model.Run;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-
-import com.google.common.base.Strings;
-
-import hudson.model.Action;
-import hudson.model.Run;
 
 /**
  * Action which serves a page of time-stamps. The format of this page will not change, so it can be

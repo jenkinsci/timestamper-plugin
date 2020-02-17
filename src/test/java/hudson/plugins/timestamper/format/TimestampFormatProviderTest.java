@@ -28,22 +28,19 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-
-import com.google.common.base.Optional;
 
 /**
  * Unit test for the {@link TimestampFormatProvider} class.

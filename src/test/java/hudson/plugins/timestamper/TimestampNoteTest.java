@@ -29,8 +29,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Supplier;
+import hudson.MarkupText;
+import hudson.model.Run;
+import hudson.plugins.timestamper.format.TimestampFormat;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import java.util.Arrays;
-
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.After;
@@ -43,13 +47,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-
-import com.google.common.base.Supplier;
-
-import hudson.MarkupText;
-import hudson.model.Run;
-import hudson.plugins.timestamper.format.TimestampFormat;
-import hudson.plugins.timestamper.format.TimestampFormatProvider;
 
 /**
  * Unit test for the {@link TimestampNote} class.

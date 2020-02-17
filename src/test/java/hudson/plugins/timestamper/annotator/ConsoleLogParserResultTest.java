@@ -23,11 +23,10 @@
  */
 package hudson.plugins.timestamper.annotator;
 
-import org.junit.Test;
-
 import hudson.plugins.timestamper.annotator.ConsoleLogParser.Result;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
+import org.junit.Test;
 
 /**
  * Unit test for the {@link Result} class.

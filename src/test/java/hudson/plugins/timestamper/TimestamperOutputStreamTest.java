@@ -32,14 +32,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import hudson.plugins.timestamper.io.TimestampsWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import hudson.plugins.timestamper.io.TimestampsWriter;
 
 /**
  * Unit test for the TimestamperOutputStream class.

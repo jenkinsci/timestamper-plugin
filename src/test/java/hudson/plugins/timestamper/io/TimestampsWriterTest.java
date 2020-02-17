@@ -31,6 +31,11 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
+import com.google.common.io.CountingInputStream;
+import com.google.common.io.Files;
+import hudson.model.Run;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,13 +51,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Optional;
-import com.google.common.io.CountingInputStream;
-import com.google.common.io.Files;
-
-import hudson.model.Run;
 
 /**
  * Unit test for the {@link TimestampsWriter} class.

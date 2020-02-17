@@ -28,16 +28,28 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
+import hudson.PluginManager;
+import hudson.console.ConsoleNote;
+import hudson.model.AbstractBuild;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.TimestampNote;
+import hudson.plugins.timestamper.io.LogFileReader.Line;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
-
+import jenkins.model.Jenkins;
 import org.apache.commons.codec.binary.Base64OutputStream;
 import org.junit.After;
 import org.junit.Before;
@@ -45,21 +57,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
-
-import hudson.PluginManager;
-import hudson.console.ConsoleNote;
-import hudson.model.AbstractBuild;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.TimestampNote;
-import hudson.plugins.timestamper.io.LogFileReader.Line;
-import java.lang.reflect.Field;
-import jenkins.model.Jenkins;
 
 /**
  * Unit test for {@link LogFileReader}.

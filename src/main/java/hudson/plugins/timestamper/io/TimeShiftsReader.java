@@ -23,6 +23,11 @@
  */
 package hudson.plugins.timestamper.io;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.io.CountingInputStream;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.model.Run;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,15 +36,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.CountingInputStream;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.model.Run;
 
 /**
  * Read the time-shifts for a build from disk.

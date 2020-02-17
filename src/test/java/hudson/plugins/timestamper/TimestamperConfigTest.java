@@ -27,12 +27,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
-
-import org.junit.Test;
-
 import hudson.util.XStream2;
+import java.util.Arrays;
 import org.junit.Rule;
+import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 /**

@@ -23,9 +23,6 @@
  */
 package hudson.plugins.timestamper.annotator;
 
-import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
-
 import hudson.Extension;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
@@ -34,6 +31,8 @@ import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import jenkins.YesNoMaybe;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Provides the initial {@link TimestampAnnotator} for an annotated console output.

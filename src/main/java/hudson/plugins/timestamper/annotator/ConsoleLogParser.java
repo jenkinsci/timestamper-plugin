@@ -23,20 +23,16 @@
  */
 package hudson.plugins.timestamper.annotator;
 
+import com.google.common.io.ByteStreams;
+import hudson.model.Run;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Objects;
-
 import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
-import com.google.common.io.ByteStreams;
-
-import hudson.model.Run;
 
 /**
  * Parser that is able to find a position in the console log file of a build.

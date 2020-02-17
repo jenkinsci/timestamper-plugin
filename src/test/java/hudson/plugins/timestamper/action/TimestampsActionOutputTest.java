@@ -31,15 +31,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.io.LogFileReader;
+import hudson.plugins.timestamper.io.LogFileReader.Line;
+import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.Nonnull;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,16 +54,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.stubbing.OngoingStubbing;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.LogFileReader.Line;
-import hudson.plugins.timestamper.io.TimestampsReader;
 
 /**
  * Unit test for the {@link TimestampsActionOutput} class.

@@ -26,19 +26,16 @@ package hudson.plugins.timestamper.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.google.common.base.Optional;
+import hudson.plugins.timestamper.Timestamp;
 import java.util.Locale;
 import java.util.TimeZone;
-
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
-
-import com.google.common.base.Optional;
-
-import hudson.plugins.timestamper.Timestamp;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 
 /**
  * Unit test for the {@link SystemTimestampFormat} class.
