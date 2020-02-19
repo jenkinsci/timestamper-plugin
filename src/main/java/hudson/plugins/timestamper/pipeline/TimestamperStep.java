@@ -124,6 +124,7 @@ public class TimestamperStep extends Step {
     /**
      * Serve the help file.
      */
+    @Override
     public void doHelp(StaplerRequest request, StaplerResponse response) throws IOException {
       response.setContentType("text/html;charset=UTF-8");
       PrintWriter writer = response.getWriter();
