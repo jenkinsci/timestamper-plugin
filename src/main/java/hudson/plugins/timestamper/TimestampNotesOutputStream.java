@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import hudson.console.LineTransformationOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Output stream that writes each line to the provided delegate output stream after inserting a
@@ -66,7 +67,7 @@ public class TimestampNotesOutputStream extends LineTransformationOutputStream {
   protected void eol(byte[] b, int len) throws IOException {
     long now = System.currentTimeMillis();
     if (now != lastTime) {
-      lastNote = new TimestampNote(now - buildStartTime, now).encode().getBytes("UTF-8");
+      lastNote = new TimestampNote(now - buildStartTime, now).encode().getBytes(StandardCharsets.UTF_8);
       lastTime = now;
     }
     delegate.write(lastNote);
