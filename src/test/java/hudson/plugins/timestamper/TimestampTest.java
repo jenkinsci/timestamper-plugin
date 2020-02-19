@@ -45,7 +45,7 @@ public class TimestampTest {
     assertThat(
         Arrays.asList(
             timestamp.elapsedMillis, timestamp.elapsedMillisKnown, timestamp.millisSinceEpoch),
-        is(Arrays.asList(123l, true, 42000l)));
+        is(Arrays.asList(123L, true, 42000L)));
   }
 
   /** */
@@ -55,7 +55,7 @@ public class TimestampTest {
     assertThat(
         Arrays.asList(
             timestamp.elapsedMillis, timestamp.elapsedMillisKnown, timestamp.millisSinceEpoch),
-        is(Arrays.asList(0l, false, 42000l)));
+        is(Arrays.asList(0L, false, 42000L)));
   }
 
   /** */

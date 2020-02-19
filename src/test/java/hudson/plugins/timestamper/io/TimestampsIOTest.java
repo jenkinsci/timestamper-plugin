@@ -59,7 +59,7 @@ public class TimestampsIOTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    Whitebox.setInternalState(build, "timestamp", 1l);
+    Whitebox.setInternalState(build, "timestamp", 1L);
 
     reader = new TimestampsReader(build);
     writer = new TimestampsWriter(build);

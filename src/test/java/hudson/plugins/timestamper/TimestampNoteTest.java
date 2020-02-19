@@ -90,7 +90,7 @@ public class TimestampNoteTest {
 
   private static TimestampNote note(Long elapsedMillis, long millisSinceEpoch) {
     TimestampNote note =
-        new TimestampNote(elapsedMillis == null ? 0l : elapsedMillis, millisSinceEpoch);
+        new TimestampNote(elapsedMillis == null ? 0L : elapsedMillis, millisSinceEpoch);
     if (elapsedMillis == null) {
       Whitebox.setInternalState(note, "elapsedMillis", (Object) null);
     }
