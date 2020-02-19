@@ -49,7 +49,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class PrecisionTimestampFormatTest {
 
-  private static final List<Timestamp> TIMESTAMPS =
+  private static final ImmutableList<Timestamp> TIMESTAMPS =
       ImmutableList.of(
           new Timestamp(0, TimeUnit.SECONDS.toMillis(1)),
           //

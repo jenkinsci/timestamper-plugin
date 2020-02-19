@@ -71,7 +71,7 @@ public class TimestampsActionOutputTest {
   private static final Function<Timestamp, String> ELAPSED_FORMAT =
       timestamp -> String.valueOf(timestamp.elapsedMillis);
 
-  private static final List<Timestamp> TIMESTAMPS =
+  private static final ImmutableList<Timestamp> TIMESTAMPS =
       ImmutableList.of(
           new Timestamp(0, 1),
           //
