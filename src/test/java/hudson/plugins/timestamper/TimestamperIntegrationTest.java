@@ -1,7 +1,6 @@
 package hudson.plugins.timestamper;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import com.gargoylesoftware.htmlunit.WebClientUtil;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -60,9 +59,8 @@ public class TimestamperIntegrationTest {
         for (int i = 0; i < annotatedLines.size(); i++) {
             String annotatedLine = annotatedLines.get(i);
             String prefix = annotatedTimestamps.get(i) + ' ';
-            assertTrue(
-                    String.format("annotatedLine: '%s', prefix: '%s'", annotatedLine, prefix),
-                    annotatedLine.startsWith(prefix));
+            String unannotatedLine = unannotatedLines.get(i);
+            assertEquals(annotatedLine, prefix + unannotatedLine);
         }
     }
 
