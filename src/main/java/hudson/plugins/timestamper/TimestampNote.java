@@ -67,7 +67,6 @@ public final class TimestampNote extends ConsoleNote<Object> {
   }
 
   /**
-   * @param buildClass
    * @return whether time-stamp notes apply to that type of build
    */
   public static boolean useTimestampNotes(Class<?> buildClass) {

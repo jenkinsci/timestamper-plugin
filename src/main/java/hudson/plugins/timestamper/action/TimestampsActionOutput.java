@@ -80,8 +80,6 @@ public class TimestampsActionOutput {
   /**
    * Open a reader which provides the page of time-stamps.
    *
-   * @param build
-   * @param query
    * @return a {@link BufferedReader}
    */
   public static BufferedReader open(Run<?, ?> build, TimestampsActionQuery query) {

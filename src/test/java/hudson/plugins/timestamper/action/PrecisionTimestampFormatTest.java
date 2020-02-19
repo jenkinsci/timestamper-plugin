@@ -96,15 +96,12 @@ public class PrecisionTimestampFormatTest {
         });
   }
 
-  /** */
   @Parameter(0)
   public int precision;
 
-  /** */
   @Parameter(1)
   public List<String> expectedResult;
 
-  /** */
   @Test
   public void testApply() {
     PrecisionTimestampFormat format = new PrecisionTimestampFormat(precision);
@@ -117,7 +114,6 @@ public class PrecisionTimestampFormatTest {
     assertThat(result, is(expectedResult));
   }
 
-  /** */
   @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(PrecisionTimestampFormat.class).verify();

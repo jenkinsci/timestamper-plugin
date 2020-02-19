@@ -72,10 +72,8 @@ public class TimestampAnnotatorTest {
     return Arrays.asList(new Object[] {false}, new Object[] {true});
   }
 
-  /** */
   @Parameter public boolean serialize;
 
-  /** */
   @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private Run<?, ?> build;
@@ -86,7 +84,6 @@ public class TimestampAnnotatorTest {
 
   private TimestampsWriter writer;
 
-  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(Run.class);
@@ -98,13 +95,11 @@ public class TimestampAnnotatorTest {
     writer = new TimestampsWriter(build);
   }
 
-  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     writer.close();
   }
 
-  /** @throws Exception */
   @Test
   public void testStartOfLogFile() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -113,7 +108,6 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps));
   }
 
-  /** @throws Exception */
   @Test
   public void testStartOfLogFile_negativeLineNumber() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -122,7 +116,6 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps));
   }
 
-  /** @throws Exception */
   @Test
   public void testWithinFirstLine() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -131,7 +124,6 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /** @throws Exception */
   @Test
   public void testWithinFirstLine_negativeLineNumber() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -140,7 +132,6 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);
@@ -149,7 +140,6 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine_negativeLineNumber() throws Exception {
     List<Timestamp> timestamps = writeTimestamps(2);

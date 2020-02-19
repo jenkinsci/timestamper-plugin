@@ -65,21 +65,17 @@ public class TimeZoneUtilsTest {
     return TimeUnit.HOURS.toMillis(hours) + TimeUnit.MINUTES.toMillis(minutes);
   }
 
-  /** */
   @Parameter(0)
   public long offset;
 
-  /** */
   @Parameter(1)
   public String expectedTimeZoneId;
 
-  /** */
   @Test
   public void testGetTimeZoneId() {
     assertThat(TimeZoneUtils.getTimeZoneId(offset), is(expectedTimeZoneId));
   }
 
-  /** */
   @Test
   public void testValidTimeZone() {
     String timeZoneId = TimeZoneUtils.getTimeZoneId(offset);

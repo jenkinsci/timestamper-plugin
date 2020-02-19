@@ -62,9 +62,6 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Create a time-stamps writer for the given build.
-   *
-   * @param build
-   * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
     this(build, Optional.empty());
@@ -72,10 +69,6 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Create a time-stamps writer for the given build.
-   *
-   * @param build
-   * @param digest (optional)
-   * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest) throws IOException {
     this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(), digest);
@@ -99,7 +92,6 @@ public class TimestampsWriter implements Closeable {
    *
    * @param currentTimeMillis {@link System#currentTimeMillis()}
    * @param times the number of times to write the time-stamp
-   * @throws IOException
    */
   public void write(long currentTimeMillis, int times) throws IOException {
     if (times < 1) {
@@ -122,7 +114,6 @@ public class TimestampsWriter implements Closeable {
    * Open an output stream for writing to the time-stamps file.
    *
    * @return the output stream
-   * @throws FileNotFoundException
    */
   private OutputStream openTimestampsStream() throws FileNotFoundException {
     OutputStream outputStream = new FileOutputStream(timestampsFile);
@@ -134,10 +125,6 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Write each value to the given output stream as a Base 128 Varint.
-   *
-   * @param outputStream
-   * @param values
-   * @throws IOException
    */
   private void writeVarintsTo(OutputStream outputStream, long... values) throws IOException {
     int offset = 0;
@@ -150,9 +137,6 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Write n bytes of 0 to the given output stream.
-   *
-   * @param outputStream
-   * @param n
    */
   private void writeZerosTo(OutputStream outputStream, int n) throws IOException {
     Arrays.fill(buffer, (byte) 0);
@@ -166,8 +150,6 @@ public class TimestampsWriter implements Closeable {
 
   /**
    * Write a time-stamps digest file for the build.
-   *
-   * @throws IOException
    */
   public void writeDigest() throws IOException {
     if (timestampsDigest.isPresent()) {

@@ -45,7 +45,6 @@ import org.powermock.reflect.Whitebox;
  */
 public class TimestampsIOTest {
 
-  /** */
   @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private Run<?, ?> build;
@@ -54,7 +53,6 @@ public class TimestampsIOTest {
 
   private TimestampsReader reader;
 
-  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(Run.class);
@@ -65,14 +63,12 @@ public class TimestampsIOTest {
     writer = new TimestampsWriter(build);
   }
 
-  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     reader.close();
     writer.close();
   }
 
-  /** @throws Exception */
   @Test
   public void testReadFromStartWhileWriting() throws Exception {
     writer.write(2, 1);

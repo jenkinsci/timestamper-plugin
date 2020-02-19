@@ -69,7 +69,6 @@ class TimeShiftsReader implements Serializable {
    *
    * @return the recorded number of milliseconds since the epoch, or {@link Optional#empty()} if no
    *     time shift was recorded for that time-stamp entry
-   * @throws IOException
    */
   Optional<Long> getTime(long timestampEntry) throws IOException {
     if (timeShifts == null) {

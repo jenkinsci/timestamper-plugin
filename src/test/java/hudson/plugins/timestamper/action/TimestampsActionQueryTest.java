@@ -305,18 +305,14 @@ public class TimestampsActionQueryTest {
     return testCases;
   }
 
-  /** */
   @Parameter(0)
   public String queryString;
 
-  /** */
   @Parameter(1)
   public Object expectedResult;
 
-  /** */
   @Rule public ExpectedException thrown = ExpectedException.none();
 
-  /** */
   @Test
   public void testCreate() {
     if (expectedResult instanceof Class<?>) {
@@ -335,7 +331,6 @@ public class TimestampsActionQueryTest {
     testCreate();
   }
 
-  /** */
   @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(TimestampsActionQuery.class).suppress(Warning.NULL_FIELDS).verify();
@@ -344,7 +339,6 @@ public class TimestampsActionQueryTest {
   /**
    * Change the case of all query parameter names.
    *
-   * @param query
    * @return the modified query
    */
   private String changeCaseOfQueryParameterNames(String query) {

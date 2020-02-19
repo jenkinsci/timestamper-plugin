@@ -49,21 +49,18 @@ public class TimestampNotesOutputStreamTest {
 
   private TimestampNotesOutputStream timestampNotesOutputStream;
 
-  /** */
   @Before
   public void setUp() {
     delegateOutputStream = new ByteArrayOutputStream();
     timestampNotesOutputStream = new TimestampNotesOutputStream(delegateOutputStream, 0);
   }
 
-  /** @throws IOException */
   @After
   public void tearDown() throws IOException {
     delegateOutputStream.close();
     timestampNotesOutputStream.close();
   }
 
-  /** @throws Exception */
   @Test
   public void testWrite() throws Exception {
     byte[] line = new byte[] {'a', (byte) NEWLINE};

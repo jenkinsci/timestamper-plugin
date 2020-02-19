@@ -130,11 +130,9 @@ public class TimestampFormatProviderTest {
   @Parameter(0)
   public HttpServletRequest request;
 
-  /** */
   @Parameter(1)
   public TimestampFormat expectedTimestampFormat;
 
-  /** */
   @Test
   public void testGet() {
     assertThat(

@@ -216,15 +216,12 @@ public class TimestampsActionOutputTest {
     return testCases;
   }
 
-  /** */
   @Parameter(0)
   public String testCaseDescription;
 
-  /** */
   @Parameter(1)
   public TimestampsActionQuery query;
 
-  /** */
   @Parameter(2)
   public List<String> expectedLines;
 
@@ -234,7 +231,6 @@ public class TimestampsActionOutputTest {
 
   private BufferedReader reader;
 
-  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     timestampsReader = mock(TimestampsReader.class);
@@ -264,7 +260,6 @@ public class TimestampsActionOutputTest {
         TimestampsActionOutput.open(timestampsReader, logFileReader, query, new Timestamp(42, 1));
   }
 
-  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     // for efficiency, avoid counting the number of lines more than once
@@ -273,7 +268,6 @@ public class TimestampsActionOutputTest {
     reader.close();
   }
 
-  /** */
   @Test
   public void testRead_eachCharacter() throws Exception {
     StringBuilder result = new StringBuilder();
@@ -284,7 +278,6 @@ public class TimestampsActionOutputTest {
     assertThat(result.toString(), is(joinLines(expectedLines)));
   }
 
-  /** */
   @Test
   public void testRead_allAtOnce() throws Exception {
     String expectedResult = joinLines(expectedLines);
@@ -293,7 +286,6 @@ public class TimestampsActionOutputTest {
     assertThat(String.valueOf(result), is(expectedResult));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_noTimestamps() throws Exception {
     assumeThat(query.currentTime, is(false));
@@ -307,7 +299,6 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_timestampsInLogFileOnly() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.empty());
@@ -331,7 +322,6 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_noLogFile() throws Exception {
     if (query.appendLogLine) {
@@ -345,7 +335,6 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_noTimestampsAndNoLogFile() throws Exception {
     assumeThat(query.currentTime, is(false));

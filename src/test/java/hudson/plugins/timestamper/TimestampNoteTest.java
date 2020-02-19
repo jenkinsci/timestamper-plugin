@@ -97,15 +97,12 @@ public class TimestampNoteTest {
     return note;
   }
 
-  /** */
   @Parameter(0)
   public Object context;
 
-  /** */
   @Parameter(1)
   public TimestampNote note;
 
-  /** */
   @Parameter(2)
   public Timestamp expectedTimestamp;
 
@@ -132,20 +129,17 @@ public class TimestampNoteTest {
     Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class, originalSupplier);
   }
 
-  /** */
   @Test
   public void testGetTimestamp() {
     assertThat(note.getTimestamp(context), is(expectedTimestamp));
   }
 
-  /** */
   @Test
   public void testGetTimestamp_afterSerialization() {
     note = (TimestampNote) SerializationUtils.clone(note);
     testGetTimestamp();
   }
 
-  /** */
   @Test
   public void testAnnotate() {
     MarkupText text = new MarkupText("");
@@ -153,7 +147,6 @@ public class TimestampNoteTest {
     verify(format).markup(text, expectedTimestamp);
   }
 
-  /** */
   @Test
   public void testAnnotate_afterSerialization() {
     note = (TimestampNote) SerializationUtils.clone(note);

@@ -44,7 +44,6 @@ import org.junit.rules.TemporaryFolder;
  */
 public class TimestamperBuildWrapperTest {
 
-  /** */
   @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private TimestamperBuildWrapper buildWrapper;
@@ -53,7 +52,6 @@ public class TimestamperBuildWrapperTest {
 
   private ByteArrayOutputStream outputStream;
 
-  /** */
   @Before
   public void setUp() {
     System.clearProperty(TimestampNote.getSystemProperty());
@@ -63,20 +61,17 @@ public class TimestamperBuildWrapperTest {
     outputStream = new ByteArrayOutputStream();
   }
 
-  /** */
   @After
   public void tearDown() {
     System.clearProperty(TimestampNote.getSystemProperty());
   }
 
-  /** @throws Exception */
   @Test
   public void testDecorate() throws Exception {
     OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
     assertThat(decoratedOutputStream, instanceOf(TimestamperOutputStream.class));
   }
 
-  /** @throws Exception */
   @Test
   public void testDecorateWithTimestampNoteSystemProperty() throws Exception {
     System.setProperty(TimestampNote.getSystemProperty(), "true");

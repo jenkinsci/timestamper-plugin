@@ -38,7 +38,6 @@ import org.junit.Test;
  */
 public class TimestampTest {
 
-  /** */
   @Test
   public void testConstructor() {
     Timestamp timestamp = new Timestamp(123, 42000);
@@ -48,7 +47,6 @@ public class TimestampTest {
         is(Arrays.asList(123L, true, 42000L)));
   }
 
-  /** */
   @Test
   public void testConstructor_unknownElapsed() {
     Timestamp timestamp = new Timestamp(null, 42000);
@@ -58,7 +56,6 @@ public class TimestampTest {
         is(Arrays.asList(0L, false, 42000L)));
   }
 
-  /** */
   @Test
   public void testHashcodeAndEquals() {
     EqualsVerifier.forClass(Timestamp.class).suppress(Warning.STRICT_INHERITANCE).verify();

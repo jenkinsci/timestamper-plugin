@@ -65,7 +65,6 @@ import org.powermock.reflect.Whitebox;
  */
 public class LogFileReaderTest {
 
-  /** */
   @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
   private AbstractBuild<?, ?> build;
@@ -84,7 +83,6 @@ public class LogFileReaderTest {
 
   private Field INSECURE; // SECURITY-382
 
-  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     INSECURE = ConsoleNote.class.getDeclaredField("INSECURE");
@@ -123,7 +121,6 @@ public class LogFileReaderTest {
     Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
   }
 
-  /** */
   @After
   public void tearDown() throws Exception {
     Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
@@ -131,14 +128,12 @@ public class LogFileReaderTest {
     INSECURE.set(null, false);
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine_logFileExists() throws Exception {
     when(build.getLogFile()).thenReturn(uncompressedLogFile);
     testNextLine();
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine_zippedLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(gzippedLogFile);
@@ -165,14 +160,12 @@ public class LogFileReaderTest {
     assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);
     assertThat(logFileReader.nextLine(), is(Optional.empty()));
   }
 
-  /** @throws Exception */
   @Test
   public void testReadTimestamp_logContainsEscapeCharacters() throws Exception {
     File logFile = tempFolder.newFile();
@@ -226,21 +219,18 @@ public class LogFileReaderTest {
     return byteArrayOutputStream.toString();
   }
 
-  /** @throws Exception */
   @Test
   public void testLineCount_logFileExists() throws Exception {
     when(build.getLogFile()).thenReturn(uncompressedLogFile);
     assertThat(logFileReader.lineCount(), is(2));
   }
 
-  /** @throws Exception */
   @Test
   public void testLineCount_zippedLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(gzippedLogFile);
     assertThat(logFileReader.lineCount(), is(2));
   }
 
-  /** @throws Exception */
   @Test
   public void testLineCount_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);

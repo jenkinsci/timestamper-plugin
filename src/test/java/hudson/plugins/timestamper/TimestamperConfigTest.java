@@ -48,19 +48,16 @@ public class TimestamperConfigTest {
 
   @Rule public JenkinsRule r = new JenkinsRule();
 
-  /** */
   @Test
   public void testDefaultSystemTimeFormat() {
     assertThat(TimestamperConfig.get().getSystemTimeFormat(), containsString("HH:mm:ss"));
   }
 
-  /** */
   @Test
   public void testDefaultElapsedTimeFormat() {
     assertThat(TimestamperConfig.get().getElapsedTimeFormat(), containsString("HH:mm:ss.S"));
   }
 
-  /** */
   @Test
   public void testSetSystemTimeFormat() {
     TimestamperConfig config = TimestamperConfig.get();
@@ -68,7 +65,6 @@ public class TimestamperConfigTest {
     assertThat(config.getSystemTimeFormat(), is(customSystemTimeFormat));
   }
 
-  /** */
   @Test
   public void testSetElapsedTimeFormat() {
     TimestamperConfig config = TimestamperConfig.get();
@@ -76,7 +72,6 @@ public class TimestamperConfigTest {
     assertThat(config.getElapsedTimeFormat(), is(customElapsedTimeFormat));
   }
 
-  /** */
   @Test
   public void testSetSystemTimeFormatEmpty() {
     TimestamperConfig config = TimestamperConfig.get();
@@ -84,7 +79,6 @@ public class TimestamperConfigTest {
     assertThat(config.getSystemTimeFormat(), is(""));
   }
 
-  /** */
   @Test
   public void testSetElapsedTimeFormatEmpty() {
     TimestamperConfig config = TimestamperConfig.get();
@@ -92,14 +86,12 @@ public class TimestamperConfigTest {
     assertThat(config.getElapsedTimeFormat(), is(""));
   }
 
-  /** */
   @Test
   public void testToXmlDefault() {
     TimestamperConfig config = TimestamperConfig.get();
     assertThat(toXml(config), is(defaultXml()));
   }
 
-  /** */
   @Test
   public void testToXmlCustomSystemTimeFormat() {
     TimestamperConfig config = TimestamperConfig.get();
@@ -107,7 +99,6 @@ public class TimestamperConfigTest {
     assertThat(toXml(config), is(xml(customSystemTimeFormat, null)));
   }
 
-  /** */
   @Test
   public void testToXmlCustomElapsedTimeFormat() {
     TimestamperConfig config = TimestamperConfig.get();
@@ -115,7 +106,6 @@ public class TimestamperConfigTest {
     assertThat(toXml(config), is(xml(null, customElapsedTimeFormat)));
   }
 
-  /** */
   @Test
   public void testFromXmlDefault() {
     TimestamperConfig config = fromXml(defaultXml());
@@ -127,21 +117,18 @@ public class TimestamperConfigTest {
                 defaultConfig.getSystemTimeFormat(), defaultConfig.getElapsedTimeFormat())));
   }
 
-  /** */
   @Test
   public void testFromXmlCustomSystemTimeFormat() {
     TimestamperConfig config = fromXml(xml(customSystemTimeFormat, null));
     assertThat(config.getSystemTimeFormat(), is(customSystemTimeFormat));
   }
 
-  /** */
   @Test
   public void testFromXmlCustomElapsedTimeFormat() {
     TimestamperConfig config = fromXml(xml(null, customElapsedTimeFormat));
     assertThat(config.getElapsedTimeFormat(), is(customElapsedTimeFormat));
   }
 
-  /** */
   @Test
   public void testFromXmlEmptyFormat() {
     TimestamperConfig config = fromXml(xml("", ""));

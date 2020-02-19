@@ -64,22 +64,18 @@ public class ConsoleLogParserTest {
         new Object[] {true, true});
   }
 
-  /** */
   @Parameter(0)
   public boolean serialize;
 
-  /** */
   @Parameter(1)
   public boolean isBuilding;
 
-  /** */
   @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private Run<?, ?> build;
 
   private int logLength;
 
-  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     build = mock(Run.class);
@@ -93,7 +89,6 @@ public class ConsoleLogParserTest {
     when(build.isBuilding()).thenReturn(isBuilding);
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekStart() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -102,7 +97,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(0), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekWithinLine() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -110,7 +104,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(1), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekNextLine() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -119,7 +112,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(2), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekEnd() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -128,7 +120,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(logLength), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekPastEnd() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -138,7 +129,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(logLength + 1), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekStartNegative() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();
@@ -147,7 +137,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(-logLength), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekWithinLineNegative_isBuilding() throws Exception {
     assumeThat(isBuilding, is(true));
@@ -156,7 +145,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(1 - logLength), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekWithinLineNegative_notBuilding() throws Exception {
     assumeThat(isBuilding, is(false));
@@ -165,7 +153,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(1 - logLength), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekNextLineNegative_isBuilding() throws Exception {
     assumeThat(isBuilding, is(true));
@@ -175,7 +162,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(2 - logLength), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekNextLineNegative_notBuilding() throws Exception {
     assumeThat(isBuilding, is(false));
@@ -185,7 +171,6 @@ public class ConsoleLogParserTest {
     assertThat(seek(2 - logLength), is(result));
   }
 
-  /** @throws Exception */
   @Test
   public void testSeekPastStartNegative() throws Exception {
     ConsoleLogParser.Result result = new ConsoleLogParser.Result();

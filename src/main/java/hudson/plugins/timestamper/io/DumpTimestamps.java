@@ -45,7 +45,6 @@ public final class DumpTimestamps {
    * Jenkins.
    *
    * @param args the command-line arguments, expected to contain a timestamper directory path
-   * @throws IOException
    */
   public static void main(String... args) throws IOException {
     if (args.length == 0) {
