@@ -23,6 +23,11 @@
  */
 package hudson.plugins.timestamper.io;
 
+import com.google.common.base.Optional;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CountingInputStream;
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -31,17 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.io.IOUtils;
-
-import com.google.common.base.Optional;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CountingInputStream;
-
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
 
 /**
  * Read the time-stamps for a build from disk.

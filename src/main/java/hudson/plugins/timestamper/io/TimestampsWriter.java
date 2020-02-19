@@ -25,6 +25,10 @@ package hudson.plugins.timestamper.io;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
+import com.google.common.io.Files;
+import hudson.model.Run;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,14 +38,7 @@ import java.io.OutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
-
 import javax.annotation.CheckForNull;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Optional;
-import com.google.common.io.Files;
-
-import hudson.model.Run;
 
 /**
  * Write the time-stamps for a build to disk.
@@ -70,7 +67,7 @@ public class TimestampsWriter implements Closeable {
    * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
-    this(build, Optional.<MessageDigest>absent());
+    this(build, Optional.absent());
   }
 
   /**

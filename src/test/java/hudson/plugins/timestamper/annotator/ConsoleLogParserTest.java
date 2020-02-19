@@ -29,10 +29,11 @@ import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import hudson.console.AnnotatedLargeText;
+import hudson.model.Run;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collection;
-
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,9 +43,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-
-import hudson.console.AnnotatedLargeText;
-import hudson.model.Run;
 
 /**
  * Unit test for the {@link ConsoleLogParser} class.

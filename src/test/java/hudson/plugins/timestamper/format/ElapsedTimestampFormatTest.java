@@ -26,11 +26,10 @@ package hudson.plugins.timestamper.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
-
 import hudson.plugins.timestamper.Timestamp;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
+import org.junit.Test;
 
 /**
  * Unit test for the {@link ElapsedTimestampFormat} class.

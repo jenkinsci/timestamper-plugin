@@ -23,12 +23,11 @@
  */
 package hudson.plugins.timestamper.action;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Run;
+import java.util.Collection;
+import java.util.Collections;
 import jenkins.YesNoMaybe;
 import jenkins.model.TransientActionFactory;
 

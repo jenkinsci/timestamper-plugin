@@ -30,13 +30,20 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Supplier;
+import hudson.MarkupText;
+import hudson.console.ConsoleAnnotator;
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.format.TimestampFormat;
+import hudson.plugins.timestamper.format.TimestampFormatProvider;
+import hudson.plugins.timestamper.io.TimestampsWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.lang.SerializationUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -50,16 +57,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.reflect.Whitebox;
-
-import com.google.common.base.Supplier;
-
-import hudson.MarkupText;
-import hudson.console.ConsoleAnnotator;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.format.TimestampFormat;
-import hudson.plugins.timestamper.format.TimestampFormatProvider;
-import hudson.plugins.timestamper.io.TimestampsWriter;
 
 /**
  * Unit test for the {@link TimestampAnnotator} class.

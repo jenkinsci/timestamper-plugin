@@ -23,9 +23,8 @@
  */
 package hudson.plugins.timestamper.io;
 
-import java.io.File;
-
 import hudson.model.Run;
+import java.io.File;
 
 /**
  * File paths used by the time-stamp readers and writers.

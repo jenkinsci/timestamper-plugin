@@ -25,6 +25,13 @@ package hudson.plugins.timestamper.io;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Optional;
+import com.google.common.io.CountingInputStream;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.console.ConsoleNote;
+import hudson.model.Run;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.TimestampNote;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -32,20 +39,9 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
-
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
-import com.google.common.base.Optional;
-import com.google.common.io.CountingInputStream;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.console.ConsoleNote;
-import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.TimestampNote;
 
 /**
  * Reader for the build log file which skips over the console notes.

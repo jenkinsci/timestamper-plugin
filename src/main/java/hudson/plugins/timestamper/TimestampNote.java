@@ -23,8 +23,6 @@
  */
 package hudson.plugins.timestamper;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
@@ -33,6 +31,7 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.action.TimestampsAction;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Time-stamp console note.

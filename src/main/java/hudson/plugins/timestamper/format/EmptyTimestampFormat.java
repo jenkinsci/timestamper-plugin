@@ -23,9 +23,8 @@
  */
 package hudson.plugins.timestamper.format;
 
-import javax.annotation.Nonnull;
-
 import hudson.plugins.timestamper.Timestamp;
+import javax.annotation.Nonnull;
 
 /**
  * Converts a time-stamp to the empty time format.

@@ -24,17 +24,14 @@
  */
 package hudson.plugins.timestamper;
 
-import java.text.SimpleDateFormat;
-
-import javax.annotation.CheckForNull;
-
-import org.apache.commons.lang.time.DurationFormatUtils;
-
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.plugins.timestamper.pipeline.GlobalDecorator;
+import java.text.SimpleDateFormat;
+import javax.annotation.CheckForNull;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
+import org.apache.commons.lang.time.DurationFormatUtils;
 
 /**
  * Global configuration for the Timestamper plug-in, as shown on the Jenkins Configure System page.

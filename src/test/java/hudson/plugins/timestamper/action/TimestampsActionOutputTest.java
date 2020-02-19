@@ -31,15 +31,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.io.LogFileReader;
+import hudson.plugins.timestamper.io.LogFileReader.Line;
+import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.Nonnull;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,16 +54,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.stubbing.OngoingStubbing;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.LogFileReader.Line;
-import hudson.plugins.timestamper.io.TimestampsReader;
 
 /**
  * Unit test for the {@link TimestampsActionOutput} class.
@@ -256,13 +252,13 @@ public class TimestampsActionOutputTest {
     for (Timestamp timestamp : TIMESTAMPS) {
       readStubbing = readStubbing.thenReturn(Optional.of(timestamp));
     }
-    readStubbing.thenReturn(Optional.<Timestamp>absent());
+    readStubbing.thenReturn(Optional.absent());
 
     List<Line> lines = new ArrayList<Line>();
     for (int i = 1; i <= TIMESTAMPS.size(); i++) {
       Line line = mock(Line.class);
       when(line.getText()).thenReturn("line" + i);
-      when(line.readTimestamp()).thenReturn(Optional.<Timestamp>absent());
+      when(line.readTimestamp()).thenReturn(Optional.absent());
       lines.add(line);
     }
 
@@ -271,7 +267,7 @@ public class TimestampsActionOutputTest {
     for (Line line : lines) {
       nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
-    nextLineStubbing.thenReturn(Optional.<Line>absent());
+    nextLineStubbing.thenReturn(Optional.absent());
     when(logFileReader.lineCount()).thenReturn(6);
 
     reader =
@@ -322,14 +318,14 @@ public class TimestampsActionOutputTest {
                 return query.appendLogLine ? input.replaceFirst("^.*(  \\w*)$", "$1") : "";
               }
             });
-    when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
+    when(timestampsReader.read()).thenReturn(Optional.absent());
     assertThat(readLines(), is(expectedLines));
   }
 
   /** @throws Exception */
   @Test
   public void testRead_timestampsInLogFileOnly() throws Exception {
-    when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
+    when(timestampsReader.read()).thenReturn(Optional.absent());
 
     List<Line> lines = new ArrayList<Line>();
     int i = 1;
@@ -345,7 +341,7 @@ public class TimestampsActionOutputTest {
     for (Line line : lines) {
       nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
-    nextLineStubbing.thenReturn(Optional.<Line>absent());
+    nextLineStubbing.thenReturn(Optional.absent());
 
     assertThat(readLines(), is(expectedLines));
   }
@@ -365,7 +361,7 @@ public class TimestampsActionOutputTest {
                 }
               });
     }
-    when(logFileReader.nextLine()).thenReturn(Optional.<Line>absent());
+    when(logFileReader.nextLine()).thenReturn(Optional.absent());
     assertThat(readLines(), is(expectedLines));
   }
 
@@ -374,8 +370,8 @@ public class TimestampsActionOutputTest {
   public void testRead_noTimestampsAndNoLogFile() throws Exception {
     assumeThat(query.currentTime, is(false));
 
-    when(timestampsReader.read()).thenReturn(Optional.<Timestamp>absent());
-    when(logFileReader.nextLine()).thenReturn(Optional.<Line>absent());
+    when(timestampsReader.read()).thenReturn(Optional.absent());
+    when(logFileReader.nextLine()).thenReturn(Optional.absent());
     assertThat(readLines(), is(Collections.<String>emptyList()));
   }
 

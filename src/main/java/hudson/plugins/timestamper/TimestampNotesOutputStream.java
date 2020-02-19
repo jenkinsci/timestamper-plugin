@@ -25,10 +25,9 @@ package hudson.plugins.timestamper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import hudson.console.LineTransformationOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import hudson.console.LineTransformationOutputStream;
 
 /**
  * Output stream that writes each line to the provided delegate output stream after inserting a
