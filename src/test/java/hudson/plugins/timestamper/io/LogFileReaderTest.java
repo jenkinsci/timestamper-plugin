@@ -110,7 +110,7 @@ public class LogFileReaderTest {
     // Gzipped log file
     gzippedLogFile = tempFolder.newFile("logFile.gz");
     try (FileOutputStream fileOutputStream = new FileOutputStream(gzippedLogFile);
-        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream); ) {
+        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream)) {
       gzipOutputStream.write(logFileContents.getBytes(Charset.defaultCharset()));
     }
 
