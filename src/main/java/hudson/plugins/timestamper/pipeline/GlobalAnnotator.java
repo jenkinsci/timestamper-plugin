@@ -68,7 +68,7 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
                 return null;
             }
             if (executable instanceof Run) {
-                build = (Run) executable;
+                build = (Run<?, ?>) executable;
             } else {
                 return null;
             }
