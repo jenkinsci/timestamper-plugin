@@ -169,7 +169,7 @@ public class VarintTest {
     }
     List<Byte> bytes = new ArrayList<Byte>();
     for (String byteString : binary.split(" ")) {
-      bytes.add(Byte.valueOf((byte) Integer.parseInt(byteString, 2)));
+      bytes.add((byte) Integer.parseInt(byteString, 2));
     }
     return Bytes.toArray(bytes);
   }
