@@ -24,6 +24,7 @@
 package hudson.plugins.timestamper.action;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.atMost;
@@ -288,7 +289,7 @@ public class TimestampsActionOutputTest {
   public void testRead_allAtOnce() throws Exception {
     String expectedResult = joinLines(expectedLines);
     char[] result = new char[expectedResult.length()];
-    reader.read(result, 0, result.length);
+    assertEquals(result.length, reader.read(result, 0, result.length));
     assertThat(String.valueOf(result), is(expectedResult));
   }
 

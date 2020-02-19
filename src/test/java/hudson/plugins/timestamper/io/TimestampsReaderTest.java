@@ -33,6 +33,7 @@ import hudson.plugins.timestamper.Timestamp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -169,7 +170,7 @@ public class TimestampsReaderTest {
   }
 
   private void writeToFile(List<Integer> data, File file) throws Exception {
-    file.getParentFile().mkdirs();
+    Files.createDirectories(file.getParentFile().toPath());
     try (OutputStream outputStream = new FileOutputStream(file, true)) {
       byte[] buffer = new byte[10];
       for (Integer value : data) {
