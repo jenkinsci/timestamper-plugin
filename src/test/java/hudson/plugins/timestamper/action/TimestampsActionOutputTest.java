@@ -117,7 +117,7 @@ public class TimestampsActionOutputTest {
           "currentTime",
           new TimestampsActionQuery(
               0, NO_ENDLINE, ImmutableList.of(FORMAT, ELAPSED_FORMAT), false, true),
-          Arrays.asList("1 42")
+          Collections.singletonList("1 42")
         });
 
     // start line
@@ -137,7 +137,7 @@ public class TimestampsActionOutputTest {
         new Object[] {
           "start -1",
           new TimestampsActionQuery(-1, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
-          Arrays.asList("6  line6")
+          Collections.singletonList("6  line6")
         });
     testCases.add(
         new Object[] {
@@ -159,7 +159,7 @@ public class TimestampsActionOutputTest {
           "end 1",
           new TimestampsActionQuery(
               0, Optional.of(1), Collections.singletonList(FORMAT), true, false),
-          Arrays.asList("1  line1")
+          Collections.singletonList("1  line1")
         });
     testCases.add(
         new Object[] {
