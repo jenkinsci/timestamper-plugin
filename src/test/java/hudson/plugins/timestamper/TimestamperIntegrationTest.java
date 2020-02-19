@@ -75,4 +75,15 @@ public class TimestamperIntegrationTest {
 
         return timestamps;
     }
+
+    @Test
+    public void timestamperApi() throws Exception {
+        FreeStyleProject project = r.createFreeStyleProject();
+        project.getBuildersList()
+                .add(Functions.isWindows() ? new BatchFile("echo foo") : new Shell("echo foo"));
+        project.getBuildWrappersList().add(new TimestamperBuildWrapper());
+        FreeStyleBuild build = r.buildAndAssertSuccess(project);
+        r.assertLogContains("foo", build);
+        TimestamperApiTestUtil.timestamperApi(build);
+    }
 }

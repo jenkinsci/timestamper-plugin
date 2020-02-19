@@ -8,6 +8,7 @@ import com.gargoylesoftware.htmlunit.WebClientUtil;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlPreformattedText;
 import com.gargoylesoftware.htmlunit.html.HtmlSpan;
+import hudson.plugins.timestamper.TimestamperApiTestUtil;
 import hudson.plugins.timestamper.TimestamperConfig;
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -19,6 +20,7 @@ import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
@@ -119,6 +121,17 @@ public class PipelineTest {
          * to the annotated console output.
          */
         assertEquals(rawTimestamps, annotatedRawTimestamps);
+    }
+
+    @Ignore
+    @Issue("JENKINS-60007")
+    @Test
+    public void timestamperApi() throws Exception {
+        WorkflowJob project = r.createProject(WorkflowJob.class);
+        project.setDefinition(new CpsFlowDefinition("node {\n" + "  echo 'foo'\n" + "}", true));
+        WorkflowRun build = r.buildAndAssertSuccess(project);
+        r.assertLogContains("foo", build);
+        TimestamperApiTestUtil.timestamperApi(build);
     }
 
     private static List<String> getTimestamps(
