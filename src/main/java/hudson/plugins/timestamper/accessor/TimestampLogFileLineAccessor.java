@@ -3,7 +3,6 @@ package hudson.plugins.timestamper.accessor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.io.LogFileReader;
 import java.io.Closeable;
 import java.io.IOException;
@@ -60,8 +59,9 @@ public interface TimestampLogFileLineAccessor extends Closeable {
     /**
      * Retrieve a log file line and its associated timestamp. While typically both a timestamp and a
      * log file line will be present, this API is resilient to edge cases in which one or the other
-     * is not present. When neither a timestamp nor a log file line are present, EOF has been
-     * reached and callers should stop retrieving further records.
+     * is not present. In such cases, consumers have a choice as to whether to discard the record or
+     * return incomplete information to the user. When neither a timestamp nor a log file line are
+     * present, EOF has been reached and callers should stop retrieving further records.
      */
     TimestampLogFileLine readLine() throws IOException;
 }
