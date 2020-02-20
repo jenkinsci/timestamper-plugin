@@ -28,10 +28,10 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
@@ -112,7 +112,7 @@ public class TimestampFormatProviderTest {
   }
 
   private static SystemTimestampFormat system() {
-    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.absent(), Locale.ENGLISH);
+    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.empty(), Locale.ENGLISH);
   }
 
   private static SystemTimestampFormat system(String timeZoneId) {

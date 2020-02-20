@@ -25,9 +25,7 @@ package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.io.LogFileReader;
@@ -40,7 +38,9 @@ import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Function;
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 /**
@@ -114,7 +114,7 @@ public class TimestampsActionOutput {
     Reader reader =
         new Reader() {
           int linesRead;
-          Optional<Integer> endLine = Optional.absent();
+          Optional<Integer> endLine = Optional.empty();
           boolean started;
 
           @Override
@@ -188,7 +188,7 @@ public class TimestampsActionOutput {
             }
 
             if (!timestamp.isPresent() && !logFileLine.isPresent()) {
-              return Optional.absent();
+              return Optional.empty();
             }
             return Optional.of(result);
           }
@@ -207,7 +207,7 @@ public class TimestampsActionOutput {
 
     private final LogFileReader logFileReader;
 
-    private Optional<Integer> lineCount = Optional.absent();
+    private Optional<Integer> lineCount = Optional.empty();
 
     LineCountSupplier(LogFileReader logFileReader) {
       this.logFileReader = checkNotNull(logFileReader);

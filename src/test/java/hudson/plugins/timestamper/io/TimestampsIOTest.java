@@ -28,9 +28,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

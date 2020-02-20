@@ -25,7 +25,6 @@ package hudson.plugins.timestamper.io;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
 import com.google.common.io.CountingInputStream;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.console.ConsoleNote;
@@ -38,6 +37,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Scanner;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
@@ -84,7 +84,7 @@ public class LogFileReader implements Closeable {
       while (true) {
         index = ConsoleNote.findPreamble(bytes, index, length - index);
         if (index == -1) {
-          return Optional.absent();
+          return Optional.empty();
         }
         CountingInputStream inputStream =
             new CountingInputStream(new ByteArrayInputStream(bytes, index, length - index));
@@ -146,12 +146,12 @@ public class LogFileReader implements Closeable {
   /**
    * Read the next line from the log file.
    *
-   * @return the next line, or {@link Optional#absent()} if there are no more to read
+   * @return the next line, or {@link Optional#empty()} if there are no more to read
    * @throws IOException
    */
   public Optional<Line> nextLine() throws IOException {
     if (!build.getLogFile().exists()) { // TODO JENKINS-54128 rather use getLogText
-      return Optional.absent();
+      return Optional.empty();
     }
     if (reader == null) {
       reader = new Scanner(build.getLogReader());
@@ -161,7 +161,7 @@ public class LogFileReader implements Closeable {
     try {
       line = reader.next();
     } catch (NoSuchElementException e) {
-      return Optional.absent();
+      return Optional.empty();
     }
     return Optional.of(new Line(line, build));
   }

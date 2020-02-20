@@ -25,9 +25,9 @@ package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import hudson.plugins.timestamper.Timestamp;
+import java.util.function.Function;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.builder.ToStringBuilder;

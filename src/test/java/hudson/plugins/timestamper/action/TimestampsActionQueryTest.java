@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -40,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -60,9 +60,9 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TimestampsActionQueryTest {
 
-  private static final Optional<Integer> NO_ENDLINE = Optional.absent();
+  private static final Optional<Integer> NO_ENDLINE = Optional.empty();
 
-  private static final Optional<String> NO_TIMEZONE = Optional.absent();
+  private static final Optional<String> NO_TIMEZONE = Optional.empty();
 
   private static final TimestampsActionQuery DEFAULT =
       new TimestampsActionQuery(
@@ -209,7 +209,7 @@ public class TimestampsActionQueryTest {
     // Start line and end line
     List<Optional<Integer>> lineValues =
         ImmutableList.of(
-            Optional.of(-1), Optional.of(0), Optional.of(1), Optional.absent());
+            Optional.of(-1), Optional.of(0), Optional.of(1), Optional.empty());
     for (Optional<Integer> startLine : lineValues) {
       for (Optional<Integer> endLine : lineValues) {
         List<String> params = new ArrayList<String>();
@@ -226,7 +226,7 @@ public class TimestampsActionQueryTest {
               new Object[] {
                 query,
                 new TimestampsActionQuery(
-                    startLine.or(0), endLine, DEFAULT.timestampFormats, false, false)
+                    startLine.orElse(0), endLine, DEFAULT.timestampFormats, false, false)
               });
         }
       }

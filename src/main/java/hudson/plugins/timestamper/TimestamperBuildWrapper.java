@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper;
 
-import com.google.common.base.Optional;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -43,6 +42,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jenkins.YesNoMaybe;
@@ -104,7 +104,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
       if (useTimestampNotes) {
         return new TimestampNotesOutputStream(logger, buildStartTime);
       }
-      Optional<MessageDigest> digest = Optional.absent();
+      Optional<MessageDigest> digest = Optional.empty();
       try {
         digest = Optional.of(MessageDigest.getInstance("SHA-1"));
       } catch (NoSuchAlgorithmException ex) {

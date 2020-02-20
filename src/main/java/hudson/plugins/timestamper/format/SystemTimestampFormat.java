@@ -23,10 +23,11 @@
  */
 package hudson.plugins.timestamper.format;
 
-import com.google.common.base.Optional;
 import hudson.plugins.timestamper.Timestamp;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.TimeZone;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -88,7 +89,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    return java.util.Objects.hash(format, timeZoneId);
+    return Objects.hash(format, timeZoneId);
   }
 
   /** {@inheritDoc} */

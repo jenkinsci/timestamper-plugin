@@ -23,10 +23,10 @@
  */
 package hudson.plugins.timestamper.format;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
 import hudson.plugins.timestamper.TimestamperConfig;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Supplier;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.kohsuke.stapler.Stapler;
@@ -40,9 +40,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public class TimestampFormatProvider {
 
   private static Supplier<TimestampFormat> SUPPLIER =
-      new Supplier<TimestampFormat>() {
-        @Override
-        public TimestampFormat get() {
+      () -> {
           TimestamperConfig config = TimestamperConfig.get();
           StaplerRequest request = Stapler.getCurrentRequest();
           if (config == null || request == null) {
@@ -53,7 +51,6 @@ public class TimestampFormatProvider {
               config.getElapsedTimeFormat(),
               request,
               Locale.getDefault());
-        }
       };
 
   /**
@@ -98,7 +95,7 @@ public class TimestampFormatProvider {
       return EmptyTimestampFormat.INSTANCE;
     } else {
       // "system", no mode cookie, or unrecognised mode cookie
-      Optional<String> timeZoneId = Optional.absent();
+      Optional<String> timeZoneId = Optional.empty();
       if (local != null && local.booleanValue()) {
         try {
           String localTimeZoneId = convertOffsetToTimeZoneId(offset);

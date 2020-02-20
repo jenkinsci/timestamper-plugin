@@ -25,8 +25,6 @@ package hudson.plugins.timestamper.action;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
@@ -37,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -55,7 +55,7 @@ public final class TimestampsActionQuery {
    */
   public static TimestampsActionQuery create(String query) {
     int startLine = 0;
-    Optional<Integer> endLine = Optional.absent();
+    Optional<Integer> endLine = Optional.empty();
     List<Function<Timestamp, String>> timestampFormats =
         new ArrayList<Function<Timestamp, String>>();
     boolean appendLogLine = false;
@@ -63,7 +63,7 @@ public final class TimestampsActionQuery {
 
     List<QueryParameter> queryParameters = readQueryString(query);
 
-    Optional<String> timeZoneId = Optional.absent();
+    Optional<String> timeZoneId = Optional.empty();
     Locale locale = Locale.getDefault();
     for (QueryParameter parameter : queryParameters) {
       if (parameter.name.equalsIgnoreCase("timeZone")) {

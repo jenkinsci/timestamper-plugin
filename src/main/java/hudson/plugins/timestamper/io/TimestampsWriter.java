@@ -26,7 +26,6 @@ package hudson.plugins.timestamper.io;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Optional;
 import com.google.common.io.Files;
 import hudson.model.Run;
 import java.io.Closeable;
@@ -38,6 +37,7 @@ import java.io.OutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 
 /**
@@ -67,7 +67,7 @@ public class TimestampsWriter implements Closeable {
    * @throws IOException
    */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
-    this(build, Optional.absent());
+    this(build, Optional.empty());
   }
 
   /**
