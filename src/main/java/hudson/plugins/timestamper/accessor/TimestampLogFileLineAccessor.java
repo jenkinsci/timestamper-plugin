@@ -24,7 +24,7 @@ public interface TimestampLogFileLineAccessor extends Closeable {
      * Value class representing a single record in the abstract, regardless of how the storage of
      * that record is implemented.
      */
-    class TimestampLogFileLine {
+    final class TimestampLogFileLine {
         private final Optional<Timestamp> timestamp;
         private final Optional<String> logFileLine;
 
