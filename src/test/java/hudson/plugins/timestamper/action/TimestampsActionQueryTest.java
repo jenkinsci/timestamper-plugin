@@ -213,12 +213,8 @@ public class TimestampsActionQueryTest {
     for (Optional<Integer> startLine : lineValues) {
       for (Optional<Integer> endLine : lineValues) {
         List<String> params = new ArrayList<String>();
-        if (startLine.isPresent()) {
-          params.add("startLine=" + startLine.get());
-        }
-        if (endLine.isPresent()) {
-          params.add("endLine=" + endLine.get());
-        }
+        startLine.ifPresent(integer -> params.add("startLine=" + integer));
+        endLine.ifPresent(integer -> params.add("endLine=" + integer));
         String query = Joiner.on('&').join(params);
 
         if (!query.isEmpty()) {

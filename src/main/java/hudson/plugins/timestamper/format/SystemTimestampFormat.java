@@ -80,7 +80,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
 
     return "timestamps/?time="
         + timeParamValue
-        + (timeZoneId.isPresent() ? "&timeZone=" + timeZoneId.get() : "")
+        + (timeZoneId.map(s -> "&timeZone=" + s).orElse(""))
         + "&appendLog"
         + "&locale="
         + format.getLocale();
