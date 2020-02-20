@@ -49,7 +49,7 @@ public interface TimestampLogFileLineAccessor extends Closeable {
     }
 
     /**
-     * Retrieve the {@link LogFileReader} associated with this accessor, likely for use with {@link
+     * Retrieve the {@link LogFileReader} associated with this accessor, likely for use with {@code
      * TimestampsActionOutput.LineCountSupplier}.
      */
     LogFileReader getLogFileReader();
