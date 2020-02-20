@@ -169,7 +169,7 @@ public class TimestampsReaderTest {
   }
 
   private List<Timestamp> readTimestamps() throws IOException {
-    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    List<Timestamp> timestamps = new ArrayList<>();
     int iterations = 0;
     while (true) {
       if (serialize) {

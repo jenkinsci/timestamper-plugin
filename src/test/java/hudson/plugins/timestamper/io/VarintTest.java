@@ -138,7 +138,7 @@ public class VarintTest {
     if (!BINARY_PATTERN.matcher(binary).matches()) {
       throw new IllegalArgumentException(binary);
     }
-    List<Byte> bytes = new ArrayList<Byte>();
+    List<Byte> bytes = new ArrayList<>();
     for (String byteString : binary.split(" ")) {
       bytes.add((byte) Integer.parseInt(byteString, 2));
     }

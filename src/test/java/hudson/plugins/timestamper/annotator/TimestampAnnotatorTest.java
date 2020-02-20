@@ -90,7 +90,7 @@ public class TimestampAnnotatorTest {
     when(build.getRootDir()).thenReturn(folder.getRoot());
 
     logPosition = new ConsoleLogParser.Result();
-    capturedTimestamps = new ArrayList<Timestamp>();
+    capturedTimestamps = new ArrayList<>();
 
     writer = new TimestampsWriter(build);
   }
@@ -155,7 +155,7 @@ public class TimestampAnnotatorTest {
   }
 
   private List<Timestamp> writeTimestamps(int count) throws IOException {
-    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+    List<Timestamp> timestamps = new ArrayList<>();
     for (int i = 0; i < count; i++) {
       writer.write(i, 1);
       timestamps.add(new Timestamp(i, i));

@@ -171,7 +171,7 @@ public class TimestampsWriterTest {
     byte[] fileContents = Files.toByteArray(timestampsFile);
     CountingInputStream inputStream =
         new CountingInputStream(new ByteArrayInputStream(fileContents));
-    List<Integer> timestampData = new ArrayList<Integer>();
+    List<Integer> timestampData = new ArrayList<>();
     while (inputStream.getCount() < fileContents.length) {
       timestampData.add((int) Varint.read(inputStream));
     }

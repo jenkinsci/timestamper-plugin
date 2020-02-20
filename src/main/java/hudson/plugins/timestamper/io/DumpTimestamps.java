@@ -66,7 +66,7 @@ public final class DumpTimestamps {
     byte[] fileContents = Files.toByteArray(file);
     CountingInputStream inputStream =
         new CountingInputStream(new ByteArrayInputStream(fileContents));
-    List<Long> values = new ArrayList<Long>();
+    List<Long> values = new ArrayList<>();
     while (inputStream.getCount() < fileContents.length) {
       values.add(Varint.read(inputStream));
       if (values.size() == columns) {

@@ -89,7 +89,7 @@ public class TimestampsActionOutputTest {
   /** @return the test data */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    List<Object[]> testCases = new ArrayList<Object[]>();
+    List<Object[]> testCases = new ArrayList<>();
 
     testCases.add(
         new Object[] {
@@ -241,7 +241,7 @@ public class TimestampsActionOutputTest {
     }
     readStubbing.thenReturn(Optional.empty());
 
-    List<Line> lines = new ArrayList<Line>();
+    List<Line> lines = new ArrayList<>();
     for (int i = 1; i <= TIMESTAMPS.size(); i++) {
       Line line = mock(Line.class);
       when(line.getText()).thenReturn("line" + i);
@@ -304,7 +304,7 @@ public class TimestampsActionOutputTest {
   public void testRead_timestampsInLogFileOnly() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.empty());
 
-    List<Line> lines = new ArrayList<Line>();
+    List<Line> lines = new ArrayList<>();
     int i = 1;
     for (Timestamp timestamp : TIMESTAMPS) {
       Line line = mock(Line.class);
@@ -354,7 +354,7 @@ public class TimestampsActionOutputTest {
   }
 
   private List<String> readLines() throws Exception {
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
     String line;
     while ((line = reader.readLine()) != null) {
       lines.add(line);

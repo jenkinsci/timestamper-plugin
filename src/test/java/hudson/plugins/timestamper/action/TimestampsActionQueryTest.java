@@ -71,7 +71,7 @@ public class TimestampsActionQueryTest {
   /** @return the test data */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    List<Object[]> testCases = new ArrayList<Object[]>();
+    List<Object[]> testCases = new ArrayList<>();
 
     // No query
     testCases.add(new Object[] {"", DEFAULT});
@@ -212,7 +212,7 @@ public class TimestampsActionQueryTest {
             Optional.of(-1), Optional.of(0), Optional.of(1), Optional.empty());
     for (Optional<Integer> startLine : lineValues) {
       for (Optional<Integer> endLine : lineValues) {
-        List<String> params = new ArrayList<String>();
+        List<String> params = new ArrayList<>();
         startLine.ifPresent(integer -> params.add("startLine=" + integer));
         endLine.ifPresent(integer -> params.add("endLine=" + integer));
         String query = Joiner.on('&').join(params);

@@ -142,8 +142,8 @@ public class LogFileReaderTest {
   }
 
   private void testNextLine() throws IOException {
-    List<String> texts = new ArrayList<String>();
-    List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
+    List<String> texts = new ArrayList<>();
+    List<Optional<Timestamp>> timestamps = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       Optional<Line> line = logFileReader.nextLine();
       if (!line.isPresent()) {
@@ -192,7 +192,7 @@ public class LogFileReaderTest {
                 + ConsoleNote.POSTAMBLE_STR);
     Files.write(Joiner.on('\n').join(logFileContents), logFile, Charsets.UTF_8);
 
-    List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
+    List<Optional<Timestamp>> timestamps = new ArrayList<>();
     for (int i = 0; i <= logFileContents.size(); i++) {
       Optional<Line> line = logFileReader.nextLine();
       if (!line.isPresent()) {
@@ -201,7 +201,7 @@ public class LogFileReaderTest {
       timestamps.add(line.get().readTimestamp());
     }
 
-    List<Optional<Timestamp>> expectedTimestamps = new ArrayList<Optional<Timestamp>>();
+    List<Optional<Timestamp>> expectedTimestamps = new ArrayList<>();
     for (int i = 0; i < logFileContents.size(); i++) {
       expectedTimestamps.add(Optional.empty());
     }

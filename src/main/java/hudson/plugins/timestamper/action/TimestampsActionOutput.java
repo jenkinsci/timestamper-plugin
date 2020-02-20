@@ -99,7 +99,7 @@ public class TimestampsActionOutput {
       final TimestampsActionQuery query,
       Timestamp currentTimestamp) {
     if (query.currentTime) {
-      List<String> parts = new ArrayList<String>();
+      List<String> parts = new ArrayList<>();
       for (Function<Timestamp, String> format : query.timestampFormats) {
         parts.add(format.apply(currentTimestamp));
       }
@@ -172,7 +172,7 @@ public class TimestampsActionOutput {
 
             String result = "";
             if (timestamp.isPresent()) {
-              List<String> parts = new ArrayList<String>();
+              List<String> parts = new ArrayList<>();
               for (Function<Timestamp, String> format : query.timestampFormats) {
                 parts.add(format.apply(timestamp.get()));
               }

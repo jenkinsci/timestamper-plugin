@@ -106,7 +106,7 @@ public class PrecisionTimestampFormatTest {
   public void testApply() {
     PrecisionTimestampFormat format = new PrecisionTimestampFormat(precision);
 
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
     for (Timestamp timestamp : TIMESTAMPS) {
       result.add(format.apply(timestamp));
     }

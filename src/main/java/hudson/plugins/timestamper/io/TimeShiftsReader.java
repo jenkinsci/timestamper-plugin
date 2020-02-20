@@ -81,7 +81,7 @@ class TimeShiftsReader implements Serializable {
     if (!timeShiftsFile.isFile()) {
       return Collections.emptyMap();
     }
-    Map<Long, Long> timeShifts = new HashMap<Long, Long>();
+    Map<Long, Long> timeShifts = new HashMap<>();
     try (CountingInputStream inputStream =
         new CountingInputStream(new BufferedInputStream(new FileInputStream(timeShiftsFile)))) {
       while (inputStream.getCount() < timeShiftsFile.length()) {
