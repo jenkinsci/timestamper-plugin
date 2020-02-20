@@ -9,6 +9,7 @@ import hudson.plugins.timestamper.pipeline.GlobalAnnotator;
 import hudson.plugins.timestamper.pipeline.GlobalDecorator;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
@@ -41,9 +42,9 @@ public class PipelineTimestampLogFileLineAccessor implements TimestampLogFileLin
 
     @Override
     public TimestampLogFileLine readLine() throws IOException {
-        // Singleton arrays for use with the below lambda expression
-        Timestamp[] timestampRef = new Timestamp[1];
-        String[] logFileLineRef = new String[1];
+        // AtomicReference for use with the below lambda expression
+        AtomicReference<Timestamp> timestampRef = new AtomicReference<>();
+        AtomicReference<String> logFileLineRef = new AtomicReference<>();
 
         logFileReader
                 .nextLine()
@@ -53,15 +54,15 @@ public class PipelineTimestampLogFileLineAccessor implements TimestampLogFileLin
                                     GlobalAnnotator.parseTimestamp(
                                             logFileLine, 0, build.getStartTimeInMillis());
                             if (timestamp.isPresent()) {
-                                timestampRef[0] = timestamp.get();
-                                logFileLineRef[0] = logFileLine.substring(27);
+                                timestampRef.set(timestamp.get());
+                                logFileLineRef.set(logFileLine.substring(27));
                             } else {
-                                logFileLineRef[0] = logFileLine;
+                                logFileLineRef.set(logFileLine);
                             }
                         });
 
         return new TimestampLogFileLine(
-                Optional.ofNullable(timestampRef[0]), Optional.ofNullable(logFileLineRef[0]));
+                Optional.ofNullable(timestampRef.get()), Optional.ofNullable(logFileLineRef.get()));
     }
 
     @Override
