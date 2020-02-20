@@ -36,10 +36,13 @@ import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 /**
  * Interprets marks added by {@link GlobalDecorator}.
@@ -86,6 +89,22 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
         if (html.startsWith("<span style=\"color", start)) {
             start = html.indexOf('>', start) + 1;
         }
+        parseTimestamp(html, start, buildStartTime)
+                .ifPresent(
+                        timestamp -> {
+                            TimestampFormat format = TimestampFormatProvider.get();
+                            format.markup(text, timestamp);
+                            text.addMarkup(0, 26, "<span style=\"display: none\">", "</span>");
+                        });
+        return this;
+    }
+
+    /**
+     * Parse this line for a timestamp starting at position {@code start}, if such a timestamp is
+     * present.
+     */
+    @Restricted(NoExternalUse.class)
+    public static Optional<Timestamp> parseTimestamp(String html, int start, long buildStartTime) {
         if (html.startsWith("[", start)) {
             int end = html.indexOf(']', start);
             if (end != -1) {
@@ -93,15 +112,13 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
                     long millisSinceEpoch = ZonedDateTime.parse(html.substring(start + 1, end), GlobalDecorator.UTC_MILLIS).toInstant().toEpochMilli();
                     // Alternately: Instant.parse(html.substring(start + 1, end)).toEpochMilli()
                     Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
-                    TimestampFormat format = TimestampFormatProvider.get();
-                    format.markup(text, timestamp);
-                    text.addMarkup(0, 26, "<span style=\"display: none\">", "</span>");
+                    return Optional.of(timestamp);
                 } catch (DateTimeParseException x) {
                     // something else, ignore
                 }
             }
         }
-        return this;
+        return Optional.empty();
     }
 
     @Extension
