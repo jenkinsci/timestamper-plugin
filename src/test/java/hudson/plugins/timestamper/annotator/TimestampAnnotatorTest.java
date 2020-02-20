@@ -54,7 +54,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.reflect.Whitebox;
 
@@ -192,26 +191,16 @@ public class TimestampAnnotatorTest {
   private void captureFormattedTimestamps() {
     final TimestampFormat format = mock(TimestampFormat.class);
     doAnswer(
-            new Answer<Void>() {
-
-              @Override
-              public Void answer(InvocationOnMock invocation) {
-                Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
-                capturedTimestamps.add(timestamp);
-                return null;
-              }
-            })
+            (Answer<Void>)
+                invocation -> {
+                  Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
+                  capturedTimestamps.add(timestamp);
+                  return null;
+                })
         .when(format)
         .markup(any(MarkupText.class), any(Timestamp.class));
     Whitebox.setInternalState(
-        TimestampFormatProvider.class,
-        Supplier.class,
-        new Supplier<TimestampFormat>() {
-          @Override
-          public TimestampFormat get() {
-            return format;
-          }
-        });
+        TimestampFormatProvider.class, Supplier.class, (Supplier<TimestampFormat>) () -> format);
   }
 
   private static class MockConsoleLogParser extends ConsoleLogParser {

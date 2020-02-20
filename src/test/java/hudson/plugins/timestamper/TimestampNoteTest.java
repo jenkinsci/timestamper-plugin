@@ -114,13 +114,7 @@ public class TimestampNoteTest {
 
     originalSupplier = Whitebox.getInternalState(TimestampFormatProvider.class, Supplier.class);
     Whitebox.setInternalState(
-        TimestampFormatProvider.class,
-        new Supplier<TimestampFormat>() {
-          @Override
-          public TimestampFormat get() {
-            return format;
-          }
-        });
+        TimestampFormatProvider.class, (Supplier<TimestampFormat>) () -> format);
   }
 
   @After
