@@ -84,6 +84,7 @@ public class TimestamperIntegrationTest {
         project.getBuildWrappersList().add(new TimestamperBuildWrapper());
         FreeStyleBuild build = r.buildAndAssertSuccess(project);
         r.assertLogContains("foo", build);
-        TimestamperApiTestUtil.timestamperApi(build);
+        List<String> unstampedLines = build.getLog(Integer.MAX_VALUE);
+        TimestamperApiTestUtil.timestamperApi(build, unstampedLines);
     }
 }

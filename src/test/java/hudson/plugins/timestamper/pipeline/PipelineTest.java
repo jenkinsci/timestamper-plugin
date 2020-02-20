@@ -131,7 +131,13 @@ public class PipelineTest {
         project.setDefinition(new CpsFlowDefinition("node {\n" + "  echo 'foo'\n" + "}", true));
         WorkflowRun build = r.buildAndAssertSuccess(project);
         r.assertLogContains("foo", build);
-        TimestamperApiTestUtil.timestamperApi(build);
+        List<String> unstampedLines = new ArrayList<>();
+        for (String line : build.getLog(Integer.MAX_VALUE)) {
+            assertEquals('[', line.charAt(0));
+            assertEquals(']', line.charAt(25));
+            unstampedLines.add(line.substring(27));
+        }
+        TimestamperApiTestUtil.timestamperApi(build, unstampedLines);
     }
 
     private static List<String> getTimestamps(

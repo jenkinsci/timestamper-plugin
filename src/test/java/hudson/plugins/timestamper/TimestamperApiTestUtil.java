@@ -17,9 +17,8 @@ import java.util.stream.Collectors;
 
 public class TimestamperApiTestUtil {
 
-    public static void timestamperApi(Run<?, ?> build) throws IOException {
-        List<String> unstampedLines = build.getLog(Integer.MAX_VALUE);
-
+    public static void timestamperApi(Run<?, ?> build, List<String> unstampedLines)
+            throws IOException {
         time(build, unstampedLines, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", 24, "UTC", false);
         time(build, unstampedLines, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", 24, "UTC", true);
 
