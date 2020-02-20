@@ -33,9 +33,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
+import hudson.plugins.timestamper.accessor.FreestyleTimestampLogFileLineAccessor;
 import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.LogFileReader.Line;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -230,6 +231,8 @@ public class TimestampsActionOutputTest {
 
   private LogFileReader logFileReader;
 
+  private Run<?, ?> build;
+
   private BufferedReader reader;
 
   @Before
@@ -241,24 +244,24 @@ public class TimestampsActionOutputTest {
     }
     readStubbing.thenReturn(Optional.empty());
 
-    List<Line> lines = new ArrayList<>();
+    List<String> lines = new ArrayList<>();
     for (int i = 1; i <= TIMESTAMPS.size(); i++) {
-      Line line = mock(Line.class);
-      when(line.getText()).thenReturn("line" + i);
-      when(line.readTimestamp()).thenReturn(Optional.empty());
-      lines.add(line);
+      lines.add("line" + i);
     }
 
     logFileReader = mock(LogFileReader.class);
-    OngoingStubbing<Optional<Line>> nextLineStubbing = when(logFileReader.nextLine());
-    for (Line line : lines) {
+    OngoingStubbing<Optional<String>> nextLineStubbing = when(logFileReader.nextLine());
+    for (String line : lines) {
       nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
     }
     nextLineStubbing.thenReturn(Optional.empty());
     when(logFileReader.lineCount()).thenReturn(6);
 
-    reader =
-        TimestampsActionOutput.open(timestampsReader, logFileReader, query, new Timestamp(42, 1));
+    build = mock(Run.class);
+
+    FreestyleTimestampLogFileLineAccessor timestampLogFileLineAccessor =
+        new FreestyleTimestampLogFileLineAccessor(timestampsReader, logFileReader, build);
+    reader = TimestampsActionOutput.open(query, new Timestamp(42, 1), timestampLogFileLineAccessor);
   }
 
   @After
@@ -297,29 +300,6 @@ public class TimestampsActionOutputTest {
             .map(input -> query.appendLogLine ? input.replaceFirst("^.*(  \\w*)$", "$1") : "")
             .collect(Collectors.toList());
     when(timestampsReader.read()).thenReturn(Optional.empty());
-    assertThat(readLines(), is(expectedLines));
-  }
-
-  @Test
-  public void testRead_timestampsInLogFileOnly() throws Exception {
-    when(timestampsReader.read()).thenReturn(Optional.empty());
-
-    List<Line> lines = new ArrayList<>();
-    int i = 1;
-    for (Timestamp timestamp : TIMESTAMPS) {
-      Line line = mock(Line.class);
-      when(line.getText()).thenReturn("line" + i);
-      when(line.readTimestamp()).thenReturn(Optional.of(timestamp));
-      lines.add(line);
-      i++;
-    }
-
-    OngoingStubbing<Optional<Line>> nextLineStubbing = when(logFileReader.nextLine());
-    for (Line line : lines) {
-      nextLineStubbing = nextLineStubbing.thenReturn(Optional.of(line));
-    }
-    nextLineStubbing.thenReturn(Optional.empty());
-
     assertThat(readLines(), is(expectedLines));
   }
 

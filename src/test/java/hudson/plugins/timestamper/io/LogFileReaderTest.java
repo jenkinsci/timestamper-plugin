@@ -37,7 +37,6 @@ import hudson.console.ConsoleNote;
 import hudson.model.AbstractBuild;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.TimestampNote;
-import hudson.plugins.timestamper.io.LogFileReader.Line;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -92,7 +91,6 @@ public class LogFileReaderTest {
     build = mock(AbstractBuild.class);
     when(build.getLogInputStream()).thenCallRealMethod();
     when(build.getLogReader()).thenCallRealMethod();
-    Whitebox.setInternalState(build, "charset", Charsets.UTF_8.name());
 
     logFileReader = new LogFileReader(build);
 
@@ -143,22 +141,16 @@ public class LogFileReaderTest {
 
   private void testNextLine() throws IOException {
     List<String> texts = new ArrayList<>();
-    List<Optional<Timestamp>> timestamps = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
-      Optional<Line> line = logFileReader.nextLine();
+      Optional<String> line = logFileReader.nextLine();
       if (!line.isPresent()) {
         break;
       }
-      texts.add(line.get().getText());
-      timestamps.add(line.get().readTimestamp());
+      texts.add(ConsoleNote.removeNotes(line.get()));
     }
 
     List<String> expectedTexts = ImmutableList.of("line1", "line2");
     assertThat("texts", texts, is(expectedTexts));
-
-    List<Optional<Timestamp>> expectedTimestamps =
-        ImmutableList.of(Optional.empty(), Optional.of(timestamp));
-    assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
   @Test
@@ -192,20 +184,17 @@ public class LogFileReaderTest {
                 + ConsoleNote.POSTAMBLE_STR);
     Files.write(Joiner.on('\n').join(logFileContents), logFile, Charsets.UTF_8);
 
-    List<Optional<Timestamp>> timestamps = new ArrayList<>();
     for (int i = 0; i <= logFileContents.size(); i++) {
-      Optional<Line> line = logFileReader.nextLine();
+      Optional<String> line = logFileReader.nextLine();
       if (!line.isPresent()) {
         break;
       }
-      timestamps.add(line.get().readTimestamp());
     }
 
     List<Optional<Timestamp>> expectedTimestamps = new ArrayList<>();
     for (int i = 0; i < logFileContents.size(); i++) {
       expectedTimestamps.add(Optional.empty());
     }
-    assertThat(timestamps, is(expectedTimestamps));
   }
 
   private String encodeConsoleNote(int size, String content) throws Exception {

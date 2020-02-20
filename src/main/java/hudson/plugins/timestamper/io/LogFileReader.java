@@ -25,110 +25,26 @@ package hudson.plugins.timestamper.io;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.io.CountingInputStream;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
-import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.TimestampNote;
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Reader for the build log file which skips over the console notes.
+ * Reader for the build log file. Lines returned by this class may or may not have timestamps
+ * embedded in them, and timestamps may or may not be represented as {@link ConsoleNote}s. There may
+ * or may not be other {@link ConsoleNote}s. The only thing consumers of this class can rely on is
+ * that the number of lines returned can be used for line counting purposes.
  *
  * @author Steven G. Brown
  */
 public class LogFileReader implements Closeable {
-
-  /** A line read from the log file of a build. */
-  public static class Line {
-
-    private final String line;
-
-    private final Run<?, ?> build;
-
-    private Line(String line, Run<?, ?> build) {
-      this.line = checkNotNull(line);
-      this.build = checkNotNull(build);
-    }
-
-    /**
-     * Get the text from this line, without the console notes.
-     *
-     * @return the text
-     */
-    public String getText() {
-      return ConsoleNote.removeNotes(line);
-    }
-
-    /**
-     * Read the time-stamp from this line, if it has one.
-     *
-     * @return the time-stamp
-     */
-    public Optional<Timestamp> readTimestamp() {
-      byte[] bytes = line.getBytes(build.getCharset());
-      int length = bytes.length;
-
-      int index = 0;
-      while (true) {
-        index = ConsoleNote.findPreamble(bytes, index, length - index);
-        if (index == -1) {
-          return Optional.empty();
-        }
-        CountingInputStream inputStream =
-            new CountingInputStream(new ByteArrayInputStream(bytes, index, length - index));
-
-        try {
-          ConsoleNote<?> consoleNote = ConsoleNote.readFrom(new DataInputStream(inputStream));
-          if (consoleNote instanceof TimestampNote) {
-            TimestampNote timestampNote = (TimestampNote) consoleNote;
-            Timestamp timestamp = timestampNote.getTimestamp(build);
-            return Optional.of(timestamp);
-          }
-        } catch (IOException e) {
-          // Error reading console note, e.g. end of stream. Ignore.
-        } catch (ClassNotFoundException e) {
-          // Unknown console note. Ignore.
-        }
-
-        // Advance at least one character to avoid an infinite loop.
-        index += Math.max(inputStream.getCount(), 1);
-      }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-      return Objects.hash(line, build);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof Line) {
-        Line other = (Line) obj;
-        return line.equals(other.line) && build.equals(other.build);
-      }
-      return false;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-      return new ToStringBuilder(this).append("line", line).append("build", build).toString();
-    }
-  }
 
   private final Run<?, ?> build;
 
@@ -146,7 +62,7 @@ public class LogFileReader implements Closeable {
    *
    * @return the next line, or {@link Optional#empty()} if there are no more to read
    */
-  public Optional<Line> nextLine() throws IOException {
+  public Optional<String> nextLine() throws IOException {
     if (!build.getLogFile().exists()) { // TODO JENKINS-54128 rather use getLogText
       return Optional.empty();
     }
@@ -160,7 +76,7 @@ public class LogFileReader implements Closeable {
     } catch (NoSuchElementException e) {
       return Optional.empty();
     }
-    return Optional.of(new Line(line, build));
+    return Optional.of(line);
   }
 
   /**
