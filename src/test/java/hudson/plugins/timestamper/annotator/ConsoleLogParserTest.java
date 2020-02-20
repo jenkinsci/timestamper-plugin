@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.Run;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.lang.SerializationUtils;
@@ -179,7 +180,7 @@ public class ConsoleLogParserTest {
     assertThat(seek(-logLength - 1), is(result));
   }
 
-  private ConsoleLogParser.Result seek(long pos) throws Exception {
+  private ConsoleLogParser.Result seek(long pos) throws IOException {
     ConsoleLogParser parser = new ConsoleLogParser(pos);
     if (serialize) {
       parser = (ConsoleLogParser) SerializationUtils.clone(parser);

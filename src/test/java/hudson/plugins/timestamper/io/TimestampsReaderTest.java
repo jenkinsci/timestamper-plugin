@@ -32,6 +32,7 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -74,9 +75,8 @@ public class TimestampsReaderTest {
 
   private TimestampsReader timestampsReader;
 
-  /** @throws Exception */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     timestampsReader = new TimestampsReader(build);
@@ -168,7 +168,7 @@ public class TimestampsReaderTest {
     }
   }
 
-  private List<Timestamp> readTimestamps() throws Exception {
+  private List<Timestamp> readTimestamps() throws IOException {
     List<Timestamp> timestamps = new ArrayList<Timestamp>();
     int iterations = 0;
     while (true) {

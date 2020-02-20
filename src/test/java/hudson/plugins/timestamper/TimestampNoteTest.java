@@ -108,9 +108,8 @@ public class TimestampNoteTest {
 
   @Mock private TimestampFormat format;
 
-  /** @throws Exception */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
 
     originalSupplier = Whitebox.getInternalState(TimestampFormatProvider.class, Supplier.class);

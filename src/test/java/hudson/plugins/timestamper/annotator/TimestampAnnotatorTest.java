@@ -85,7 +85,7 @@ public class TimestampAnnotatorTest {
   private TimestampsWriter writer;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws IOException {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
 
@@ -96,7 +96,7 @@ public class TimestampAnnotatorTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() throws IOException {
     writer.close();
   }
 
@@ -148,14 +148,13 @@ public class TimestampAnnotatorTest {
     assertThat(annotate(), is(timestamps.subList(1, 2)));
   }
 
-  /** @throws Exception */
   @Test
-  public void testEndOfLogFile() throws Exception {
+  public void testEndOfLogFile() {
     logPosition.endOfFile = true;
     assertThat(annotate(), is(Collections.<Timestamp>emptyList()));
   }
 
-  private List<Timestamp> writeTimestamps(int count) throws Exception {
+  private List<Timestamp> writeTimestamps(int count) throws IOException {
     List<Timestamp> timestamps = new ArrayList<Timestamp>();
     for (int i = 0; i < count; i++) {
       writer.write(i, 1);
@@ -165,7 +164,7 @@ public class TimestampAnnotatorTest {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private List<Timestamp> annotate() throws Exception {
+  private List<Timestamp> annotate() {
     ConsoleLogParser logParser = new MockConsoleLogParser();
     ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
     Supplier<TimestampFormat> originalSupplier =
@@ -196,7 +195,7 @@ public class TimestampAnnotatorTest {
             new Answer<Void>() {
 
               @Override
-              public Void answer(InvocationOnMock invocation) throws Throwable {
+              public Void answer(InvocationOnMock invocation) {
                 Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
                 capturedTimestamps.add(timestamp);
                 return null;
@@ -224,7 +223,7 @@ public class TimestampAnnotatorTest {
     }
 
     @Override
-    public Result seek(Run<?, ?> build) throws IOException {
+    public Result seek(Run<?, ?> build) {
       return logPosition;
     }
   }

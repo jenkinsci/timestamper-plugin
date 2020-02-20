@@ -38,6 +38,7 @@ import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.LogFileReader.Line;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -232,7 +233,7 @@ public class TimestampsActionOutputTest {
   private BufferedReader reader;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws IOException {
     timestampsReader = mock(TimestampsReader.class);
     OngoingStubbing<Optional<Timestamp>> readStubbing = when(timestampsReader.read());
     for (Timestamp timestamp : TIMESTAMPS) {

@@ -71,9 +71,8 @@ public class TimestampsWriterTest {
 
   private TimestampsWriter timestampsWriter;
 
-  /** @throws Exception */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     timestampsFile = TimestamperPaths.timestampsFile(build);
@@ -81,7 +80,7 @@ public class TimestampsWriterTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() throws IOException {
     if (timestampsWriter != null) {
       timestampsWriter.close();
     }

@@ -320,9 +320,8 @@ public class TimestampsActionQueryTest {
     assertThat(query, is(expectedResult));
   }
 
-  /** @throws Exception */
   @Test
-  public void testCreate_changeCaseOfQueryParameterNames() throws Exception {
+  public void testCreate_changeCaseOfQueryParameterNames() {
     queryString = changeCaseOfQueryParameterNames(queryString);
     testCreate();
   }

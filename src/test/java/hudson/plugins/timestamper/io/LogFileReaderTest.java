@@ -42,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -140,7 +141,7 @@ public class LogFileReaderTest {
     testNextLine();
   }
 
-  private void testNextLine() throws Exception {
+  private void testNextLine() throws IOException {
     List<String> texts = new ArrayList<String>();
     List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
     for (int i = 0; i < 3; i++) {
