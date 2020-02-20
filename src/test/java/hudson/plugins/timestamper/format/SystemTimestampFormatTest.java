@@ -49,7 +49,6 @@ public class SystemTimestampFormatTest {
 
   private TimeZone systemDefaultTimeZone;
 
-  /** */
   @Before
   public void setUp() {
     systemDefaultTimeZone = TimeZone.getDefault();
@@ -57,14 +56,12 @@ public class SystemTimestampFormatTest {
     System.clearProperty(TIME_ZONE_PROPERTY);
   }
 
-  /** */
   @After
   public void tearDown() {
     TimeZone.setDefault(systemDefaultTimeZone);
     System.clearProperty(TIME_ZONE_PROPERTY);
   }
 
-  /** */
   @Test
   public void testApply() {
     String systemTimeFormat = "HH:mm:ss";
@@ -75,7 +72,6 @@ public class SystemTimestampFormatTest {
         is("00:00:42"));
   }
 
-  /** */
   @Test
   public void testApply_withDifferentTimeZone() {
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
@@ -88,7 +84,6 @@ public class SystemTimestampFormatTest {
         is("01:00:42"));
   }
 
-  /** */
   @Test
   public void testApply_withSystemProperty() {
     System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
@@ -101,7 +96,6 @@ public class SystemTimestampFormatTest {
         is("02:00:42"));
   }
 
-  /** */
   @Test
   public void testApply_withProvidedTimeZone() {
     String systemTimeFormat = "HH:mm:ss";
@@ -112,7 +106,6 @@ public class SystemTimestampFormatTest {
         is("03:00:42"));
   }
 
-  /** */
   @Test
   public void testApply_withSystemPropertyAndProvidedTimeZone() {
     System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
@@ -125,7 +118,6 @@ public class SystemTimestampFormatTest {
         is("03:00:42"));
   }
 
-  /** */
   @Test
   public void testApply_englishLocale() {
     String systemTimeFormat = "EEEE, d MMMM";
@@ -136,7 +128,6 @@ public class SystemTimestampFormatTest {
         is("Thursday, 1 January"));
   }
 
-  /** */
   @Test
   public void testApply_germanLocale() {
     String systemTimeFormat = "EEEE, d MMMM";
@@ -147,7 +138,6 @@ public class SystemTimestampFormatTest {
         is("Donnerstag, 1 Januar"));
   }
 
-  /** */
   @Test
   public void testGetPlainTextUrl() {
     SystemTimestampFormat format =
@@ -156,7 +146,6 @@ public class SystemTimestampFormatTest {
     assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 
-  /** */
   @Test
   public void testGetPlainTextUrl_excessWhitespace() {
     SystemTimestampFormat format =
@@ -165,7 +154,6 @@ public class SystemTimestampFormatTest {
     assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 
-  /** */
   @Test
   public void testGetPlainTextUrl_withTimeZone() {
     SystemTimestampFormat format =
@@ -175,7 +163,6 @@ public class SystemTimestampFormatTest {
         is("timestamps/?time=HH:mm:ss&timeZone=GMT+1&appendLog&locale=en"));
   }
 
-  /** */
   @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(SystemTimestampFormat.class).suppress(Warning.NULL_FIELDS).verify();

@@ -59,10 +59,8 @@ import org.powermock.reflect.Whitebox;
  */
 public class TimestampsWriterTest {
 
-  /** */
   @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-  /** */
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   private Run<?, ?> build;
@@ -73,24 +71,21 @@ public class TimestampsWriterTest {
 
   private TimestampsWriter timestampsWriter;
 
-  /** @throws Exception */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     timestampsFile = TimestamperPaths.timestampsFile(build);
     timestampsHashFile = new File(timestampsFile.getParent(), timestampsFile.getName() + ".SHA-1");
   }
 
-  /** @throws Exception */
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() throws IOException {
     if (timestampsWriter != null) {
       timestampsWriter.close();
     }
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteIncreasing() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -100,7 +95,6 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Arrays.asList(1, 1, 1)));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteDecreasing() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -110,7 +104,6 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Arrays.asList(3, -1, -1)));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteZeroTimes() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -118,7 +111,6 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Collections.<Integer>emptyList()));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteSeveralTimes() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -128,7 +120,6 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData(), is(Arrays.asList(1, 5, 0, 0, 0, 1)));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteSameTimestampManyTimes() throws Exception {
     int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE").getInt(null);
@@ -141,7 +132,6 @@ public class TimestampsWriterTest {
     assertThat(writtenTimestampData, hasSize(times));
   }
 
-  /** @throws Exception */
   @Test
   public void testHashFile() throws Exception {
     MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -159,7 +149,6 @@ public class TimestampsWriterTest {
         is(bytesToHex(expectedHash).toLowerCase()));
   }
 
-  /** @throws Exception */
   @Test
   public void testNoHashFile() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -171,7 +160,6 @@ public class TimestampsWriterTest {
     assertThat(timestampsHashFile.getParentFile().listFiles(), is(new File[] {timestampsFile}));
   }
 
-  /** @throws Exception */
   @Test
   public void testOnlyOneWriterPerBuild() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
@@ -183,7 +171,7 @@ public class TimestampsWriterTest {
     byte[] fileContents = Files.toByteArray(timestampsFile);
     CountingInputStream inputStream =
         new CountingInputStream(new ByteArrayInputStream(fileContents));
-    List<Integer> timestampData = new ArrayList<Integer>();
+    List<Integer> timestampData = new ArrayList<>();
     while (inputStream.getCount() < fileContents.length) {
       timestampData.add((int) Varint.read(inputStream));
     }

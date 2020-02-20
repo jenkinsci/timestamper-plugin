@@ -32,7 +32,9 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,45 +66,38 @@ public class TimestampsReaderTest {
     return Arrays.asList(new Object[] {false}, new Object[] {true});
   }
 
-  /** */
   @Parameter(0)
   public boolean serialize;
 
-  /** */
   @Rule public TemporaryFolder folder = new TemporaryFolder();
 
   private Run<?, ?> build;
 
   private TimestampsReader timestampsReader;
 
-  /** @throws Exception */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     timestampsReader = new TimestampsReader(build);
   }
 
-  /** */
   @After
   public void tearDown() {
     timestampsReader.close();
   }
 
-  /** @throws Exception */
   @Test
   public void testNoTimestampsToRead() throws Exception {
     assertThat(readTimestamps(), is(Collections.<Timestamp>emptyList()));
   }
 
-  /** @throws Exception */
   @Test
   public void testReadFromStart() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
     assertThat(readTimestamps(), is(Arrays.asList(t(1, 1), t(2, 2), t(3, 3), t(4, 4))));
   }
 
-  /** @throws Exception */
   @Test
   public void testSkipZero() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
@@ -110,7 +105,6 @@ public class TimestampsReaderTest {
     assertThat(readTimestamps(), is(Arrays.asList(t(1, 1), t(2, 2), t(3, 3), t(4, 4))));
   }
 
-  /** @throws Exception */
   @Test
   public void testSkipOne() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
@@ -118,7 +112,6 @@ public class TimestampsReaderTest {
     assertThat(readTimestamps(), is(Arrays.asList(t(2, 2), t(3, 3), t(4, 4))));
   }
 
-  /** @throws Exception */
   @Test
   public void testSkipTwo() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
@@ -126,7 +119,6 @@ public class TimestampsReaderTest {
     assertThat(readTimestamps(), is(Arrays.asList(t(3, 3), t(4, 4))));
   }
 
-  /** @throws Exception */
   @Test
   public void testSkipToEnd() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
@@ -134,7 +126,6 @@ public class TimestampsReaderTest {
     assertThat(readTimestamps(), is(Collections.<Timestamp>emptyList()));
   }
 
-  /** @throws Exception */
   @Test
   public void testSkipPastEnd() throws Exception {
     writeTimestamps(Arrays.asList(1, 1, 1, 1));
@@ -147,8 +138,6 @@ public class TimestampsReaderTest {
    * by this plug-in to record changes to the clock, i.e. when {@link System#currentTimeMillis()}
    * diverges from {@link System#nanoTime()}. Newer versions of this plug-in no longer create time
    * shifts files due to JENKINS-19778.
-   *
-   * @throws Exception
    */
   @Test
   public void testTimeShifts() throws Exception {
@@ -169,7 +158,7 @@ public class TimestampsReaderTest {
   }
 
   private void writeToFile(List<Integer> data, File file) throws Exception {
-    file.getParentFile().mkdirs();
+    Files.createDirectories(file.getParentFile().toPath());
     try (OutputStream outputStream = new FileOutputStream(file, true)) {
       byte[] buffer = new byte[10];
       for (Integer value : data) {
@@ -179,8 +168,8 @@ public class TimestampsReaderTest {
     }
   }
 
-  private List<Timestamp> readTimestamps() throws Exception {
-    List<Timestamp> timestamps = new ArrayList<Timestamp>();
+  private List<Timestamp> readTimestamps() throws IOException {
+    List<Timestamp> timestamps = new ArrayList<>();
     int iterations = 0;
     while (true) {
       if (serialize) {

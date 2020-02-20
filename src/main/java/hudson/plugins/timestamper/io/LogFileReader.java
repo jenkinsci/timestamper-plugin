@@ -136,8 +136,6 @@ public class LogFileReader implements Closeable {
 
   /**
    * Create a log file reader for the given build.
-   *
-   * @param build
    */
   public LogFileReader(Run<?, ?> build) {
     this.build = checkNotNull(build);
@@ -147,7 +145,6 @@ public class LogFileReader implements Closeable {
    * Read the next line from the log file.
    *
    * @return the next line, or {@link Optional#empty()} if there are no more to read
-   * @throws IOException
    */
   public Optional<Line> nextLine() throws IOException {
     if (!build.getLogFile().exists()) { // TODO JENKINS-54128 rather use getLogText
@@ -170,7 +167,6 @@ public class LogFileReader implements Closeable {
    * Get the number of lines that can be read from the log file.
    *
    * @return the line count
-   * @throws IOException
    */
   @SuppressFBWarnings("RV_DONT_JUST_NULL_CHECK_READLINE")
   public int lineCount() throws IOException {

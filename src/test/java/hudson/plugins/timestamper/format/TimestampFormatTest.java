@@ -45,13 +45,11 @@ public class TimestampFormatTest {
 
   private String prefix = "<span class=\"timestamp\">" + timestampString + "</span>";
 
-  /** */
   @Test
   public void testMarkup() {
     assertThat(markup("line").toString(true), is(prefix + "line"));
   }
 
-  /** */
   @Test
   public void testMarkupThenAntTargetNote() {
     assertThat(
@@ -59,7 +57,6 @@ public class TimestampFormatTest {
         is(prefix + "<b class=ant-target>target</b>:"));
   }
 
-  /** */
   @Test
   public void testAntTargetNoteThenMarkup() {
     assertThat(

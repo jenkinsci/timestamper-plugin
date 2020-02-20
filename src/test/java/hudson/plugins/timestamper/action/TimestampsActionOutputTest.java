@@ -24,6 +24,7 @@
 package hudson.plugins.timestamper.action;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.atMost;
@@ -37,6 +38,7 @@ import hudson.plugins.timestamper.io.LogFileReader;
 import hudson.plugins.timestamper.io.LogFileReader.Line;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,7 +72,7 @@ public class TimestampsActionOutputTest {
   private static final Function<Timestamp, String> ELAPSED_FORMAT =
       timestamp -> String.valueOf(timestamp.elapsedMillis);
 
-  private static final List<Timestamp> TIMESTAMPS =
+  private static final ImmutableList<Timestamp> TIMESTAMPS =
       ImmutableList.of(
           new Timestamp(0, 1),
           //
@@ -87,7 +89,7 @@ public class TimestampsActionOutputTest {
   /** @return the test data */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    List<Object[]> testCases = new ArrayList<Object[]>();
+    List<Object[]> testCases = new ArrayList<>();
 
     testCases.add(
         new Object[] {
@@ -116,7 +118,7 @@ public class TimestampsActionOutputTest {
           "currentTime",
           new TimestampsActionQuery(
               0, NO_ENDLINE, ImmutableList.of(FORMAT, ELAPSED_FORMAT), false, true),
-          Arrays.asList("1 42")
+          Collections.singletonList("1 42")
         });
 
     // start line
@@ -136,7 +138,7 @@ public class TimestampsActionOutputTest {
         new Object[] {
           "start -1",
           new TimestampsActionQuery(-1, NO_ENDLINE, Collections.singletonList(FORMAT), true, false),
-          Arrays.asList("6  line6")
+          Collections.singletonList("6  line6")
         });
     testCases.add(
         new Object[] {
@@ -158,7 +160,7 @@ public class TimestampsActionOutputTest {
           "end 1",
           new TimestampsActionQuery(
               0, Optional.of(1), Collections.singletonList(FORMAT), true, false),
-          Arrays.asList("1  line1")
+          Collections.singletonList("1  line1")
         });
     testCases.add(
         new Object[] {
@@ -215,15 +217,12 @@ public class TimestampsActionOutputTest {
     return testCases;
   }
 
-  /** */
   @Parameter(0)
   public String testCaseDescription;
 
-  /** */
   @Parameter(1)
   public TimestampsActionQuery query;
 
-  /** */
   @Parameter(2)
   public List<String> expectedLines;
 
@@ -233,9 +232,8 @@ public class TimestampsActionOutputTest {
 
   private BufferedReader reader;
 
-  /** @throws Exception */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws IOException {
     timestampsReader = mock(TimestampsReader.class);
     OngoingStubbing<Optional<Timestamp>> readStubbing = when(timestampsReader.read());
     for (Timestamp timestamp : TIMESTAMPS) {
@@ -243,7 +241,7 @@ public class TimestampsActionOutputTest {
     }
     readStubbing.thenReturn(Optional.empty());
 
-    List<Line> lines = new ArrayList<Line>();
+    List<Line> lines = new ArrayList<>();
     for (int i = 1; i <= TIMESTAMPS.size(); i++) {
       Line line = mock(Line.class);
       when(line.getText()).thenReturn("line" + i);
@@ -263,7 +261,6 @@ public class TimestampsActionOutputTest {
         TimestampsActionOutput.open(timestampsReader, logFileReader, query, new Timestamp(42, 1));
   }
 
-  /** @throws Exception */
   @After
   public void tearDown() throws Exception {
     // for efficiency, avoid counting the number of lines more than once
@@ -272,7 +269,6 @@ public class TimestampsActionOutputTest {
     reader.close();
   }
 
-  /** */
   @Test
   public void testRead_eachCharacter() throws Exception {
     StringBuilder result = new StringBuilder();
@@ -283,16 +279,14 @@ public class TimestampsActionOutputTest {
     assertThat(result.toString(), is(joinLines(expectedLines)));
   }
 
-  /** */
   @Test
   public void testRead_allAtOnce() throws Exception {
     String expectedResult = joinLines(expectedLines);
     char[] result = new char[expectedResult.length()];
-    reader.read(result, 0, result.length);
+    assertEquals(result.length, reader.read(result, 0, result.length));
     assertThat(String.valueOf(result), is(expectedResult));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_noTimestamps() throws Exception {
     assumeThat(query.currentTime, is(false));
@@ -306,12 +300,11 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_timestampsInLogFileOnly() throws Exception {
     when(timestampsReader.read()).thenReturn(Optional.empty());
 
-    List<Line> lines = new ArrayList<Line>();
+    List<Line> lines = new ArrayList<>();
     int i = 1;
     for (Timestamp timestamp : TIMESTAMPS) {
       Line line = mock(Line.class);
@@ -330,7 +323,6 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_noLogFile() throws Exception {
     if (query.appendLogLine) {
@@ -344,7 +336,6 @@ public class TimestampsActionOutputTest {
     assertThat(readLines(), is(expectedLines));
   }
 
-  /** @throws Exception */
   @Test
   public void testRead_noTimestampsAndNoLogFile() throws Exception {
     assumeThat(query.currentTime, is(false));
@@ -363,7 +354,7 @@ public class TimestampsActionOutputTest {
   }
 
   private List<String> readLines() throws Exception {
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
     String line;
     while ((line = reader.readLine()) != null) {
       lines.add(line);

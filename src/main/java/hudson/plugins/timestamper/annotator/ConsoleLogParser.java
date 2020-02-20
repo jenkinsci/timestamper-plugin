@@ -61,7 +61,6 @@ class ConsoleLogParser implements Serializable {
    *
    * @param build the build to inspect
    * @return the result
-   * @throws IOException
    */
   public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
     long logLength = build.getLogText().length();

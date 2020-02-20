@@ -35,7 +35,6 @@ import org.junit.Test;
  */
 public class ConsoleLogParserResultTest {
 
-  /** */
   @Test
   public void testResultEqualsAndHashCode() {
     EqualsVerifier.forClass(ConsoleLogParser.Result.class)

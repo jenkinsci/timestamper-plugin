@@ -96,7 +96,7 @@ public class TimestampFormatProvider {
     } else {
       // "system", no mode cookie, or unrecognised mode cookie
       Optional<String> timeZoneId = Optional.empty();
-      if (local != null && local.booleanValue()) {
+      if (local != null && local) {
         try {
           String localTimeZoneId = convertOffsetToTimeZoneId(offset);
           timeZoneId = Optional.of(localTimeZoneId);

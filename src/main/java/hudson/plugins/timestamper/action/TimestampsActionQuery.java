@@ -56,8 +56,7 @@ public final class TimestampsActionQuery {
   public static TimestampsActionQuery create(String query) {
     int startLine = 0;
     Optional<Integer> endLine = Optional.empty();
-    List<Function<Timestamp, String>> timestampFormats =
-        new ArrayList<Function<Timestamp, String>>();
+    List<Function<Timestamp, String>> timestampFormats = new ArrayList<>();
     boolean appendLogLine = false;
     boolean currentTime = false;
 
@@ -103,7 +102,7 @@ public final class TimestampsActionQuery {
   }
 
   private static List<QueryParameter> readQueryString(String query) {
-    ImmutableList.Builder<QueryParameter> parameters = new ImmutableList.Builder<QueryParameter>();
+    ImmutableList.Builder<QueryParameter> parameters = new ImmutableList.Builder<>();
     if (query != null) {
       String[] pairs = query.split("&");
       for (String pair : pairs) {

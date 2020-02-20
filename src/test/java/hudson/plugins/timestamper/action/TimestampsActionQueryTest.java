@@ -71,7 +71,7 @@ public class TimestampsActionQueryTest {
   /** @return the test data */
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
-    List<Object[]> testCases = new ArrayList<Object[]>();
+    List<Object[]> testCases = new ArrayList<>();
 
     // No query
     testCases.add(new Object[] {"", DEFAULT});
@@ -212,13 +212,9 @@ public class TimestampsActionQueryTest {
             Optional.of(-1), Optional.of(0), Optional.of(1), Optional.empty());
     for (Optional<Integer> startLine : lineValues) {
       for (Optional<Integer> endLine : lineValues) {
-        List<String> params = new ArrayList<String>();
-        if (startLine.isPresent()) {
-          params.add("startLine=" + startLine.get());
-        }
-        if (endLine.isPresent()) {
-          params.add("endLine=" + endLine.get());
-        }
+        List<String> params = new ArrayList<>();
+        startLine.ifPresent(integer -> params.add("startLine=" + integer));
+        endLine.ifPresent(integer -> params.add("endLine=" + integer));
         String query = Joiner.on('&').join(params);
 
         if (!query.isEmpty()) {
@@ -305,18 +301,14 @@ public class TimestampsActionQueryTest {
     return testCases;
   }
 
-  /** */
   @Parameter(0)
   public String queryString;
 
-  /** */
   @Parameter(1)
   public Object expectedResult;
 
-  /** */
   @Rule public ExpectedException thrown = ExpectedException.none();
 
-  /** */
   @Test
   public void testCreate() {
     if (expectedResult instanceof Class<?>) {
@@ -328,14 +320,12 @@ public class TimestampsActionQueryTest {
     assertThat(query, is(expectedResult));
   }
 
-  /** @throws Exception */
   @Test
-  public void testCreate_changeCaseOfQueryParameterNames() throws Exception {
+  public void testCreate_changeCaseOfQueryParameterNames() {
     queryString = changeCaseOfQueryParameterNames(queryString);
     testCreate();
   }
 
-  /** */
   @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(TimestampsActionQuery.class).suppress(Warning.NULL_FIELDS).verify();
@@ -344,7 +334,6 @@ public class TimestampsActionQueryTest {
   /**
    * Change the case of all query parameter names.
    *
-   * @param query
    * @return the modified query
    */
   private String changeCaseOfQueryParameterNames(String query) {

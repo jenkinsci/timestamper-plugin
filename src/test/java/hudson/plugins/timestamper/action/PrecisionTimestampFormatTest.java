@@ -49,7 +49,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class PrecisionTimestampFormatTest {
 
-  private static final List<Timestamp> TIMESTAMPS =
+  private static final ImmutableList<Timestamp> TIMESTAMPS =
       ImmutableList.of(
           new Timestamp(0, TimeUnit.SECONDS.toMillis(1)),
           //
@@ -96,20 +96,17 @@ public class PrecisionTimestampFormatTest {
         });
   }
 
-  /** */
   @Parameter(0)
   public int precision;
 
-  /** */
   @Parameter(1)
   public List<String> expectedResult;
 
-  /** */
   @Test
   public void testApply() {
     PrecisionTimestampFormat format = new PrecisionTimestampFormat(precision);
 
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
     for (Timestamp timestamp : TIMESTAMPS) {
       result.add(format.apply(timestamp));
     }
@@ -117,7 +114,6 @@ public class PrecisionTimestampFormatTest {
     assertThat(result, is(expectedResult));
   }
 
-  /** */
   @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(PrecisionTimestampFormat.class).verify();

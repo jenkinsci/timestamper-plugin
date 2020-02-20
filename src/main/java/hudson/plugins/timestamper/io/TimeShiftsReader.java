@@ -69,7 +69,6 @@ class TimeShiftsReader implements Serializable {
    *
    * @return the recorded number of milliseconds since the epoch, or {@link Optional#empty()} if no
    *     time shift was recorded for that time-stamp entry
-   * @throws IOException
    */
   Optional<Long> getTime(long timestampEntry) throws IOException {
     if (timeShifts == null) {
@@ -82,7 +81,7 @@ class TimeShiftsReader implements Serializable {
     if (!timeShiftsFile.isFile()) {
       return Collections.emptyMap();
     }
-    Map<Long, Long> timeShifts = new HashMap<Long, Long>();
+    Map<Long, Long> timeShifts = new HashMap<>();
     try (CountingInputStream inputStream =
         new CountingInputStream(new BufferedInputStream(new FileInputStream(timeShiftsFile)))) {
       while (inputStream.getCount() < timeShiftsFile.length()) {

@@ -90,41 +90,31 @@ public class TimestampNoteTest {
 
   private static TimestampNote note(Long elapsedMillis, long millisSinceEpoch) {
     TimestampNote note =
-        new TimestampNote(elapsedMillis == null ? 0l : elapsedMillis, millisSinceEpoch);
+        new TimestampNote(elapsedMillis == null ? 0L : elapsedMillis, millisSinceEpoch);
     if (elapsedMillis == null) {
       Whitebox.setInternalState(note, "elapsedMillis", (Object) null);
     }
     return note;
   }
 
-  /** */
   @Parameter(0)
   public Object context;
 
-  /** */
   @Parameter(1)
   public TimestampNote note;
 
-  /** */
   @Parameter(2)
   public Timestamp expectedTimestamp;
 
   @Mock private TimestampFormat format;
 
-  /** @throws Exception */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
 
     originalSupplier = Whitebox.getInternalState(TimestampFormatProvider.class, Supplier.class);
     Whitebox.setInternalState(
-        TimestampFormatProvider.class,
-        new Supplier<TimestampFormat>() {
-          @Override
-          public TimestampFormat get() {
-            return format;
-          }
-        });
+        TimestampFormatProvider.class, (Supplier<TimestampFormat>) () -> format);
   }
 
   @After
@@ -132,20 +122,17 @@ public class TimestampNoteTest {
     Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class, originalSupplier);
   }
 
-  /** */
   @Test
   public void testGetTimestamp() {
     assertThat(note.getTimestamp(context), is(expectedTimestamp));
   }
 
-  /** */
   @Test
   public void testGetTimestamp_afterSerialization() {
     note = (TimestampNote) SerializationUtils.clone(note);
     testGetTimestamp();
   }
 
-  /** */
   @Test
   public void testAnnotate() {
     MarkupText text = new MarkupText("");
@@ -153,7 +140,6 @@ public class TimestampNoteTest {
     verify(format).markup(text, expectedTimestamp);
   }
 
-  /** */
   @Test
   public void testAnnotate_afterSerialization() {
     note = (TimestampNote) SerializationUtils.clone(note);

@@ -38,7 +38,6 @@ import org.junit.Test;
  */
 public class ElapsedTimestampFormatTest {
 
-  /** */
   @Test
   public void testApply() {
     String elapsedTimeFormat = "ss.S";
@@ -46,21 +45,18 @@ public class ElapsedTimestampFormatTest {
     assertThat(new ElapsedTimestampFormat(elapsedTimeFormat).apply(timestamp), is("00.123"));
   }
 
-  /** */
   @Test
   public void testGetPlainTextUrl() {
     ElapsedTimestampFormat format = new ElapsedTimestampFormat("'<b>'HH:mm:ss.S'</b> '");
     assertThat(format.getPlainTextUrl(), is("timestamps/?elapsed=HH:mm:ss.S&appendLog"));
   }
 
-  /** */
   @Test
   public void testGetPlainTextUrl_excessWhitespace() {
     ElapsedTimestampFormat format = new ElapsedTimestampFormat(" ' <b> ' HH:mm:ss.S ' </b> ' ");
     assertThat(format.getPlainTextUrl(), is("timestamps/?elapsed=HH:mm:ss.S&appendLog"));
   }
 
-  /** */
   @Test
   public void testEqualsAndHashCode() {
     EqualsVerifier.forClass(ElapsedTimestampFormat.class).suppress(Warning.NULL_FIELDS).verify();

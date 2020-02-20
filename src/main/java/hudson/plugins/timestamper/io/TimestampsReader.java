@@ -64,8 +64,6 @@ public class TimestampsReader implements Serializable, Closeable {
 
   /**
    * Create a time-stamps reader for the given build.
-   *
-   * @param build
    */
   public TimestampsReader(Run<?, ?> build) {
     this.timestampsFile = TimestamperPaths.timestampsFile(build);
@@ -77,7 +75,6 @@ public class TimestampsReader implements Serializable, Closeable {
    * Skip past the given number of time-stamp entries.
    *
    * @param count the number of time-stamp entries to skip
-   * @throws IOException
    */
   public void skip(int count) throws IOException {
     for (int i = 0; i < count; i++) {
@@ -94,7 +91,6 @@ public class TimestampsReader implements Serializable, Closeable {
    *
    * @param lineNumber line number (should be negative)
    * @return absolute line
-   * @throws IOException
    */
   public int getAbs(int lineNumber) throws IOException {
     skip(-lineNumber);
@@ -113,7 +109,6 @@ public class TimestampsReader implements Serializable, Closeable {
    * Read the next time-stamp.
    *
    * @return the next time-stamp, or {@link Optional#empty()} if there are no more to read
-   * @throws IOException
    */
   public Optional<Timestamp> read() throws IOException {
     if (inputStream == null) {
@@ -141,7 +136,6 @@ public class TimestampsReader implements Serializable, Closeable {
   /**
    * Read the next time-stamp from the given input stream.
    *
-   * @param inputStream
    * @return the next time-stamp
    */
   private Timestamp readNext(InputStream inputStream) throws IOException {

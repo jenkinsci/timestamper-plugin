@@ -39,11 +39,7 @@ final class Varint {
    * Write a value to the given byte array as a Base 128 Varint. See:
    * https://developers.google.com/protocol-buffers/docs/encoding#varints
    *
-   * @param value
-   * @param writeTo
-   * @param offset
    * @return the new offset after writing the value
-   * @throws IOException
    */
   static int write(long value, byte[] writeTo, int offset) throws IOException {
     while (true) {
@@ -62,9 +58,7 @@ final class Varint {
    * Read a value as a Base 128 Varint. See:
    * https://developers.google.com/protocol-buffers/docs/encoding#varints
    *
-   * @param inputStream
    * @return the value
-   * @throws IOException
    */
   static long read(InputStream inputStream) throws IOException {
     int shift = 0;

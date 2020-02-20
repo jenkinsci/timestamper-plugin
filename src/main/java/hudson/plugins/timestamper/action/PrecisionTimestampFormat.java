@@ -62,7 +62,7 @@ final class PrecisionTimestampFormat implements Function<Timestamp, String> {
     } else {
       fractional += Strings.repeat("0", precision - 3);
     }
-    return String.valueOf(seconds) + "." + fractional;
+    return seconds + "." + fractional;
   }
 
   /** {@inheritDoc} */

@@ -80,10 +80,6 @@ public final class TimestampsAction implements Action {
 
   /**
    * Serve a page at this URL.
-   *
-   * @param request
-   * @param response
-   * @throws IOException
    */
   public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
     response.setContentType("text/plain;charset=UTF-8");

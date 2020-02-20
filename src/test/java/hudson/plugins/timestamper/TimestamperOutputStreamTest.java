@@ -58,7 +58,6 @@ public class TimestamperOutputStreamTest {
 
   private byte[] dataTwoLines;
 
-  /** */
   @Before
   public void setUp() {
     delegate = mock(OutputStream.class);
@@ -68,55 +67,47 @@ public class TimestamperOutputStreamTest {
     dataTwoLines = new byte[] {'a', (byte) NEWLINE, 'b', (byte) NEWLINE};
   }
 
-  /** */
   @After
   public void tearDown() throws Exception {
     timestamperOutputStream.close();
   }
 
-  /** @throws Exception */
   @Test
   public void testPassThroughWriteByteArray() throws Exception {
     timestamperOutputStream.write(data);
     verify(delegate).write(data);
   }
 
-  /** @throws Exception */
   @Test
   public void testPassThroughWriteByteArrayWithOffset() throws Exception {
     timestamperOutputStream.write(data, 0, 1);
     verify(delegate).write(data, 0, 1);
   }
 
-  /** @throws Exception */
   @Test
   public void testPassThroughWriteByte() throws Exception {
     timestamperOutputStream.write(42);
     verify(delegate).write(42);
   }
 
-  /** @throws Exception */
   @Test
   public void testPassThroughFlush() throws Exception {
     timestamperOutputStream.flush();
     verify(delegate).flush();
   }
 
-  /** @throws Exception */
   @Test
   public void testPassThroughClose() throws Exception {
     timestamperOutputStream.close();
     verify(delegate).close();
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteIntOneCharacter() throws Exception {
     timestamperOutputStream.write('a');
     verify(writer).write(anyLong(), eq(1));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteIntOneLine() throws Exception {
     timestamperOutputStream.write('a');
@@ -124,7 +115,6 @@ public class TimestamperOutputStreamTest {
     verify(writer).write(anyLong(), eq(1));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteIntTwoLines() throws Exception {
     timestamperOutputStream.write('a');
@@ -133,35 +123,30 @@ public class TimestamperOutputStreamTest {
     verify(writer, times(2)).write(anyLong(), eq(1));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteByteArray() throws Exception {
     timestamperOutputStream.write(data);
     verify(writer).write(anyLong(), eq(1));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteByteArrayTwoLines() throws Exception {
     timestamperOutputStream.write(dataTwoLines);
     verify(writer).write(anyLong(), eq(2));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteByteArraySegment() throws Exception {
     timestamperOutputStream.write(dataTwoLines, 0, data.length);
     verify(writer).write(anyLong(), eq(1));
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteByteArraySegmentTwoLines() throws Exception {
     timestamperOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
     verify(writer).write(anyLong(), eq(2));
   }
 
-  /** @throws Exception */
   @Test
   public void testNoWritesAfterError() throws Exception {
     doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
@@ -170,14 +155,12 @@ public class TimestamperOutputStreamTest {
     verify(writer, times(1)).write(anyLong(), anyInt());
   }
 
-  /** @throws Exception */
   @Test
   public void testWriteDigest() throws Exception {
     timestamperOutputStream.close();
     verify(writer).writeDigest();
   }
 
-  /** @throws Exception */
   @Test
   public void testNoDigestAfterWriteError() throws Exception {
     doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
@@ -186,7 +169,6 @@ public class TimestamperOutputStreamTest {
     verify(writer, never()).writeDigest();
   }
 
-  /** @throws Exception */
   @Test
   public void testNoDigestAfterCloseError() throws Exception {
     doThrow(new IOException()).when(writer).close();

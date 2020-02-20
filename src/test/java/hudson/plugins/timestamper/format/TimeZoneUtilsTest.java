@@ -47,7 +47,7 @@ public class TimeZoneUtilsTest {
   /** @return the test cases */
   @Parameters(name = "getTimeZoneId[{0}]={1}")
   public static Iterable<Object[]> data() {
-    List<Object[]> testCases = new ArrayList<Object[]>();
+    List<Object[]> testCases = new ArrayList<>();
     testCases.add(new Object[] {0, "GMT"});
     testCases.add(new Object[] {offset(0, 30), "GMT+0:30"});
     testCases.add(new Object[] {-offset(0, 30), "GMT-0:30"});
@@ -65,21 +65,17 @@ public class TimeZoneUtilsTest {
     return TimeUnit.HOURS.toMillis(hours) + TimeUnit.MINUTES.toMillis(minutes);
   }
 
-  /** */
   @Parameter(0)
   public long offset;
 
-  /** */
   @Parameter(1)
   public String expectedTimeZoneId;
 
-  /** */
   @Test
   public void testGetTimeZoneId() {
     assertThat(TimeZoneUtils.getTimeZoneId(offset), is(expectedTimeZoneId));
   }
 
-  /** */
   @Test
   public void testValidTimeZone() {
     String timeZoneId = TimeZoneUtils.getTimeZoneId(offset);

@@ -62,7 +62,6 @@ public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Ru
    * Get the current offset for viewing the console log. A non-negative offset is from the start of
    * the file, and a negative offset is back from the end of the file.
    *
-   * @param request
    * @return the offset in bytes
    */
   private static long getOffset(StaplerRequest request) {

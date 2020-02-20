@@ -42,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -65,7 +66,6 @@ import org.powermock.reflect.Whitebox;
  */
 public class LogFileReaderTest {
 
-  /** */
   @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
   private AbstractBuild<?, ?> build;
@@ -84,7 +84,6 @@ public class LogFileReaderTest {
 
   private Field INSECURE; // SECURITY-382
 
-  /** @throws Exception */
   @Before
   public void setUp() throws Exception {
     INSECURE = ConsoleNote.class.getDeclaredField("INSECURE");
@@ -110,7 +109,7 @@ public class LogFileReaderTest {
     // Gzipped log file
     gzippedLogFile = tempFolder.newFile("logFile.gz");
     try (FileOutputStream fileOutputStream = new FileOutputStream(gzippedLogFile);
-        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream); ) {
+        GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream)) {
       gzipOutputStream.write(logFileContents.getBytes(Charset.defaultCharset()));
     }
 
@@ -123,7 +122,6 @@ public class LogFileReaderTest {
     Whitebox.setInternalState(Jenkins.class, "theInstance", jenkins);
   }
 
-  /** */
   @After
   public void tearDown() throws Exception {
     Whitebox.setInternalState(Jenkins.class, "theInstance", (Jenkins) null);
@@ -131,23 +129,21 @@ public class LogFileReaderTest {
     INSECURE.set(null, false);
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine_logFileExists() throws Exception {
     when(build.getLogFile()).thenReturn(uncompressedLogFile);
     testNextLine();
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine_zippedLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(gzippedLogFile);
     testNextLine();
   }
 
-  private void testNextLine() throws Exception {
-    List<String> texts = new ArrayList<String>();
-    List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
+  private void testNextLine() throws IOException {
+    List<String> texts = new ArrayList<>();
+    List<Optional<Timestamp>> timestamps = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       Optional<Line> line = logFileReader.nextLine();
       if (!line.isPresent()) {
@@ -165,14 +161,12 @@ public class LogFileReaderTest {
     assertThat("timestamps", timestamps, is(expectedTimestamps));
   }
 
-  /** @throws Exception */
   @Test
   public void testNextLine_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);
     assertThat(logFileReader.nextLine(), is(Optional.empty()));
   }
 
-  /** @throws Exception */
   @Test
   public void testReadTimestamp_logContainsEscapeCharacters() throws Exception {
     File logFile = tempFolder.newFile();
@@ -198,7 +192,7 @@ public class LogFileReaderTest {
                 + ConsoleNote.POSTAMBLE_STR);
     Files.write(Joiner.on('\n').join(logFileContents), logFile, Charsets.UTF_8);
 
-    List<Optional<Timestamp>> timestamps = new ArrayList<Optional<Timestamp>>();
+    List<Optional<Timestamp>> timestamps = new ArrayList<>();
     for (int i = 0; i <= logFileContents.size(); i++) {
       Optional<Line> line = logFileReader.nextLine();
       if (!line.isPresent()) {
@@ -207,7 +201,7 @@ public class LogFileReaderTest {
       timestamps.add(line.get().readTimestamp());
     }
 
-    List<Optional<Timestamp>> expectedTimestamps = new ArrayList<Optional<Timestamp>>();
+    List<Optional<Timestamp>> expectedTimestamps = new ArrayList<>();
     for (int i = 0; i < logFileContents.size(); i++) {
       expectedTimestamps.add(Optional.empty());
     }
@@ -226,21 +220,18 @@ public class LogFileReaderTest {
     return byteArrayOutputStream.toString();
   }
 
-  /** @throws Exception */
   @Test
   public void testLineCount_logFileExists() throws Exception {
     when(build.getLogFile()).thenReturn(uncompressedLogFile);
     assertThat(logFileReader.lineCount(), is(2));
   }
 
-  /** @throws Exception */
   @Test
   public void testLineCount_zippedLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(gzippedLogFile);
     assertThat(logFileReader.lineCount(), is(2));
   }
 
-  /** @throws Exception */
   @Test
   public void testLineCount_noLogFile() throws Exception {
     when(build.getLogFile()).thenReturn(nonExistantFile);

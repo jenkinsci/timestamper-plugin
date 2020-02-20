@@ -45,7 +45,6 @@ public final class DumpTimestamps {
    * Jenkins.
    *
    * @param args the command-line arguments, expected to contain a timestamper directory path
-   * @throws IOException
    */
   public static void main(String... args) throws IOException {
     if (args.length == 0) {
@@ -67,7 +66,7 @@ public final class DumpTimestamps {
     byte[] fileContents = Files.toByteArray(file);
     CountingInputStream inputStream =
         new CountingInputStream(new ByteArrayInputStream(fileContents));
-    List<Long> values = new ArrayList<Long>();
+    List<Long> values = new ArrayList<>();
     while (inputStream.getCount() < fileContents.length) {
       values.add(Varint.read(inputStream));
       if (values.size() == columns) {
