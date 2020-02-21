@@ -16,6 +16,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -23,6 +25,16 @@ import org.jvnet.hudson.test.JenkinsRule;
 public class TimestamperIntegrationTest {
 
     @Rule public JenkinsRule r = new JenkinsRule();
+
+    @Before
+    public void setUp() {
+        System.clearProperty(TimestampNote.getSystemProperty());
+    }
+
+    @After
+    public void tearDown() {
+        System.clearProperty(TimestampNote.getSystemProperty());
+    }
 
     @Test
     public void buildWrapper() throws Exception {
@@ -84,6 +96,22 @@ public class TimestamperIntegrationTest {
         project.getBuildWrappersList().add(new TimestamperBuildWrapper());
         FreeStyleBuild build = r.buildAndAssertSuccess(project);
         r.assertLogContains("foo", build);
+
+        List<String> unstampedLines = build.getLog(Integer.MAX_VALUE);
+        TimestamperApiTestUtil.timestamperApi(build, unstampedLines);
+    }
+
+    @Test
+    public void timestampNote() throws Exception {
+        System.setProperty(TimestampNote.getSystemProperty(), "true");
+
+        FreeStyleProject project = r.createFreeStyleProject();
+        project.getBuildersList()
+                .add(Functions.isWindows() ? new BatchFile("echo foo") : new Shell("echo foo"));
+        project.getBuildWrappersList().add(new TimestamperBuildWrapper());
+        FreeStyleBuild build = r.buildAndAssertSuccess(project);
+        r.assertLogContains("foo", build);
+
         List<String> unstampedLines = build.getLog(Integer.MAX_VALUE);
         TimestamperApiTestUtil.timestamperApi(build, unstampedLines);
     }
