@@ -31,6 +31,7 @@ public class PipelineTest {
     public void setAllPipelines() {
         TimestamperConfig config = TimestamperConfig.get();
         config.setAllPipelines(true);
+        config.save();
     }
 
     @Rule public JenkinsRule r = new JenkinsRule();
@@ -126,16 +127,37 @@ public class PipelineTest {
     @Test
     public void timestamperApi() throws Exception {
         WorkflowJob project = r.createProject(WorkflowJob.class);
-        project.setDefinition(new CpsFlowDefinition("node {\n" + "  echo 'foo'\n" + "}", true));
+        project.setDefinition(new CpsFlowDefinition("echo 'foo'\n", true));
         WorkflowRun build = r.buildAndAssertSuccess(project);
         r.assertLogContains("foo", build);
         List<String> unstampedLines = new ArrayList<>();
         for (String line : build.getLog(Integer.MAX_VALUE)) {
-            assertEquals('[', line.charAt(0));
-            assertEquals(']', line.charAt(25));
+            assertTrue(
+                    GlobalAnnotator.parseTimestamp(line, 0, build.getStartTimeInMillis())
+                            .isPresent());
             unstampedLines.add(line.substring(27));
         }
         TimestamperApiTestUtil.timestamperApi(build, unstampedLines);
+    }
+
+    @Test
+    public void timestamperStep() throws Exception {
+        TimestamperConfig config = TimestamperConfig.get();
+        config.setAllPipelines(false);
+        config.save();
+
+        WorkflowJob project = r.createProject(WorkflowJob.class);
+        project.setDefinition(new CpsFlowDefinition("timestamps {\n  echo 'foo'\n}", true));
+
+        WorkflowRun build = r.buildAndAssertSuccess(project);
+        r.assertLogContains("foo", build);
+        for (String line : build.getLog(Integer.MAX_VALUE)) {
+            assertEquals(
+                    line,
+                    line.contains("foo"),
+                    GlobalAnnotator.parseTimestamp(line, 0, build.getStartTimeInMillis())
+                            .isPresent());
+        }
     }
 
     private static List<String> getTimestamps(

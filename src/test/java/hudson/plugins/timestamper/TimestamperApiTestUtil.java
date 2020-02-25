@@ -5,8 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import hudson.model.Run;
-import hudson.plugins.timestamper.action.TimestampsActionOutput;
-import hudson.plugins.timestamper.action.TimestampsActionQuery;
+import hudson.plugins.timestamper.api.TimestamperAPI;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.time.Duration;
@@ -100,9 +99,8 @@ public class TimestamperApiTestUtil {
 
     private static List<String> getQueryResults(Run<?, ?> build, String queryString)
             throws IOException {
-        TimestampsActionQuery query = TimestampsActionQuery.create(queryString);
         List<String> result;
-        try (BufferedReader reader = TimestampsActionOutput.open(build, query)) {
+        try (BufferedReader reader = TimestamperAPI.get().read(build, queryString)) {
             result = reader.lines().collect(Collectors.toList());
         }
         return result;
