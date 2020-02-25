@@ -39,11 +39,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * <p>These are inserted into the log file when:
  *
  * <ul>
- *   <li>Running a pipeline build or any other build which does not extend {@link AbstractBuild} OR
- *   <li>Running the Timestamper plugin prior to version 1.4 OR
- *   <li>The system property is set: ({@link #getSystemProperty()}). The is intended to support
- *       scripts that were written prior to Timestamper 1.4 to parse the log files. New scripts
- *       should query the {@code /timestamps} URL instead (see {@link TimestampsAction}).
+ *   <li>Running a Pipeline build or any other build which does not extend {@link AbstractBuild}
+ *       prior to version 1.9 OR
+ *   <li>Running a Freestyle build or any other build which extends {@link AbstractBuild} prior to
+ *       version 1.4 OR
+ *   <li>Running a Freestyle build or any other build which extends {@link AbstractBuild} and the
+ *       system property is set: ({@link #getSystemProperty()}). This is intended to support scripts
+ *       that were written prior to version 1.4 to parse the log files. New scripts should query the
+ *       {@code /timestamps} URL instead (see {@link TimestampsAction}).
  * </ul>
  *
  * <p>Otherwise, the time-stamps are stored in a separate file, which allows a more compact format
