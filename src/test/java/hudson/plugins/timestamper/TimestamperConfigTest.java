@@ -23,9 +23,9 @@
  */
 package hudson.plugins.timestamper;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import hudson.util.XStream2;
 import java.util.Arrays;
