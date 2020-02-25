@@ -27,6 +27,8 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 public class PipelineTest {
 
+    @Rule public JenkinsRule r = new JenkinsRule();
+
     @Before
     public void setAllPipelines() {
         TimestamperConfig config = TimestamperConfig.get();
@@ -34,10 +36,8 @@ public class PipelineTest {
         config.save();
     }
 
-    @Rule public JenkinsRule r = new JenkinsRule();
-
-    @Test
     @Issue("JENKINS-58102")
+    @Test
     public void globalDecoratorAnnotator() throws Exception {
         WorkflowJob project = r.createProject(WorkflowJob.class);
         project.setDefinition(
@@ -123,6 +123,18 @@ public class PipelineTest {
         assertEquals(rawTimestamps, annotatedRawTimestamps);
     }
 
+    private static List<String> getTimestamps(
+            HtmlPreformattedText consoleOutput, String xpathExpr) {
+        List<String> timestamps = new ArrayList<>();
+
+        List<HtmlSpan> nodes = consoleOutput.getByXPath(xpathExpr);
+        for (HtmlSpan node : nodes) {
+            timestamps.add(node.getTextContent());
+        }
+
+        return timestamps;
+    }
+
     @Issue("JENKINS-60007")
     @Test
     public void timestamperApi() throws Exception {
@@ -158,17 +170,5 @@ public class PipelineTest {
                     GlobalAnnotator.parseTimestamp(line, 0, build.getStartTimeInMillis())
                             .isPresent());
         }
-    }
-
-    private static List<String> getTimestamps(
-            HtmlPreformattedText consoleOutput, String xpathExpr) {
-        List<String> timestamps = new ArrayList<>();
-
-        List<HtmlSpan> nodes = consoleOutput.getByXPath(xpathExpr);
-        for (HtmlSpan node : nodes) {
-            timestamps.add(node.getTextContent());
-        }
-
-        return timestamps;
     }
 }
