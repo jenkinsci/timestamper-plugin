@@ -24,8 +24,8 @@
 package hudson.plugins.timestamper.action;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import hudson.plugins.timestamper.Timestamp;

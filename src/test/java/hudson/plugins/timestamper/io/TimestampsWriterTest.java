@@ -23,11 +23,12 @@
  */
 package hudson.plugins.timestamper.io;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +49,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.powermock.reflect.Whitebox;
 
@@ -60,8 +60,6 @@ import org.powermock.reflect.Whitebox;
 public class TimestampsWriterTest {
 
   @Rule public TemporaryFolder folder = new TemporaryFolder();
-
-  @Rule public ExpectedException thrown = ExpectedException.none();
 
   private Run<?, ?> build;
 
@@ -163,8 +161,7 @@ public class TimestampsWriterTest {
   @Test
   public void testOnlyOneWriterPerBuild() throws Exception {
     timestampsWriter = new TimestampsWriter(build);
-    thrown.expect(IOException.class);
-    timestampsWriter = new TimestampsWriter(build);
+    assertThrows(IOException.class, () -> timestampsWriter = new TimestampsWriter(build));
   }
 
   private List<Integer> writtenTimestampData() throws Exception {

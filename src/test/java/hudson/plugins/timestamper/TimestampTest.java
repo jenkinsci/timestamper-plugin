@@ -24,7 +24,7 @@
 package hudson.plugins.timestamper;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import nl.jqno.equalsverifier.EqualsVerifier;

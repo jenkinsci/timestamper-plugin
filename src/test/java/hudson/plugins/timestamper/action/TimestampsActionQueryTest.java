@@ -23,8 +23,9 @@
  */
 package hudson.plugins.timestamper.action;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -44,9 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -307,17 +306,16 @@ public class TimestampsActionQueryTest {
   @Parameter(1)
   public Object expectedResult;
 
-  @Rule public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void testCreate() {
     if (expectedResult instanceof Class<?>) {
       @SuppressWarnings("unchecked")
       Class<? extends Throwable> expectedThrowable = (Class<? extends Throwable>) expectedResult;
-      thrown.expect(expectedThrowable);
+      assertThrows(expectedThrowable, () -> TimestampsActionQuery.create(queryString));
+    } else {
+      TimestampsActionQuery query = TimestampsActionQuery.create(queryString);
+      assertThat(query, is(expectedResult));
     }
-    TimestampsActionQuery query = TimestampsActionQuery.create(queryString);
-    assertThat(query, is(expectedResult));
   }
 
   @Test
