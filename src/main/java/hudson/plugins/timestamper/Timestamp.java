@@ -25,7 +25,7 @@ package hudson.plugins.timestamper;
 
 import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * A time-stamp, consisting of the elapsed time and the clock time.

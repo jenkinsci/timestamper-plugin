@@ -37,8 +37,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import org.apache.commons.lang.LocaleUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Query for retrieving a page of time-stamps from {@link TimestampsActionOutput}.

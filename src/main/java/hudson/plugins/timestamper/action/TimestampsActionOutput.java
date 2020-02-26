@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Function;
-import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 /**
  * Generate a page of time-stamps on behalf of {@link TimestampsAction}.

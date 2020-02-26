@@ -27,8 +27,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import hudson.plugins.timestamper.Timestamp;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 /**
  * Converts a time-stamp to the elapsed time format.

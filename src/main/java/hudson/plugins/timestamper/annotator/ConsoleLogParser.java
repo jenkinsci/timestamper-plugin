@@ -32,7 +32,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.io.input.BoundedInputStream;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Parser that is able to find a position in the console log file of a build.
