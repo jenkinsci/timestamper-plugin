@@ -23,23 +23,16 @@
  */
 package hudson.plugins.timestamper.action;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Joiner;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
-import hudson.plugins.timestamper.accessor.FreestyleTimestampLogFileLineAccessor;
-import hudson.plugins.timestamper.accessor.PipelineTimestampLogFileLineAccessor;
+import hudson.plugins.timestamper.accessor.TimestampLogFileLine;
 import hudson.plugins.timestamper.accessor.TimestampLogFileLineAccessor;
-import hudson.plugins.timestamper.io.LogFileReader;
-import hudson.plugins.timestamper.io.TimestamperPaths;
-import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,29 +81,15 @@ public class TimestampsActionOutput {
    * @return a {@link BufferedReader}
    */
   public static BufferedReader open(Run<?, ?> build, TimestampsActionQuery query) {
-    LogFileReader logFileReader = new LogFileReader(build);
-
-    boolean hasTimestampsFile = Files.exists(TimestamperPaths.timestampsFile(build).toPath());
-    TimestampLogFileLineAccessor timestampLogFileLineAccessor;
-    if (hasTimestampsFile) {
-      TimestampsReader timestampsReader = new TimestampsReader(build);
-      timestampLogFileLineAccessor =
-          new FreestyleTimestampLogFileLineAccessor(timestampsReader, logFileReader, build);
-    } else {
-      timestampLogFileLineAccessor = new PipelineTimestampLogFileLineAccessor(logFileReader, build);
-    }
-
     long buildStartTime = build.getStartTimeInMillis();
     long millisSinceEpoch = System.currentTimeMillis();
     Timestamp currentTimestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
 
-    return open(query, currentTimestamp, timestampLogFileLineAccessor);
+    return open(query, currentTimestamp, build);
   }
 
   static BufferedReader open(
-      final TimestampsActionQuery query,
-      final Timestamp currentTimestamp,
-      final TimestampLogFileLineAccessor timestampLogFileLineAccessor) {
+      final TimestampsActionQuery query, final Timestamp currentTimestamp, final Run<?, ?> build) {
     if (query.currentTime) {
       List<String> parts = new ArrayList<>();
       for (Function<Timestamp, String> format : query.timestampFormats) {
@@ -127,14 +106,14 @@ public class TimestampsActionOutput {
           int linesRead;
           Optional<Integer> endLine = Optional.empty();
           boolean started;
+          TimestampLogFileLineAccessor timestampLogFileLineAccessor;
 
           @Override
           public int read(char[] cbuf, int off, int len) throws IOException {
             if (!started) {
-              LineCountSupplier lineCount =
-                  new LineCountSupplier(timestampLogFileLineAccessor.getLogFileReader());
-              linesRead = readToStartLine(query, lineCount);
-              endLine = resolveEndLine(query, lineCount);
+              timestampLogFileLineAccessor = new TimestampLogFileLineAccessor(build);
+              linesRead = readToStartLine(query);
+              endLine = resolveEndLine(query);
               started = true;
             }
             while (buffer.length() < len) {
@@ -154,11 +133,10 @@ public class TimestampsActionOutput {
             return numRead;
           }
 
-          private int readToStartLine(TimestampsActionQuery query, LineCountSupplier lineCount)
-              throws IOException {
+          private int readToStartLine(TimestampsActionQuery query) throws IOException {
             int linesToSkip = Math.max(query.startLine - 1, 0);
             if (query.startLine < 0) {
-              linesToSkip = lineCount.get() + query.startLine;
+              linesToSkip = timestampLogFileLineAccessor.getLineCount() + query.startLine;
             }
 
             for (int line = 0; line < linesToSkip; line++) {
@@ -167,18 +145,17 @@ public class TimestampsActionOutput {
             return linesToSkip;
           }
 
-          private Optional<Integer> resolveEndLine(
-              TimestampsActionQuery query, LineCountSupplier lineCount) throws IOException {
+          private Optional<Integer> resolveEndLine(TimestampsActionQuery query) throws IOException {
             if (query.endLine.isPresent() && query.endLine.get() < 0) {
-              return Optional.of(lineCount.get() + query.endLine.get() + 1);
+              return Optional.of(
+                  timestampLogFileLineAccessor.getLineCount() + query.endLine.get() + 1);
             }
             return query.endLine;
           }
 
           private Optional<String> readNextLine(TimestampsActionQuery query) throws IOException {
 
-            TimestampLogFileLineAccessor.TimestampLogFileLine timestampLogFileLine =
-                timestampLogFileLineAccessor.readLine();
+            TimestampLogFileLine timestampLogFileLine = timestampLogFileLineAccessor.readLine();
             Optional<Timestamp> timestamp = timestampLogFileLine.getTimestamp();
             Optional<String> logFileLine = timestampLogFileLine.getLogFileLine();
 
@@ -210,24 +187,6 @@ public class TimestampsActionOutput {
         };
 
     return new BufferedReader(reader);
-  }
-
-  private static class LineCountSupplier {
-
-    private final LogFileReader logFileReader;
-
-    private Optional<Integer> lineCount = Optional.empty();
-
-    LineCountSupplier(LogFileReader logFileReader) {
-      this.logFileReader = checkNotNull(logFileReader);
-    }
-
-    int get() throws IOException {
-      if (!lineCount.isPresent()) {
-        lineCount = Optional.of(logFileReader.lineCount());
-      }
-      return lineCount.get();
-    }
   }
 
   private TimestampsActionOutput() {}
