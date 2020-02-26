@@ -30,8 +30,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Converts a time-stamp to the system clock time format.
