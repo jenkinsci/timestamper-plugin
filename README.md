@@ -43,7 +43,7 @@ timestamps {
 Prior to Timestamper 1.8, timestamps can only be recorded within a node.
 
 ```groovy
-node  {
+node {
     wrap([$class: 'TimestamperBuildWrapper']) {
         echo 'hello from Workflow'
     }
@@ -52,7 +52,7 @@ node  {
 
 ## Customization
 
--   The timestamp format can be configured via the **Configure System** page.
+-   The timestamp format can be configured via the **Manage Jenkins** → **Configure System** page.
 -   There is a panel on the left-hand side of the console page which allows either the system clock time or the elapsed time to be displayed.
 -   The time zone used to display the timestamps can be configured by setting [a system property](https://wiki.jenkins.io/display/JENKINS/Change+time+zone).
 
@@ -102,6 +102,9 @@ Reading the timestamps directly from the file system is not recommended, because
 Other plugins can add a [dependency](https://wiki.jenkins.io/display/JENKINS/Dependencies+among+plugins) on the Timestamper plugin and then use the `TimestamperAPI#read` method to retrieve the timestamps. The `read` method accepts any query string that can be passed to the `/timestamps/` URL. For example:
 
 ```java
+import hudson.plugins.timestamper.api.TimestamperAPI;
+import java.io.BufferedReader;
+
 String query = "time=HH:mm:ss";
 try (BufferedReader reader = TimestamperAPI.get().read(build, query)) {
     // read timestamps here
