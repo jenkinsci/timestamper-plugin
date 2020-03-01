@@ -144,9 +144,7 @@ public class PipelineTest {
         r.assertLogContains("foo", build);
         List<String> unstampedLines = new ArrayList<>();
         for (String line : build.getLog(Integer.MAX_VALUE)) {
-            assertTrue(
-                    GlobalAnnotator.parseTimestamp(line, 0, build.getStartTimeInMillis())
-                            .isPresent());
+            assertTrue(GlobalAnnotator.parseTimestamp(line, build).isPresent());
             unstampedLines.add(line.substring(27));
         }
         TimestamperApiTestUtil.timestamperApi(build, unstampedLines);
@@ -167,8 +165,7 @@ public class PipelineTest {
             assertEquals(
                     line,
                     line.contains("foo"),
-                    GlobalAnnotator.parseTimestamp(line, 0, build.getStartTimeInMillis())
-                            .isPresent());
+                    GlobalAnnotator.parseTimestamp(line, build).isPresent());
         }
     }
 }

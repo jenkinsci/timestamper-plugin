@@ -78,18 +78,7 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
         } else {
             return null;
         }
-        long buildStartTime = build.getStartTimeInMillis();
-        String html = text.toString(true);
-        int start = 0;
-        // cf. LogStorage.startStep
-        if (html.startsWith("<span class=\"pipeline-new-node\" ", start)) {
-            start = html.indexOf('>', start) + 1;
-        }
-        // cf. AnsiHtmlOutputStream.setForegroundColor
-        if (html.startsWith("<span style=\"color", start)) {
-            start = html.indexOf('>', start) + 1;
-        }
-        parseTimestamp(html, start, buildStartTime)
+        parseTimestamp(text.getText(), build)
                 .ifPresent(
                         timestamp -> {
                             TimestampFormat format = TimestampFormatProvider.get();
@@ -99,19 +88,16 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
         return this;
     }
 
-    /**
-     * Parse this line for a timestamp starting at position {@code start}, if such a timestamp is
-     * present.
-     */
+    /** Parse this line for a timestamp if such a timestamp is present. */
     @Restricted(NoExternalUse.class)
-    public static Optional<Timestamp> parseTimestamp(String html, int start, long buildStartTime) {
-        if (html.startsWith("[", start)) {
-            int end = html.indexOf(']', start);
+    public static Optional<Timestamp> parseTimestamp(String text, Run<?, ?> build) {
+        if (text.startsWith("[")) {
+            int end = text.indexOf(']');
             if (end != -1) {
                 try {
-                    long millisSinceEpoch = ZonedDateTime.parse(html.substring(start + 1, end), GlobalDecorator.UTC_MILLIS).toInstant().toEpochMilli();
-                    // Alternately: Instant.parse(html.substring(start + 1, end)).toEpochMilli()
-                    Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+                    long millisSinceEpoch = ZonedDateTime.parse(text.substring(1, end), GlobalDecorator.UTC_MILLIS).toInstant().toEpochMilli();
+                    // Alternately: Instant.parse(text.substring(1, end)).toEpochMilli()
+                    Timestamp timestamp = new Timestamp(millisSinceEpoch - build.getStartTimeInMillis(), millisSinceEpoch);
                     return Optional.of(timestamp);
                 } catch (DateTimeParseException x) {
                     // something else, ignore
