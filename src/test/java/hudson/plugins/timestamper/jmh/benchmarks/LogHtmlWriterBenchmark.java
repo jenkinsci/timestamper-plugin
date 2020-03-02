@@ -7,7 +7,6 @@ import hudson.model.FreeStyleProject;
 import hudson.plugins.timestamper.TimestamperBuildWrapper;
 import hudson.tasks.BatchFile;
 import hudson.tasks.Shell;
-import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 import jenkins.benchmark.jmh.JmhBenchmark;
@@ -17,6 +16,7 @@ import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
 
 @JmhBenchmark
@@ -25,6 +25,7 @@ public class LogHtmlWriterBenchmark {
     public static class JenkinsState extends JmhBenchmarkState {
         FreeStyleBuild freestyleBuild = null;
         WorkflowRun pipelineBuild = null;
+        BlackholeWriter blackholeWriter = null;
 
         @Override
         public void setup() throws Exception {
@@ -55,6 +56,11 @@ public class LogHtmlWriterBenchmark {
                             true));
             pipelineBuild = pipelineProject.scheduleBuild2(0).get();
         }
+
+        @Setup
+        public void setupBlackholeWriter(Blackhole blackhole) {
+            blackholeWriter = new BlackholeWriter(blackhole);
+        }
     }
 
     public static class BlackholeWriter extends Writer {
@@ -66,24 +72,66 @@ public class LogHtmlWriterBenchmark {
         }
 
         @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
+        public void write(int c) {
+            blackhole.consume(c);
+        }
+
+        @Override
+        public void write(char[] cbuf) {
+            blackhole.consume(cbuf);
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) {
             blackhole.consume(cbuf);
             blackhole.consume(off);
             blackhole.consume(len);
         }
 
         @Override
-        public void flush() throws IOException {}
+        public void write(String str) {
+            blackhole.consume(str);
+        }
 
         @Override
-        public void close() throws IOException {}
+        public void write(String str, int off, int len) {
+            blackhole.consume(str);
+            blackhole.consume(off);
+            blackhole.consume(len);
+        }
+
+        @Override
+        public Writer append(CharSequence csq) {
+            blackhole.consume(csq);
+            return this;
+        }
+
+        @Override
+        public Writer append(CharSequence csq, int start, int end) {
+            blackhole.consume(csq);
+            blackhole.consume(start);
+            blackhole.consume(end);
+            return this;
+        }
+
+        @Override
+        public Writer append(char c) {
+            blackhole.consume(c);
+            return this;
+        }
+
+        @Override
+        public void flush() {}
+
+        @Override
+        public void close() {}
     }
 
     @Benchmark
     public void logHtmlWriterFreestyleBenchmark(JenkinsState state, Blackhole blackhole)
             throws Exception {
         AnnotatedLargeText logText = state.freestyleBuild.getLogText();
-        long r = logText.writeHtmlTo(0, new BlackholeWriter(blackhole));
+        long r = logText.writeHtmlTo(0, state.blackholeWriter);
         blackhole.consume(r);
     }
 
@@ -91,7 +139,7 @@ public class LogHtmlWriterBenchmark {
     public void logHtmlWriterPipelineBenchmark(JenkinsState state, Blackhole blackhole)
             throws Exception {
         AnnotatedLargeText logText = state.pipelineBuild.getLogText();
-        long r = logText.writeHtmlTo(0, new BlackholeWriter(blackhole));
+        long r = logText.writeHtmlTo(0, state.blackholeWriter);
         blackhole.consume(r);
     }
 }
