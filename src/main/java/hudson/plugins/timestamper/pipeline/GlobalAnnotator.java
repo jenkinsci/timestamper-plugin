@@ -78,7 +78,8 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
         } else {
             return null;
         }
-        parseTimestamp(text.getText(), build)
+        long buildStartTime = build.getStartTimeInMillis();
+        parseTimestamp(text.getText(), buildStartTime)
                 .ifPresent(
                         timestamp -> {
                             TimestampFormat format = TimestampFormatProvider.get();
@@ -90,14 +91,14 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
 
     /** Parse this line for a timestamp if such a timestamp is present. */
     @Restricted(NoExternalUse.class)
-    public static Optional<Timestamp> parseTimestamp(String text, Run<?, ?> build) {
+    public static Optional<Timestamp> parseTimestamp(String text, long buildStartTime) {
         if (text.startsWith("[")) {
             int end = text.indexOf(']');
             if (end != -1) {
                 try {
                     long millisSinceEpoch = ZonedDateTime.parse(text.substring(1, end), GlobalDecorator.UTC_MILLIS).toInstant().toEpochMilli();
                     // Alternately: Instant.parse(text.substring(1, end)).toEpochMilli()
-                    Timestamp timestamp = new Timestamp(millisSinceEpoch - build.getStartTimeInMillis(), millisSinceEpoch);
+                    Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
                     return Optional.of(timestamp);
                 } catch (DateTimeParseException x) {
                     // something else, ignore

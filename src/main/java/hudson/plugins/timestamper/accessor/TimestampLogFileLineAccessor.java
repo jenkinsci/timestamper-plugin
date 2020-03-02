@@ -105,7 +105,9 @@ public class TimestampLogFileLineAccessor implements Closeable {
             // If a timestamps file is not present, attempt to read the timestamp from the log file.
             // The log file is decorated with GlobalDecorator for Pipeline builds of version 1.9 or
             // later.
-            timestamp = GlobalAnnotator.parseTimestamp(logFileLine, build).orElse(null);
+            timestamp =
+                    GlobalAnnotator.parseTimestamp(logFileLine, build.getStartTimeInMillis())
+                            .orElse(null);
             if (timestamp != null) {
                 // If we succeeded, then the log file was decorated by GlobalDecorator. Strip the
                 // timestamp decoration from the front of the line.
