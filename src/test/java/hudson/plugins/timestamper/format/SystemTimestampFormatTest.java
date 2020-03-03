@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.format;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 
 import hudson.plugins.timestamper.Timestamp;
 import java.util.Locale;
@@ -136,6 +137,42 @@ public class SystemTimestampFormatTest {
         new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.GERMAN)
             .apply(timestamp),
         is("Donnerstag, 1 Januar"));
+  }
+
+  @Test
+  public void testApply_withInvalidHtml() {
+    String systemTimeFormat = "'<b>'HH:mm:ss'</b><script>console.log(\"foo\")</script>'";
+    Timestamp timestamp = new Timestamp(123, 42000);
+    assertThat(
+        new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.ENGLISH)
+            .apply(timestamp),
+        is("<b>00:00:42</b>"));
+  }
+
+  @Test
+  public void testValidate() {
+    String systemTimeFormat = "'<b>'HH:mm:ss'</b>'";
+    new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.ENGLISH).validate();
+  }
+
+  @Test
+  public void testValidate_withFormatParseException() {
+    String systemTimeFormat = "'<b>'pHH:mm:ss'</b>'";
+    assertThrows(
+        FormatParseException.class,
+        () ->
+            new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.ENGLISH)
+                .validate());
+  }
+
+  @Test
+  public void testValidate_withInvalidHtml() {
+    String systemTimeFormat = "'<b>'HH:mm:ss'</b><script>console.log(\"foo\")</script>'";
+    assertThrows(
+        InvalidHtmlException.class,
+        () ->
+            new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.ENGLISH)
+                .validate());
   }
 
   @Test

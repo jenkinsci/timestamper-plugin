@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.format;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 
 import hudson.plugins.timestamper.Timestamp;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -43,6 +44,34 @@ public class ElapsedTimestampFormatTest {
     String elapsedTimeFormat = "ss.S";
     Timestamp timestamp = new Timestamp(123, 42000);
     assertThat(new ElapsedTimestampFormat(elapsedTimeFormat).apply(timestamp), is("00.123"));
+  }
+
+  @Test
+  public void testApply_withInvalidHtml() {
+    String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b><script>console.log(\"foo\")</script>'";
+    Timestamp timestamp = new Timestamp(123, 42000);
+    assertThat(
+        new ElapsedTimestampFormat(elapsedTimeFormat).apply(timestamp), is("<b>00:00:00.123</b>"));
+  }
+
+  @Test
+  public void testValidate() {
+    String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b>'";
+    new ElapsedTimestampFormat(elapsedTimeFormat).validate();
+  }
+
+  @Test
+  public void testValidate_withFormatParseException() {
+    String elapsedTimeFormat = "'yMdHms''S";
+    assertThrows(
+        FormatParseException.class, () -> new ElapsedTimestampFormat(elapsedTimeFormat).validate());
+  }
+
+  @Test
+  public void testValidate_withInvalidHtml() {
+    String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b><script>console.log(\"foo\")</script>'";
+    assertThrows(
+        InvalidHtmlException.class, () -> new ElapsedTimestampFormat(elapsedTimeFormat).validate());
   }
 
   @Test

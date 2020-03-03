@@ -43,6 +43,14 @@ public abstract class TimestampFormat implements Function<Timestamp, String> {
   public abstract String apply(Timestamp timestamp);
 
   /**
+   * Validates that the given timestamp format can be applied safely.
+   *
+   * @throws FormatParseException If the timestamp format cannot be parsed
+   * @throws InvalidHtmlException If the timestamp format contains invalid HTML
+   */
+  public abstract void validate() throws FormatParseException, InvalidHtmlException;
+
+  /**
    * Format the given time-stamp and add it to the mark-up text.
    *
    * @param text the mark-up text

@@ -26,12 +26,26 @@ package hudson.plugins.timestamper;
 
 import hudson.Extension;
 import hudson.ExtensionList;
+import hudson.Util;
+import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
+import hudson.plugins.timestamper.format.FormatParseException;
+import hudson.plugins.timestamper.format.InvalidHtmlException;
+import hudson.plugins.timestamper.format.SystemTimestampFormat;
+import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.pipeline.GlobalDecorator;
+import hudson.util.FormValidation;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.servlet.ServletException;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Global configuration for the Timestamper plug-in, as shown on the Jenkins Configure System page.
@@ -97,6 +111,16 @@ public final class TimestamperConfig extends GlobalConfiguration {
     save();
   }
 
+  public FormValidation doCheckSystemTimeFormat(@QueryParameter String systemTimeFormat)
+      throws IOException, ServletException {
+    if (Util.fixEmptyAndTrim(systemTimeFormat) == null) {
+      return FormValidation.ok();
+    }
+
+    return validateFormat(
+        () -> new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.getDefault()));
+  }
+
   /**
    * Get the format for displaying the elapsed time.
    *
@@ -114,6 +138,28 @@ public final class TimestamperConfig extends GlobalConfiguration {
   public void setElapsedTimeFormat(@CheckForNull String elapsedTimeFormat) {
     this.elapsedTimeFormat = elapsedTimeFormat;
     save();
+  }
+
+  public FormValidation doCheckElapsedTimeFormat(@QueryParameter String elapsedTimeFormat)
+      throws IOException, ServletException {
+    if (Util.fixEmptyAndTrim(elapsedTimeFormat) == null) {
+      return FormValidation.ok();
+    }
+
+    return validateFormat(() -> new ElapsedTimestampFormat(elapsedTimeFormat));
+  }
+
+  /** Validates the given input using the given {@link TimestampFormat}. */
+  private static FormValidation validateFormat(@Nonnull Supplier<TimestampFormat> formatSupplier) {
+    try {
+      TimestampFormat format = formatSupplier.get();
+      format.validate();
+      return FormValidation.ok();
+    } catch (FormatParseException e) {
+      return FormValidation.error("Error parsing format");
+    } catch (InvalidHtmlException e) {
+      return FormValidation.error("Invalid HTML");
+    }
   }
 
   public boolean isAllPipelines() {

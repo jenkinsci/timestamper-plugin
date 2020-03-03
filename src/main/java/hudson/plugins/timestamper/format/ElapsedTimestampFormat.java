@@ -47,9 +47,26 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
   @Override
   public String apply(@Nonnull Timestamp timestamp) {
     if (timestamp.elapsedMillisKnown) {
-      return DurationFormatUtils.formatDuration(timestamp.elapsedMillis, elapsedTimeFormat);
+      String result =
+          DurationFormatUtils.formatDuration(timestamp.elapsedMillis, elapsedTimeFormat);
+      return TimestampFormatUtils.sanitize(result);
     }
     return "";
+  }
+
+  @Override
+  public void validate() throws FormatParseException, InvalidHtmlException {
+    String result;
+    try {
+      result = DurationFormatUtils.formatDuration(1000L, elapsedTimeFormat);
+    } catch (IllegalArgumentException e) {
+      throw new FormatParseException(e);
+    }
+
+    String sanitized = TimestampFormatUtils.sanitize(result);
+    if (!sanitized.equals(result)) {
+      throw new InvalidHtmlException();
+    }
   }
 
   /** {@inheritDoc} */

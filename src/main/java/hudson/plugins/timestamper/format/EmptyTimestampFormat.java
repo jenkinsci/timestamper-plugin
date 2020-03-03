@@ -43,6 +43,9 @@ public final class EmptyTimestampFormat extends TimestampFormat {
     return "";
   }
 
+  @Override
+  public void validate() {}
+
   /** {@inheritDoc} */
   @Override
   public String getPlainTextUrl() {

@@ -61,14 +61,34 @@ public final class SystemTimestampFormat extends TimestampFormat {
         timeZone = TimeZone.getTimeZone(timeZoneProperty);
       }
     }
-    this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone, locale);
+    try {
+      this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone, locale);
+    } catch (IllegalArgumentException e) {
+      throw new FormatParseException(e);
+    }
     this.timeZoneId = timeZoneId;
   }
 
   /** {@inheritDoc} */
   @Override
   public String apply(@Nonnull Timestamp timestamp) {
-    return format.format(new Date(timestamp.millisSinceEpoch));
+    String result = format.format(new Date(timestamp.millisSinceEpoch));
+    return TimestampFormatUtils.sanitize(result);
+  }
+
+  @Override
+  public void validate() throws FormatParseException, InvalidHtmlException {
+    String result;
+    try {
+      result = format.format(new Date(0L));
+    } catch (IllegalArgumentException e) {
+      throw new FormatParseException(e);
+    }
+
+    String sanitized = TimestampFormatUtils.sanitize(result);
+    if (!sanitized.equals(result)) {
+      throw new InvalidHtmlException();
+    }
   }
 
   /** {@inheritDoc} */

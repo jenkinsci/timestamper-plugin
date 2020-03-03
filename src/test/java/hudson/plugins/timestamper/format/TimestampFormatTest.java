@@ -78,6 +78,9 @@ public class TimestampFormatTest {
           }
 
           @Override
+          public void validate() {}
+
+          @Override
           public String getPlainTextUrl() {
             return "";
           }
