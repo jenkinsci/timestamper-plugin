@@ -25,7 +25,7 @@ package hudson.plugins.timestamper.annotator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -174,7 +174,7 @@ public class TimestampAnnotatorTest {
       int iterations = 0;
       while (annotator != null) {
         if (serialize) {
-          annotator = (ConsoleAnnotator) SerializationUtils.clone(annotator);
+          annotator = SerializationUtils.clone(annotator);
         }
         annotator = annotator.annotate(build, mock(MarkupText.class));
         iterations++;

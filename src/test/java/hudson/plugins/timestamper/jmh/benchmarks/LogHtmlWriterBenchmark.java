@@ -130,7 +130,7 @@ public class LogHtmlWriterBenchmark {
     @Benchmark
     public void logHtmlWriterFreestyleBenchmark(JenkinsState state, Blackhole blackhole)
             throws Exception {
-        AnnotatedLargeText logText = state.freestyleBuild.getLogText();
+        AnnotatedLargeText<?> logText = state.freestyleBuild.getLogText();
         long r = logText.writeHtmlTo(0, state.blackholeWriter);
         blackhole.consume(r);
     }
@@ -138,7 +138,7 @@ public class LogHtmlWriterBenchmark {
     @Benchmark
     public void logHtmlWriterPipelineBenchmark(JenkinsState state, Blackhole blackhole)
             throws Exception {
-        AnnotatedLargeText logText = state.pipelineBuild.getLogText();
+        AnnotatedLargeText<?> logText = state.pipelineBuild.getLogText();
         long r = logText.writeHtmlTo(0, state.blackholeWriter);
         blackhole.consume(r);
     }

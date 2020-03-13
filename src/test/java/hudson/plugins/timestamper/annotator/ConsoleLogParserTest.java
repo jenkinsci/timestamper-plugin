@@ -183,7 +183,7 @@ public class ConsoleLogParserTest {
   private ConsoleLogParser.Result seek(long pos) throws IOException {
     ConsoleLogParser parser = new ConsoleLogParser(pos);
     if (serialize) {
-      parser = (ConsoleLogParser) SerializationUtils.clone(parser);
+      parser = SerializationUtils.clone(parser);
     }
     return parser.seek(build);
   }

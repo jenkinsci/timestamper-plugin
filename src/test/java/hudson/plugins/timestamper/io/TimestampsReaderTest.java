@@ -173,7 +173,7 @@ public class TimestampsReaderTest {
     int iterations = 0;
     while (true) {
       if (serialize) {
-        timestampsReader = (TimestampsReader) SerializationUtils.clone(timestampsReader);
+        timestampsReader = SerializationUtils.clone(timestampsReader);
       }
       Optional<Timestamp> next = timestampsReader.read();
       if (!next.isPresent()) {
