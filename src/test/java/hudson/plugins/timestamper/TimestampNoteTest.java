@@ -129,7 +129,7 @@ public class TimestampNoteTest {
 
   @Test
   public void testGetTimestamp_afterSerialization() {
-    note = (TimestampNote) SerializationUtils.clone(note);
+    note = SerializationUtils.clone(note);
     testGetTimestamp();
   }
 
@@ -142,7 +142,7 @@ public class TimestampNoteTest {
 
   @Test
   public void testAnnotate_afterSerialization() {
-    note = (TimestampNote) SerializationUtils.clone(note);
+    note = SerializationUtils.clone(note);
     testAnnotate();
   }
 }

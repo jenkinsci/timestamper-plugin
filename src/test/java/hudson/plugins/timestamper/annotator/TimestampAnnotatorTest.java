@@ -174,7 +174,7 @@ public class TimestampAnnotatorTest {
       int iterations = 0;
       while (annotator != null) {
         if (serialize) {
-          annotator = (ConsoleAnnotator) SerializationUtils.clone(annotator);
+          annotator = SerializationUtils.clone(annotator);
         }
         annotator = annotator.annotate(build, mock(MarkupText.class));
         iterations++;
