@@ -13,13 +13,13 @@ import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import hudson.plugins.timestamper.pipeline.GlobalAnnotator;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Optional;
+import java.util.Scanner;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
@@ -39,10 +39,10 @@ public class TimestampLogFileLineAccessor implements Closeable {
     private final Run<?, ?> build;
 
     /**
-     * A {@link BufferedReader} for the log file. Note that this may be backed by an external stream
-     * as of JEP 210.
+     * A {@link Scanner} for the log file. Note that this may be backed by an external stream as of
+     * JEP 210.
      */
-    private final BufferedReader logFileReader;
+    private final Scanner logFileReader;
 
     /**
      * A reader for the timestamps file. Note that the timestamps file is only present for Freestyle
@@ -63,15 +63,16 @@ public class TimestampLogFileLineAccessor implements Closeable {
 
     public TimestampLogFileLineAccessor(Run<?, ?> build) throws IOException {
         this.build = checkNotNull(build);
-        this.logFileReader = new BufferedReader(build.getLogReader());
+        this.logFileReader = new Scanner(build.getLogReader()).useDelimiter("\n");
         this.timestampsReader = new TimestampsReader(build);
         this.lineCount =
                 Suppliers.memoize(
                         () -> {
                             int lineCount = 0;
-                            try (BufferedReader lineCountReader =
-                                    new BufferedReader(build.getLogReader())) {
-                                while (lineCountReader.readLine() != null) {
+                            try (Scanner lineCountReader =
+                                    new Scanner(build.getLogReader()).useDelimiter("\n")) {
+                                while (lineCountReader.hasNext()) {
+                                    lineCountReader.next();
                                     lineCount++;
                                 }
                             } catch (IOException e) {
@@ -84,7 +85,9 @@ public class TimestampLogFileLineAccessor implements Closeable {
     /** Skip forward one line in the associated record file(s). */
     public void skipLine() throws IOException {
         timestampsReader.read();
-        logFileReader.readLine();
+        if (logFileReader.hasNext()) {
+            logFileReader.next();
+        }
     }
 
     /**
@@ -95,7 +98,7 @@ public class TimestampLogFileLineAccessor implements Closeable {
      * present, EOF has been reached and callers should stop retrieving further records.
      */
     public TimestampLogFileLine readLine() throws IOException {
-        String logFileLine = logFileReader.readLine();
+        String logFileLine = logFileReader.hasNext() ? logFileReader.next() : null;
 
         // Attempt to read the timestamp from the timestamps file, if present. This covers Freestyle
         // builds of version 1.4 or later where the "timestamper-consolenotes" system property was
