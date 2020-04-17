@@ -1,8 +1,9 @@
 # Timestamper Plugin
 
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/timestamper-plugin/master)](https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/)
-[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/timestamper)](https://plugins.jenkins.io/timestamper/)
-[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/timestamper)](https://plugins.jenkins.io/timestamper/)
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/timestamper.svg)](https://plugins.jenkins.io/timestamper/)
+[![GitHub Release](https://img.shields.io/github/release/jenkinsci/timestamper-plugin.svg?label=changelog)](https://github.com/jenkinsci/timestamper-plugin/releases/latest)
+[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/timestamper.svg?color=blue)](https://plugins.jenkins.io/timestamper/)
 
 The Timestamper plugin adds timestamps to the console output of Jenkins jobs. For example:
 
