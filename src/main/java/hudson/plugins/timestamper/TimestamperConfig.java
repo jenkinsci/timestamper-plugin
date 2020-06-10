@@ -45,6 +45,7 @@ import javax.servlet.ServletException;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
@@ -53,6 +54,7 @@ import org.kohsuke.stapler.QueryParameter;
  * @author Frederik Fromm
  */
 @Extension(dynamicLoadable = YesNoMaybe.YES)
+@Symbol("timestamper")
 public final class TimestamperConfig extends GlobalConfiguration {
 
   /**

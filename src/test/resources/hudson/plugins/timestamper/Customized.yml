@@ -1,0 +1,6 @@
+---
+unclassified:
+  timestamper:
+    systemTimeFormat: "'<b>'yyyy-MM-dd HH:mm:ss.SSS'</b> '"
+    elapsedTimeFormat: "'<b>'HH:mm:ss.SSS'</b> '"
+    allPipelines: true
