@@ -24,7 +24,7 @@
 package hudson.plugins.timestamper;
 
 import java.util.Objects;
-import javax.annotation.concurrent.Immutable;
+import net.jcip.annotations.Immutable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**

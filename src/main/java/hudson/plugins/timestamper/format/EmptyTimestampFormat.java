@@ -23,8 +23,8 @@
  */
 package hudson.plugins.timestamper.format;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.plugins.timestamper.Timestamp;
-import javax.annotation.Nonnull;
 
 /**
  * Converts a time-stamp to the empty time format.
@@ -39,7 +39,7 @@ public final class EmptyTimestampFormat extends TimestampFormat {
 
   /** {@inheritDoc} */
   @Override
-  public String apply(@Nonnull Timestamp timestamp) {
+  public String apply(@NonNull Timestamp timestamp) {
     return "";
   }
 

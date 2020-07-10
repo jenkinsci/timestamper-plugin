@@ -26,10 +26,9 @@ package hudson.plugins.timestamper.action;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Strings;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.plugins.timestamper.Timestamp;
 import java.util.function.Function;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -41,7 +40,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 final class PrecisionTimestampFormat implements Function<Timestamp, String> {
 
   /** The number of places to display after the decimal point. */
-  @Nonnegative private final int precision;
+  /* javax.annotation.Nonnegative */ private final int precision;
 
   PrecisionTimestampFormat(int precision) {
     checkArgument(precision >= 0);
@@ -50,7 +49,7 @@ final class PrecisionTimestampFormat implements Function<Timestamp, String> {
 
   /** {@inheritDoc} */
   @Override
-  public String apply(@Nonnull Timestamp timestamp) {
+  public String apply(@NonNull Timestamp timestamp) {
     long seconds = timestamp.elapsedMillis / 1000;
     if (precision == 0) {
       return String.valueOf(seconds);

@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.annotator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
@@ -36,7 +37,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
 
 /**
  * Inserts formatted time-stamps into the annotated console output.

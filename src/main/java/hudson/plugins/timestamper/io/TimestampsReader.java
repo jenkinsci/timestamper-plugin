@@ -25,6 +25,7 @@ package hudson.plugins.timestamper.io;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import java.io.BufferedInputStream;
@@ -36,7 +37,6 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
 
 /**

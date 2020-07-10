@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper.pipeline;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.AbstractBuild;
@@ -35,7 +36,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import jenkins.YesNoMaybe;
 import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
@@ -88,7 +88,7 @@ public class TimestamperStep extends Step {
 
     /** {@inheritDoc} */
     @Override
-    public void stop(@Nonnull Throwable cause) throws Exception {
+    public void stop(@NonNull Throwable cause) throws Exception {
       getContext().onFailure(cause);
     }
   }
