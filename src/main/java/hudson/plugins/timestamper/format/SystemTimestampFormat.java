@@ -23,13 +23,13 @@
  */
 package hudson.plugins.timestamper.format;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.plugins.timestamper.Timestamp;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
-import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -71,7 +71,7 @@ public final class SystemTimestampFormat extends TimestampFormat {
 
   /** {@inheritDoc} */
   @Override
-  public String apply(@Nonnull Timestamp timestamp) {
+  public String apply(@NonNull Timestamp timestamp) {
     String result = format.format(new Date(timestamp.millisSinceEpoch));
     return TimestampFormatUtils.sanitize(result);
   }

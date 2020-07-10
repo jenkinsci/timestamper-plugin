@@ -27,6 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.model.Run;
 import java.io.Closeable;
 import java.io.File;
@@ -38,7 +39,6 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 
 /**
  * Write the time-stamps for a build to disk.

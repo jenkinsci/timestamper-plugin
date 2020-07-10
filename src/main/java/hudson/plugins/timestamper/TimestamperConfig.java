@@ -24,6 +24,8 @@
  */
 package hudson.plugins.timestamper;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.Util;
@@ -39,8 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
@@ -152,7 +152,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
   }
 
   /** Validates the given input using the given {@link TimestampFormat}. */
-  private static FormValidation validateFormat(@Nonnull Supplier<TimestampFormat> formatSupplier) {
+  private static FormValidation validateFormat(@NonNull Supplier<TimestampFormat> formatSupplier) {
     try {
       TimestampFormat format = formatSupplier.get();
       format.validate();
