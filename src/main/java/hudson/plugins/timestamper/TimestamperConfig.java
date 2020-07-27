@@ -54,7 +54,7 @@ import org.kohsuke.stapler.QueryParameter;
  * @author Frederik Fromm
  */
 @Extension(dynamicLoadable = YesNoMaybe.YES)
-@Symbol("timestamper")
+@Symbol({"timestamper", "timestamperConfig"})
 public final class TimestamperConfig extends GlobalConfiguration {
 
   /**
