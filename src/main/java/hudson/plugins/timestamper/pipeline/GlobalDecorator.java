@@ -57,31 +57,46 @@ public final class GlobalDecorator extends TaskListenerDecorator {
 
     @Override
     public OutputStream decorate(final OutputStream logger) throws IOException, InterruptedException {
-        return new LineTransformationOutputStream() {
-            @Override
-            protected void eol(byte[] b, int len) throws IOException {
-                synchronized (logger) { // typically this will be a PrintStream
-                    ByteBuffer buffer = ByteBuffer.allocate(1 + 24 + 1 + 1 + len);
-                    buffer.put((byte)'[');
-                    buffer.put(ZonedDateTime.now(ZoneOffset.UTC).format(UTC_MILLIS).getBytes(StandardCharsets.US_ASCII));
-                    buffer.put((byte)']');
-                    buffer.put((byte)' ');
-                    buffer.put(b, 0, len);
-                    // ByteBuffer documentation specifies that `ByteBuffer#array` will succeed and that the underlying
-                    // array offset is 0, but does not specify what the underlying array length will be.
-                    logger.write(buffer.array(), 0, buffer.position());
-                }
+        return new GlobalDecoratorLineTransformationOutputStream(logger);
+    }
+
+    private static class GlobalDecoratorLineTransformationOutputStream
+            extends LineTransformationOutputStream {
+        private final OutputStream logger;
+
+        public GlobalDecoratorLineTransformationOutputStream(OutputStream logger) {
+            this.logger = logger;
+        }
+
+        @Override
+        protected void eol(byte[] b, int len) throws IOException {
+            synchronized (logger) { // typically this will be a PrintStream
+                ByteBuffer buffer = ByteBuffer.allocate(1 + 24 + 1 + 1 + len);
+                buffer.put((byte) '[');
+                buffer.put(
+                        ZonedDateTime.now(ZoneOffset.UTC)
+                                .format(UTC_MILLIS)
+                                .getBytes(StandardCharsets.US_ASCII));
+                buffer.put((byte) ']');
+                buffer.put((byte) ' ');
+                buffer.put(b, 0, len);
+                // ByteBuffer documentation specifies that `ByteBuffer#array` will succeed and that
+                // the underlying array offset is 0, but does not specify what the underlying array
+                // length will be.
+                logger.write(buffer.array(), 0, buffer.position());
             }
-            @Override
-            public void flush() throws IOException {
-                logger.flush();
-            }
-            @Override
-            public void close() throws IOException {
-                super.close();
-                logger.close();
-            }
-        };
+        }
+
+        @Override
+        public void flush() throws IOException {
+            logger.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            logger.close();
+        }
     }
 
     @Extension
