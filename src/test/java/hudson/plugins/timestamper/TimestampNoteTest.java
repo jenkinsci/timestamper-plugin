@@ -108,9 +108,11 @@ public class TimestampNoteTest {
 
   @Mock private TimestampFormat format;
 
+  private AutoCloseable closeable;
+
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
+    closeable = MockitoAnnotations.openMocks(this);
 
     originalSupplier = Whitebox.getInternalState(TimestampFormatProvider.class, Supplier.class);
     Whitebox.setInternalState(
@@ -118,8 +120,10 @@ public class TimestampNoteTest {
   }
 
   @After
-  public void tearDown() {
+  public void tearDown() throws Exception {
     Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class, originalSupplier);
+
+    closeable.close();
   }
 
   @Test
