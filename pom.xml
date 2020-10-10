@@ -43,9 +43,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-    <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+    <connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <url>https://github.com/${gitHubRepo}</url>
     <tag>${scmTag}</tag>
   </scm>
 
@@ -75,18 +75,13 @@
     <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.164.3</jenkins.version>
     <java.level>8</java.level>
+    <spotbugs.threshold>Low</spotbugs.threshold>
+    <spotbugs.effort>Max</spotbugs.effort>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <configuration>
-          <effort>Max</effort>
-          <threshold>Low</threshold>
-        </configuration>
-      </plugin>
       <!-- TODO pending https://github.com/andrena/macker-maven-plugin/pull/6 this is incompatible with Incrementals: target/target/generated-sources/localizer/hudson/plugins/timestamper/Messages.java:[20,8] duplicate class: hudson.plugins.timestamper.Messages
       <plugin>
         <groupId>de.andrena.tools.macker</groupId>

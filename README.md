@@ -1,9 +1,12 @@
 # Timestamper Plugin
 
-[![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/timestamper-plugin/master)](https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/)
-[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/timestamper.svg)](https://plugins.jenkins.io/timestamper/)
-[![GitHub Release](https://img.shields.io/github/release/jenkinsci/timestamper-plugin.svg?label=changelog)](https://github.com/jenkinsci/timestamper-plugin/releases/latest)
-[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/timestamper.svg?color=blue)](https://plugins.jenkins.io/timestamper/)
+[![Build Status](https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/)
+[![Contributors](https://img.shields.io/github/contributors/jenkinsci/timestamper-plugin.svg)](https://github.com/jenkinsci/timestamper-plugin/graphs/contributors)
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/timestamper.svg)](https://plugins.jenkins.io/timestamper)
+[![GitHub release](https://img.shields.io/github/release/jenkinsci/timestamper-plugin.svg?label=changelog)](https://github.com/jenkinsci/timestamper-plugin/releases/latest)
+[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/timestamper.svg?color=blue)](https://plugins.jenkins.io/timestamper)
+
+## Introduction
 
 The Timestamper plugin adds timestamps to the console output of Jenkins jobs. For example:
 
@@ -13,7 +16,7 @@ The Timestamper plugin adds timestamps to the console output of Jenkins jobs. Fo
 21:51:17  Finished: SUCCESS
 ```
 
-## Usage
+## Getting started
 
 ### Freestyle jobs
 
@@ -111,5 +114,11 @@ try (BufferedReader reader = TimestamperAPI.get().read(build, query)) {
     // read timestamps here
 }
 ```
----
-For release notes, please see [CHANGELOG.md](CHANGELOG.md) and the [GitHub release page](https://github.com/jenkinsci/timestamper-plugin/releases).
+
+## Issues
+
+Report issues and enhancements in the [Jenkins issue tracker](https://issues.jenkins-ci.org/).
+
+## Contributing
+
+Refer to our [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md).

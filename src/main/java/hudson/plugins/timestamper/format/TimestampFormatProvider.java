@@ -43,7 +43,7 @@ public class TimestampFormatProvider {
       () -> {
           TimestamperConfig config = TimestamperConfig.get();
           StaplerRequest request = Stapler.getCurrentRequest();
-          if (config == null || request == null) {
+          if (request == null) {
             return EmptyTimestampFormat.INSTANCE;
           }
           return TimestampFormatProvider.get(
