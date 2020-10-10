@@ -118,6 +118,7 @@ try (BufferedReader reader = TimestamperAPI.get().read(build, query)) {
 ## Issues
 
 Report issues and enhancements in the [Jenkins issue tracker](https://issues.jenkins-ci.org/).
+Use the `timestamper-plugin` component in the `JENKINS` project.
 
 ## Contributing
 
