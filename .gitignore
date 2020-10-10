@@ -1,7 +1,9 @@
 target
+
+# mvn hpi:run
 work
 
-# IntelliJ project files 
+# IntelliJ IDEA project files
 *.iml
 *.iws
 *.ipr
@@ -11,8 +13,3 @@ work
 .settings
 .classpath
 .project
-build
-
-# Vim junk files
-.*.swp
-*~

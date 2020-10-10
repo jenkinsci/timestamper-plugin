@@ -1,3 +1,5 @@
 # https://github.com/jenkinsci/.github/blob/master/.github/release-drafter.adoc
 _extends: .github
-tag-template: timestamper-$NEXT_MINOR_VERSION
+name-template: $NEXT_PATCH_VERSION
+tag-template: timestamper-$NEXT_PATCH_VERSION
+version-template: $MAJOR.$MINOR.$PATCH
