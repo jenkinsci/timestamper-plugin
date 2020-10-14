@@ -1,0 +1,20 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+<form>
+    <label>
+        <input type="radio" name="timestamps" id="timestamper-systemTime">${%System clock time}</input>
+    </label>
+    <br/>
+    <label>
+        <input type="checkbox" id="timestamper-localTime" style="margin-left: 15px;">${%Use browser timezone}</input>
+    </label>
+    <br/>
+    <label>
+        <input type="radio" name="timestamps" id="timestamper-elapsedTime">${%Elapsed time}</input>
+    </label>
+    <br/>
+    <label>
+        <input type="radio" name="timestamps" id="timestamper-none">${%None}</input>
+    </label>
+</form>
+</j:jelly>
