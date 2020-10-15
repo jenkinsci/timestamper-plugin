@@ -32,17 +32,18 @@ THE SOFTWARE.
   <j:set var="rawMinorVersion" value="${versionParts[1].split('-')}" />
   <j:set var="minorVersion" value="${rawMinorVersion[0]}" />
   <l:ajax>
+    <style>
+      .timestamper-form-pane {
+        padding: .5rem 1rem;
+        clear: both
+      }
+      .timestamper-form-pane label {
+        line-height: 2rem;
+        display: block;
+      }
+    </style>
     <j:choose>
       <j:when test="${(majorVersion ge 2 and minorVersion ge 238) or majorVersion > 2}">
-        <style>
-          .timestamper-form-pane {
-            padding: .5rem 1rem;
-            clear: both
-          }
-          .timestamper-form-pane label {
-            line-height: 2rem;
-          }
-        </style>
         <div>
           <div class="pane-header col-xs-24">
             <span class="pane-header-title">${%Timestamps}</span>
@@ -62,7 +63,7 @@ THE SOFTWARE.
             </td>
           </tr>
           <tr>
-            <td>
+            <td class="timestamper-form-pane">
               <st:include page="settingsForm.jelly"/>
             </td>
           </tr>
