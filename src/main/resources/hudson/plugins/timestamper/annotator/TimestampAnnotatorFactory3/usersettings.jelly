@@ -23,36 +23,52 @@ THE SOFTWARE.
 -->
 
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  <j:new var="h" className="hudson.Functions" />
+  ${h.initPageVariables(context)}
+
+  <j:set var="versionParts" value="${h.version.split('\.')}" />
+  <j:set var="majorVersion" value="${versionParts[0]}" />
+  <j:set var="rawMinorVersion" value="${versionParts[1].split('-')}" />
+  <j:set var="minorVersion" value="${rawMinorVersion[0]}" />
   <l:ajax>
-    <table class="pane">
-      <tr>
-        <td class="pane-header">
-          <span style="text-align:left;">${%Timestamps}</span>
-          <span style="float:right;"><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <form>
-            <label>
-              <input type="radio" name="timestamps" id="timestamper-systemTime">${%System clock time}</input>
-            </label>
-            <br/>
-            <label>
-              <input type="checkbox" id="timestamper-localTime" style="margin-left: 15px;">${%Use browser timezone}</input>
-            </label>
-            <br/>
-            <label>
-              <input type="radio" name="timestamps" id="timestamper-elapsedTime">${%Elapsed time}</input>
-            </label>
-            <br/>
-            <label>
-              <input type="radio" name="timestamps" id="timestamper-none">${%None}</input>
-            </label>
-          </form>
-        </td>
-      </tr>
-    </table>
+    <style>
+      .timestamper-form-pane {
+        padding: .5rem 1rem;
+        clear: both
+      }
+      .timestamper-form-pane label {
+        line-height: 2rem;
+        display: block;
+      }
+    </style>
+    <j:choose>
+      <j:when test="${(majorVersion ge 2 and minorVersion ge 238) or majorVersion > 2}">
+        <div>
+          <div class="pane-header col-xs-24">
+            <span class="pane-header-title">${%Timestamps}</span>
+            <span><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
+          </div>
+          <div class="timestamper-form-pane">
+            <st:include page="settingsForm.jelly"/>
+          </div>
+        </div>
+      </j:when>
+      <j:otherwise>
+        <table class="pane">
+          <tr>
+            <td class="pane-header">
+              <span style="text-align:left;">${%Timestamps}</span>
+              <span style="float:right;"><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
+            </td>
+          </tr>
+          <tr>
+            <td class="timestamper-form-pane">
+              <st:include page="settingsForm.jelly"/>
+            </td>
+          </tr>
+        </table>
+      </j:otherwise>
+    </j:choose>
   </l:ajax>
 </j:jelly>
