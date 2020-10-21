@@ -76,14 +76,56 @@ public class TimestamperConfigTest {
   public void testSetSystemTimeFormatEmpty() {
     TimestamperConfig config = TimestamperConfig.get();
     config.setSystemTimeFormat("");
-    assertThat(config.getSystemTimeFormat(), is(""));
+    assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
   }
 
   @Test
   public void testSetElapsedTimeFormatEmpty() {
     TimestamperConfig config = TimestamperConfig.get();
     config.setElapsedTimeFormat("");
-    assertThat(config.getElapsedTimeFormat(), is(""));
+    assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
+  }
+
+  @Test
+  public void testSetSystemTimeFormatNull() {
+    TimestamperConfig config = TimestamperConfig.get();
+    config.setSystemTimeFormat(null);
+    assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
+  }
+
+  @Test
+  public void testSetElapsedTimeFormatNull() {
+    TimestamperConfig config = TimestamperConfig.get();
+    config.setElapsedTimeFormat(null);
+    assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
+  }
+
+  @Test
+  public void testSetSystemTimeFormatTrimmed() {
+    TimestamperConfig config = TimestamperConfig.get();
+    config.setSystemTimeFormat("'<b>'HH:mm:ss'</b> '");
+    assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
+  }
+
+  @Test
+  public void testSetElapsedTimeFormatTrimmed() {
+    TimestamperConfig config = TimestamperConfig.get();
+    config.setElapsedTimeFormat("'<b>'HH:mm:ss.S'</b> '");
+    assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
+  }
+
+  @Test
+  public void testSetSystemTimeFormatNotTrimmed() {
+    TimestamperConfig config = TimestamperConfig.get();
+    config.setSystemTimeFormat("       '<b>'HH:mm:ss'</b> '           ");
+    assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
+  }
+
+  @Test
+  public void testSetElapsedTimeFormatNotTrimmed() {
+    TimestamperConfig config = TimestamperConfig.get();
+    config.setElapsedTimeFormat("        '<b>'HH:mm:ss.S'</b> '              ");
+    assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
   }
 
   @Test
