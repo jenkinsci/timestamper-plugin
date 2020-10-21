@@ -76,14 +76,14 @@ public class TimestamperConfigTest {
   public void testSetSystemTimeFormatEmpty() {
     TimestamperConfig config = TimestamperConfig.get();
     config.setSystemTimeFormat("");
-    assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
+    assertThat(config.getSystemTimeFormat(), is(""));
   }
 
   @Test
   public void testSetElapsedTimeFormatEmpty() {
     TimestamperConfig config = TimestamperConfig.get();
     config.setElapsedTimeFormat("");
-    assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
+    assertThat(config.getElapsedTimeFormat(), is(""));
   }
 
   @Test

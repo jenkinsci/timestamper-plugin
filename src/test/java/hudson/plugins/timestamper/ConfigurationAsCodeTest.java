@@ -48,8 +48,8 @@ public class ConfigurationAsCodeTest {
     @ConfiguredWithCode("EmptyTimeFormat.yml")
     public void testEmptyTimeFormat() {
         TimestamperConfig timestamperConfig = TimestamperConfig.get();
-        assertThat(timestamperConfig.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
-        assertThat(timestamperConfig.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
+        assertThat(timestamperConfig.getSystemTimeFormat(), is(emptyString()));
+        assertThat(timestamperConfig.getElapsedTimeFormat(), is(emptyString()));
         assertFalse(timestamperConfig.isAllPipelines());
     }
 
