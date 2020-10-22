@@ -109,7 +109,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @param timestampFormat the system clock time format in {@link SimpleDateFormat} pattern
    */
   public void setSystemTimeFormat(@CheckForNull String timestampFormat) {
-    this.timestampFormat = timestampFormat;
+    this.timestampFormat = timestampFormat != null ? timestampFormat.trim() : null;
     save();
   }
 
@@ -138,7 +138,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    * @param elapsedTimeFormat the elapsed time format in {@link DurationFormatUtils} pattern
    */
   public void setElapsedTimeFormat(@CheckForNull String elapsedTimeFormat) {
-    this.elapsedTimeFormat = elapsedTimeFormat;
+    this.elapsedTimeFormat = elapsedTimeFormat != null ? elapsedTimeFormat.trim() : null;
     save();
   }
 
