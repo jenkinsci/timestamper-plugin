@@ -123,3 +123,7 @@ Use the `timestamper-plugin` component in the `JENKINS` project.
 ## Contributing
 
 Refer to our [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md).
+
+## License
+
+Licensed under [the MIT License](LICENSE.md).
