@@ -178,16 +178,14 @@ public class SystemTimestampFormatTest {
   @Test
   public void testGetPlainTextUrl() {
     SystemTimestampFormat format =
-        new SystemTimestampFormat(
-            "'<b>'HH:mm:ss'</b> '", Optional.empty(), Locale.ENGLISH);
+        new SystemTimestampFormat("'<b>'HH:mm:ss'</b> '", Optional.empty(), Locale.ENGLISH);
     assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 
   @Test
   public void testGetPlainTextUrl_excessWhitespace() {
     SystemTimestampFormat format =
-        new SystemTimestampFormat(
-            " ' <b> ' HH:mm:ss ' </b> ' ", Optional.empty(), Locale.ENGLISH);
+        new SystemTimestampFormat(" ' <b> ' HH:mm:ss ' </b> ' ", Optional.empty(), Locale.ENGLISH);
     assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
   }
 

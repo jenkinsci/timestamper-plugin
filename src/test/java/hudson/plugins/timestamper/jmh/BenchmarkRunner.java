@@ -1,13 +1,15 @@
 package hudson.plugins.timestamper.jmh;
 
-import java.util.concurrent.TimeUnit;
 import jenkins.benchmark.jmh.BenchmarkFinder;
+
 import org.junit.Test;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.ChainedOptionsBuilder;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+
+import java.util.concurrent.TimeUnit;
 
 public class BenchmarkRunner {
 

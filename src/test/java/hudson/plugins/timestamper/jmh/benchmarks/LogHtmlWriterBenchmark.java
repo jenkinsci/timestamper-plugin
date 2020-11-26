@@ -7,17 +7,20 @@ import hudson.model.FreeStyleProject;
 import hudson.plugins.timestamper.TimestamperBuildWrapper;
 import hudson.tasks.BatchFile;
 import hudson.tasks.Shell;
-import java.io.Writer;
-import java.util.Objects;
+
 import jenkins.benchmark.jmh.JmhBenchmark;
 import jenkins.benchmark.jmh.JmhBenchmarkState;
 import jenkins.model.Jenkins;
+
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
+
+import java.io.Writer;
+import java.util.Objects;
 
 @JmhBenchmark
 public class LogHtmlWriterBenchmark {

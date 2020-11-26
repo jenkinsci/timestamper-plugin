@@ -41,16 +41,16 @@ public class TimestampFormatProvider {
 
   private static Supplier<TimestampFormat> SUPPLIER =
       () -> {
-          TimestamperConfig config = TimestamperConfig.get();
-          StaplerRequest request = Stapler.getCurrentRequest();
-          if (request == null) {
-            return EmptyTimestampFormat.INSTANCE;
-          }
-          return TimestampFormatProvider.get(
-              config.getSystemTimeFormat(),
-              config.getElapsedTimeFormat(),
-              request,
-              Locale.getDefault());
+        TimestamperConfig config = TimestamperConfig.get();
+        StaplerRequest request = Stapler.getCurrentRequest();
+        if (request == null) {
+          return EmptyTimestampFormat.INSTANCE;
+        }
+        return TimestampFormatProvider.get(
+            config.getSystemTimeFormat(),
+            config.getElapsedTimeFormat(),
+            request,
+            Locale.getDefault());
       };
 
   /**

@@ -84,9 +84,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
    */
   @CheckForNull private String elapsedTimeFormat;
 
-  /**
-   * Whether to activate {@link GlobalDecorator}.
-   */
+  /** Whether to activate {@link GlobalDecorator}. */
   private boolean allPipelines;
 
   /** Constructor. */
@@ -172,5 +170,4 @@ public final class TimestamperConfig extends GlobalConfiguration {
     this.allPipelines = allPipelines;
     save();
   }
-
 }

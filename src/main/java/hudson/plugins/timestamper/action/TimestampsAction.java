@@ -78,9 +78,7 @@ public final class TimestampsAction implements Action {
     return "timestamps";
   }
 
-  /**
-   * Serve a page at this URL.
-   */
+  /** Serve a page at this URL. */
   public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
     response.setContentType("text/plain;charset=UTF-8");
 

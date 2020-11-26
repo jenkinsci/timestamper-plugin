@@ -60,16 +60,12 @@ public class TimestampsWriter implements Closeable {
 
   private long previousCurrentTimeMillis;
 
-  /**
-   * Create a time-stamps writer for the given build.
-   */
+  /** Create a time-stamps writer for the given build. */
   public TimestampsWriter(Run<?, ?> build) throws IOException {
     this(build, Optional.empty());
   }
 
-  /**
-   * Create a time-stamps writer for the given build.
-   */
+  /** Create a time-stamps writer for the given build. */
   public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest) throws IOException {
     this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(), digest);
   }
@@ -123,9 +119,7 @@ public class TimestampsWriter implements Closeable {
     return outputStream;
   }
 
-  /**
-   * Write each value to the given output stream as a Base 128 Varint.
-   */
+  /** Write each value to the given output stream as a Base 128 Varint. */
   private void writeVarintsTo(OutputStream outputStream, long... values) throws IOException {
     int offset = 0;
     for (long value : values) {
@@ -135,9 +129,7 @@ public class TimestampsWriter implements Closeable {
     outputStream.flush();
   }
 
-  /**
-   * Write n bytes of 0 to the given output stream.
-   */
+  /** Write n bytes of 0 to the given output stream. */
   private void writeZerosTo(OutputStream outputStream, int n) throws IOException {
     Arrays.fill(buffer, (byte) 0);
     while (n > 0) {
@@ -148,9 +140,7 @@ public class TimestampsWriter implements Closeable {
     }
   }
 
-  /**
-   * Write a time-stamps digest file for the build.
-   */
+  /** Write a time-stamps digest file for the build. */
   public void writeDigest() throws IOException {
     if (timestampsDigest.isPresent()) {
       writeDigest(timestampsDigest.get());

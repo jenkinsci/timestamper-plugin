@@ -49,9 +49,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-/**
- * Pipeline plug-in step for recording time-stamps.
- */
+/** Pipeline plug-in step for recording time-stamps. */
 public class TimestamperStep extends Step {
 
   /** Constructor. */
@@ -65,7 +63,7 @@ public class TimestamperStep extends Step {
 
   /** Execution for {@link TimestamperStep}. */
   private static class ExecutionImpl extends AbstractStepExecutionImpl {
-      
+
     ExecutionImpl(StepContext context) {
       super(context);
     }
@@ -76,13 +74,21 @@ public class TimestamperStep extends Step {
     @Override
     public boolean start() throws Exception {
       StepContext context = getContext();
-        BodyInvoker invoker = context.newBodyInvoker().withCallback(BodyExecutionCallback.wrap(context));
-        if (TimestamperConfig.get().isAllPipelines()) {
-            context.get(TaskListener.class).getLogger().println("The timestamps step is unnecessary when timestamps are enabled for all Pipeline builds.");
-        } else {
-            invoker.withContext(TaskListenerDecorator.merge(context.get(TaskListenerDecorator.class), new GlobalDecorator()));
-        }
-        invoker.start();
+      BodyInvoker invoker =
+          context.newBodyInvoker().withCallback(BodyExecutionCallback.wrap(context));
+      if (TimestamperConfig.get().isAllPipelines()) {
+        context
+            .get(TaskListener.class)
+            .getLogger()
+            .println(
+                "The timestamps step is unnecessary when timestamps are enabled for all Pipeline"
+                    + " builds.");
+      } else {
+        invoker.withContext(
+            TaskListenerDecorator.merge(
+                context.get(TaskListenerDecorator.class), new GlobalDecorator()));
+      }
+      invoker.start();
       return false;
     }
 
@@ -121,9 +127,7 @@ public class TimestamperStep extends Step {
       return getDescriptorFullUrl() + "/help";
     }
 
-    /**
-     * Serve the help file.
-     */
+    /** Serve the help file. */
     @Override
     public void doHelp(StaplerRequest request, StaplerResponse response) throws IOException {
       response.setContentType("text/html;charset=UTF-8");
@@ -131,12 +135,11 @@ public class TimestamperStep extends Step {
       writer.println(Messages.Description());
       writer.flush();
     }
-    
+
     @Override
     public Set<? extends Class<?>> getRequiredContext() {
       return Collections.singleton(TaskListener.class);
     }
-
   }
 
   /** @deprecated Only here for serial compatibility. */
@@ -145,7 +148,6 @@ public class TimestamperStep extends Step {
       implements Serializable {
 
     private static final long serialVersionUID = 1;
-
 
     /** {@inheritDoc} */
     @SuppressWarnings("rawtypes")

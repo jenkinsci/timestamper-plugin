@@ -5,7 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.CountingInputStream;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -13,6 +15,10 @@ import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import hudson.plugins.timestamper.pipeline.GlobalAnnotator;
+
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
+
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -20,8 +26,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Optional;
 import java.util.Scanner;
-import org.kohsuke.accmod.Restricted;
-import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 /**
  * Abstraction for retrieving timestamps and log file lines from completed builds. Timestamp records

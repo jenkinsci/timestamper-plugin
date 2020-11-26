@@ -62,9 +62,7 @@ public class TimestampsReader implements Serializable, Closeable {
 
   @CheckForNull private transient InputStream inputStream;
 
-  /**
-   * Create a time-stamps reader for the given build.
-   */
+  /** Create a time-stamps reader for the given build. */
   public TimestampsReader(Run<?, ?> build) {
     this.timestampsFile = TimestamperPaths.timestampsFile(build);
     this.timeShiftsReader = new TimeShiftsReader(build);

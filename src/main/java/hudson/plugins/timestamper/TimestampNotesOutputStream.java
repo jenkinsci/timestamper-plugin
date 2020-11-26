@@ -67,7 +67,8 @@ public class TimestampNotesOutputStream extends LineTransformationOutputStream {
   protected void eol(byte[] b, int len) throws IOException {
     long now = System.currentTimeMillis();
     if (now != lastTime) {
-      lastNote = new TimestampNote(now - buildStartTime, now).encode().getBytes(StandardCharsets.UTF_8);
+      lastNote =
+          new TimestampNote(now - buildStartTime, now).encode().getBytes(StandardCharsets.UTF_8);
       lastTime = now;
     }
     delegate.write(lastNote);

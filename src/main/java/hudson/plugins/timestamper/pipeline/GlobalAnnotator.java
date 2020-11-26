@@ -33,20 +33,20 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
+
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
+
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.graph.FlowNode;
-import org.kohsuke.accmod.Restricted;
-import org.kohsuke.accmod.restrictions.NoExternalUse;
 
-/**
- * Interprets marks added by {@link GlobalDecorator}.
- */
+/** Interprets marks added by {@link GlobalDecorator}. */
 public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
 
     private static final long serialVersionUID = 1;
@@ -96,9 +96,13 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
             int end = text.indexOf(']');
             if (end != -1) {
                 try {
-                    long millisSinceEpoch = ZonedDateTime.parse(text.substring(1, end), GlobalDecorator.UTC_MILLIS).toInstant().toEpochMilli();
+                    long millisSinceEpoch =
+                            ZonedDateTime.parse(text.substring(1, end), GlobalDecorator.UTC_MILLIS)
+                                    .toInstant()
+                                    .toEpochMilli();
                     // Alternately: Instant.parse(text.substring(1, end)).toEpochMilli()
-                    Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+                    Timestamp timestamp =
+                            new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
                     return Optional.of(timestamp);
                 } catch (DateTimeParseException x) {
                     // something else, ignore
@@ -118,9 +122,9 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
             } else if (context instanceof FlowNode) {
                 return new GlobalAnnotator();
             }
-            // Note that prior to 2.145, we actually get FlowNode.class here rather than a FlowNode, so there is no per-step annotation.
+            // Note that prior to 2.145, we actually get FlowNode.class here rather than a FlowNode,
+            // so there is no per-step annotation.
             return null;
         }
     }
-
 }

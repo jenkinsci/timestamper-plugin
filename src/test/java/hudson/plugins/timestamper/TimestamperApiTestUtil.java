@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.DiscreteDomains;
 import com.google.common.collect.Ranges;
+
 import hudson.model.Run;
 import hudson.plugins.timestamper.api.TimestamperAPI;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.time.Duration;
@@ -100,10 +102,7 @@ public class TimestamperApiTestUtil {
 
             if (appendLog) {
                 assertEquals(
-                        String.format(
-                                "%s  %s",
-                                timestamp,
-                                unstampedLines.get(i + lower - 1)),
+                        String.format("%s  %s", timestamp, unstampedLines.get(i + lower - 1)),
                         results.get(i));
             }
         }
@@ -158,10 +157,7 @@ public class TimestamperApiTestUtil {
 
             if (appendLog) {
                 assertEquals(
-                        String.format(
-                                "%s  %s",
-                                timestamp,
-                                unstampedLines.get(i + lower - 1)),
+                        String.format("%s  %s", timestamp, unstampedLines.get(i + lower - 1)),
                         results.get(i));
             }
         }

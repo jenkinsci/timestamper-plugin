@@ -29,6 +29,10 @@ import hudson.console.LineTransformationOutputStream;
 import hudson.model.Queue;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestamperConfig;
+
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -38,25 +42,24 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
 
-/**
- * Applies plain-text timestamp prefixes to all Pipeline log lines.
- */
+/** Applies plain-text timestamp prefixes to all Pipeline log lines. */
 public final class GlobalDecorator extends TaskListenerDecorator {
-    
+
     private static final Logger LOGGER = Logger.getLogger(GlobalDecorator.class.getName());
 
-    // Almost ISO_OFFSET_DATE_TIME, but uses .SSS instead of .nnnnnnnnn to show milliseconds instead of nanoseconds and uses X instead of Z so the offset shows up as `Z` rather than `+0000`.
-    static final DateTimeFormatter UTC_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+    // Almost ISO_OFFSET_DATE_TIME, but uses .SSS instead of .nnnnnnnnn to show milliseconds instead
+    // of nanoseconds and uses X instead of Z so the offset shows up as `Z` rather than `+0000`.
+    static final DateTimeFormatter UTC_MILLIS =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     private static final long serialVersionUID = 1;
 
     GlobalDecorator() {}
 
     @Override
-    public OutputStream decorate(final OutputStream logger) throws IOException, InterruptedException {
+    public OutputStream decorate(final OutputStream logger)
+            throws IOException, InterruptedException {
         return new GlobalDecoratorLineTransformationOutputStream(logger);
     }
 
@@ -117,7 +120,5 @@ public final class GlobalDecorator extends TaskListenerDecorator {
             }
             return null;
         }
-
     }
-
 }
