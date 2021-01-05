@@ -1,0 +1,135 @@
+= Timestamper Plugin
+:toc:
+:toc-placement!:
+:toc-title:
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/[image:https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/badge/icon[Build Status]]
+https://github.com/jenkinsci/timestamper-plugin/graphs/contributors[image:https://img.shields.io/github/contributors/jenkinsci/timestamper-plugin.svg[Contributors]]
+https://plugins.jenkins.io/timestamper[image:https://img.shields.io/jenkins/plugin/v/timestamper.svg[Jenkins Plugin]]
+https://github.com/jenkinsci/timestamper-plugin/releases/latest[image:https://img.shields.io/github/release/jenkinsci/timestamper-plugin.svg?label=changelog[GitHub release]]
+https://plugins.jenkins.io/timestamper[image:https://img.shields.io/jenkins/plugin/i/timestamper.svg?color=blue[Jenkins Plugin Installs]]
+
+toc::[]
+
+== Introduction
+
+The Timestamper plugin adds timestamps to the console output of Jenkins jobs.
+For example:
+
+....
+21:51:15  Started by user anonymous
+21:51:15  Building on master
+21:51:17  Finished: SUCCESS
+....
+
+== Getting started
+
+=== Freestyle jobs
+
+Enable timestamps within the *Build Environment* section of the build's configuration page.
+
+To enable timestamps for multiple builds at once, use the https://plugins.jenkins.io/configurationslicing/[Configuration Slicing plugin] version 1.32 or later.
+
+=== https://jenkins.io/doc/book/pipeline/[Pipeline] jobs
+
+==== Since Timestamper 1.9
+
+Set the global option to enable timestamps for all Pipeline builds (in *Manage Jenkins*, *Configure System*), or use the `timestamps` step as described below.
+
+image:docs/images/allBuilds.png[image]
+
+==== Since Timestamper 1.8
+
+Use the `timestamps` step to wrap the rest of the Pipeline script.
+
+[source,groovy]
+----
+timestamps {
+    // some block
+}
+----
+
+==== Since Timestamper 1.7
+
+Prior to Timestamper 1.8, timestamps can only be recorded within a node.
+
+[source,groovy]
+----
+node {
+    wrap([$class: 'TimestamperBuildWrapper']) {
+        echo 'hello from Workflow'
+    }
+}
+----
+
+== Customization
+
+* The timestamp format can be configured via the *Manage Jenkins*, *Configure System* page.
+* There is a panel on the left-hand side of the console page which allows either the system clock time or the elapsed time to be displayed.
+* The time zone used to display the timestamps can be configured by setting https://www.jenkins.io/doc/book/using/change-time-zone/[a system property].
+
+== Scripting
+
+Scripts can read the timestamps from the `/timestamps/` URL of each build.
+For example:
+
+`/timestamps/`:: By default, display the elapsed time in seconds with three places after the decimal point.
+`/timestamps/?time=HH:mm:ss&appendLog`:: Display the system clock time and append the line from the log.
+`/timestamps/?elapsed=HH:mm:ss.S&appendLog`:: Display the elapsed time and append the line from the log.
+`/timestamps/?time=HH:mm:ss&elapsed=HH:mm:ss.S`:: Display both the system clock time and the elapsed time.
+`/timestamps/?currentTime&time=HH:mm:ss`:: Display the current time on the Jenkins controller.
+
+Supported query parameters:
+
+`time` (since 1.8):: Display the system clock time. Accepts the https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[JDK `SimpleDateFormat`] format.
++
+NOTE: The time zone and locale of the Jenkins controller will be used, unless they are configured with the `timeZone` and `locale` query parameters.
+`elapsed` (since 1.8):: Display the elapsed time since the start of the build. Accepts the https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/time/DurationFormatUtils.html[Commons Lang `DurationFormatUtils`] format.
+`precision` (since 1.3.2):: Display the elapsed time in seconds, with a certain number of places after the decimal point. Accepts a number of decimal places or values such as `seconds` and `milliseconds`.
+`appendLog` (since 1.8):: Display the console log line after the timestamp.
+`startLine` (since 1.8):: Display the timestamps starting from a certain line. Accepts a positive integer to start at that line, or a negative integer to start that many lines back from the end.
+`endLine` (since 1.8):: Display the timestamps ending at a certain line. Accepts a positive integer to finish at that line, or a negative integer to finish that many lines back from the end.
+`timeZone` (since 1.8):: Time zone used when displaying the system clock time. Accepts the https://docs.oracle.com/javase/8/docs/api/java/util/TimeZone.html[JDK `TimeZone`] ID format.
+`locale` (since 1.8):: Select the locale to use when displaying the system clock time. Accepts a locale in the format recognised by https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/LocaleUtils.html#toLocale-java.lang.String-[Commons Lang `LocaleUtils#toLocale`].
+`currentTime` (since 1.8.8):: Display the current time on the Jenkins controller instead of reading timestamps from the build.
+
+CAUTION: Reading the timestamps directly from the file system is not recommended, because the format may change.
+
+=== Java API
+
+==== Since Timestamper 1.8
+
+Other plugins can add a https://www.jenkins.io/doc/developer/plugin-development/dependencies-and-class-loading/#depending-on-other-plugins[dependency] on the Timestamper plugin and then use the `TimestamperAPI#read` method to retrieve the timestamps.
+The `read` method accepts any query string that can be passed to the `/timestamps/` URL.
+For example:
+
+[source,java]
+----
+import hudson.plugins.timestamper.api.TimestamperAPI;
+import java.io.BufferedReader;
+
+String query = "time=HH:mm:ss";
+try (BufferedReader reader = TimestamperAPI.get().read(build, query)) {
+    // read timestamps here
+}
+----
+
+== Issues
+
+Report issues and enhancements in the https://issues.jenkins.io/[Jenkins issue tracker].
+Use the `timestamper-plugin` component in the `JENKINS` project.
+
+== Contributing
+
+Refer to our https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md[contribution guidelines].
+
+== License
+
+Licensed under link:LICENSE[the MIT License].
