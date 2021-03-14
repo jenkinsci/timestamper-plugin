@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.DiscreteDomains;
-import com.google.common.collect.Ranges;
-
 import hudson.model.Run;
 import hudson.plugins.timestamper.api.TimestamperAPI;
 
@@ -17,6 +14,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TimestamperApiTestUtil {
 
@@ -88,7 +86,7 @@ public class TimestamperApiTestUtil {
             upper = unstampedLines.size();
         }
         assertEquals(
-                Ranges.closed(lower, upper).asSet(DiscreteDomains.integers()).size(),
+                IntStream.rangeClosed(lower, upper).count(),
                 results.size());
         for (int i = 0; i < results.size(); i++) {
             if (appendLog) {
@@ -143,7 +141,7 @@ public class TimestamperApiTestUtil {
             upper = unstampedLines.size();
         }
         assertEquals(
-                Ranges.closed(lower, upper).asSet(DiscreteDomains.integers()).size(),
+                IntStream.rangeClosed(lower, upper).count(),
                 results.size());
         for (int i = 0; i < results.size(); i++) {
             if (appendLog) {
