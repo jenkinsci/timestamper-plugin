@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.io;
 
-import com.google.common.base.Joiner;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.Files;
 import java.io.ByteArrayInputStream;
@@ -50,7 +49,7 @@ public final class DumpTimestamps {
     if (args.length == 0) {
       throw new IllegalArgumentException("no command-line arguments");
     }
-    File timestamperDir = new File(Joiner.on(' ').join(args));
+    File timestamperDir = new File(String.join(" ", args));
     dump(timestamperDir, "timestamps", 1);
     System.out.println();
     dump(timestamperDir, "timeshifts", 2);
@@ -66,16 +65,16 @@ public final class DumpTimestamps {
     byte[] fileContents = Files.toByteArray(file);
     CountingInputStream inputStream =
         new CountingInputStream(new ByteArrayInputStream(fileContents));
-    List<Long> values = new ArrayList<>();
+    List<String> values = new ArrayList<>();
     while (inputStream.getCount() < fileContents.length) {
-      values.add(Varint.read(inputStream));
+      values.add(Long.toString(Varint.read(inputStream)));
       if (values.size() == columns) {
-        System.out.println(Joiner.on('\t').join(values));
+        System.out.println(String.join("\t", values));
         values.clear();
       }
     }
     if (!values.isEmpty()) {
-      System.out.println(Joiner.on('\t').join(values));
+      System.out.println(String.join("\t", values));
     }
   }
 

@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.io;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CountingInputStream;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -72,7 +71,7 @@ class TimeShiftsReader implements Serializable {
    */
   Optional<Long> getTime(long timestampEntry) throws IOException {
     if (timeShifts == null) {
-      timeShifts = ImmutableMap.copyOf(readTimeShifts());
+      timeShifts = Collections.unmodifiableMap(readTimeShifts());
     }
     return Optional.ofNullable(timeShifts.get(timestampEntry));
   }
