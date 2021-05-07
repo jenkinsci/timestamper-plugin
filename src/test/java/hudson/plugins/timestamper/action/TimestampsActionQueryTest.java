@@ -30,7 +30,6 @@ import static org.junit.Assert.assertThrows;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import hudson.Util;
 import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
 import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import java.util.ArrayList;
@@ -214,7 +213,7 @@ public class TimestampsActionQueryTest {
         List<String> params = new ArrayList<>();
         startLine.ifPresent(integer -> params.add("startLine=" + integer));
         endLine.ifPresent(integer -> params.add("endLine=" + integer));
-        String query = Util.join(params, "&");
+        String query = String.join("&", params);
 
         if (!query.isEmpty()) {
           testCases.add(
