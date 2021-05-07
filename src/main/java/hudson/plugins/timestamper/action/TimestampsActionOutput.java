@@ -23,7 +23,7 @@
  */
 package hudson.plugins.timestamper.action;
 
-import com.google.common.base.Joiner;
+import hudson.Util;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -95,7 +95,7 @@ public class TimestampsActionOutput {
       for (Function<Timestamp, String> format : query.timestampFormats) {
         parts.add(format.apply(currentTimestamp));
       }
-      String result = Joiner.on(' ').join(parts) + "\n";
+      String result = Util.join(parts, " ") + "\n";
       return new BufferedReader(new StringReader(result));
     }
 
@@ -165,7 +165,7 @@ public class TimestampsActionOutput {
               for (Function<Timestamp, String> format : query.timestampFormats) {
                 parts.add(format.apply(timestamp.get()));
               }
-              result = Joiner.on(' ').join(parts);
+              result = Util.join(parts, " ");
             }
             if (query.appendLogLine) {
               result += "  ";

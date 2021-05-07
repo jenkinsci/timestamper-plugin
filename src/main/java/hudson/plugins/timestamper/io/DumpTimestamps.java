@@ -23,13 +23,14 @@
  */
 package hudson.plugins.timestamper.io;
 
-import com.google.common.base.Joiner;
 import com.google.common.io.CountingInputStream;
 import com.google.common.io.Files;
+import hudson.Util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public final class DumpTimestamps {
     if (args.length == 0) {
       throw new IllegalArgumentException("no command-line arguments");
     }
-    File timestamperDir = new File(Joiner.on(' ').join(args));
+    File timestamperDir = new File(Util.join(Arrays.asList(args), " "));
     dump(timestamperDir, "timestamps", 1);
     System.out.println();
     dump(timestamperDir, "timeshifts", 2);
@@ -70,12 +71,12 @@ public final class DumpTimestamps {
     while (inputStream.getCount() < fileContents.length) {
       values.add(Varint.read(inputStream));
       if (values.size() == columns) {
-        System.out.println(Joiner.on('\t').join(values));
+        System.out.println(Util.join(values, "\t"));
         values.clear();
       }
     }
     if (!values.isEmpty()) {
-      System.out.println(Joiner.on('\t').join(values));
+      System.out.println(Util.join(values, "\t"));
     }
   }
 

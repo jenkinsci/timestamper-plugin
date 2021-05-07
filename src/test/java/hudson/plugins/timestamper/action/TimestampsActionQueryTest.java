@@ -27,16 +27,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import hudson.Util;
 import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
 import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -213,7 +214,7 @@ public class TimestampsActionQueryTest {
         List<String> params = new ArrayList<>();
         startLine.ifPresent(integer -> params.add("startLine=" + integer));
         endLine.ifPresent(integer -> params.add("endLine=" + integer));
-        String query = Joiner.on('&').join(params);
+        String query = Util.join(params, "&");
 
         if (!query.isEmpty()) {
           testCases.add(
@@ -229,8 +230,10 @@ public class TimestampsActionQueryTest {
     testCases.add(new Object[] {"endLine=invalid", NumberFormatException.class});
 
     // Append log line
-    Map<String, Boolean> appendLogParams =
-        ImmutableMap.of("appendLog", true, "appendLog=true", true, "appendLog=false", false);
+    Map<String, Boolean> appendLogParams = new HashMap<>();
+    appendLogParams.put("appendLog", true);
+    appendLogParams.put("appendLog=true", true);
+    appendLogParams.put("appendLog=false", false);
     for (Map.Entry<String, Boolean> mapEntry : appendLogParams.entrySet()) {
       String appendLogParam = mapEntry.getKey();
       boolean appendLog = mapEntry.getValue();
