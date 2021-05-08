@@ -1,7 +1,5 @@
 package hudson.plugins.timestamper.accessor;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.CountingInputStream;
@@ -24,6 +22,7 @@ import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -66,7 +65,7 @@ public class TimestampLogFileLineAccessor implements Closeable {
     private final Supplier<Integer> lineCount;
 
     public TimestampLogFileLineAccessor(Run<?, ?> build) throws IOException {
-        this.build = checkNotNull(build);
+        this.build = Objects.requireNonNull(build);
         this.logFileReader = new Scanner(build.getLogReader()).useDelimiter("\n");
         this.timestampsReader = new TimestampsReader(build);
         this.lineCount =

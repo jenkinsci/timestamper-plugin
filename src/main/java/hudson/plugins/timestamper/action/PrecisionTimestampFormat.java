@@ -23,11 +23,9 @@
  */
 package hudson.plugins.timestamper.action;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import com.google.common.base.Strings;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.plugins.timestamper.Timestamp;
+import java.util.Collections;
 import java.util.function.Function;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -43,7 +41,9 @@ final class PrecisionTimestampFormat implements Function<Timestamp, String> {
   /* javax.annotation.Nonnegative */ private final int precision;
 
   PrecisionTimestampFormat(int precision) {
-    checkArgument(precision >= 0);
+    if (precision < 0) {
+      throw new IllegalArgumentException("precision is negative");
+    }
     this.precision = precision;
   }
 
@@ -59,7 +59,7 @@ final class PrecisionTimestampFormat implements Function<Timestamp, String> {
     if (precision <= 3) {
       fractional = fractional.substring(0, precision);
     } else {
-      fractional += Strings.repeat("0", precision - 3);
+      fractional += String.join("", Collections.nCopies(precision - 3, "0"));
     }
     return seconds + "." + fractional;
   }

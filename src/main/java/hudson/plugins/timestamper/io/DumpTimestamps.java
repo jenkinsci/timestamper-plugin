@@ -24,10 +24,11 @@
 package hudson.plugins.timestamper.io;
 
 import com.google.common.io.CountingInputStream;
-import com.google.common.io.Files;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,20 +50,20 @@ public final class DumpTimestamps {
     if (args.length == 0) {
       throw new IllegalArgumentException("no command-line arguments");
     }
-    File timestamperDir = new File(String.join(" ", args));
+    Path timestamperDir = Paths.get(args[0]);
     dump(timestamperDir, "timestamps", 1);
     System.out.println();
     dump(timestamperDir, "timeshifts", 2);
   }
 
-  private static void dump(File parent, String filename, int columns) throws IOException {
+  private static void dump(Path parent, String filename, int columns) throws IOException {
     System.out.println(filename);
-    File file = new File(parent, filename);
-    if (!file.isFile()) {
+    Path file = parent.resolve(filename);
+    if (!Files.isRegularFile(file)) {
       System.out.println("(none)");
       return;
     }
-    byte[] fileContents = Files.toByteArray(file);
+    byte[] fileContents = Files.readAllBytes(file);
     CountingInputStream inputStream =
         new CountingInputStream(new ByteArrayInputStream(fileContents));
     List<String> values = new ArrayList<>();

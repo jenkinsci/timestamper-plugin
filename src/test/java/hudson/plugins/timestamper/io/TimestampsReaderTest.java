@@ -30,16 +30,17 @@ import static org.mockito.Mockito.when;
 
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.After;
@@ -148,18 +149,18 @@ public class TimestampsReaderTest {
   }
 
   private void writeTimestamps(List<Integer> timestampData) throws Exception {
-    File timestampsFile = TimestamperPaths.timestampsFile(build);
+    Path timestampsFile = TimestamperPaths.timestampsFile(build);
     writeToFile(timestampData, timestampsFile);
   }
 
   private void writeTimeShifts(List<Integer> timeShiftData) throws Exception {
-    File timeShiftsFile = TimestamperPaths.timeShiftsFile(build);
+    Path timeShiftsFile = TimestamperPaths.timeShiftsFile(build);
     writeToFile(timeShiftData, timeShiftsFile);
   }
 
-  private void writeToFile(List<Integer> data, File file) throws Exception {
-    Files.createDirectories(file.getParentFile().toPath());
-    try (OutputStream outputStream = new FileOutputStream(file, true)) {
+  private void writeToFile(List<Integer> data, Path file) throws Exception {
+    Files.createDirectories(Objects.requireNonNull(file.getParent()));
+    try (OutputStream outputStream = Files.newOutputStream(file, StandardOpenOption.CREATE_NEW, StandardOpenOption.APPEND)) {
       byte[] buffer = new byte[10];
       for (Integer value : data) {
         int len = Varint.write(value, buffer, 0);

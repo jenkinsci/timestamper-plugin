@@ -23,11 +23,10 @@
  */
 package hudson.plugins.timestamper;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import hudson.plugins.timestamper.io.TimestampsWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,8 +63,8 @@ final class TimestamperOutputStream extends OutputStream {
    *     when the {@link #close()} method is called
    */
   TimestamperOutputStream(OutputStream delegate, TimestampsWriter timestampsWriter) {
-    this.delegate = checkNotNull(delegate);
-    this.timestampsWriter = checkNotNull(timestampsWriter);
+    this.delegate = Objects.requireNonNull(delegate);
+    this.timestampsWriter = Objects.requireNonNull(timestampsWriter);
   }
 
   /** {@inheritDoc} */

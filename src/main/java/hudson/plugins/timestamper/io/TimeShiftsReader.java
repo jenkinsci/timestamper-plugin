@@ -29,9 +29,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Run;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +60,7 @@ class TimeShiftsReader implements Serializable {
   private transient Map<Long, Long> timeShifts;
 
   TimeShiftsReader(Run<?, ?> build) {
-    this.timeShiftsFile = TimestamperPaths.timeShiftsFile(build);
+    this.timeShiftsFile = TimestamperPaths.timeShiftsFile(build).toFile();
   }
 
   /**
@@ -77,13 +77,14 @@ class TimeShiftsReader implements Serializable {
   }
 
   private Map<Long, Long> readTimeShifts() throws IOException {
-    if (!timeShiftsFile.isFile()) {
+    if (!Files.isRegularFile(timeShiftsFile.toPath())) {
       return Collections.emptyMap();
     }
     Map<Long, Long> timeShifts = new HashMap<>();
     try (CountingInputStream inputStream =
-        new CountingInputStream(new BufferedInputStream(new FileInputStream(timeShiftsFile)))) {
-      while (inputStream.getCount() < timeShiftsFile.length()) {
+        new CountingInputStream(
+            new BufferedInputStream(Files.newInputStream(timeShiftsFile.toPath())))) {
+      while (inputStream.getCount() < Files.size(timeShiftsFile.toPath())) {
         long entry = Varint.read(inputStream);
         long shift = Varint.read(inputStream);
         timeShifts.put(entry, shift);

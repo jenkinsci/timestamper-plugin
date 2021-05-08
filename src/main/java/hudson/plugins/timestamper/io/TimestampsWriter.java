@@ -23,21 +23,18 @@
  */
 package hudson.plugins.timestamper.io;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.model.Run;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -49,7 +46,7 @@ public class TimestampsWriter implements Closeable {
 
   private static final int BUFFER_SIZE = 1024;
 
-  private final File timestampsFile;
+  private final Path timestampsFile;
 
   private final Optional<MessageDigest> timestampsDigest;
 
@@ -70,17 +67,17 @@ public class TimestampsWriter implements Closeable {
     this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(), digest);
   }
 
-  public TimestampsWriter(File timestampsFile, long buildStartTime, Optional<MessageDigest> digest)
+  public TimestampsWriter(Path timestampsFile, long buildStartTime, Optional<MessageDigest> digest)
       throws IOException {
     this.timestampsFile = timestampsFile;
     this.previousCurrentTimeMillis = buildStartTime;
-    this.timestampsDigest = checkNotNull(digest);
+    this.timestampsDigest = Objects.requireNonNull(digest);
 
-    Files.createParentDirs(timestampsFile);
-    boolean fileCreated = timestampsFile.createNewFile();
-    if (!fileCreated) {
-      throw new IOException("File already exists: " + timestampsFile);
+    Path parentDir = timestampsFile.getParent();
+    if (parentDir != null) {
+      Files.createDirectories(parentDir);
     }
+    Files.createFile(timestampsFile);
   }
 
   /**
@@ -111,8 +108,8 @@ public class TimestampsWriter implements Closeable {
    *
    * @return the output stream
    */
-  private OutputStream openTimestampsStream() throws FileNotFoundException {
-    OutputStream outputStream = new FileOutputStream(timestampsFile);
+  private OutputStream openTimestampsStream() throws IOException {
+    OutputStream outputStream = Files.newOutputStream(timestampsFile);
     if (timestampsDigest.isPresent()) {
       outputStream = new DigestOutputStream(outputStream, timestampsDigest.get());
     }
@@ -153,11 +150,10 @@ public class TimestampsWriter implements Closeable {
       hash.append(String.format("%02x", b));
     }
     hash.append("\n");
-    File digestFile =
-        new File(
-            timestampsFile.getParent(),
-            timestampsFile.getName() + "." + timestampsDigest.getAlgorithm());
-    Files.write(hash.toString(), digestFile, Charsets.US_ASCII);
+    Path digestFile =
+        timestampsFile.resolveSibling(
+            timestampsFile.getFileName() + "." + timestampsDigest.getAlgorithm());
+    Files.write(digestFile, hash.toString().getBytes(StandardCharsets.US_ASCII));
   }
 
   /** {@inheritDoc} */

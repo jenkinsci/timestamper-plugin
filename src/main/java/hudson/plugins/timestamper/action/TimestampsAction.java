@@ -23,14 +23,12 @@
  */
 package hudson.plugins.timestamper.action;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Strings;
 import hudson.model.Action;
 import hudson.model.Run;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.kohsuke.stapler.StaplerRequest;
@@ -57,7 +55,7 @@ public final class TimestampsAction implements Action {
    * @param build the build to inspect
    */
   TimestampsAction(Run<?, ?> build) {
-    this.build = checkNotNull(build);
+    this.build = Objects.requireNonNull(build);
   }
 
   /** {@inheritDoc} */
@@ -98,7 +96,7 @@ public final class TimestampsAction implements Action {
     } catch (RuntimeException | IOException e) {
       String urlWithQueryString = request.getRequestURLWithQueryString().toString();
       writer.println(urlWithQueryString);
-      String exceptionMessage = Strings.nullToEmpty(e.getMessage());
+      String exceptionMessage = e.getMessage() == null ? "" : e.getMessage();
       writer.println(
           e.getClass().getSimpleName()
               + (exceptionMessage.isEmpty() ? "" : ": " + exceptionMessage));

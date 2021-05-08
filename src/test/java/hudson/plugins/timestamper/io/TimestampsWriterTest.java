@@ -32,19 +32,21 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.CountingInputStream;
-import com.google.common.io.Files;
 import hudson.model.Run;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -63,9 +65,9 @@ public class TimestampsWriterTest {
 
   private Run<?, ?> build;
 
-  private File timestampsFile;
+  private Path timestampsFile;
 
-  private File timestampsHashFile;
+  private Path timestampsHashFile;
 
   private TimestampsWriter timestampsWriter;
 
@@ -74,7 +76,7 @@ public class TimestampsWriterTest {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
     timestampsFile = TimestamperPaths.timestampsFile(build);
-    timestampsHashFile = new File(timestampsFile.getParent(), timestampsFile.getName() + ".SHA-1");
+    timestampsHashFile = timestampsFile.resolveSibling(timestampsFile.getFileName() + ".SHA-1");
   }
 
   @After
@@ -140,11 +142,11 @@ public class TimestampsWriterTest {
     timestampsWriter.writeDigest();
     timestampsWriter.close();
 
-    byte[] fileContents = Files.toByteArray(timestampsFile);
+    byte[] fileContents = Files.readAllBytes(timestampsFile);
     byte[] expectedHash = MessageDigest.getInstance("SHA-1").digest(fileContents);
-    assertThat(
-        Files.toString(timestampsHashFile, Charsets.US_ASCII).trim(),
-        is(bytesToHex(expectedHash).toLowerCase()));
+    List<String> hashLines = Files.readAllLines(timestampsHashFile, StandardCharsets.US_ASCII);
+    assertThat(hashLines, hasSize(1));
+    assertThat(hashLines.get(0).trim(), is(bytesToHex(expectedHash).toLowerCase()));
   }
 
   @Test
@@ -155,7 +157,10 @@ public class TimestampsWriterTest {
     timestampsWriter.write(3, 1);
     timestampsWriter.writeDigest();
     timestampsWriter.close();
-    assertThat(timestampsHashFile.getParentFile().listFiles(), is(new File[] {timestampsFile}));
+    assertThat(
+        Files.list(Objects.requireNonNull(timestampsHashFile.getParent()))
+            .collect(Collectors.toList()),
+        is(Collections.singletonList(timestampsFile)));
   }
 
   @Test
@@ -165,7 +170,7 @@ public class TimestampsWriterTest {
   }
 
   private List<Integer> writtenTimestampData() throws Exception {
-    byte[] fileContents = Files.toByteArray(timestampsFile);
+    byte[] fileContents = Files.readAllBytes(timestampsFile);
     CountingInputStream inputStream =
         new CountingInputStream(new ByteArrayInputStream(fileContents));
     List<Integer> timestampData = new ArrayList<>();

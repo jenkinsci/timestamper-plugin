@@ -24,7 +24,7 @@
 package hudson.plugins.timestamper.io;
 
 import hudson.model.Run;
-import java.io.File;
+import java.nio.file.Path;
 
 /**
  * File paths used by the time-stamp readers and writers.
@@ -33,18 +33,18 @@ import java.io.File;
  */
 public class TimestamperPaths {
 
-  public static File timestampsFile(Run<?, ?> build) {
-    File timestamperDir = timestamperDir(build);
-    return new File(timestamperDir, "timestamps");
+  public static Path timestampsFile(Run<?, ?> build) {
+    Path timestamperDir = timestamperDir(build);
+    return timestamperDir.resolve("timestamps");
   }
 
-  static File timeShiftsFile(Run<?, ?> build) {
-    File timestamperDir = timestamperDir(build);
-    return new File(timestamperDir, "timeshifts");
+  static Path timeShiftsFile(Run<?, ?> build) {
+    Path timestamperDir = timestamperDir(build);
+    return timestamperDir.resolve("timeshifts");
   }
 
-  private static File timestamperDir(Run<?, ?> build) {
-    return new File(build.getRootDir(), "timestamper");
+  private static Path timestamperDir(Run<?, ?> build) {
+    return build.getRootDir().toPath().resolve("timestamper");
   }
 
   private TimestamperPaths() {}

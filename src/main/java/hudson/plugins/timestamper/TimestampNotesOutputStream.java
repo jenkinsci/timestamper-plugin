@@ -23,12 +23,11 @@
  */
 package hudson.plugins.timestamper;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import hudson.console.LineTransformationOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Output stream that writes each line to the provided delegate output stream after inserting a
@@ -57,7 +56,7 @@ public class TimestampNotesOutputStream extends LineTransformationOutputStream {
    * @param buildStartTime the build start time
    */
   public TimestampNotesOutputStream(OutputStream delegate, long buildStartTime) {
-    this.delegate = checkNotNull(delegate);
+    this.delegate = Objects.requireNonNull(delegate);
     this.buildStartTime = buildStartTime;
     this.lastTime = 0;
   }

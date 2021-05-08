@@ -27,7 +27,6 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.google.common.collect.ImmutableList;
 import hudson.plugins.timestamper.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +48,8 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class PrecisionTimestampFormatTest {
 
-  private static final ImmutableList<Timestamp> TIMESTAMPS =
-      ImmutableList.of(
+  private static final List<Timestamp> TIMESTAMPS =
+      Arrays.asList(
           new Timestamp(0, TimeUnit.SECONDS.toMillis(1)),
           //
           new Timestamp(1, TimeUnit.MINUTES.toMillis(1)),
