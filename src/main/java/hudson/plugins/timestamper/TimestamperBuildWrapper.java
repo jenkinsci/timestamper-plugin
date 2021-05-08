@@ -90,7 +90,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
     private final boolean useTimestampNotes;
 
     ConsoleLogFilterImpl(Run<?, ?> build) {
-      this.timestampsFile = TimestamperPaths.timestampsFile(build);
+      this.timestampsFile = TimestamperPaths.timestampsFile(build).toFile();
       this.buildStartTime = build.getStartTimeInMillis();
       useTimestampNotes =
           TimestampNote.useTimestampNotes(build.getClass())
@@ -112,7 +112,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
       }
       try {
         TimestampsWriter timestampsWriter =
-            new TimestampsWriter(timestampsFile, buildStartTime, digest);
+            new TimestampsWriter(timestampsFile.toPath(), buildStartTime, digest);
         logger = new TimestamperOutputStream(logger, timestampsWriter);
       } catch (IOException ex) {
         LOGGER.log(Level.WARNING, ex.getMessage(), ex);

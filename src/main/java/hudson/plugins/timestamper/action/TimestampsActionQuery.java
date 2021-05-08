@@ -23,15 +23,13 @@
  */
 package hudson.plugins.timestamper.action;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.collect.ImmutableList;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
 import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -102,7 +100,7 @@ public final class TimestampsActionQuery {
   }
 
   private static List<QueryParameter> readQueryString(String query) {
-    ImmutableList.Builder<QueryParameter> parameters = new ImmutableList.Builder<>();
+    List<QueryParameter> parameters = new ArrayList<>();
     if (query != null) {
       String[] pairs = query.split("&");
       for (String pair : pairs) {
@@ -112,7 +110,7 @@ public final class TimestampsActionQuery {
         parameters.add(new QueryParameter(name, value));
       }
     }
-    return parameters.build();
+    return Collections.unmodifiableList(parameters);
   }
 
   private static String urlDecode(String string) {
@@ -150,8 +148,8 @@ public final class TimestampsActionQuery {
     final String value;
 
     QueryParameter(String name, String value) {
-      this.name = checkNotNull(name);
-      this.value = checkNotNull(value);
+      this.name = Objects.requireNonNull(name);
+      this.value = Objects.requireNonNull(value);
     }
 
     @Override
@@ -177,8 +175,8 @@ public final class TimestampsActionQuery {
       boolean appendLogLine,
       boolean currentTime) {
     this.startLine = startLine;
-    this.endLine = checkNotNull(endLine);
-    this.timestampFormats = ImmutableList.copyOf(timestampFormats);
+    this.endLine = Objects.requireNonNull(endLine);
+    this.timestampFormats = Collections.unmodifiableList(new ArrayList<>(timestampFormats));
     this.appendLogLine = appendLogLine;
     this.currentTime = currentTime;
   }

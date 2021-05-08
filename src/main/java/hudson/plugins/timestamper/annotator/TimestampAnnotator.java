@@ -23,8 +23,6 @@
  */
 package hudson.plugins.timestamper.annotator;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
@@ -34,6 +32,7 @@ import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +60,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Run<?, ?>> {
    * @param logParser the console log parser
    */
   TimestampAnnotator(ConsoleLogParser logParser) {
-    this.logParser = checkNotNull(logParser);
+    this.logParser = Objects.requireNonNull(logParser);
   }
 
   /** {@inheritDoc} */

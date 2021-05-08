@@ -31,13 +31,12 @@ import hudson.plugins.timestamper.Timestamp;
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.Optional;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Read the time-stamps for a build from disk.
@@ -64,7 +63,7 @@ public class TimestampsReader implements Serializable, Closeable {
 
   /** Create a time-stamps reader for the given build. */
   public TimestampsReader(Run<?, ?> build) {
-    this.timestampsFile = TimestamperPaths.timestampsFile(build);
+    this.timestampsFile = TimestamperPaths.timestampsFile(build).toFile();
     this.timeShiftsReader = new TimeShiftsReader(build);
     this.millisSinceEpoch = build.getStartTimeInMillis();
   }
@@ -110,15 +109,15 @@ public class TimestampsReader implements Serializable, Closeable {
    */
   public Optional<Timestamp> read() throws IOException {
     if (inputStream == null) {
-      if (!timestampsFile.isFile()) {
+      if (!Files.isRegularFile(timestampsFile.toPath())) {
         return Optional.empty();
       }
-      inputStream = new FileInputStream(timestampsFile);
+      inputStream = Files.newInputStream(timestampsFile.toPath());
       ByteStreams.skipFully(inputStream, filePointer);
       inputStream = new BufferedInputStream(inputStream);
     }
     Optional<Timestamp> timestamp = Optional.empty();
-    if (filePointer < timestampsFile.length()) {
+    if (filePointer < Files.size(timestampsFile.toPath())) {
       timestamp = Optional.of(readNext(inputStream));
     }
     return timestamp;
@@ -127,7 +126,13 @@ public class TimestampsReader implements Serializable, Closeable {
   /** Close this reader. */
   @Override
   public void close() {
-    IOUtils.closeQuietly(inputStream);
+    try {
+      if (inputStream != null) {
+        inputStream.close();
+      }
+    } catch (IOException e) {
+      // ignore
+    }
     inputStream = null;
   }
 
@@ -149,6 +154,12 @@ public class TimestampsReader implements Serializable, Closeable {
 
   private void writeObject(ObjectOutputStream out) throws IOException {
     out.defaultWriteObject();
-    IOUtils.closeQuietly(inputStream);
+    try {
+      if (inputStream != null) {
+        inputStream.close();
+      }
+    } catch (IOException e) {
+      // ignore
+    }
   }
 }

@@ -27,9 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
 import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import java.util.ArrayList;
@@ -188,7 +185,7 @@ public class TimestampsActionQueryTest {
           new TimestampsActionQuery(
               0,
               NO_ENDLINE,
-              ImmutableList.of(new PrecisionTimestampFormat(0), new PrecisionTimestampFormat(1)),
+              Arrays.asList(new PrecisionTimestampFormat(0), new PrecisionTimestampFormat(1)),
               false,
               false)
         });
@@ -198,7 +195,7 @@ public class TimestampsActionQueryTest {
           new TimestampsActionQuery(
               0,
               NO_ENDLINE,
-              ImmutableList.of(
+              Arrays.asList(
                   new SystemTimestampFormat("dd:HH:mm:ss", NO_TIMEZONE, Locale.getDefault()),
                   new ElapsedTimestampFormat("s.SSS")),
               false,
@@ -207,7 +204,7 @@ public class TimestampsActionQueryTest {
 
     // Start line and end line
     List<Optional<Integer>> lineValues =
-        ImmutableList.of(Optional.of(-1), Optional.of(0), Optional.of(1), Optional.empty());
+        Arrays.asList(Optional.of(-1), Optional.of(0), Optional.of(1), Optional.empty());
     for (Optional<Integer> startLine : lineValues) {
       for (Optional<Integer> endLine : lineValues) {
         List<String> params = new ArrayList<>();
@@ -265,8 +262,10 @@ public class TimestampsActionQueryTest {
     }
 
     // Current time
-    Map<String, Boolean> currentTimeParams =
-        ImmutableMap.of("currentTime", true, "currentTime=true", true, "currentTime=false", false);
+    Map<String, Boolean> currentTimeParams = new HashMap<>();
+    currentTimeParams.put("currentTime", true);
+    currentTimeParams.put("currentTime=true", true);
+    currentTimeParams.put("currentTime=false", false);
     for (Map.Entry<String, Boolean> mapEntry : currentTimeParams.entrySet()) {
       String currentTimeParam = mapEntry.getKey();
       boolean currentTime = mapEntry.getValue();
@@ -336,7 +335,7 @@ public class TimestampsActionQueryTest {
    * @return the modified query
    */
   private String changeCaseOfQueryParameterNames(String query) {
-    if (Strings.isNullOrEmpty(query)) {
+    if (query == null || query.isEmpty()) {
       return query;
     }
 

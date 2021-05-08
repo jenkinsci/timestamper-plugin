@@ -23,10 +23,9 @@
  */
 package hudson.plugins.timestamper.format;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.plugins.timestamper.Timestamp;
+import java.util.Objects;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -40,7 +39,7 @@ public final class ElapsedTimestampFormat extends TimestampFormat {
   private final String elapsedTimeFormat;
 
   public ElapsedTimestampFormat(String elapsedTimeFormat) {
-    this.elapsedTimeFormat = checkNotNull(elapsedTimeFormat);
+    this.elapsedTimeFormat = Objects.requireNonNull(elapsedTimeFormat);
   }
 
   /** {@inheritDoc} */
