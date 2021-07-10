@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,10 +75,15 @@ public final class GlobalDecorator extends TaskListenerDecorator {
         @Override
         protected void eol(byte[] b, int len) throws IOException {
             synchronized (logger) { // typically this will be a PrintStream
-                ByteBuffer buffer = ByteBuffer.allocate(1 + 24 + 1 + 1 + len);
+                ByteBuffer buffer = ByteBuffer.allocate(1 + 50 + 1 + 1 + len);
                 buffer.put((byte) '[');
+                String timeZoneProperty = System.getProperty("org.apache.commons.jelly.tags.fmt.timeZone");
+                ZoneId timezoneid = ZoneOffset.UTC;
+                if (timeZoneProperty != null) {
+                    timezoneid = ZoneId.of(timeZoneProperty);
+                }
                 buffer.put(
-                        ZonedDateTime.now(ZoneOffset.UTC)
+                        ZonedDateTime.now(timezoneid)
                                 .format(UTC_MILLIS)
                                 .getBytes(StandardCharsets.US_ASCII));
                 buffer.put((byte) ']');
