@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,6 +119,15 @@ public class TimestamperOutputStreamTest {
   @Test
   public void testWriteIntTwoLines() throws Exception {
     timestamperOutputStream.write('a');
+    timestamperOutputStream.write(NEWLINE);
+    timestamperOutputStream.write('b');
+    verify(writer, times(2)).write(anyLong(), eq(1));
+  }
+
+  @Test
+  public void unicode() throws Exception {
+    String symbol = "Envoi d'une requˆte 'Ping'  127.0.0.1 avec 32 octets de donn‚esÿ:";
+    timestamperOutputStream.write(symbol.getBytes(Charset.forName("Windows-1252")));
     timestamperOutputStream.write(NEWLINE);
     timestamperOutputStream.write('b');
     verify(writer, times(2)).write(anyLong(), eq(1));
