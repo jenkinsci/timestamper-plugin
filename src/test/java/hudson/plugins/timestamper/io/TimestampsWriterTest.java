@@ -52,7 +52,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.powermock.reflect.Whitebox;
 
 /**
  * Unit test for the {@link TimestampsWriter} class.
@@ -122,7 +121,7 @@ public class TimestampsWriterTest {
 
   @Test
   public void testWriteSameTimestampManyTimes() throws Exception {
-    int bufferSize = Whitebox.getField(TimestampsWriter.class, "BUFFER_SIZE").getInt(null);
+    int bufferSize = 1024; // cf. hudson.plugins.timestamper.io.TimestampsWriter.BUFFER_SIZE
     int times = bufferSize + 1000; // larger than the buffer
     timestampsWriter = new TimestampsWriter(build);
     timestampsWriter.write(10000, times);

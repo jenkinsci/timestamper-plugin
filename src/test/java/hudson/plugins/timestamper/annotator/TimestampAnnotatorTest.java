@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import hudson.MarkupText;
@@ -43,7 +44,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -54,8 +54,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
-import org.powermock.reflect.Whitebox;
 
 /**
  * Unit test for the {@link TimestampAnnotator} class.
@@ -166,11 +166,9 @@ public class TimestampAnnotatorTest {
   private List<Timestamp> annotate() {
     ConsoleLogParser logParser = new MockConsoleLogParser();
     ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
-    Supplier<TimestampFormat> originalSupplier =
-        Whitebox.getInternalState(TimestampFormatProvider.class, Supplier.class);
 
-    captureFormattedTimestamps();
-    try {
+    try (MockedStatic<TimestampFormatProvider> mocked = mockStatic(TimestampFormatProvider.class)) {
+      captureFormattedTimestamps(mocked);
       int iterations = 0;
       while (annotator != null) {
         if (serialize) {
@@ -182,13 +180,11 @@ public class TimestampAnnotatorTest {
           throw new AssertionError("annotator is not terminating");
         }
       }
-    } finally {
-      Whitebox.setInternalState(TimestampFormatProvider.class, Supplier.class, originalSupplier);
     }
     return capturedTimestamps;
   }
 
-  private void captureFormattedTimestamps() {
+  private static void captureFormattedTimestamps(MockedStatic<TimestampFormatProvider> mocked) {
     final TimestampFormat format = mock(TimestampFormat.class);
     doAnswer(
             (Answer<Void>)
@@ -199,8 +195,7 @@ public class TimestampAnnotatorTest {
                 })
         .when(format)
         .markup(any(MarkupText.class), any(Timestamp.class));
-    Whitebox.setInternalState(
-        TimestampFormatProvider.class, Supplier.class, (Supplier<TimestampFormat>) () -> format);
+    mocked.when(TimestampFormatProvider::get).thenReturn(format);
   }
 
   private static class MockConsoleLogParser extends ConsoleLogParser {

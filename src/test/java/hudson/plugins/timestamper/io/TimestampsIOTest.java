@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.powermock.reflect.Whitebox;
 
 /**
  * Test for integration between the {@link TimestampsReader} and {@link TimestampsWriter} classes.
@@ -57,7 +56,7 @@ public class TimestampsIOTest {
   public void setUp() throws Exception {
     build = mock(Run.class);
     when(build.getRootDir()).thenReturn(folder.getRoot());
-    Whitebox.setInternalState(build, "timestamp", 1L);
+    when(build.getStartTimeInMillis()).thenReturn(1L);
 
     reader = new TimestampsReader(build);
     writer = new TimestampsWriter(build);

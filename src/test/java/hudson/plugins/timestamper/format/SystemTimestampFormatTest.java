@@ -36,7 +36,6 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 /**
  * Unit test for the {@link SystemTimestampFormat} class.
@@ -45,8 +44,8 @@ import org.powermock.reflect.Whitebox;
  */
 public class SystemTimestampFormatTest {
 
-  private static final String TIME_ZONE_PROPERTY =
-      Whitebox.getInternalState(SystemTimestampFormat.class, "TIME_ZONE_PROPERTY");
+  // cf. hudson.plugins.timestamper.format.SystemTimestampFormat.TIME_ZONE_PROPERTY
+  private static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
 
   private TimeZone systemDefaultTimeZone;
 
