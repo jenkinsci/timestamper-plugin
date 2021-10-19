@@ -55,7 +55,7 @@ public class TimestamperIntegrationTest {
         HtmlPage page = r.createWebClient().getPage(build, "consoleFull");
         WebClientUtil.waitForJSExec(page.getWebClient());
         HtmlPreformattedText consoleOutput = page.getFirstByXPath("//pre[@class='console-output']");
-        String consoleText = consoleOutput.asText();
+        String consoleText = consoleOutput.asNormalizedText();
         List<String> annotatedLines =
                 new BufferedReader(new StringReader(consoleText))
                         .lines()

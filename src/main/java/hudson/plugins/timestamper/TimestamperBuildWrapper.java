@@ -28,7 +28,6 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.console.ConsoleLogFilter;
-import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -99,7 +98,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger)
+    public OutputStream decorateLogger(Run _ignore, OutputStream logger)
         throws IOException, InterruptedException {
       if (useTimestampNotes) {
         return new TimestampNotesOutputStream(logger, buildStartTime);

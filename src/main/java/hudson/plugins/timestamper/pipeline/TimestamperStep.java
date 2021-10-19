@@ -26,7 +26,7 @@ package hudson.plugins.timestamper.pipeline;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.timestamper.Messages;
 import hudson.plugins.timestamper.TimestamperConfig;
@@ -152,7 +152,7 @@ public class TimestamperStep extends Step {
     /** {@inheritDoc} */
     @SuppressWarnings("rawtypes")
     @Override
-    public OutputStream decorateLogger(AbstractBuild _ignore, OutputStream logger)
+    public OutputStream decorateLogger(Run _ignore, OutputStream logger)
         throws IOException, InterruptedException {
       return logger;
     }
