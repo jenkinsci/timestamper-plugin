@@ -1,5 +1,5 @@
 // Builds the plugin using https://github.com/jenkins-infra/pipeline-library
-buildPlugin(configurations: [
+buildPlugin(useContainerAgent: true, configurations: [
   // Test the long-term support end of the compatibility spectrum (i.e., the minimum required
   // Jenkins version).
   [ platform: 'linux', jdk: '8', jenkins: null ],
