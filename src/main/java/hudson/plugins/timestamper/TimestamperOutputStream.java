@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 final class TimestamperOutputStream extends OutputStream {
 
   private static final Logger LOGGER = Logger.getLogger(TimestamperOutputStream.class.getName());
+  public static final byte NEWLINE = (byte) 0x0A;
 
   /** The delegate output stream. */
   private final OutputStream delegate;
@@ -49,8 +50,8 @@ final class TimestamperOutputStream extends OutputStream {
   /** Byte array that is re-used each time the {@link #write(int)} method is called. */
   private final byte[] oneElementByteArray = new byte[1];
 
-  /** The last processed character, or {@code -1} for the start of the stream. */
-  private int previousCharacter = -1;
+  /** The last processed character, or {@code Integer.MIN_VALUE} for the start of the stream. */
+  private int previousCharacter = Integer.MIN_VALUE;
 
   /** Set to {@code true} when an error occurs while writing the time-stamps. */
   private boolean writeError;
@@ -90,10 +91,9 @@ final class TimestamperOutputStream extends OutputStream {
   }
 
   private void writeTimestamps(byte[] b, int off, int len) {
-    byte newlineCharacter = (byte) 0x0A;
     int lineStartCount = 0;
     for (int i = off; i < off + len; i++) {
-      if (previousCharacter == -1 || previousCharacter == newlineCharacter) {
+      if (previousCharacter == Integer.MIN_VALUE || previousCharacter == NEWLINE) {
         lineStartCount++;
       }
       previousCharacter = b[i];
