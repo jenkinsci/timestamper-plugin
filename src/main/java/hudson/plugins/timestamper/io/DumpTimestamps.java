@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.io;
 
-import com.google.common.io.CountingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.input.CountingInputStream;
 
 /**
  * Debugging tool which outputs the contents of a timestamper directory.

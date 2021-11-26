@@ -32,7 +32,6 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.io.CountingInputStream;
 import hudson.model.Run;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,6 +46,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.io.input.CountingInputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
