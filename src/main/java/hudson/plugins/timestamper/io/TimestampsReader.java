@@ -24,7 +24,6 @@
 package hudson.plugins.timestamper.io;
 
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CountingInputStream;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -37,6 +36,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.util.Optional;
+import org.apache.commons.io.input.CountingInputStream;
 
 /**
  * Read the time-stamps for a build from disk.

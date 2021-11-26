@@ -2,7 +2,6 @@ package hudson.plugins.timestamper.accessor;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.io.CountingInputStream;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -14,6 +13,7 @@ import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import hudson.plugins.timestamper.pipeline.GlobalAnnotator;
 
+import org.apache.commons.io.input.CountingInputStream;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
