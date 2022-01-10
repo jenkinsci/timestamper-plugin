@@ -34,7 +34,7 @@ import java.util.Scanner;
  */
 @Restricted(NoExternalUse.class)
 @SuppressFBWarnings(
-        value = "RV_DONT_JUST_NULL_CHECK_READLINE",
+        value = {"RV_DONT_JUST_NULL_CHECK_READLINE", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
         justification = "Line count lambda is just counting lines, not reading them")
 public class TimestampLogFileLineAccessor implements Closeable {
 
