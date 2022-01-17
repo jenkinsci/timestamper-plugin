@@ -73,7 +73,7 @@
   <properties>
     <revision>1.17</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.249.1</jenkins.version>
+    <jenkins.version>2.249.3</jenkins.version>
     <java.level>8</java.level>
     <spotbugs.threshold>Low</spotbugs.threshold>
     <spotbugs.effort>Max</spotbugs.effort>
