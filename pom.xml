@@ -73,7 +73,7 @@
   <properties>
     <revision>1.17</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.249.3</jenkins.version>
+    <jenkins.version>2.277.4</jenkins.version>
     <java.level>8</java.level>
     <spotbugs.threshold>Low</spotbugs.threshold>
     <spotbugs.effort>Max</spotbugs.effort>
@@ -125,15 +125,9 @@
       <artifactId>workflow-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-      <artifactId>owasp-java-html-sanitizer</artifactId>
-      <version>20211018.2</version>
-      <exclusions>
-        <exclusion> <!-- TODO it seems to want Guava 23; apparently it manages to run against 11 -->
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>antisamy-markup-formatter</artifactId>
+      <version>136.v94fb_413c7721</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
