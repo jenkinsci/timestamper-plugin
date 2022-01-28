@@ -1,6 +1,5 @@
 package hudson.plugins.timestamper.accessor;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -25,6 +24,7 @@ import java.io.UncheckedIOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
 /**
  * Abstraction for retrieving timestamps and log file lines from completed builds. Timestamp records
@@ -82,7 +82,7 @@ public class TimestampLogFileLineAccessor implements Closeable {
                                 throw new UncheckedIOException(e);
                             }
                             return lineCount;
-                        });
+                        })::get;
     }
 
     /** Skip forward one line in the associated record file(s). */
