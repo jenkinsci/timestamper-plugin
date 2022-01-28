@@ -107,7 +107,7 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.249.x</artifactId>
+        <artifactId>bom-2.277.x</artifactId>
         <version>984.vb5eaac999a7e</version>
         <scope>import</scope>
         <type>pom</type>
@@ -138,18 +138,6 @@
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>ant</artifactId>
       <version>1.13</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-core</artifactId>
-      <version>2.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <version>2.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
