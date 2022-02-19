@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper.action;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -108,7 +109,7 @@ public class TimestampsActionOutput {
           TimestampLogFileLineAccessor timestampLogFileLineAccessor;
 
           @Override
-          public int read(char[] cbuf, int off, int len) throws IOException {
+          public int read(@NonNull char[] cbuf, int off, int len) throws IOException {
             if (!started) {
               timestampLogFileLineAccessor = new TimestampLogFileLineAccessor(build);
               linesRead = readToStartLine(query);

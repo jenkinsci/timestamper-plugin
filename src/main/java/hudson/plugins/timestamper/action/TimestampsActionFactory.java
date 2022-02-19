@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper.action;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Run;
@@ -47,8 +48,9 @@ public final class TimestampsActionFactory extends TransientActionFactory<Run> {
   }
 
   /** {@inheritDoc} */
+  @NonNull
   @Override
-  public Collection<? extends Action> createFor(Run target) {
+  public Collection<? extends Action> createFor(@NonNull Run target) {
     return Collections.singleton(new TimestampsAction(target));
   }
 }
