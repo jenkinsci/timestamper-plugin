@@ -1,5 +1,6 @@
 package hudson.plugins.timestamper.jmh.benchmarks;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Functions;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.FreeStyleBuild;
@@ -80,24 +81,24 @@ public class LogHtmlWriterBenchmark {
         }
 
         @Override
-        public void write(char[] cbuf) {
+        public void write(@NonNull char[] cbuf) {
             blackhole.consume(cbuf);
         }
 
         @Override
-        public void write(char[] cbuf, int off, int len) {
+        public void write(@NonNull char[] cbuf, int off, int len) {
             blackhole.consume(cbuf);
             blackhole.consume(off);
             blackhole.consume(len);
         }
 
         @Override
-        public void write(String str) {
+        public void write(@NonNull String str) {
             blackhole.consume(str);
         }
 
         @Override
-        public void write(String str, int off, int len) {
+        public void write(@NonNull String str, int off, int len) {
             blackhole.consume(str);
             blackhole.consume(off);
             blackhole.consume(len);

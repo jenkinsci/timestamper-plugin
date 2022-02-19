@@ -104,6 +104,7 @@ public class TimestamperStep extends Step {
   public static class DescriptorImpl extends StepDescriptor {
 
     /** {@inheritDoc} */
+    @NonNull
     @Override
     public String getDisplayName() {
       return Messages.Timestamps();

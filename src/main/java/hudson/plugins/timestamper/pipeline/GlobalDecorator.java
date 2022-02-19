@@ -24,6 +24,7 @@
 
 package hudson.plugins.timestamper.pipeline;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.console.LineTransformationOutputStream;
 import hudson.model.Queue;
@@ -57,8 +58,9 @@ public final class GlobalDecorator extends TaskListenerDecorator {
 
     GlobalDecorator() {}
 
+    @NonNull
     @Override
-    public OutputStream decorate(final OutputStream logger)
+    public OutputStream decorate(@NonNull final OutputStream logger)
             throws IOException, InterruptedException {
         return new GlobalDecoratorLineTransformationOutputStream(logger);
     }
@@ -106,7 +108,7 @@ public final class GlobalDecorator extends TaskListenerDecorator {
     public static final class Factory implements TaskListenerDecorator.Factory {
 
         @Override
-        public TaskListenerDecorator of(FlowExecutionOwner owner) {
+        public TaskListenerDecorator of(@NonNull FlowExecutionOwner owner) {
             if (!TimestamperConfig.get().isAllPipelines()) {
                 return null;
             }

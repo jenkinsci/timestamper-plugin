@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.plugins.timestamper.io.TimestampsWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -78,14 +79,14 @@ final class TimestamperOutputStream extends OutputStream {
 
   /** {@inheritDoc} */
   @Override
-  public void write(byte[] b) throws IOException {
+  public void write(@NonNull byte[] b) throws IOException {
     writeTimestamps(b, 0, b.length);
     delegate.write(b);
   }
 
   /** {@inheritDoc} */
   @Override
-  public void write(byte[] b, int off, int len) throws IOException {
+  public void write(@NonNull byte[] b, int off, int len) throws IOException {
     writeTimestamps(b, off, len);
     delegate.write(b, off, len);
   }

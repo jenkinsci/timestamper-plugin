@@ -24,6 +24,7 @@
 
 package hudson.plugins.timestamper.pipeline;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
@@ -54,7 +55,7 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
     private static final Logger LOGGER = Logger.getLogger(GlobalAnnotator.class.getName());
 
     @Override
-    public ConsoleAnnotator<Object> annotate(Object context, MarkupText text) {
+    public ConsoleAnnotator<Object> annotate(@NonNull Object context, @NonNull MarkupText text) {
         Run<?, ?> build;
         if (context instanceof Run) {
             build = (Run<?, ?>) context;

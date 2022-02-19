@@ -24,6 +24,7 @@
 package hudson.plugins.timestamper.annotator;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import hudson.model.Run;
@@ -65,7 +66,7 @@ public final class TimestampAnnotator extends ConsoleAnnotator<Run<?, ?>> {
 
   /** {@inheritDoc} */
   @Override
-  public ConsoleAnnotator<Run<?, ?>> annotate(Run<?, ?> build, MarkupText text) {
+  public ConsoleAnnotator<Run<?, ?>> annotate(@NonNull Run<?, ?> build, @NonNull MarkupText text) {
     try {
       if (timestampsReader == null) {
         ConsoleLogParser.Result logPosition = logParser.seek(build);

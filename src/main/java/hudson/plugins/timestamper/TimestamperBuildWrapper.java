@@ -23,6 +23,7 @@
  */
 package hudson.plugins.timestamper;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -78,7 +79,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
 
   /** {@inheritDoc} */
   @Override
-  public ConsoleLogFilter createLoggerDecorator(Run<?, ?> build) {
+  public ConsoleLogFilter createLoggerDecorator(@NonNull Run<?, ?> build) {
     return new ConsoleLogFilterImpl(build);
   }
 
@@ -125,6 +126,7 @@ public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
   public static final class DescriptorImpl extends BuildWrapperDescriptor {
 
     /** {@inheritDoc} */
+    @NonNull
     @Override
     public String getDisplayName() {
       return Messages.Description();
