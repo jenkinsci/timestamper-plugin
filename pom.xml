@@ -15,7 +15,6 @@
   <packaging>hpi</packaging>
 
   <name>Timestamper</name>
-  <description>Adds timestamps to the Console Output</description>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
   <licenses>
