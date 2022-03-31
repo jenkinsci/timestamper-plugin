@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.38</version>
+    <version>4.39</version>
     <relativePath />
   </parent>
 
@@ -15,7 +15,6 @@
   <packaging>hpi</packaging>
 
   <name>Timestamper</name>
-  <description>Adds timestamps to the Console Output</description>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
   <licenses>
