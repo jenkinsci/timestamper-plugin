@@ -170,7 +170,7 @@ Contributed by Kohsuke Kawaguchi
 
 ==== 1.5.4 (Jun 04, 2013)
 
-* Prevent another NPE being thrown when the slave is taken offline during a build. (https://issues.jenkins.io/browse/JENKINS-16778[JENKINS-16778]) (https://github.com/jenkinsci/timestamper-plugin/pull/3[pull request #3]) +
+* Prevent another NPE being thrown when the agent is taken offline during a build. (https://issues.jenkins.io/browse/JENKINS-16778[JENKINS-16778]) (https://github.com/jenkinsci/timestamper-plugin/pull/3[pull request #3]) +
 Contributed by jdewinne
 
 ==== 1.5.3 (Mar 17, 2013)
@@ -178,7 +178,7 @@ Contributed by jdewinne
 * Traditional Chinese translations. (https://github.com/jenkinsci/timestamper-plugin/pull/2[pull request #2]) +
 Contributed by Pei-Tang Huang
 * Workaround a bug in Jenkins which causes a VM crash. (https://issues.jenkins.io/browse/JENKINS-16528[JENKINS-16528])
-* Prevent an NPE being thrown when the slave is taken offline during a build. (https://issues.jenkins.io/browse/JENKINS-16778[JENKINS-16778])
+* Prevent an NPE being thrown when the agent is taken offline during a build. (https://issues.jenkins.io/browse/JENKINS-16778[JENKINS-16778])
 
 ==== 1.5.2 (Feb 03, 2013)
 
