@@ -24,6 +24,9 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  
+  <st:contentType value="text/html" />
+  
   <j:new var="h" className="hudson.Functions" />
   ${h.initPageVariables(context)}
 
