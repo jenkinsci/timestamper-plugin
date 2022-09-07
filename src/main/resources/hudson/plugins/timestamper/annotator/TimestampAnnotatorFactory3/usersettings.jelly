@@ -27,13 +27,6 @@ THE SOFTWARE.
   
   <st:contentType value="text/html" />
   
-  <j:new var="h" className="hudson.Functions" />
-  ${h.initPageVariables(context)}
-
-  <j:set var="versionParts" value="${h.version.split('\.')}" />
-  <j:set var="majorVersion" value="${versionParts[0]}" />
-  <j:set var="rawMinorVersion" value="${versionParts[1].split('-')}" />
-  <j:set var="minorVersion" value="${rawMinorVersion[0]}" />
   <l:ajax>
     <style>
       .timestamper-form-pane {
@@ -45,33 +38,14 @@ THE SOFTWARE.
         display: block;
       }
     </style>
-    <j:choose>
-      <j:when test="${(majorVersion ge 2 and minorVersion ge 238) or majorVersion > 2}">
-        <div>
-          <div class="pane-header col-xs-24">
-            <span class="pane-header-title">${%Timestamps}</span>
-            <span><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
-          </div>
-          <div class="timestamper-form-pane">
-            <st:include page="settingsForm.jelly"/>
-          </div>
-        </div>
-      </j:when>
-      <j:otherwise>
-        <table class="pane">
-          <tr>
-            <td class="pane-header">
-              <span style="text-align:left;">${%Timestamps}</span>
-              <span style="float:right;"><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
-            </td>
-          </tr>
-          <tr>
-            <td class="timestamper-form-pane">
-              <st:include page="settingsForm.jelly"/>
-            </td>
-          </tr>
-        </table>
-      </j:otherwise>
-    </j:choose>
+    <div>
+      <div class="pane-header col-xs-24">
+        <span class="pane-header-title">${%Timestamps}</span>
+        <span><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
+      </div>
+      <div class="timestamper-form-pane">
+        <st:include page="settingsForm.jelly"/>
+      </div>
+    </div>
   </l:ajax>
 </j:jelly>
