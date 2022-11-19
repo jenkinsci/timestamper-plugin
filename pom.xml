@@ -65,7 +65,7 @@
   <properties>
     <revision>1.22</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.332.1</jenkins.version>
+    <jenkins.version>2.332.4</jenkins.version>
     <spotbugs.threshold>Low</spotbugs.threshold>
     <spotbugs.effort>Max</spotbugs.effort>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
