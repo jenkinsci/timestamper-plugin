@@ -23,7 +23,6 @@
  */
 package hudson.plugins.timestamper.action;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Action;
 import hudson.model.Run;
 import java.io.BufferedReader;
@@ -78,9 +77,6 @@ public final class TimestampsAction implements Action {
   }
 
   /** Serve a page at this URL. */
-  @SuppressFBWarnings(
-      value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
-      justification = "https://github.com/spotbugs/spotbugs/issues/756")
   public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
     response.setContentType("text/plain;charset=UTF-8");
 
