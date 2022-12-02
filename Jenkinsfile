@@ -4,4 +4,3 @@ buildPlugin(useContainerAgent: true, configurations: [
   [ platform: 'windows', jdk: '11' ],
   [ platform: 'linux', jdk: '17' ],
 ])
-runBenchmarks('jmh-report.json')
