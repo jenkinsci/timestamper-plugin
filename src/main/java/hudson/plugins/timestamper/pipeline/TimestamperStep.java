@@ -130,6 +130,7 @@ public class TimestamperStep extends Step {
 
     /** Serve the help file. */
     @Override
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
     public void doHelp(StaplerRequest request, StaplerResponse response) throws IOException {
       response.setContentType("text/html;charset=UTF-8");
       PrintWriter writer = response.getWriter();

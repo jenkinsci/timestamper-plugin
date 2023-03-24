@@ -44,9 +44,11 @@ import java.util.function.Supplier;
 import javax.servlet.ServletException;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.verb.POST;
 
 /**
  * Global configuration for the Timestamper plug-in, as shown on the Jenkins Configure System page.
@@ -111,8 +113,11 @@ public final class TimestamperConfig extends GlobalConfiguration {
     save();
   }
 
+  @POST
   public FormValidation doCheckSystemTimeFormat(@QueryParameter String systemTimeFormat)
       throws IOException, ServletException {
+    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+
     if (Util.fixEmptyAndTrim(systemTimeFormat) == null) {
       return FormValidation.ok();
     }
@@ -140,8 +145,11 @@ public final class TimestamperConfig extends GlobalConfiguration {
     save();
   }
 
+  @POST
   public FormValidation doCheckElapsedTimeFormat(@QueryParameter String elapsedTimeFormat)
       throws IOException, ServletException {
+    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+
     if (Util.fixEmptyAndTrim(elapsedTimeFormat) == null) {
       return FormValidation.ok();
     }

@@ -77,6 +77,7 @@ public final class TimestampsAction implements Action {
   }
 
   /** Serve a page at this URL. */
+  @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
   public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
     response.setContentType("text/plain;charset=UTF-8");
 
