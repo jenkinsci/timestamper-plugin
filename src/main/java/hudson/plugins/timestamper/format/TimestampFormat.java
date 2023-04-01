@@ -34,42 +34,42 @@ import java.util.function.Function;
  */
 public abstract class TimestampFormat implements Function<Timestamp, String> {
 
-  /**
-   * Format the given time-stamp as a string.
-   *
-   * @return the formatted time-stamp
-   */
-  @Override
-  public abstract String apply(Timestamp timestamp);
+    /**
+     * Format the given time-stamp as a string.
+     *
+     * @return the formatted time-stamp
+     */
+    @Override
+    public abstract String apply(Timestamp timestamp);
 
-  /**
-   * Validates that the given timestamp format can be applied safely.
-   *
-   * @throws FormatParseException If the timestamp format cannot be parsed
-   * @throws InvalidHtmlException If the timestamp format contains invalid HTML
-   */
-  public abstract void validate() throws FormatParseException, InvalidHtmlException;
+    /**
+     * Validates that the given timestamp format can be applied safely.
+     *
+     * @throws FormatParseException If the timestamp format cannot be parsed
+     * @throws InvalidHtmlException If the timestamp format contains invalid HTML
+     */
+    public abstract void validate() throws FormatParseException, InvalidHtmlException;
 
-  /**
-   * Format the given time-stamp and add it to the mark-up text.
-   *
-   * @param text the mark-up text
-   * @param timestamp the time-stamp to format
-   */
-  public void markup(MarkupText text, Timestamp timestamp) {
-    String timestampString = apply(timestamp);
-    // Wrap the time-stamp in a span element, which is used to detect the
-    // time-stamp when inspecting the page with Javascript.
-    String markup = "<span class=\"timestamp\">" + timestampString + "</span>";
-    // Add as end tag, which will be inserted prior to tags added by other
-    // console notes (e.g. AntTargetNote).
-    text.addMarkup(0, 0, "", markup);
-  }
+    /**
+     * Format the given time-stamp and add it to the mark-up text.
+     *
+     * @param text the mark-up text
+     * @param timestamp the time-stamp to format
+     */
+    public void markup(MarkupText text, Timestamp timestamp) {
+        String timestampString = apply(timestamp);
+        // Wrap the time-stamp in a span element, which is used to detect the
+        // time-stamp when inspecting the page with Javascript.
+        String markup = "<span class=\"timestamp\">" + timestampString + "</span>";
+        // Add as end tag, which will be inserted prior to tags added by other
+        // console notes (e.g. AntTargetNote).
+        text.addMarkup(0, 0, "", markup);
+    }
 
-  /**
-   * Get the URL for displaying the plain text console and time-stamps in this format.
-   *
-   * @return the plain text URL
-   */
-  public abstract String getPlainTextUrl();
+    /**
+     * Get the URL for displaying the plain text console and time-stamps in this format.
+     *
+     * @return the plain text URL
+     */
+    public abstract String getPlainTextUrl();
 }

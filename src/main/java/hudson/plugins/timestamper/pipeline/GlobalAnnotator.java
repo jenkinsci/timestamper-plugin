@@ -34,18 +34,16 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
-
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.graph.FlowNode;
-import org.kohsuke.accmod.Restricted;
-import org.kohsuke.accmod.restrictions.NoExternalUse;
-
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 /** Interprets marks added by {@link GlobalDecorator}. */
 public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
@@ -80,13 +78,11 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
             return null;
         }
         long buildStartTime = build.getStartTimeInMillis();
-        parseTimestamp(text.getText(), buildStartTime)
-                .ifPresent(
-                        timestamp -> {
-                            TimestampFormat format = TimestampFormatProvider.get();
-                            format.markup(text, timestamp);
-                            text.addMarkup(0, 26, "<span style=\"display: none\">", "</span>");
-                        });
+        parseTimestamp(text.getText(), buildStartTime).ifPresent(timestamp -> {
+            TimestampFormat format = TimestampFormatProvider.get();
+            format.markup(text, timestamp);
+            text.addMarkup(0, 26, "<span style=\"display: none\">", "</span>");
+        });
         return this;
     }
 
@@ -97,13 +93,11 @@ public final class GlobalAnnotator extends ConsoleAnnotator<Object> {
             int end = text.indexOf(']');
             if (end != -1) {
                 try {
-                    long millisSinceEpoch =
-                            ZonedDateTime.parse(text.substring(1, end), GlobalDecorator.UTC_MILLIS)
-                                    .toInstant()
-                                    .toEpochMilli();
+                    long millisSinceEpoch = ZonedDateTime.parse(text.substring(1, end), GlobalDecorator.UTC_MILLIS)
+                            .toInstant()
+                            .toEpochMilli();
                     // Alternately: Instant.parse(text.substring(1, end)).toEpochMilli()
-                    Timestamp timestamp =
-                            new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+                    Timestamp timestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
                     return Optional.of(timestamp);
                 } catch (DateTimeParseException x) {
                     // something else, ignore

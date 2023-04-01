@@ -39,45 +39,44 @@ import org.apache.commons.io.input.CountingInputStream;
  */
 public final class DumpTimestamps {
 
-  /**
-   * Read the values from the timestamper directory path given by the command-line arguments and
-   * output these values to the console. This is intended only for debugging. It is not invoked by
-   * Jenkins.
-   *
-   * @param args the command-line arguments, expected to contain a timestamper directory path
-   */
-  public static void main(String... args) throws IOException {
-    if (args.length == 0) {
-      throw new IllegalArgumentException("no command-line arguments");
+    /**
+     * Read the values from the timestamper directory path given by the command-line arguments and
+     * output these values to the console. This is intended only for debugging. It is not invoked by
+     * Jenkins.
+     *
+     * @param args the command-line arguments, expected to contain a timestamper directory path
+     */
+    public static void main(String... args) throws IOException {
+        if (args.length == 0) {
+            throw new IllegalArgumentException("no command-line arguments");
+        }
+        Path timestamperDir = Paths.get(args[0]);
+        dump(timestamperDir, "timestamps", 1);
+        System.out.println();
+        dump(timestamperDir, "timeshifts", 2);
     }
-    Path timestamperDir = Paths.get(args[0]);
-    dump(timestamperDir, "timestamps", 1);
-    System.out.println();
-    dump(timestamperDir, "timeshifts", 2);
-  }
 
-  private static void dump(Path parent, String filename, int columns) throws IOException {
-    System.out.println(filename);
-    Path file = parent.resolve(filename);
-    if (!Files.isRegularFile(file)) {
-      System.out.println("(none)");
-      return;
+    private static void dump(Path parent, String filename, int columns) throws IOException {
+        System.out.println(filename);
+        Path file = parent.resolve(filename);
+        if (!Files.isRegularFile(file)) {
+            System.out.println("(none)");
+            return;
+        }
+        byte[] fileContents = Files.readAllBytes(file);
+        CountingInputStream inputStream = new CountingInputStream(new ByteArrayInputStream(fileContents));
+        List<String> values = new ArrayList<>();
+        while (inputStream.getCount() < fileContents.length) {
+            values.add(Long.toString(Varint.read(inputStream)));
+            if (values.size() == columns) {
+                System.out.println(String.join("\t", values));
+                values.clear();
+            }
+        }
+        if (!values.isEmpty()) {
+            System.out.println(String.join("\t", values));
+        }
     }
-    byte[] fileContents = Files.readAllBytes(file);
-    CountingInputStream inputStream =
-        new CountingInputStream(new ByteArrayInputStream(fileContents));
-    List<String> values = new ArrayList<>();
-    while (inputStream.getCount() < fileContents.length) {
-      values.add(Long.toString(Varint.read(inputStream)));
-      if (values.size() == columns) {
-        System.out.println(String.join("\t", values));
-        values.clear();
-      }
-    }
-    if (!values.isEmpty()) {
-      System.out.println(String.join("\t", values));
-    }
-  }
 
-  private DumpTimestamps() {}
+    private DumpTimestamps() {}
 }

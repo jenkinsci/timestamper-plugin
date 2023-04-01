@@ -65,150 +65,150 @@ import org.mockito.stubbing.Answer;
 @RunWith(Parameterized.class)
 public class TimestampAnnotatorTest {
 
-  /** @return parameterised test data */
-  @Parameters
-  public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[] {false}, new Object[] {true});
-  }
-
-  @Parameter public boolean serialize;
-
-  @Rule public TemporaryFolder folder = new TemporaryFolder();
-
-  private Run<?, ?> build;
-
-  private static ConsoleLogParser.Result logPosition;
-
-  private static List<Timestamp> capturedTimestamps;
-
-  private TimestampsWriter writer;
-
-  @Before
-  public void setUp() throws IOException {
-    build = mock(Run.class);
-    when(build.getRootDir()).thenReturn(folder.getRoot());
-
-    logPosition = new ConsoleLogParser.Result();
-    capturedTimestamps = new ArrayList<>();
-
-    writer = new TimestampsWriter(build);
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    writer.close();
-  }
-
-  @Test
-  public void testStartOfLogFile() throws Exception {
-    List<Timestamp> timestamps = writeTimestamps(2);
-    logPosition.lineNumber = 0;
-    logPosition.atNewLine = true;
-    assertThat(annotate(), is(timestamps));
-  }
-
-  @Test
-  public void testStartOfLogFile_negativeLineNumber() throws Exception {
-    List<Timestamp> timestamps = writeTimestamps(2);
-    logPosition.lineNumber = -2;
-    logPosition.atNewLine = true;
-    assertThat(annotate(), is(timestamps));
-  }
-
-  @Test
-  public void testWithinFirstLine() throws Exception {
-    List<Timestamp> timestamps = writeTimestamps(2);
-    logPosition.lineNumber = 0;
-    logPosition.atNewLine = false;
-    assertThat(annotate(), is(timestamps.subList(1, 2)));
-  }
-
-  @Test
-  public void testWithinFirstLine_negativeLineNumber() throws Exception {
-    List<Timestamp> timestamps = writeTimestamps(2);
-    logPosition.lineNumber = -2;
-    logPosition.atNewLine = false;
-    assertThat(annotate(), is(timestamps.subList(1, 2)));
-  }
-
-  @Test
-  public void testNextLine() throws Exception {
-    List<Timestamp> timestamps = writeTimestamps(2);
-    logPosition.lineNumber = 1;
-    logPosition.atNewLine = true;
-    assertThat(annotate(), is(timestamps.subList(1, 2)));
-  }
-
-  @Test
-  public void testNextLine_negativeLineNumber() throws Exception {
-    List<Timestamp> timestamps = writeTimestamps(2);
-    logPosition.lineNumber = -1;
-    logPosition.atNewLine = true;
-    assertThat(annotate(), is(timestamps.subList(1, 2)));
-  }
-
-  @Test
-  public void testEndOfLogFile() {
-    logPosition.endOfFile = true;
-    assertThat(annotate(), is(Collections.<Timestamp>emptyList()));
-  }
-
-  private List<Timestamp> writeTimestamps(int count) throws IOException {
-    List<Timestamp> timestamps = new ArrayList<>();
-    for (int i = 0; i < count; i++) {
-      writer.write(i, 1);
-      timestamps.add(new Timestamp(i, i));
+    /** @return parameterised test data */
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[] {false}, new Object[] {true});
     }
-    return timestamps;
-  }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  private List<Timestamp> annotate() {
-    ConsoleLogParser logParser = new MockConsoleLogParser();
-    ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
+    @Parameter
+    public boolean serialize;
 
-    try (MockedStatic<TimestampFormatProvider> mocked = mockStatic(TimestampFormatProvider.class)) {
-      captureFormattedTimestamps(mocked);
-      int iterations = 0;
-      while (annotator != null) {
-        if (serialize) {
-          annotator = SerializationUtils.clone(annotator);
-        }
-        annotator = annotator.annotate(build, mock(MarkupText.class));
-        iterations++;
-        if (iterations > 100) {
-          throw new AssertionError("annotator is not terminating");
-        }
-      }
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
+    private Run<?, ?> build;
+
+    private static ConsoleLogParser.Result logPosition;
+
+    private static List<Timestamp> capturedTimestamps;
+
+    private TimestampsWriter writer;
+
+    @Before
+    public void setUp() throws IOException {
+        build = mock(Run.class);
+        when(build.getRootDir()).thenReturn(folder.getRoot());
+
+        logPosition = new ConsoleLogParser.Result();
+        capturedTimestamps = new ArrayList<>();
+
+        writer = new TimestampsWriter(build);
     }
-    return capturedTimestamps;
-  }
 
-  private static void captureFormattedTimestamps(MockedStatic<TimestampFormatProvider> mocked) {
-    final TimestampFormat format = mock(TimestampFormat.class);
-    doAnswer(
-            (Answer<Void>)
-                invocation -> {
-                  Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
-                  capturedTimestamps.add(timestamp);
-                  return null;
+    @After
+    public void tearDown() throws IOException {
+        writer.close();
+    }
+
+    @Test
+    public void testStartOfLogFile() throws Exception {
+        List<Timestamp> timestamps = writeTimestamps(2);
+        logPosition.lineNumber = 0;
+        logPosition.atNewLine = true;
+        assertThat(annotate(), is(timestamps));
+    }
+
+    @Test
+    public void testStartOfLogFile_negativeLineNumber() throws Exception {
+        List<Timestamp> timestamps = writeTimestamps(2);
+        logPosition.lineNumber = -2;
+        logPosition.atNewLine = true;
+        assertThat(annotate(), is(timestamps));
+    }
+
+    @Test
+    public void testWithinFirstLine() throws Exception {
+        List<Timestamp> timestamps = writeTimestamps(2);
+        logPosition.lineNumber = 0;
+        logPosition.atNewLine = false;
+        assertThat(annotate(), is(timestamps.subList(1, 2)));
+    }
+
+    @Test
+    public void testWithinFirstLine_negativeLineNumber() throws Exception {
+        List<Timestamp> timestamps = writeTimestamps(2);
+        logPosition.lineNumber = -2;
+        logPosition.atNewLine = false;
+        assertThat(annotate(), is(timestamps.subList(1, 2)));
+    }
+
+    @Test
+    public void testNextLine() throws Exception {
+        List<Timestamp> timestamps = writeTimestamps(2);
+        logPosition.lineNumber = 1;
+        logPosition.atNewLine = true;
+        assertThat(annotate(), is(timestamps.subList(1, 2)));
+    }
+
+    @Test
+    public void testNextLine_negativeLineNumber() throws Exception {
+        List<Timestamp> timestamps = writeTimestamps(2);
+        logPosition.lineNumber = -1;
+        logPosition.atNewLine = true;
+        assertThat(annotate(), is(timestamps.subList(1, 2)));
+    }
+
+    @Test
+    public void testEndOfLogFile() {
+        logPosition.endOfFile = true;
+        assertThat(annotate(), is(Collections.<Timestamp>emptyList()));
+    }
+
+    private List<Timestamp> writeTimestamps(int count) throws IOException {
+        List<Timestamp> timestamps = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            writer.write(i, 1);
+            timestamps.add(new Timestamp(i, i));
+        }
+        return timestamps;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private List<Timestamp> annotate() {
+        ConsoleLogParser logParser = new MockConsoleLogParser();
+        ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
+
+        try (MockedStatic<TimestampFormatProvider> mocked = mockStatic(TimestampFormatProvider.class)) {
+            captureFormattedTimestamps(mocked);
+            int iterations = 0;
+            while (annotator != null) {
+                if (serialize) {
+                    annotator = SerializationUtils.clone(annotator);
+                }
+                annotator = annotator.annotate(build, mock(MarkupText.class));
+                iterations++;
+                if (iterations > 100) {
+                    throw new AssertionError("annotator is not terminating");
+                }
+            }
+        }
+        return capturedTimestamps;
+    }
+
+    private static void captureFormattedTimestamps(MockedStatic<TimestampFormatProvider> mocked) {
+        final TimestampFormat format = mock(TimestampFormat.class);
+        doAnswer((Answer<Void>) invocation -> {
+                    Timestamp timestamp = (Timestamp) invocation.getArguments()[1];
+                    capturedTimestamps.add(timestamp);
+                    return null;
                 })
-        .when(format)
-        .markup(any(MarkupText.class), any(Timestamp.class));
-    mocked.when(TimestampFormatProvider::get).thenReturn(format);
-  }
-
-  private static class MockConsoleLogParser extends ConsoleLogParser {
-
-    private static final long serialVersionUID = 1L;
-
-    MockConsoleLogParser() {
-      super(0);
+                .when(format)
+                .markup(any(MarkupText.class), any(Timestamp.class));
+        mocked.when(TimestampFormatProvider::get).thenReturn(format);
     }
 
-    @Override
-    public Result seek(Run<?, ?> build) {
-      return logPosition;
+    private static class MockConsoleLogParser extends ConsoleLogParser {
+
+        private static final long serialVersionUID = 1L;
+
+        MockConsoleLogParser() {
+            super(0);
+        }
+
+        @Override
+        public Result seek(Run<?, ?> build) {
+            return logPosition;
+        }
     }
-  }
 }

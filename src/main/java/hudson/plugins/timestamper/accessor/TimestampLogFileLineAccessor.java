@@ -1,9 +1,7 @@
 package hudson.plugins.timestamper.accessor;
 
 import com.google.common.base.Suppliers;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -11,11 +9,6 @@ import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.action.TimestampsActionOutput;
 import hudson.plugins.timestamper.io.TimestampsReader;
 import hudson.plugins.timestamper.pipeline.GlobalAnnotator;
-
-import org.apache.commons.io.input.CountingInputStream;
-import org.kohsuke.accmod.Restricted;
-import org.kohsuke.accmod.restrictions.NoExternalUse;
-
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -25,6 +18,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.Supplier;
+import org.apache.commons.io.input.CountingInputStream;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 /**
  * Abstraction for retrieving timestamps and log file lines from completed builds. Timestamp records
@@ -68,21 +64,18 @@ public class TimestampLogFileLineAccessor implements Closeable {
         this.build = Objects.requireNonNull(build);
         this.logFileReader = new Scanner(build.getLogReader()).useDelimiter("\n");
         this.timestampsReader = new TimestampsReader(build);
-        this.lineCount =
-                Suppliers.memoize(
-                        () -> {
-                            int lineCount = 0;
-                            try (Scanner lineCountReader =
-                                    new Scanner(build.getLogReader()).useDelimiter("\n")) {
-                                while (lineCountReader.hasNext()) {
-                                    lineCountReader.next();
-                                    lineCount++;
-                                }
-                            } catch (IOException e) {
-                                throw new UncheckedIOException(e);
-                            }
-                            return lineCount;
-                        })::get;
+        this.lineCount = Suppliers.memoize(() -> {
+            int lineCount = 0;
+            try (Scanner lineCountReader = new Scanner(build.getLogReader()).useDelimiter("\n")) {
+                while (lineCountReader.hasNext()) {
+                    lineCountReader.next();
+                    lineCount++;
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            return lineCount;
+        })::get;
     }
 
     /** Skip forward one line in the associated record file(s). */
@@ -111,9 +104,8 @@ public class TimestampLogFileLineAccessor implements Closeable {
             // If a timestamps file is not present, attempt to read the timestamp from the log file.
             // The log file is decorated with GlobalDecorator for Pipeline builds of version 1.9 or
             // later.
-            timestamp =
-                    GlobalAnnotator.parseTimestamp(logFileLine, build.getStartTimeInMillis())
-                            .orElse(null);
+            timestamp = GlobalAnnotator.parseTimestamp(logFileLine, build.getStartTimeInMillis())
+                    .orElse(null);
             if (timestamp != null) {
                 // If we succeeded, then the log file was decorated by GlobalDecorator. Strip the
                 // timestamp decoration from the front of the line.

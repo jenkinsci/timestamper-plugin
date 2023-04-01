@@ -35,48 +35,48 @@ import java.io.InputStream;
  */
 final class Varint {
 
-  /**
-   * Write a value to the given byte array as a Base 128 Varint. See:
-   * https://developers.google.com/protocol-buffers/docs/encoding#varints
-   *
-   * @return the new offset after writing the value
-   */
-  static int write(long value, byte[] writeTo, int offset) throws IOException {
-    while (true) {
-      if ((value & ~0x7FL) == 0) {
-        writeTo[offset] = (byte) value;
-        offset++;
-        return offset;
-      }
-      writeTo[offset] = (byte) (((int) value & 0x7F) | 0x80);
-      offset++;
-      value >>>= 7;
+    /**
+     * Write a value to the given byte array as a Base 128 Varint. See:
+     * https://developers.google.com/protocol-buffers/docs/encoding#varints
+     *
+     * @return the new offset after writing the value
+     */
+    static int write(long value, byte[] writeTo, int offset) throws IOException {
+        while (true) {
+            if ((value & ~0x7FL) == 0) {
+                writeTo[offset] = (byte) value;
+                offset++;
+                return offset;
+            }
+            writeTo[offset] = (byte) (((int) value & 0x7F) | 0x80);
+            offset++;
+            value >>>= 7;
+        }
     }
-  }
 
-  /**
-   * Read a value as a Base 128 Varint. See:
-   * https://developers.google.com/protocol-buffers/docs/encoding#varints
-   *
-   * @return the value
-   */
-  static long read(InputStream inputStream) throws IOException {
-    int shift = 0;
-    long result = 0;
-    while (shift < 64) {
-      final int value = inputStream.read();
-      if (value == -1) {
-        throw new EOFException();
-      }
-      final byte b = (byte) value;
-      result |= (long) (b & 0x7F) << shift;
-      if ((b & 0x80) == 0) {
-        return result;
-      }
-      shift += 7;
+    /**
+     * Read a value as a Base 128 Varint. See:
+     * https://developers.google.com/protocol-buffers/docs/encoding#varints
+     *
+     * @return the value
+     */
+    static long read(InputStream inputStream) throws IOException {
+        int shift = 0;
+        long result = 0;
+        while (shift < 64) {
+            final int value = inputStream.read();
+            if (value == -1) {
+                throw new EOFException();
+            }
+            final byte b = (byte) value;
+            result |= (long) (b & 0x7F) << shift;
+            if ((b & 0x80) == 0) {
+                return result;
+            }
+            shift += 7;
+        }
+        throw new IOException("Malformed varint");
     }
-    throw new IOException("Malformed varint");
-  }
 
-  private Varint() {}
+    private Varint() {}
 }

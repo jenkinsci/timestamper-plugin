@@ -3,7 +3,6 @@ package hudson.plugins.timestamper;
 import static io.jenkins.plugins.casc.misc.Util.getUnclassifiedRoot;
 import static io.jenkins.plugins.casc.misc.Util.toStringFromYamlFile;
 import static io.jenkins.plugins.casc.misc.Util.toYamlString;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyString;
@@ -17,13 +16,13 @@ import io.jenkins.plugins.casc.ConfiguratorRegistry;
 import io.jenkins.plugins.casc.misc.ConfiguredWithCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
 import io.jenkins.plugins.casc.model.CNode;
-
 import org.junit.Rule;
 import org.junit.Test;
 
 public class ConfigurationAsCodeTest {
 
-    @Rule public JenkinsConfiguredWithCodeRule j = new JenkinsConfiguredWithCodeRule();
+    @Rule
+    public JenkinsConfiguredWithCodeRule j = new JenkinsConfiguredWithCodeRule();
 
     @Test
     @ConfiguredWithCode("Default.yml")
@@ -38,8 +37,7 @@ public class ConfigurationAsCodeTest {
     @ConfiguredWithCode("Customized.yml")
     public void testCustomTimeFormat() {
         TimestamperConfig timestamperConfig = TimestamperConfig.get();
-        assertThat(
-                timestamperConfig.getSystemTimeFormat(), containsString("yyyy-MM-dd HH:mm:ss.SSS"));
+        assertThat(timestamperConfig.getSystemTimeFormat(), containsString("yyyy-MM-dd HH:mm:ss.SSS"));
         assertThat(timestamperConfig.getElapsedTimeFormat(), containsString("HH:mm:ss.SSS"));
         assertTrue(timestamperConfig.isAllPipelines());
     }

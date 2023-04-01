@@ -44,123 +44,123 @@ import java.util.Optional;
  */
 public class TimestampsWriter implements Closeable {
 
-  private static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = 1024;
 
-  private final Path timestampsFile;
+    private final Path timestampsFile;
 
-  private final Optional<MessageDigest> timestampsDigest;
+    private final Optional<MessageDigest> timestampsDigest;
 
-  @CheckForNull private OutputStream timestampsOutput;
+    @CheckForNull
+    private OutputStream timestampsOutput;
 
-  /** Buffer that is used to store Varints prior to writing to a file. */
-  private final byte[] buffer = new byte[BUFFER_SIZE];
+    /** Buffer that is used to store Varints prior to writing to a file. */
+    private final byte[] buffer = new byte[BUFFER_SIZE];
 
-  private long previousCurrentTimeMillis;
+    private long previousCurrentTimeMillis;
 
-  /** Create a time-stamps writer for the given build. */
-  public TimestampsWriter(Run<?, ?> build) throws IOException {
-    this(build, Optional.empty());
-  }
-
-  /** Create a time-stamps writer for the given build. */
-  public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest) throws IOException {
-    this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(), digest);
-  }
-
-  public TimestampsWriter(Path timestampsFile, long buildStartTime, Optional<MessageDigest> digest)
-      throws IOException {
-    this.timestampsFile = timestampsFile;
-    this.previousCurrentTimeMillis = buildStartTime;
-    this.timestampsDigest = Objects.requireNonNull(digest);
-
-    Path parentDir = timestampsFile.getParent();
-    if (parentDir != null) {
-      Files.createDirectories(parentDir);
+    /** Create a time-stamps writer for the given build. */
+    public TimestampsWriter(Run<?, ?> build) throws IOException {
+        this(build, Optional.empty());
     }
-    Files.createFile(timestampsFile);
-  }
 
-  /**
-   * Write a time-stamp for a line of the console log.
-   *
-   * @param currentTimeMillis {@link System#currentTimeMillis()}
-   * @param times the number of times to write the time-stamp
-   */
-  public void write(long currentTimeMillis, int times) throws IOException {
-    if (times < 1) {
-      return;
+    /** Create a time-stamps writer for the given build. */
+    public TimestampsWriter(Run<?, ?> build, Optional<MessageDigest> digest) throws IOException {
+        this(TimestamperPaths.timestampsFile(build), build.getStartTimeInMillis(), digest);
     }
-    long elapsedMillis = currentTimeMillis - previousCurrentTimeMillis;
-    previousCurrentTimeMillis = currentTimeMillis;
 
-    // Write to the time-stamps file.
-    if (timestampsOutput == null) {
-      timestampsOutput = openTimestampsStream();
-    }
-    writeVarintsTo(timestampsOutput, elapsedMillis);
-    if (times > 1) {
-      writeZerosTo(timestampsOutput, times - 1);
-    }
-  }
+    public TimestampsWriter(Path timestampsFile, long buildStartTime, Optional<MessageDigest> digest)
+            throws IOException {
+        this.timestampsFile = timestampsFile;
+        this.previousCurrentTimeMillis = buildStartTime;
+        this.timestampsDigest = Objects.requireNonNull(digest);
 
-  /**
-   * Open an output stream for writing to the time-stamps file.
-   *
-   * @return the output stream
-   */
-  private OutputStream openTimestampsStream() throws IOException {
-    OutputStream outputStream = Files.newOutputStream(timestampsFile);
-    if (timestampsDigest.isPresent()) {
-      outputStream = new DigestOutputStream(outputStream, timestampsDigest.get());
+        Path parentDir = timestampsFile.getParent();
+        if (parentDir != null) {
+            Files.createDirectories(parentDir);
+        }
+        Files.createFile(timestampsFile);
     }
-    return outputStream;
-  }
 
-  /** Write each value to the given output stream as a Base 128 Varint. */
-  private void writeVarintsTo(OutputStream outputStream, long... values) throws IOException {
-    int offset = 0;
-    for (long value : values) {
-      offset = Varint.write(value, buffer, offset);
-    }
-    outputStream.write(buffer, 0, offset);
-    outputStream.flush();
-  }
+    /**
+     * Write a time-stamp for a line of the console log.
+     *
+     * @param currentTimeMillis {@link System#currentTimeMillis()}
+     * @param times the number of times to write the time-stamp
+     */
+    public void write(long currentTimeMillis, int times) throws IOException {
+        if (times < 1) {
+            return;
+        }
+        long elapsedMillis = currentTimeMillis - previousCurrentTimeMillis;
+        previousCurrentTimeMillis = currentTimeMillis;
 
-  /** Write n bytes of 0 to the given output stream. */
-  private void writeZerosTo(OutputStream outputStream, int n) throws IOException {
-    Arrays.fill(buffer, (byte) 0);
-    while (n > 0) {
-      int bytesToWrite = Math.min(n, buffer.length);
-      n -= bytesToWrite;
-      outputStream.write(buffer, 0, bytesToWrite);
-      outputStream.flush();
+        // Write to the time-stamps file.
+        if (timestampsOutput == null) {
+            timestampsOutput = openTimestampsStream();
+        }
+        writeVarintsTo(timestampsOutput, elapsedMillis);
+        if (times > 1) {
+            writeZerosTo(timestampsOutput, times - 1);
+        }
     }
-  }
 
-  /** Write a time-stamps digest file for the build. */
-  public void writeDigest() throws IOException {
-    if (timestampsDigest.isPresent()) {
-      writeDigest(timestampsDigest.get());
+    /**
+     * Open an output stream for writing to the time-stamps file.
+     *
+     * @return the output stream
+     */
+    private OutputStream openTimestampsStream() throws IOException {
+        OutputStream outputStream = Files.newOutputStream(timestampsFile);
+        if (timestampsDigest.isPresent()) {
+            outputStream = new DigestOutputStream(outputStream, timestampsDigest.get());
+        }
+        return outputStream;
     }
-  }
 
-  private void writeDigest(MessageDigest timestampsDigest) throws IOException {
-    StringBuilder hash = new StringBuilder();
-    for (byte b : timestampsDigest.digest()) {
-      hash.append(String.format("%02x", b));
+    /** Write each value to the given output stream as a Base 128 Varint. */
+    private void writeVarintsTo(OutputStream outputStream, long... values) throws IOException {
+        int offset = 0;
+        for (long value : values) {
+            offset = Varint.write(value, buffer, offset);
+        }
+        outputStream.write(buffer, 0, offset);
+        outputStream.flush();
     }
-    hash.append("\n");
-    Path digestFile =
-        timestampsFile.resolveSibling(
-            timestampsFile.getFileName() + "." + timestampsDigest.getAlgorithm());
-    Files.write(digestFile, hash.toString().getBytes(StandardCharsets.US_ASCII));
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public void close() throws IOException {
-    if (timestampsOutput != null) {
-      timestampsOutput.close();
+    /** Write n bytes of 0 to the given output stream. */
+    private void writeZerosTo(OutputStream outputStream, int n) throws IOException {
+        Arrays.fill(buffer, (byte) 0);
+        while (n > 0) {
+            int bytesToWrite = Math.min(n, buffer.length);
+            n -= bytesToWrite;
+            outputStream.write(buffer, 0, bytesToWrite);
+            outputStream.flush();
+        }
     }
-  }
+
+    /** Write a time-stamps digest file for the build. */
+    public void writeDigest() throws IOException {
+        if (timestampsDigest.isPresent()) {
+            writeDigest(timestampsDigest.get());
+        }
+    }
+
+    private void writeDigest(MessageDigest timestampsDigest) throws IOException {
+        StringBuilder hash = new StringBuilder();
+        for (byte b : timestampsDigest.digest()) {
+            hash.append(String.format("%02x", b));
+        }
+        hash.append("\n");
+        Path digestFile =
+                timestampsFile.resolveSibling(timestampsFile.getFileName() + "." + timestampsDigest.getAlgorithm());
+        Files.write(digestFile, hash.toString().getBytes(StandardCharsets.US_ASCII));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void close() throws IOException {
+        if (timestampsOutput != null) {
+            timestampsOutput.close();
+        }
+    }
 }

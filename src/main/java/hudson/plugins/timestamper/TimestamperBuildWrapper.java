@@ -58,84 +58,82 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public final class TimestamperBuildWrapper extends SimpleBuildWrapper {
 
-  private static final Logger LOGGER = Logger.getLogger(TimestamperBuildWrapper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TimestamperBuildWrapper.class.getName());
 
-  /** Create a new {@link TimestamperBuildWrapper}. */
-  @DataBoundConstructor
-  public TimestamperBuildWrapper() {}
-
-  /** {@inheritDoc} */
-  @Override
-  public void setUp(
-      Context context,
-      Run<?, ?> build,
-      FilePath workspace,
-      Launcher launcher,
-      TaskListener listener,
-      EnvVars initialEnvironment)
-      throws IOException, InterruptedException {
-    // nothing to do
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public ConsoleLogFilter createLoggerDecorator(@NonNull Run<?, ?> build) {
-    return new ConsoleLogFilterImpl(build);
-  }
-
-  private static class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
-    private static final long serialVersionUID = 1;
-    private final File timestampsFile;
-    private final long buildStartTime;
-    private final boolean useTimestampNotes;
-
-    ConsoleLogFilterImpl(Run<?, ?> build) {
-      this.timestampsFile = TimestamperPaths.timestampsFile(build).toFile();
-      this.buildStartTime = build.getStartTimeInMillis();
-      useTimestampNotes =
-          TimestampNote.useTimestampNotes(build.getClass())
-              || Boolean.getBoolean(TimestampNote.getSystemProperty());
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public OutputStream decorateLogger(Run _ignore, OutputStream logger)
-        throws IOException, InterruptedException {
-      if (useTimestampNotes) {
-        return new TimestampNotesOutputStream(logger, buildStartTime);
-      }
-      Optional<MessageDigest> digest = Optional.empty();
-      try {
-        digest = Optional.of(MessageDigest.getInstance("SHA-1"));
-      } catch (NoSuchAlgorithmException ex) {
-        LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-      }
-      try {
-        TimestampsWriter timestampsWriter =
-            new TimestampsWriter(timestampsFile.toPath(), buildStartTime, digest);
-        logger = new TimestamperOutputStream(logger, timestampsWriter);
-      } catch (IOException ex) {
-        LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-      }
-      return logger;
-    }
-  }
-
-  /** Registers {@link TimestamperBuildWrapper} as a {@link BuildWrapper}. */
-  @Extension(dynamicLoadable = YesNoMaybe.YES)
-  public static final class DescriptorImpl extends BuildWrapperDescriptor {
+    /** Create a new {@link TimestamperBuildWrapper}. */
+    @DataBoundConstructor
+    public TimestamperBuildWrapper() {}
 
     /** {@inheritDoc} */
-    @NonNull
     @Override
-    public String getDisplayName() {
-      return Messages.Description();
+    public void setUp(
+            Context context,
+            Run<?, ?> build,
+            FilePath workspace,
+            Launcher launcher,
+            TaskListener listener,
+            EnvVars initialEnvironment)
+            throws IOException, InterruptedException {
+        // nothing to do
     }
 
     /** {@inheritDoc} */
     @Override
-    public boolean isApplicable(AbstractProject<?, ?> item) {
-      return true;
+    public ConsoleLogFilter createLoggerDecorator(@NonNull Run<?, ?> build) {
+        return new ConsoleLogFilterImpl(build);
     }
-  }
+
+    private static class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
+        private static final long serialVersionUID = 1;
+        private final File timestampsFile;
+        private final long buildStartTime;
+        private final boolean useTimestampNotes;
+
+        ConsoleLogFilterImpl(Run<?, ?> build) {
+            this.timestampsFile = TimestamperPaths.timestampsFile(build).toFile();
+            this.buildStartTime = build.getStartTimeInMillis();
+            useTimestampNotes = TimestampNote.useTimestampNotes(build.getClass())
+                    || Boolean.getBoolean(TimestampNote.getSystemProperty());
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public OutputStream decorateLogger(Run _ignore, OutputStream logger) throws IOException, InterruptedException {
+            if (useTimestampNotes) {
+                return new TimestampNotesOutputStream(logger, buildStartTime);
+            }
+            Optional<MessageDigest> digest = Optional.empty();
+            try {
+                digest = Optional.of(MessageDigest.getInstance("SHA-1"));
+            } catch (NoSuchAlgorithmException ex) {
+                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+            }
+            try {
+                TimestampsWriter timestampsWriter =
+                        new TimestampsWriter(timestampsFile.toPath(), buildStartTime, digest);
+                logger = new TimestamperOutputStream(logger, timestampsWriter);
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+            }
+            return logger;
+        }
+    }
+
+    /** Registers {@link TimestamperBuildWrapper} as a {@link BuildWrapper}. */
+    @Extension(dynamicLoadable = YesNoMaybe.YES)
+    public static final class DescriptorImpl extends BuildWrapperDescriptor {
+
+        /** {@inheritDoc} */
+        @NonNull
+        @Override
+        public String getDisplayName() {
+            return Messages.Description();
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public boolean isApplicable(AbstractProject<?, ?> item) {
+            return true;
+        }
+    }
 }

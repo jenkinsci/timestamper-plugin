@@ -39,78 +39,71 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class TimestampFormatProvider {
 
-  private static Supplier<TimestampFormat> SUPPLIER =
-      () -> {
+    private static Supplier<TimestampFormat> SUPPLIER = () -> {
         TimestamperConfig config = TimestamperConfig.get();
         StaplerRequest request = Stapler.getCurrentRequest();
         if (request == null) {
-          return EmptyTimestampFormat.INSTANCE;
+            return EmptyTimestampFormat.INSTANCE;
         }
         return TimestampFormatProvider.get(
-            config.getSystemTimeFormat(),
-            config.getElapsedTimeFormat(),
-            request,
-            Locale.getDefault());
-      };
+                config.getSystemTimeFormat(), config.getElapsedTimeFormat(), request, Locale.getDefault());
+    };
 
-  /**
-   * Get the currently selected time-stamp format.
-   *
-   * @return the time-stamp format
-   */
-  public static TimestampFormat get() {
-    return SUPPLIER.get();
-  }
-
-  static TimestampFormat get(
-      String systemTimeFormat,
-      String elapsedTimeFormat,
-      HttpServletRequest request,
-      Locale locale) {
-
-    String mode = null;
-    Boolean local = null;
-    String offset = null;
-
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if (mode == null && "jenkins-timestamper".equals(cookie.getName())) {
-          mode = cookie.getValue();
-        }
-
-        if (local == null && "jenkins-timestamper-local".equals(cookie.getName())) {
-          local = Boolean.valueOf(cookie.getValue());
-        }
-
-        if (offset == null && "jenkins-timestamper-offset".equals(cookie.getName())) {
-          offset = cookie.getValue();
-        }
-      }
+    /**
+     * Get the currently selected time-stamp format.
+     *
+     * @return the time-stamp format
+     */
+    public static TimestampFormat get() {
+        return SUPPLIER.get();
     }
 
-    if ("elapsed".equalsIgnoreCase(mode)) {
-      return new ElapsedTimestampFormat(elapsedTimeFormat);
-    } else if ("none".equalsIgnoreCase(mode)) {
-      return EmptyTimestampFormat.INSTANCE;
-    } else {
-      // "system", no mode cookie, or unrecognised mode cookie
-      Optional<String> timeZoneId = Optional.empty();
-      if (local != null && local) {
-        try {
-          String localTimeZoneId = convertOffsetToTimeZoneId(offset);
-          timeZoneId = Optional.of(localTimeZoneId);
-        } catch (NumberFormatException e) {
-          return EmptyTimestampFormat.INSTANCE;
-        }
-      }
-      return new SystemTimestampFormat(systemTimeFormat, timeZoneId, locale);
-    }
-  }
+    static TimestampFormat get(
+            String systemTimeFormat, String elapsedTimeFormat, HttpServletRequest request, Locale locale) {
 
-  private static String convertOffsetToTimeZoneId(String offset) {
-    // Reverse sign due to return value of the Date.getTimezoneOffset function.
-    long offsetInMillis = -Integer.parseInt(offset);
-    return TimeZoneUtils.getTimeZoneId(offsetInMillis);
-  }
+        String mode = null;
+        Boolean local = null;
+        String offset = null;
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (mode == null && "jenkins-timestamper".equals(cookie.getName())) {
+                    mode = cookie.getValue();
+                }
+
+                if (local == null && "jenkins-timestamper-local".equals(cookie.getName())) {
+                    local = Boolean.valueOf(cookie.getValue());
+                }
+
+                if (offset == null && "jenkins-timestamper-offset".equals(cookie.getName())) {
+                    offset = cookie.getValue();
+                }
+            }
+        }
+
+        if ("elapsed".equalsIgnoreCase(mode)) {
+            return new ElapsedTimestampFormat(elapsedTimeFormat);
+        } else if ("none".equalsIgnoreCase(mode)) {
+            return EmptyTimestampFormat.INSTANCE;
+        } else {
+            // "system", no mode cookie, or unrecognised mode cookie
+            Optional<String> timeZoneId = Optional.empty();
+            if (local != null && local) {
+                try {
+                    String localTimeZoneId = convertOffsetToTimeZoneId(offset);
+                    timeZoneId = Optional.of(localTimeZoneId);
+                } catch (NumberFormatException e) {
+                    return EmptyTimestampFormat.INSTANCE;
+                }
+            }
+            return new SystemTimestampFormat(systemTimeFormat, timeZoneId, locale);
+        }
+    }
+
+    private static String convertOffsetToTimeZoneId(String offset) {
+        // Reverse sign due to return value of the Date.getTimezoneOffset function.
+        long offsetInMillis = -Integer.parseInt(offset);
+        return TimeZoneUtils.getTimeZoneId(offsetInMillis);
+    }
 }

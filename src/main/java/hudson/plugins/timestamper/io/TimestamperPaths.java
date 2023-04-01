@@ -33,19 +33,19 @@ import java.nio.file.Path;
  */
 public class TimestamperPaths {
 
-  public static Path timestampsFile(Run<?, ?> build) {
-    Path timestamperDir = timestamperDir(build);
-    return timestamperDir.resolve("timestamps");
-  }
+    public static Path timestampsFile(Run<?, ?> build) {
+        Path timestamperDir = timestamperDir(build);
+        return timestamperDir.resolve("timestamps");
+    }
 
-  static Path timeShiftsFile(Run<?, ?> build) {
-    Path timestamperDir = timestamperDir(build);
-    return timestamperDir.resolve("timeshifts");
-  }
+    static Path timeShiftsFile(Run<?, ?> build) {
+        Path timestamperDir = timestamperDir(build);
+        return timestamperDir.resolve("timeshifts");
+    }
 
-  private static Path timestamperDir(Run<?, ?> build) {
-    return build.getRootDir().toPath().resolve("timestamper");
-  }
+    private static Path timestamperDir(Run<?, ?> build) {
+        return build.getRootDir().toPath().resolve("timestamper");
+    }
 
-  private TimestamperPaths() {}
+    private TimestamperPaths() {}
 }

@@ -37,47 +37,46 @@ import java.util.Objects;
  */
 public class TimestampNotesOutputStream extends LineTransformationOutputStream {
 
-  /** The delegate output stream. */
-  private final OutputStream delegate;
+    /** The delegate output stream. */
+    private final OutputStream delegate;
 
-  /** The build start time. */
-  private final long buildStartTime;
+    /** The build start time. */
+    private final long buildStartTime;
 
-  /** The last note time. */
-  private long lastTime;
+    /** The last note time. */
+    private long lastTime;
 
-  /** The last encoded note. We can re-use this if the time hasn't since changed. */
-  private byte[] lastNote;
+    /** The last encoded note. We can re-use this if the time hasn't since changed. */
+    private byte[] lastNote;
 
-  /**
-   * Create a new {@link TimestampNotesOutputStream}.
-   *
-   * @param delegate the delegate output stream
-   * @param buildStartTime the build start time
-   */
-  public TimestampNotesOutputStream(OutputStream delegate, long buildStartTime) {
-    this.delegate = Objects.requireNonNull(delegate);
-    this.buildStartTime = buildStartTime;
-    this.lastTime = 0;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  protected void eol(byte[] b, int len) throws IOException {
-    long now = System.currentTimeMillis();
-    if (now != lastTime) {
-      lastNote =
-          new TimestampNote(now - buildStartTime, now).encode().getBytes(StandardCharsets.UTF_8);
-      lastTime = now;
+    /**
+     * Create a new {@link TimestampNotesOutputStream}.
+     *
+     * @param delegate the delegate output stream
+     * @param buildStartTime the build start time
+     */
+    public TimestampNotesOutputStream(OutputStream delegate, long buildStartTime) {
+        this.delegate = Objects.requireNonNull(delegate);
+        this.buildStartTime = buildStartTime;
+        this.lastTime = 0;
     }
-    delegate.write(lastNote);
-    delegate.write(b, 0, len);
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public void close() throws IOException {
-    super.close();
-    delegate.close();
-  }
+    /** {@inheritDoc} */
+    @Override
+    protected void eol(byte[] b, int len) throws IOException {
+        long now = System.currentTimeMillis();
+        if (now != lastTime) {
+            lastNote = new TimestampNote(now - buildStartTime, now).encode().getBytes(StandardCharsets.UTF_8);
+            lastTime = now;
+        }
+        delegate.write(lastNote);
+        delegate.write(b, 0, len);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void close() throws IOException {
+        super.close();
+        delegate.close();
+    }
 }

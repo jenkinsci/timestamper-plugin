@@ -41,16 +41,16 @@ import jenkins.model.TransientActionFactory;
 @SuppressWarnings("rawtypes")
 public final class TimestampsActionFactory extends TransientActionFactory<Run> {
 
-  /** {@inheritDoc} */
-  @Override
-  public Class<Run> type() {
-    return Run.class;
-  }
+    /** {@inheritDoc} */
+    @Override
+    public Class<Run> type() {
+        return Run.class;
+    }
 
-  /** {@inheritDoc} */
-  @NonNull
-  @Override
-  public Collection<? extends Action> createFor(@NonNull Run target) {
-    return Collections.singleton(new TimestampsAction(target));
-  }
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public Collection<? extends Action> createFor(@NonNull Run target) {
+        return Collections.singleton(new TimestampsAction(target));
+    }
 }

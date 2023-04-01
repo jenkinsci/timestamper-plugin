@@ -53,138 +53,138 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class ConsoleLogParserTest {
 
-  private static final char NEWLINE = 0x0A;
+    private static final char NEWLINE = 0x0A;
 
-  /** @return parameterised test data */
-  @Parameters(name = "serialize={0},isBuilding={1}")
-  public static Collection<Object[]> data() {
-    return Arrays.asList(
-        new Object[] {false, false},
-        new Object[] {false, true},
-        new Object[] {true, false},
-        new Object[] {true, true});
-  }
-
-  @Parameter(0)
-  public boolean serialize;
-
-  @Parameter(1)
-  public boolean isBuilding;
-
-  @Rule public TemporaryFolder folder = new TemporaryFolder();
-
-  private Run<?, ?> build;
-
-  private int logLength;
-
-  @Before
-  public void setUp() throws Exception {
-    build = mock(Run.class);
-    when(build.getRootDir()).thenReturn(folder.getRoot());
-    byte[] consoleLog = new byte[] {0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE, 0x61, NEWLINE};
-    logLength = consoleLog.length;
-    when(build.getLogInputStream()).thenReturn(new ByteArrayInputStream(consoleLog));
-    AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
-    when(logText.length()).thenReturn((long) logLength);
-    when(build.getLogText()).thenReturn(logText);
-    when(build.isBuilding()).thenReturn(isBuilding);
-  }
-
-  @Test
-  public void testSeekStart() throws Exception {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 0;
-    result.atNewLine = true;
-    assertThat(seek(0), is(result));
-  }
-
-  @Test
-  public void testSeekWithinLine() throws Exception {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 0;
-    assertThat(seek(1), is(result));
-  }
-
-  @Test
-  public void testSeekNextLine() throws Exception {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 1;
-    result.atNewLine = true;
-    assertThat(seek(2), is(result));
-  }
-
-  @Test
-  public void testSeekEnd() throws Exception {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 5;
-    result.atNewLine = true;
-    assertThat(seek(logLength), is(result));
-  }
-
-  @Test
-  public void testSeekPastEnd() throws Exception {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 5;
-    result.atNewLine = true;
-    result.endOfFile = true;
-    assertThat(seek(logLength + 1), is(result));
-  }
-
-  @Test
-  public void testSeekStartNegative() throws Exception {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 0;
-    result.atNewLine = true;
-    assertThat(seek(-logLength), is(result));
-  }
-
-  @Test
-  public void testSeekWithinLineNegative_isBuilding() throws Exception {
-    assumeThat(isBuilding, is(true));
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 0;
-    assertThat(seek(1 - logLength), is(result));
-  }
-
-  @Test
-  public void testSeekWithinLineNegative_notBuilding() throws Exception {
-    assumeThat(isBuilding, is(false));
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = -4;
-    assertThat(seek(1 - logLength), is(result));
-  }
-
-  @Test
-  public void testSeekNextLineNegative_isBuilding() throws Exception {
-    assumeThat(isBuilding, is(true));
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 1;
-    result.atNewLine = true;
-    assertThat(seek(2 - logLength), is(result));
-  }
-
-  @Test
-  public void testSeekNextLineNegative_notBuilding() throws Exception {
-    assumeThat(isBuilding, is(false));
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = -3;
-    result.atNewLine = true;
-    assertThat(seek(2 - logLength), is(result));
-  }
-
-  @Test
-  public void testSeekPastStartNegative() throws Exception {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-    result.lineNumber = 0;
-    result.atNewLine = true;
-    assertThat(seek(-logLength - 1), is(result));
-  }
-
-  private ConsoleLogParser.Result seek(long pos) throws IOException {
-    ConsoleLogParser parser = new ConsoleLogParser(pos);
-    if (serialize) {
-      parser = SerializationUtils.clone(parser);
+    /** @return parameterised test data */
+    @Parameters(name = "serialize={0},isBuilding={1}")
+    public static Collection<Object[]> data() {
+        return Arrays.asList(
+                new Object[] {false, false}, new Object[] {false, true}, new Object[] {true, false}, new Object[] {
+                    true, true
+                });
     }
-    return parser.seek(build);
-  }
+
+    @Parameter(0)
+    public boolean serialize;
+
+    @Parameter(1)
+    public boolean isBuilding;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
+    private Run<?, ?> build;
+
+    private int logLength;
+
+    @Before
+    public void setUp() throws Exception {
+        build = mock(Run.class);
+        when(build.getRootDir()).thenReturn(folder.getRoot());
+        byte[] consoleLog = new byte[] {0x61, NEWLINE, NEWLINE, NEWLINE, NEWLINE, 0x61, NEWLINE};
+        logLength = consoleLog.length;
+        when(build.getLogInputStream()).thenReturn(new ByteArrayInputStream(consoleLog));
+        AnnotatedLargeText<?> logText = mock(AnnotatedLargeText.class);
+        when(logText.length()).thenReturn((long) logLength);
+        when(build.getLogText()).thenReturn(logText);
+        when(build.isBuilding()).thenReturn(isBuilding);
+    }
+
+    @Test
+    public void testSeekStart() throws Exception {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 0;
+        result.atNewLine = true;
+        assertThat(seek(0), is(result));
+    }
+
+    @Test
+    public void testSeekWithinLine() throws Exception {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 0;
+        assertThat(seek(1), is(result));
+    }
+
+    @Test
+    public void testSeekNextLine() throws Exception {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 1;
+        result.atNewLine = true;
+        assertThat(seek(2), is(result));
+    }
+
+    @Test
+    public void testSeekEnd() throws Exception {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 5;
+        result.atNewLine = true;
+        assertThat(seek(logLength), is(result));
+    }
+
+    @Test
+    public void testSeekPastEnd() throws Exception {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 5;
+        result.atNewLine = true;
+        result.endOfFile = true;
+        assertThat(seek(logLength + 1), is(result));
+    }
+
+    @Test
+    public void testSeekStartNegative() throws Exception {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 0;
+        result.atNewLine = true;
+        assertThat(seek(-logLength), is(result));
+    }
+
+    @Test
+    public void testSeekWithinLineNegative_isBuilding() throws Exception {
+        assumeThat(isBuilding, is(true));
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 0;
+        assertThat(seek(1 - logLength), is(result));
+    }
+
+    @Test
+    public void testSeekWithinLineNegative_notBuilding() throws Exception {
+        assumeThat(isBuilding, is(false));
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = -4;
+        assertThat(seek(1 - logLength), is(result));
+    }
+
+    @Test
+    public void testSeekNextLineNegative_isBuilding() throws Exception {
+        assumeThat(isBuilding, is(true));
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 1;
+        result.atNewLine = true;
+        assertThat(seek(2 - logLength), is(result));
+    }
+
+    @Test
+    public void testSeekNextLineNegative_notBuilding() throws Exception {
+        assumeThat(isBuilding, is(false));
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = -3;
+        result.atNewLine = true;
+        assertThat(seek(2 - logLength), is(result));
+    }
+
+    @Test
+    public void testSeekPastStartNegative() throws Exception {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        result.lineNumber = 0;
+        result.atNewLine = true;
+        assertThat(seek(-logLength - 1), is(result));
+    }
+
+    private ConsoleLogParser.Result seek(long pos) throws IOException {
+        ConsoleLogParser parser = new ConsoleLogParser(pos);
+        if (serialize) {
+            parser = SerializationUtils.clone(parser);
+        }
+        return parser.seek(build);
+    }
 }

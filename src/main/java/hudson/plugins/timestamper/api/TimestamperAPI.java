@@ -35,28 +35,28 @@ import java.io.BufferedReader;
  */
 public class TimestamperAPI {
 
-  /**
-   * Get access to the API.
-   *
-   * @return the Timestamper API
-   * @since Timestamper 1.8
-   */
-  public static TimestamperAPI get() {
-    return new TimestamperAPI();
-  }
+    /**
+     * Get access to the API.
+     *
+     * @return the Timestamper API
+     * @since Timestamper 1.8
+     */
+    public static TimestamperAPI get() {
+        return new TimestamperAPI();
+    }
 
-  private TimestamperAPI() {}
+    private TimestamperAPI() {}
 
-  /**
-   * Read time-stamps for the given build. A query string can be provided in the same format as the
-   * "/timestamps" URL. See the wiki for more information.
-   *
-   * @param build the build to inspect
-   * @param query the query string
-   * @return a {@link BufferedReader}
-   * @since Timestamper 1.8
-   */
-  public BufferedReader read(Run<?, ?> build, String query) {
-    return TimestampsActionOutput.open(build, TimestampsActionQuery.create(query));
-  }
+    /**
+     * Read time-stamps for the given build. A query string can be provided in the same format as the
+     * "/timestamps" URL. See the wiki for more information.
+     *
+     * @param build the build to inspect
+     * @param query the query string
+     * @return a {@link BufferedReader}
+     * @since Timestamper 1.8
+     */
+    public BufferedReader read(Run<?, ?> build, String query) {
+        return TimestampsActionOutput.open(build, TimestampsActionQuery.create(query));
+    }
 }

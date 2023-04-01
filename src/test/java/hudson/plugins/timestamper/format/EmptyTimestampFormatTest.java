@@ -36,14 +36,14 @@ import org.junit.Test;
  */
 public class EmptyTimestampFormatTest {
 
-  @Test
-  public void testApply() {
-    Timestamp timestamp = new Timestamp(123, 42000);
-    assertThat(EmptyTimestampFormat.INSTANCE.apply(timestamp), is(""));
-  }
+    @Test
+    public void testApply() {
+        Timestamp timestamp = new Timestamp(123, 42000);
+        assertThat(EmptyTimestampFormat.INSTANCE.apply(timestamp), is(""));
+    }
 
-  @Test
-  public void testGetPlainTextUrl() {
-    assertThat(EmptyTimestampFormat.INSTANCE.getPlainTextUrl(), is("consoleText"));
-  }
+    @Test
+    public void testGetPlainTextUrl() {
+        assertThat(EmptyTimestampFormat.INSTANCE.getPlainTextUrl(), is("consoleText"));
+    }
 }
