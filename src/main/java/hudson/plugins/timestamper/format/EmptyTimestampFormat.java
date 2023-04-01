@@ -33,22 +33,22 @@ import hudson.plugins.timestamper.Timestamp;
  */
 public final class EmptyTimestampFormat extends TimestampFormat {
 
-  public static final EmptyTimestampFormat INSTANCE = new EmptyTimestampFormat();
+    public static final EmptyTimestampFormat INSTANCE = new EmptyTimestampFormat();
 
-  private EmptyTimestampFormat() {}
+    private EmptyTimestampFormat() {}
 
-  /** {@inheritDoc} */
-  @Override
-  public String apply(@NonNull Timestamp timestamp) {
-    return "";
-  }
+    /** {@inheritDoc} */
+    @Override
+    public String apply(@NonNull Timestamp timestamp) {
+        return "";
+    }
 
-  @Override
-  public void validate() {}
+    @Override
+    public void validate() {}
 
-  /** {@inheritDoc} */
-  @Override
-  public String getPlainTextUrl() {
-    return "consoleText";
-  }
+    /** {@inheritDoc} */
+    @Override
+    public String getPlainTextUrl() {
+        return "consoleText";
+    }
 }

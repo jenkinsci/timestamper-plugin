@@ -50,94 +50,77 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TimestampFormatProviderTest {
 
-  private static final long HALF_HOUR = TimeUnit.MINUTES.toMillis(30);
+    private static final long HALF_HOUR = TimeUnit.MINUTES.toMillis(30);
 
-  private static final long ONE_HOUR = TimeUnit.HOURS.toMillis(1);
+    private static final long ONE_HOUR = TimeUnit.HOURS.toMillis(1);
 
-  private static final String SYSTEM_TIME_FORMAT = "HH:mm:ss";
+    private static final String SYSTEM_TIME_FORMAT = "HH:mm:ss";
 
-  private static final String ELAPSED_TIME_FORMAT = "ss.S";
+    private static final String ELAPSED_TIME_FORMAT = "ss.S";
 
-  /** @return parameterised test data */
-  @Parameters(name = "{0}")
-  public static Collection<Object[]> data() {
-    return Arrays.asList(
-        new Object[][] {
-          // system
-          {request("jenkins-timestamper=system"), system()},
-          // local (system with browser time zone)
-          {
-            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"), system("GMT")
-          },
-          {
-            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + HALF_HOUR),
-            system("GMT-0:30")
-          },
-          {
-            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + ONE_HOUR),
-            system("GMT-1")
-          },
-          {
-            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + HALF_HOUR),
-            system("GMT+0:30")
-          },
-          {
-            request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + ONE_HOUR),
-            system("GMT+1")
-          },
-          // elapsed
-          {request("jenkins-timestamper=elapsed"), elapsed()},
-          // none
-          {request("jenkins-timestamper=none"), empty()},
-          // other
-          {request(), system()},
-          {request((String[]) null), system()}
+    /** @return parameterised test data */
+    @Parameters(name = "{0}")
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+            // system
+            {request("jenkins-timestamper=system"), system()},
+            // local (system with browser time zone)
+            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"), system("GMT")},
+            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + HALF_HOUR), system("GMT-0:30")},
+            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + ONE_HOUR), system("GMT-1")},
+            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + HALF_HOUR), system("GMT+0:30")},
+            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + ONE_HOUR), system("GMT+1")},
+            // elapsed
+            {request("jenkins-timestamper=elapsed"), elapsed()},
+            // none
+            {request("jenkins-timestamper=none"), empty()},
+            // other
+            {request(), system()},
+            {request((String[]) null), system()}
         });
-  }
-
-  private static HttpServletRequest request(String... cookies) {
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    Cookie[] requestCookies = null;
-    if (cookies != null) {
-      requestCookies = new Cookie[cookies.length];
-      for (int i = 0; i < cookies.length; i++) {
-        String[] nameAndValue = cookies[i].split(Pattern.quote("="), 2);
-        requestCookies[i] = new Cookie(nameAndValue[0], nameAndValue[1]);
-      }
     }
-    when(request.getCookies()).thenReturn(requestCookies);
-    when(request.toString())
-        .thenReturn(HttpServletRequest.class.getSimpleName() + " " + Arrays.toString(cookies));
-    return request;
-  }
 
-  private static SystemTimestampFormat system() {
-    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.empty(), Locale.ENGLISH);
-  }
+    private static HttpServletRequest request(String... cookies) {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        Cookie[] requestCookies = null;
+        if (cookies != null) {
+            requestCookies = new Cookie[cookies.length];
+            for (int i = 0; i < cookies.length; i++) {
+                String[] nameAndValue = cookies[i].split(Pattern.quote("="), 2);
+                requestCookies[i] = new Cookie(nameAndValue[0], nameAndValue[1]);
+            }
+        }
+        when(request.getCookies()).thenReturn(requestCookies);
+        when(request.toString()).thenReturn(HttpServletRequest.class.getSimpleName() + " " + Arrays.toString(cookies));
+        return request;
+    }
 
-  private static SystemTimestampFormat system(String timeZoneId) {
-    return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.of(timeZoneId), Locale.ENGLISH);
-  }
+    private static SystemTimestampFormat system() {
+        return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.empty(), Locale.ENGLISH);
+    }
 
-  private static ElapsedTimestampFormat elapsed() {
-    return new ElapsedTimestampFormat(ELAPSED_TIME_FORMAT);
-  }
+    private static SystemTimestampFormat system(String timeZoneId) {
+        return new SystemTimestampFormat(SYSTEM_TIME_FORMAT, Optional.of(timeZoneId), Locale.ENGLISH);
+    }
 
-  private static EmptyTimestampFormat empty() {
-    return EmptyTimestampFormat.INSTANCE;
-  }
+    private static ElapsedTimestampFormat elapsed() {
+        return new ElapsedTimestampFormat(ELAPSED_TIME_FORMAT);
+    }
 
-  @Parameter(0)
-  public HttpServletRequest request;
+    private static EmptyTimestampFormat empty() {
+        return EmptyTimestampFormat.INSTANCE;
+    }
 
-  @Parameter(1)
-  public TimestampFormat expectedTimestampFormat;
+    @Parameter(0)
+    public HttpServletRequest request;
 
-  @Test
-  public void testGet() {
-    assertThat(
-        TimestampFormatProvider.get(
-            SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT, request, Locale.ENGLISH),
-        is(expectedTimestampFormat));
-  }
+    @Parameter(1)
+    public TimestampFormat expectedTimestampFormat;
+
+    @Test
+    public void testGet() {
+        assertThat(
+                TimestampFormatProvider.get(SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT, request, Locale.ENGLISH),
+                is(expectedTimestampFormat));
+    }
 }

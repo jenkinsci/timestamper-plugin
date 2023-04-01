@@ -57,102 +57,103 @@ import org.mockito.MockitoAnnotations;
 @RunWith(Parameterized.class)
 public class TimestampNoteTest {
 
-  private static final long BUILD_START = 1;
+    private static final long BUILD_START = 1;
 
-  private static final long ELAPSED = 4;
+    private static final long ELAPSED = 4;
 
-  private static final long TIME = 3;
+    private static final long TIME = 3;
 
-  /** @return the test cases */
-  @Parameters(name = "{0}, {1}")
-  public static Iterable<Object[]> data() {
-    return Arrays.asList(
-        new Object[][] {
-          //
-          {build(), note(ELAPSED, TIME), new Timestamp(ELAPSED, TIME)},
-          //
-          {build(), note(null, TIME), new Timestamp(TIME - BUILD_START, TIME)},
-          //
-          {new Object(), note(ELAPSED, TIME), new Timestamp(ELAPSED, TIME)},
-          //
-          {new Object(), note(null, TIME), new Timestamp(null, TIME)}
+    /** @return the test cases */
+    @Parameters(name = "{0}, {1}")
+    public static Iterable<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+            //
+            {build(), note(ELAPSED, TIME), new Timestamp(ELAPSED, TIME)},
+            //
+            {build(), note(null, TIME), new Timestamp(TIME - BUILD_START, TIME)},
+            //
+            {new Object(), note(ELAPSED, TIME), new Timestamp(ELAPSED, TIME)},
+            //
+            {new Object(), note(null, TIME), new Timestamp(null, TIME)}
         });
-  }
-
-  private static Run<?, ?> build() {
-    Run<?, ?> build = mock(Run.class);
-    when(build.getStartTimeInMillis()).thenReturn(BUILD_START);
-    when(build.toString())
-        .thenReturn(new ToStringBuilder("Run").append("startTime", BUILD_START).toString());
-    return build;
-  }
-
-  private static TimestampNote note(Long elapsedMillis, long millisSinceEpoch) {
-    TimestampNote note =
-        new TimestampNote(elapsedMillis == null ? 0L : elapsedMillis, millisSinceEpoch);
-    if (elapsedMillis == null) {
-      setInternalState(note, "elapsedMillis", null);
     }
-    return note;
-  }
 
-  private static void setInternalState(Object obj, String fieldName, Object newValue) {
-    try {
-      Field field = obj.getClass().getDeclaredField(fieldName);
-      field.setAccessible(true);
-      field.set(obj, newValue);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new AssertionError(e);
+    private static Run<?, ?> build() {
+        Run<?, ?> build = mock(Run.class);
+        when(build.getStartTimeInMillis()).thenReturn(BUILD_START);
+        when(build.toString())
+                .thenReturn(new ToStringBuilder("Run")
+                        .append("startTime", BUILD_START)
+                        .toString());
+        return build;
     }
-  }
 
-  @Parameter(0)
-  public Object context;
-
-  @Parameter(1)
-  public TimestampNote note;
-
-  @Parameter(2)
-  public Timestamp expectedTimestamp;
-
-  @Mock private TimestampFormat format;
-
-  private AutoCloseable closeable;
-
-  @Before
-  public void setUp() {
-    closeable = MockitoAnnotations.openMocks(this);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    closeable.close();
-  }
-
-  @Test
-  public void testGetTimestamp() {
-    assertThat(note.getTimestamp(context), is(expectedTimestamp));
-  }
-
-  @Test
-  public void testGetTimestamp_afterSerialization() {
-    note = SerializationUtils.clone(note);
-    testGetTimestamp();
-  }
-
-  @Test
-  public void testAnnotate() {
-    MarkupText text = new MarkupText("");
-    try (MockedStatic<TimestampFormatProvider> mocked = mockStatic(TimestampFormatProvider.class)) {
-      mocked.when(TimestampFormatProvider::get).thenReturn(format);
-      note.annotate(context, text, 0);
+    private static TimestampNote note(Long elapsedMillis, long millisSinceEpoch) {
+        TimestampNote note = new TimestampNote(elapsedMillis == null ? 0L : elapsedMillis, millisSinceEpoch);
+        if (elapsedMillis == null) {
+            setInternalState(note, "elapsedMillis", null);
+        }
+        return note;
     }
-    verify(format).markup(text, expectedTimestamp);
-  }
 
-  @Test
-  public void testAnnotate_afterSerialization() {
-    note = SerializationUtils.clone(note);
-    testAnnotate();
-  }
+    private static void setInternalState(Object obj, String fieldName, Object newValue) {
+        try {
+            Field field = obj.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(obj, newValue);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    @Parameter(0)
+    public Object context;
+
+    @Parameter(1)
+    public TimestampNote note;
+
+    @Parameter(2)
+    public Timestamp expectedTimestamp;
+
+    @Mock
+    private TimestampFormat format;
+
+    private AutoCloseable closeable;
+
+    @Before
+    public void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        closeable.close();
+    }
+
+    @Test
+    public void testGetTimestamp() {
+        assertThat(note.getTimestamp(context), is(expectedTimestamp));
+    }
+
+    @Test
+    public void testGetTimestamp_afterSerialization() {
+        note = SerializationUtils.clone(note);
+        testGetTimestamp();
+    }
+
+    @Test
+    public void testAnnotate() {
+        MarkupText text = new MarkupText("");
+        try (MockedStatic<TimestampFormatProvider> mocked = mockStatic(TimestampFormatProvider.class)) {
+            mocked.when(TimestampFormatProvider::get).thenReturn(format);
+            note.annotate(context, text, 0);
+        }
+        verify(format).markup(text, expectedTimestamp);
+    }
+
+    @Test
+    public void testAnnotate_afterSerialization() {
+        note = SerializationUtils.clone(note);
+        testAnnotate();
+    }
 }

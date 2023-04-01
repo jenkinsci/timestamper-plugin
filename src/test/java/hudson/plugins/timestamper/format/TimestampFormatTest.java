@@ -41,66 +41,65 @@ import org.junit.Test;
  */
 public class TimestampFormatTest {
 
-  private String timestampString = "TIMESTAMP";
+    private String timestampString = "TIMESTAMP";
 
-  private String prefix = "<span class=\"timestamp\">" + timestampString + "</span>";
+    private String prefix = "<span class=\"timestamp\">" + timestampString + "</span>";
 
-  @Test
-  public void testMarkup() {
-    assertThat(markup("line").toString(true), is(prefix + "line"));
-  }
-
-  @Test
-  public void testMarkupThenAntTargetNote() {
-    assertThat(
-        annotate(markup("target:"), new AntTargetNote()).toString(true),
-        is(prefix + "<b class=ant-target>target</b>:"));
-  }
-
-  @Test
-  public void testAntTargetNoteThenMarkup() {
-    assertThat(
-        markup(annotate("target:", new AntTargetNote())).toString(true),
-        is(prefix + "<b class=ant-target>target</b>:"));
-  }
-
-  private MarkupText markup(String text) {
-    return markup(new MarkupText(text));
-  }
-
-  private MarkupText markup(MarkupText markupText) {
-    TimestampFormat format =
-        new TimestampFormat() {
-
-          @Override
-          public String apply(Timestamp timestamp) {
-            return timestampString;
-          }
-
-          @Override
-          public void validate() {}
-
-          @Override
-          public String getPlainTextUrl() {
-            return "";
-          }
-        };
-    format.markup(markupText, new Timestamp(123, 42000));
-    return markupText;
-  }
-
-  @SuppressWarnings("rawtypes")
-  private MarkupText annotate(String text, ConsoleNote... notes) {
-    MarkupText markupText = new MarkupText(text);
-    return annotate(markupText, notes);
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private MarkupText annotate(MarkupText markupText, ConsoleNote... notes) {
-    Object context = mock(Run.class);
-    for (ConsoleNote note : notes) {
-      note.annotate(context, markupText, 0);
+    @Test
+    public void testMarkup() {
+        assertThat(markup("line").toString(true), is(prefix + "line"));
     }
-    return markupText;
-  }
+
+    @Test
+    public void testMarkupThenAntTargetNote() {
+        assertThat(
+                annotate(markup("target:"), new AntTargetNote()).toString(true),
+                is(prefix + "<b class=ant-target>target</b>:"));
+    }
+
+    @Test
+    public void testAntTargetNoteThenMarkup() {
+        assertThat(
+                markup(annotate("target:", new AntTargetNote())).toString(true),
+                is(prefix + "<b class=ant-target>target</b>:"));
+    }
+
+    private MarkupText markup(String text) {
+        return markup(new MarkupText(text));
+    }
+
+    private MarkupText markup(MarkupText markupText) {
+        TimestampFormat format = new TimestampFormat() {
+
+            @Override
+            public String apply(Timestamp timestamp) {
+                return timestampString;
+            }
+
+            @Override
+            public void validate() {}
+
+            @Override
+            public String getPlainTextUrl() {
+                return "";
+            }
+        };
+        format.markup(markupText, new Timestamp(123, 42000));
+        return markupText;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private MarkupText annotate(String text, ConsoleNote... notes) {
+        MarkupText markupText = new MarkupText(text);
+        return annotate(markupText, notes);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private MarkupText annotate(MarkupText markupText, ConsoleNote... notes) {
+        Object context = mock(Run.class);
+        for (ConsoleNote note : notes) {
+            note.annotate(context, markupText, 0);
+        }
+        return markupText;
+    }
 }

@@ -43,31 +43,31 @@ import org.junit.Test;
  */
 public class TimestampNotesOutputStreamTest {
 
-  private static final char NEWLINE = 0x0A;
+    private static final char NEWLINE = 0x0A;
 
-  private ByteArrayOutputStream delegateOutputStream;
+    private ByteArrayOutputStream delegateOutputStream;
 
-  private TimestampNotesOutputStream timestampNotesOutputStream;
+    private TimestampNotesOutputStream timestampNotesOutputStream;
 
-  @Before
-  public void setUp() {
-    delegateOutputStream = new ByteArrayOutputStream();
-    timestampNotesOutputStream = new TimestampNotesOutputStream(delegateOutputStream, 0);
-  }
+    @Before
+    public void setUp() {
+        delegateOutputStream = new ByteArrayOutputStream();
+        timestampNotesOutputStream = new TimestampNotesOutputStream(delegateOutputStream, 0);
+    }
 
-  @After
-  public void tearDown() throws IOException {
-    delegateOutputStream.close();
-    timestampNotesOutputStream.close();
-  }
+    @After
+    public void tearDown() throws IOException {
+        delegateOutputStream.close();
+        timestampNotesOutputStream.close();
+    }
 
-  @Test
-  public void testWrite() throws Exception {
-    byte[] line = new byte[] {'a', (byte) NEWLINE};
-    timestampNotesOutputStream.write(line);
-    byte[] result = delegateOutputStream.toByteArray();
+    @Test
+    public void testWrite() throws Exception {
+        byte[] line = new byte[] {'a', (byte) NEWLINE};
+        timestampNotesOutputStream.write(line);
+        byte[] result = delegateOutputStream.toByteArray();
 
-    assertThat(Bytes.asList(result), hasSize(greaterThan(line.length)));
-    assertThat(Arrays.copyOfRange(result, result.length - 2, result.length), is(line));
-  }
+        assertThat(Bytes.asList(result), hasSize(greaterThan(line.length)));
+        assertThat(Arrays.copyOfRange(result, result.length - 2, result.length), is(line));
+    }
 }

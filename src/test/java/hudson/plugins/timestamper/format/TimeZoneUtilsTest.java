@@ -44,42 +44,42 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TimeZoneUtilsTest {
 
-  /** @return the test cases */
-  @Parameters(name = "getTimeZoneId[{0}]={1}")
-  public static Iterable<Object[]> data() {
-    List<Object[]> testCases = new ArrayList<>();
-    testCases.add(new Object[] {0, "GMT"});
-    testCases.add(new Object[] {offset(0, 30), "GMT+0:30"});
-    testCases.add(new Object[] {-offset(0, 30), "GMT-0:30"});
-    testCases.add(new Object[] {-offset(3, 30), "GMT-3:30"});
-    testCases.add(new Object[] {offset(5, 45), "GMT+5:45"});
-    testCases.add(new Object[] {offset(5, 30), "GMT+5:30"});
-    for (int hour = 1; hour <= 14; hour++) {
-      testCases.add(new Object[] {offset(hour, 0), "GMT+" + hour});
-      testCases.add(new Object[] {-offset(hour, 0), "GMT-" + hour});
+    /** @return the test cases */
+    @Parameters(name = "getTimeZoneId[{0}]={1}")
+    public static Iterable<Object[]> data() {
+        List<Object[]> testCases = new ArrayList<>();
+        testCases.add(new Object[] {0, "GMT"});
+        testCases.add(new Object[] {offset(0, 30), "GMT+0:30"});
+        testCases.add(new Object[] {-offset(0, 30), "GMT-0:30"});
+        testCases.add(new Object[] {-offset(3, 30), "GMT-3:30"});
+        testCases.add(new Object[] {offset(5, 45), "GMT+5:45"});
+        testCases.add(new Object[] {offset(5, 30), "GMT+5:30"});
+        for (int hour = 1; hour <= 14; hour++) {
+            testCases.add(new Object[] {offset(hour, 0), "GMT+" + hour});
+            testCases.add(new Object[] {-offset(hour, 0), "GMT-" + hour});
+        }
+        return testCases;
     }
-    return testCases;
-  }
 
-  private static long offset(int hours, int minutes) {
-    return TimeUnit.HOURS.toMillis(hours) + TimeUnit.MINUTES.toMillis(minutes);
-  }
+    private static long offset(int hours, int minutes) {
+        return TimeUnit.HOURS.toMillis(hours) + TimeUnit.MINUTES.toMillis(minutes);
+    }
 
-  @Parameter(0)
-  public long offset;
+    @Parameter(0)
+    public long offset;
 
-  @Parameter(1)
-  public String expectedTimeZoneId;
+    @Parameter(1)
+    public String expectedTimeZoneId;
 
-  @Test
-  public void testGetTimeZoneId() {
-    assertThat(TimeZoneUtils.getTimeZoneId(offset), is(expectedTimeZoneId));
-  }
+    @Test
+    public void testGetTimeZoneId() {
+        assertThat(TimeZoneUtils.getTimeZoneId(offset), is(expectedTimeZoneId));
+    }
 
-  @Test
-  public void testValidTimeZone() {
-    String timeZoneId = TimeZoneUtils.getTimeZoneId(offset);
-    TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-    assertThat((long) timeZone.getRawOffset(), is(offset));
-  }
+    @Test
+    public void testValidTimeZone() {
+        String timeZoneId = TimeZoneUtils.getTimeZoneId(offset);
+        TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+        assertThat((long) timeZone.getRawOffset(), is(offset));
+    }
 }

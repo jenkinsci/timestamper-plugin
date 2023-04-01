@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import hudson.model.Run;
 import hudson.plugins.timestamper.api.TimestamperAPI;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.time.Duration;
@@ -18,8 +17,7 @@ import java.util.stream.IntStream;
 
 public class TimestamperApiTestUtil {
 
-    public static void timestamperApi(Run<?, ?> build, List<String> unstampedLines)
-            throws IOException {
+    public static void timestamperApi(Run<?, ?> build, List<String> unstampedLines) throws IOException {
         time(build, unstampedLines, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", 24, "UTC", 0, 0, false);
         time(build, unstampedLines, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", 24, "UTC", 3, 0, false);
         time(build, unstampedLines, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", 24, "UTC", -4, 0, false);
@@ -59,16 +57,15 @@ public class TimestamperApiTestUtil {
             int endLine,
             boolean appendLog)
             throws IOException {
-        List<String> results =
-                getQueryResults(
-                        build,
-                        String.format(
-                                "time=%s&timeZone=%s%s%s%s",
-                                pattern,
-                                timezone,
-                                startLine != 0 ? String.format("&startLine=%s", startLine) : "",
-                                endLine != 0 ? String.format("&endLine=%s", endLine) : "",
-                                appendLog ? "&appendLog" : ""));
+        List<String> results = getQueryResults(
+                build,
+                String.format(
+                        "time=%s&timeZone=%s%s%s%s",
+                        pattern,
+                        timezone,
+                        startLine != 0 ? String.format("&startLine=%s", startLine) : "",
+                        endLine != 0 ? String.format("&endLine=%s", endLine) : "",
+                        appendLog ? "&appendLog" : ""));
         int lower;
         if (startLine < 0) {
             lower = unstampedLines.size() + startLine + 1;
@@ -85,9 +82,7 @@ public class TimestamperApiTestUtil {
         } else {
             upper = unstampedLines.size();
         }
-        assertEquals(
-                IntStream.rangeClosed(lower, upper).count(),
-                results.size());
+        assertEquals(IntStream.rangeClosed(lower, upper).count(), results.size());
         for (int i = 0; i < results.size(); i++) {
             if (appendLog) {
                 assertTrue(results.get(i).length() >= patternLength);
@@ -99,9 +94,7 @@ public class TimestamperApiTestUtil {
             assertNotNull(ZonedDateTime.parse(timestamp, DateTimeFormatter.ISO_DATE_TIME));
 
             if (appendLog) {
-                assertEquals(
-                        String.format("%s  %s", timestamp, unstampedLines.get(i + lower - 1)),
-                        results.get(i));
+                assertEquals(String.format("%s  %s", timestamp, unstampedLines.get(i + lower - 1)), results.get(i));
             }
         }
     }
@@ -115,15 +108,14 @@ public class TimestamperApiTestUtil {
             int endLine,
             boolean appendLog)
             throws IOException {
-        List<String> results =
-                getQueryResults(
-                        build,
-                        String.format(
-                                "elapsed=%s%s%s%s",
-                                pattern,
-                                startLine != 0 ? String.format("&startLine=%s", startLine) : "",
-                                endLine != 0 ? String.format("&endLine=%s", endLine) : "",
-                                appendLog ? "&appendLog" : ""));
+        List<String> results = getQueryResults(
+                build,
+                String.format(
+                        "elapsed=%s%s%s%s",
+                        pattern,
+                        startLine != 0 ? String.format("&startLine=%s", startLine) : "",
+                        endLine != 0 ? String.format("&endLine=%s", endLine) : "",
+                        appendLog ? "&appendLog" : ""));
         int lower;
         if (startLine < 0) {
             lower = unstampedLines.size() + startLine + 1;
@@ -140,9 +132,7 @@ public class TimestamperApiTestUtil {
         } else {
             upper = unstampedLines.size();
         }
-        assertEquals(
-                IntStream.rangeClosed(lower, upper).count(),
-                results.size());
+        assertEquals(IntStream.rangeClosed(lower, upper).count(), results.size());
         for (int i = 0; i < results.size(); i++) {
             if (appendLog) {
                 assertTrue(results.get(i).length() >= patternLength);
@@ -154,24 +144,19 @@ public class TimestamperApiTestUtil {
             assertNotNull(Duration.parse(timestamp));
 
             if (appendLog) {
-                assertEquals(
-                        String.format("%s  %s", timestamp, unstampedLines.get(i + lower - 1)),
-                        results.get(i));
+                assertEquals(String.format("%s  %s", timestamp, unstampedLines.get(i + lower - 1)), results.get(i));
             }
         }
     }
 
-    private static void currentTime(Run<?, ?> build, String pattern, String timezone)
-            throws IOException {
+    private static void currentTime(Run<?, ?> build, String pattern, String timezone) throws IOException {
         List<String> results =
-                getQueryResults(
-                        build, String.format("currentTime&time=%s&timeZone=%s", pattern, timezone));
+                getQueryResults(build, String.format("currentTime&time=%s&timeZone=%s", pattern, timezone));
         assertEquals(1, results.size());
         assertNotNull(ZonedDateTime.parse(results.get(0), DateTimeFormatter.ISO_DATE_TIME));
     }
 
-    private static List<String> getQueryResults(Run<?, ?> build, String queryString)
-            throws IOException {
+    private static List<String> getQueryResults(Run<?, ?> build, String queryString) throws IOException {
         List<String> result;
         try (BufferedReader reader = TimestamperAPI.get().read(build, queryString)) {
             result = reader.lines().collect(Collectors.toList());

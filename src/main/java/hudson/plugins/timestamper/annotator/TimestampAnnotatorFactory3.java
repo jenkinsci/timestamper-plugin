@@ -42,58 +42,58 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension(dynamicLoadable = YesNoMaybe.YES)
 public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Run<?, ?>> {
 
-  /** {@inheritDoc} */
-  @Override
-  public ConsoleAnnotator<Run<?, ?>> newInstance(Run<?, ?> build) {
-    if (TimestampNote.useTimestampNotes(build.getClass())) {
-      return null; // not using this system
+    /** {@inheritDoc} */
+    @Override
+    public ConsoleAnnotator<Run<?, ?>> newInstance(Run<?, ?> build) {
+        if (TimestampNote.useTimestampNotes(build.getClass())) {
+            return null; // not using this system
+        }
+        StaplerRequest request = Stapler.getCurrentRequest();
+        // JENKINS-16778: The request can be null when the slave goes off-line.
+        if (request == null) {
+            return null; // do not annotate
+        }
+        long offset = getOffset(request);
+        ConsoleLogParser logParser = new ConsoleLogParser(offset);
+        return new TimestampAnnotator(logParser);
     }
-    StaplerRequest request = Stapler.getCurrentRequest();
-    // JENKINS-16778: The request can be null when the slave goes off-line.
-    if (request == null) {
-      return null; // do not annotate
-    }
-    long offset = getOffset(request);
-    ConsoleLogParser logParser = new ConsoleLogParser(offset);
-    return new TimestampAnnotator(logParser);
-  }
 
-  /**
-   * Get the current offset for viewing the console log. A non-negative offset is from the start of
-   * the file, and a negative offset is back from the end of the file.
-   *
-   * @return the offset in bytes
-   */
-  private static long getOffset(StaplerRequest request) {
-    String path = request.getPathInfo();
-    if (path == null) {
-      // JENKINS-16438
-      path = request.getServletPath();
+    /**
+     * Get the current offset for viewing the console log. A non-negative offset is from the start of
+     * the file, and a negative offset is back from the end of the file.
+     *
+     * @return the offset in bytes
+     */
+    private static long getOffset(StaplerRequest request) {
+        String path = request.getPathInfo();
+        if (path == null) {
+            // JENKINS-16438
+            path = request.getServletPath();
+        }
+        if (path.endsWith("/consoleFull")) {
+            // Displaying the full log of a completed build.
+            return 0;
+        }
+        if (path.endsWith("/console")) {
+            // Displaying the tail of the log of a completed build.
+            // This duplicates code found in /hudson/model/Run/console.jelly
+            // TODO: Ask Jenkins for the console tail size instead.
+            String threshold = System.getProperty("hudson.consoleTailKB", "150");
+            return -(Long.parseLong(threshold) * 1024);
+        }
+        // Displaying the log of a build in progress.
+        // The start parameter is documented on the build's remote API page.
+        String startParameter = request.getParameter("start");
+        return startParameter == null ? 0 : Long.parseLong(startParameter);
     }
-    if (path.endsWith("/consoleFull")) {
-      // Displaying the full log of a completed build.
-      return 0;
-    }
-    if (path.endsWith("/console")) {
-      // Displaying the tail of the log of a completed build.
-      // This duplicates code found in /hudson/model/Run/console.jelly
-      // TODO: Ask Jenkins for the console tail size instead.
-      String threshold = System.getProperty("hudson.consoleTailKB", "150");
-      return -(Long.parseLong(threshold) * 1024);
-    }
-    // Displaying the log of a build in progress.
-    // The start parameter is documented on the build's remote API page.
-    String startParameter = request.getParameter("start");
-    return startParameter == null ? 0 : Long.parseLong(startParameter);
-  }
 
-  /**
-   * Get the URL for displaying the plain text console and time-stamps in the current format.
-   *
-   * @return the plain text URL
-   */
-  public String getPlainTextUrl() {
-    TimestampFormat format = TimestampFormatProvider.get();
-    return format.getPlainTextUrl();
-  }
+    /**
+     * Get the URL for displaying the plain text console and time-stamps in the current format.
+     *
+     * @return the plain text URL
+     */
+    public String getPlainTextUrl() {
+        TimestampFormat format = TimestampFormatProvider.get();
+        return format.getPlainTextUrl();
+    }
 }

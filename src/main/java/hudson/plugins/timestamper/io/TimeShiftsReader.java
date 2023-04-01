@@ -46,50 +46,49 @@ import org.apache.commons.io.input.CountingInputStream;
  */
 class TimeShiftsReader implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final File timeShiftsFile;
+    private final File timeShiftsFile;
 
-  /**
-   * Cache of the time shifts for each entry.
-   *
-   * <p>Transient: derived from the contents of {@link #timeShiftsFile}.
-   */
-  @CheckForNull
-  @SuppressFBWarnings("SE_TRANSIENT_FIELD_NOT_RESTORED")
-  private transient Map<Long, Long> timeShifts;
+    /**
+     * Cache of the time shifts for each entry.
+     *
+     * <p>Transient: derived from the contents of {@link #timeShiftsFile}.
+     */
+    @CheckForNull
+    @SuppressFBWarnings("SE_TRANSIENT_FIELD_NOT_RESTORED")
+    private transient Map<Long, Long> timeShifts;
 
-  TimeShiftsReader(Run<?, ?> build) {
-    this.timeShiftsFile = TimestamperPaths.timeShiftsFile(build).toFile();
-  }
-
-  /**
-   * Get the time recorded for the given time-stamp entry.
-   *
-   * @return the recorded number of milliseconds since the epoch, or {@link Optional#empty()} if no
-   *     time shift was recorded for that time-stamp entry
-   */
-  Optional<Long> getTime(long timestampEntry) throws IOException {
-    if (timeShifts == null) {
-      timeShifts = Collections.unmodifiableMap(readTimeShifts());
+    TimeShiftsReader(Run<?, ?> build) {
+        this.timeShiftsFile = TimestamperPaths.timeShiftsFile(build).toFile();
     }
-    return Optional.ofNullable(timeShifts.get(timestampEntry));
-  }
 
-  private Map<Long, Long> readTimeShifts() throws IOException {
-    if (!Files.isRegularFile(timeShiftsFile.toPath())) {
-      return Collections.emptyMap();
+    /**
+     * Get the time recorded for the given time-stamp entry.
+     *
+     * @return the recorded number of milliseconds since the epoch, or {@link Optional#empty()} if no
+     *     time shift was recorded for that time-stamp entry
+     */
+    Optional<Long> getTime(long timestampEntry) throws IOException {
+        if (timeShifts == null) {
+            timeShifts = Collections.unmodifiableMap(readTimeShifts());
+        }
+        return Optional.ofNullable(timeShifts.get(timestampEntry));
     }
-    Map<Long, Long> timeShifts = new HashMap<>();
-    try (CountingInputStream inputStream =
-        new CountingInputStream(
-            new BufferedInputStream(Files.newInputStream(timeShiftsFile.toPath())))) {
-      while (inputStream.getCount() < Files.size(timeShiftsFile.toPath())) {
-        long entry = Varint.read(inputStream);
-        long shift = Varint.read(inputStream);
-        timeShifts.put(entry, shift);
-      }
+
+    private Map<Long, Long> readTimeShifts() throws IOException {
+        if (!Files.isRegularFile(timeShiftsFile.toPath())) {
+            return Collections.emptyMap();
+        }
+        Map<Long, Long> timeShifts = new HashMap<>();
+        try (CountingInputStream inputStream =
+                new CountingInputStream(new BufferedInputStream(Files.newInputStream(timeShiftsFile.toPath())))) {
+            while (inputStream.getCount() < Files.size(timeShiftsFile.toPath())) {
+                long entry = Varint.read(inputStream);
+                long shift = Varint.read(inputStream);
+                timeShifts.put(entry, shift);
+            }
+        }
+        return timeShifts;
     }
-    return timeShifts;
-  }
 }

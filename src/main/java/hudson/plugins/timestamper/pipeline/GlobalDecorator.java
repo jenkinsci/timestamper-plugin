@@ -30,10 +30,6 @@ import hudson.console.LineTransformationOutputStream;
 import hudson.model.Queue;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestamperConfig;
-
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -43,6 +39,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.log.TaskListenerDecorator;
 
 /** Applies plain-text timestamp prefixes to all Pipeline log lines. */
 public final class GlobalDecorator extends TaskListenerDecorator {
@@ -51,8 +49,7 @@ public final class GlobalDecorator extends TaskListenerDecorator {
 
     // Almost ISO_OFFSET_DATE_TIME, but uses .SSS instead of .nnnnnnnnn to show milliseconds instead
     // of nanoseconds and uses X instead of Z so the offset shows up as `Z` rather than `+0000`.
-    static final DateTimeFormatter UTC_MILLIS =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+    static final DateTimeFormatter UTC_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     private static final long serialVersionUID = 1;
 
@@ -60,13 +57,11 @@ public final class GlobalDecorator extends TaskListenerDecorator {
 
     @NonNull
     @Override
-    public OutputStream decorate(@NonNull final OutputStream logger)
-            throws IOException, InterruptedException {
+    public OutputStream decorate(@NonNull final OutputStream logger) throws IOException, InterruptedException {
         return new GlobalDecoratorLineTransformationOutputStream(logger);
     }
 
-    private static class GlobalDecoratorLineTransformationOutputStream
-            extends LineTransformationOutputStream {
+    private static class GlobalDecoratorLineTransformationOutputStream extends LineTransformationOutputStream {
         private final OutputStream logger;
 
         public GlobalDecoratorLineTransformationOutputStream(OutputStream logger) {
@@ -78,10 +73,7 @@ public final class GlobalDecorator extends TaskListenerDecorator {
             synchronized (logger) { // typically this will be a PrintStream
                 ByteBuffer buffer = ByteBuffer.allocate(1 + 24 + 1 + 1 + len);
                 buffer.put((byte) '[');
-                buffer.put(
-                        ZonedDateTime.now(ZoneOffset.UTC)
-                                .format(UTC_MILLIS)
-                                .getBytes(StandardCharsets.US_ASCII));
+                buffer.put(ZonedDateTime.now(ZoneOffset.UTC).format(UTC_MILLIS).getBytes(StandardCharsets.US_ASCII));
                 buffer.put((byte) ']');
                 buffer.put((byte) ' ');
                 buffer.put(b, 0, len);

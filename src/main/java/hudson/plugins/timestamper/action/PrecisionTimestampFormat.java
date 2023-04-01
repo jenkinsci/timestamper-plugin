@@ -37,52 +37,52 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 final class PrecisionTimestampFormat implements Function<Timestamp, String> {
 
-  /** The number of places to display after the decimal point. */
-  /* javax.annotation.Nonnegative */ private final int precision;
+    /** The number of places to display after the decimal point. */
+    /* javax.annotation.Nonnegative */ private final int precision;
 
-  PrecisionTimestampFormat(int precision) {
-    if (precision < 0) {
-      throw new IllegalArgumentException("precision is negative");
+    PrecisionTimestampFormat(int precision) {
+        if (precision < 0) {
+            throw new IllegalArgumentException("precision is negative");
+        }
+        this.precision = precision;
     }
-    this.precision = precision;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String apply(@NonNull Timestamp timestamp) {
-    long seconds = timestamp.elapsedMillis / 1000;
-    if (precision == 0) {
-      return String.valueOf(seconds);
+    /** {@inheritDoc} */
+    @Override
+    public String apply(@NonNull Timestamp timestamp) {
+        long seconds = timestamp.elapsedMillis / 1000;
+        if (precision == 0) {
+            return String.valueOf(seconds);
+        }
+        long millis = timestamp.elapsedMillis % 1000;
+        String fractional = String.format("%03d", millis);
+        if (precision <= 3) {
+            fractional = fractional.substring(0, precision);
+        } else {
+            fractional += String.join("", Collections.nCopies(precision - 3, "0"));
+        }
+        return seconds + "." + fractional;
     }
-    long millis = timestamp.elapsedMillis % 1000;
-    String fractional = String.format("%03d", millis);
-    if (precision <= 3) {
-      fractional = fractional.substring(0, precision);
-    } else {
-      fractional += String.join("", Collections.nCopies(precision - 3, "0"));
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        return Integer.valueOf(precision).hashCode();
     }
-    return seconds + "." + fractional;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public int hashCode() {
-    return Integer.valueOf(precision).hashCode();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof PrecisionTimestampFormat) {
-      PrecisionTimestampFormat other = (PrecisionTimestampFormat) obj;
-      return precision == other.precision;
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PrecisionTimestampFormat) {
+            PrecisionTimestampFormat other = (PrecisionTimestampFormat) obj;
+            return precision == other.precision;
+        }
+        return false;
     }
-    return false;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this).append("precision", precision).toString();
-  }
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("precision", precision).toString();
+    }
 }

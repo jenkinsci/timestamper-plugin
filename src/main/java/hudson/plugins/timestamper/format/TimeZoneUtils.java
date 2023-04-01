@@ -32,27 +32,27 @@ import java.util.concurrent.TimeUnit;
  */
 class TimeZoneUtils {
 
-  /**
-   * Get a time zone ID for the given offset.
-   *
-   * @param offset the offset in milliseconds
-   * @return the time zone ID
-   */
-  static String getTimeZoneId(long offset) {
-    long totalOffsetInMinutes = TimeUnit.MILLISECONDS.toMinutes(offset);
-    String sign = totalOffsetInMinutes > 0 ? "+" : "-";
-    long hours = Math.abs(totalOffsetInMinutes / 60);
-    long minutes = Math.abs(totalOffsetInMinutes % 60);
+    /**
+     * Get a time zone ID for the given offset.
+     *
+     * @param offset the offset in milliseconds
+     * @return the time zone ID
+     */
+    static String getTimeZoneId(long offset) {
+        long totalOffsetInMinutes = TimeUnit.MILLISECONDS.toMinutes(offset);
+        String sign = totalOffsetInMinutes > 0 ? "+" : "-";
+        long hours = Math.abs(totalOffsetInMinutes / 60);
+        long minutes = Math.abs(totalOffsetInMinutes % 60);
 
-    String timeZoneId = "GMT";
-    if (hours > 0 || minutes > 0) {
-      timeZoneId += sign + hours;
-      if (minutes > 0) {
-        timeZoneId += ":" + minutes;
-      }
+        String timeZoneId = "GMT";
+        if (hours > 0 || minutes > 0) {
+            timeZoneId += sign + hours;
+            if (minutes > 0) {
+                timeZoneId += ":" + minutes;
+            }
+        }
+        return timeZoneId;
     }
-    return timeZoneId;
-  }
 
-  private TimeZoneUtils() {}
+    private TimeZoneUtils() {}
 }

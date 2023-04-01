@@ -32,38 +32,36 @@ import java.util.regex.Pattern;
  */
 class FormatStringUtils {
 
-  private static final Pattern START_TAG_PATTERN =
-      Pattern.compile("\\<\\p{Alpha}+.*?\\>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern START_TAG_PATTERN = Pattern.compile("\\<\\p{Alpha}+.*?\\>", Pattern.CASE_INSENSITIVE);
 
-  private static final Pattern END_TAG_PATTERN =
-      Pattern.compile("\\</\\p{Alpha}+\\>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern END_TAG_PATTERN = Pattern.compile("\\</\\p{Alpha}+\\>", Pattern.CASE_INSENSITIVE);
 
-  /**
-   * Strip HTML tags from the given string.
-   *
-   * <p>This may strip too much from the string when it contains angle bracket characters which are
-   * not part of an HTML tag. It seems unlikely that this will occur for time-stamp format strings.
-   *
-   * @param input the input string
-   * @return the string without HTML tags
-   */
-  static String stripHtmlTags(String input) {
-    input = START_TAG_PATTERN.matcher(input).replaceAll("");
-    input = END_TAG_PATTERN.matcher(input).replaceAll("");
-    return input;
-  }
+    /**
+     * Strip HTML tags from the given string.
+     *
+     * <p>This may strip too much from the string when it contains angle bracket characters which are
+     * not part of an HTML tag. It seems unlikely that this will occur for time-stamp format strings.
+     *
+     * @param input the input string
+     * @return the string without HTML tags
+     */
+    static String stripHtmlTags(String input) {
+        input = START_TAG_PATTERN.matcher(input).replaceAll("");
+        input = END_TAG_PATTERN.matcher(input).replaceAll("");
+        return input;
+    }
 
-  private static final String QUOTED_WHITESPACE = "\\s*'\\s*'\\s*";
+    private static final String QUOTED_WHITESPACE = "\\s*'\\s*'\\s*";
 
-  /**
-   * Trim the given string, including single-quoted text.
-   *
-   * @param input the input string
-   * @return the trimmed string
-   */
-  static String trim(String input) {
-    input = input.replaceFirst("^" + QUOTED_WHITESPACE, "");
-    input = input.replaceFirst(QUOTED_WHITESPACE + "$", "");
-    return input.trim();
-  }
+    /**
+     * Trim the given string, including single-quoted text.
+     *
+     * @param input the input string
+     * @return the trimmed string
+     */
+    static String trim(String input) {
+        input = input.replaceFirst("^" + QUOTED_WHITESPACE, "");
+        input = input.replaceFirst(QUOTED_WHITESPACE + "$", "");
+        return input.trim();
+    }
 }

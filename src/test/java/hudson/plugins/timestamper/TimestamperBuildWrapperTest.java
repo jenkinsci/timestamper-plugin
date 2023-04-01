@@ -44,38 +44,39 @@ import org.junit.rules.TemporaryFolder;
  */
 public class TimestamperBuildWrapperTest {
 
-  @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
-  private TimestamperBuildWrapper buildWrapper;
+    private TimestamperBuildWrapper buildWrapper;
 
-  private AbstractBuild<?, ?> build;
+    private AbstractBuild<?, ?> build;
 
-  private ByteArrayOutputStream outputStream;
+    private ByteArrayOutputStream outputStream;
 
-  @Before
-  public void setUp() {
-    System.clearProperty(TimestampNote.getSystemProperty());
-    buildWrapper = new TimestamperBuildWrapper();
-    build = mock(AbstractBuild.class);
-    when(build.getRootDir()).thenReturn(folder.getRoot());
-    outputStream = new ByteArrayOutputStream();
-  }
+    @Before
+    public void setUp() {
+        System.clearProperty(TimestampNote.getSystemProperty());
+        buildWrapper = new TimestamperBuildWrapper();
+        build = mock(AbstractBuild.class);
+        when(build.getRootDir()).thenReturn(folder.getRoot());
+        outputStream = new ByteArrayOutputStream();
+    }
 
-  @After
-  public void tearDown() {
-    System.clearProperty(TimestampNote.getSystemProperty());
-  }
+    @After
+    public void tearDown() {
+        System.clearProperty(TimestampNote.getSystemProperty());
+    }
 
-  @Test
-  public void testDecorate() throws Exception {
-    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
-    assertThat(decoratedOutputStream, instanceOf(TimestamperOutputStream.class));
-  }
+    @Test
+    public void testDecorate() throws Exception {
+        OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
+        assertThat(decoratedOutputStream, instanceOf(TimestamperOutputStream.class));
+    }
 
-  @Test
-  public void testDecorateWithTimestampNoteSystemProperty() throws Exception {
-    System.setProperty(TimestampNote.getSystemProperty(), "true");
-    OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
-    assertThat(decoratedOutputStream, instanceOf(TimestampNotesOutputStream.class));
-  }
+    @Test
+    public void testDecorateWithTimestampNoteSystemProperty() throws Exception {
+        System.setProperty(TimestampNote.getSystemProperty(), "true");
+        OutputStream decoratedOutputStream = buildWrapper.decorateLogger(build, outputStream);
+        assertThat(decoratedOutputStream, instanceOf(TimestampNotesOutputStream.class));
+    }
 }

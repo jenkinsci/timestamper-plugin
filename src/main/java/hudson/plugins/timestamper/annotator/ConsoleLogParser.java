@@ -42,123 +42,120 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 @Immutable
 class ConsoleLogParser implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final long pos;
+    private final long pos;
 
-  /**
-   * Create a new {@link ConsoleLogParser}.
-   *
-   * @param pos the position to find in the console log file. A non-negative position is from the
-   *     start of the file, and a negative position is back from the end of the file.
-   */
-  ConsoleLogParser(long pos) {
-    this.pos = pos;
-  }
-
-  /**
-   * Skip to a position in the console log file.
-   *
-   * @param build the build to inspect
-   * @return the result
-   */
-  public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
-    long logLength = build.getLogText().length();
-    if (pos == 0 || logLength + pos <= 0) {
-      ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-      result.atNewLine = true;
-      return result;
+    /**
+     * Create a new {@link ConsoleLogParser}.
+     *
+     * @param pos the position to find in the console log file. A non-negative position is from the
+     *     start of the file, and a negative position is back from the end of the file.
+     */
+    ConsoleLogParser(long pos) {
+        this.pos = pos;
     }
 
-    try (InputStream inputStream = new BufferedInputStream(build.getLogInputStream())) {
-      if (build.isBuilding() || pos > 0) {
-        long posFromStart = pos;
-        if (pos < 0) {
-          posFromStart = logLength + pos;
+    /**
+     * Skip to a position in the console log file.
+     *
+     * @param build the build to inspect
+     * @return the result
+     */
+    public ConsoleLogParser.Result seek(Run<?, ?> build) throws IOException {
+        long logLength = build.getLogText().length();
+        if (pos == 0 || logLength + pos <= 0) {
+            ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+            result.atNewLine = true;
+            return result;
         }
-        return parseFromStart(inputStream, posFromStart);
-      } else {
-        ByteStreams.skipFully(inputStream, logLength + pos - 1);
-        return parseFromFinish(new BoundedInputStream(inputStream, -pos));
-      }
-    }
-  }
 
-  private ConsoleLogParser.Result parseFromStart(InputStream inputStream, long posFromStart)
-      throws IOException {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
-
-    for (long i = 0; i < posFromStart; i++) {
-      int value = inputStream.read();
-      if (value == -1) {
-        result.endOfFile = true;
-        break;
-      }
-      result.atNewLine = isNewLine(value);
-      if (result.atNewLine) {
-        result.lineNumber++;
-      }
+        try (InputStream inputStream = new BufferedInputStream(build.getLogInputStream())) {
+            if (build.isBuilding() || pos > 0) {
+                long posFromStart = pos;
+                if (pos < 0) {
+                    posFromStart = logLength + pos;
+                }
+                return parseFromStart(inputStream, posFromStart);
+            } else {
+                ByteStreams.skipFully(inputStream, logLength + pos - 1);
+                return parseFromFinish(new BoundedInputStream(inputStream, -pos));
+            }
+        }
     }
 
-    return result;
-  }
+    private ConsoleLogParser.Result parseFromStart(InputStream inputStream, long posFromStart) throws IOException {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
 
-  private ConsoleLogParser.Result parseFromFinish(InputStream inputStream) throws IOException {
-    ConsoleLogParser.Result result = new ConsoleLogParser.Result();
+        for (long i = 0; i < posFromStart; i++) {
+            int value = inputStream.read();
+            if (value == -1) {
+                result.endOfFile = true;
+                break;
+            }
+            result.atNewLine = isNewLine(value);
+            if (result.atNewLine) {
+                result.lineNumber++;
+            }
+        }
 
-    int value = inputStream.read();
-    result.atNewLine = isNewLine(value);
-
-    while ((value = inputStream.read()) != -1) {
-      if (isNewLine(value)) {
-        result.lineNumber--;
-      }
+        return result;
     }
 
-    return result;
-  }
+    private ConsoleLogParser.Result parseFromFinish(InputStream inputStream) throws IOException {
+        ConsoleLogParser.Result result = new ConsoleLogParser.Result();
 
-  private boolean isNewLine(int character) {
-    return character == 0x0A;
-  }
+        int value = inputStream.read();
+        result.atNewLine = isNewLine(value);
 
-  static final class Result {
+        while ((value = inputStream.read()) != -1) {
+            if (isNewLine(value)) {
+                result.lineNumber--;
+            }
+        }
 
-    /** The current line number, starting at line zero. */
-    int lineNumber;
-
-    /** Whether the last-read character was a new line. */
-    boolean atNewLine;
-
-    /** Whether the position is past the end of the file. */
-    boolean endOfFile;
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-      return Objects.hash(lineNumber, atNewLine, endOfFile);
+        return result;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof ConsoleLogParser.Result) {
-        ConsoleLogParser.Result other = (ConsoleLogParser.Result) obj;
-        return lineNumber == other.lineNumber
-            && atNewLine == other.atNewLine
-            && endOfFile == other.endOfFile;
-      }
-      return false;
+    private boolean isNewLine(int character) {
+        return character == 0x0A;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-      return new ToStringBuilder(this)
-          .append("lineNumber", lineNumber)
-          .append("atNewLine", atNewLine)
-          .append("endOfFile", endOfFile)
-          .toString();
+    static final class Result {
+
+        /** The current line number, starting at line zero. */
+        int lineNumber;
+
+        /** Whether the last-read character was a new line. */
+        boolean atNewLine;
+
+        /** Whether the position is past the end of the file. */
+        boolean endOfFile;
+
+        /** {@inheritDoc} */
+        @Override
+        public int hashCode() {
+            return Objects.hash(lineNumber, atNewLine, endOfFile);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ConsoleLogParser.Result) {
+                ConsoleLogParser.Result other = (ConsoleLogParser.Result) obj;
+                return lineNumber == other.lineNumber && atNewLine == other.atNewLine && endOfFile == other.endOfFile;
+            }
+            return false;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("lineNumber", lineNumber)
+                    .append("atNewLine", atNewLine)
+                    .append("endOfFile", endOfFile)
+                    .toString();
+        }
     }
-  }
 }

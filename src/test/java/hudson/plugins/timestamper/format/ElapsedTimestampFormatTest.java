@@ -39,55 +39,54 @@ import org.junit.Test;
  */
 public class ElapsedTimestampFormatTest {
 
-  @Test
-  public void testApply() {
-    String elapsedTimeFormat = "ss.S";
-    Timestamp timestamp = new Timestamp(123, 42000);
-    assertThat(new ElapsedTimestampFormat(elapsedTimeFormat).apply(timestamp), is("00.123"));
-  }
+    @Test
+    public void testApply() {
+        String elapsedTimeFormat = "ss.S";
+        Timestamp timestamp = new Timestamp(123, 42000);
+        assertThat(new ElapsedTimestampFormat(elapsedTimeFormat).apply(timestamp), is("00.123"));
+    }
 
-  @Test
-  public void testApply_withInvalidHtml() {
-    String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b><script>console.log(\"foo\")</script>'";
-    Timestamp timestamp = new Timestamp(123, 42000);
-    assertThat(
-        new ElapsedTimestampFormat(elapsedTimeFormat).apply(timestamp), is("<b>00:00:00.123</b>"));
-  }
+    @Test
+    public void testApply_withInvalidHtml() {
+        String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b><script>console.log(\"foo\")</script>'";
+        Timestamp timestamp = new Timestamp(123, 42000);
+        assertThat(new ElapsedTimestampFormat(elapsedTimeFormat).apply(timestamp), is("<b>00:00:00.123</b>"));
+    }
 
-  @Test
-  public void testValidate() {
-    String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b>'";
-    new ElapsedTimestampFormat(elapsedTimeFormat).validate();
-  }
+    @Test
+    public void testValidate() {
+        String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b>'";
+        new ElapsedTimestampFormat(elapsedTimeFormat).validate();
+    }
 
-  @Test
-  public void testValidate_withFormatParseException() {
-    String elapsedTimeFormat = "'yMdHms''S";
-    assertThrows(
-        FormatParseException.class, () -> new ElapsedTimestampFormat(elapsedTimeFormat).validate());
-  }
+    @Test
+    public void testValidate_withFormatParseException() {
+        String elapsedTimeFormat = "'yMdHms''S";
+        assertThrows(FormatParseException.class, () -> new ElapsedTimestampFormat(elapsedTimeFormat).validate());
+    }
 
-  @Test
-  public void testValidate_withInvalidHtml() {
-    String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b><script>console.log(\"foo\")</script>'";
-    assertThrows(
-        InvalidHtmlException.class, () -> new ElapsedTimestampFormat(elapsedTimeFormat).validate());
-  }
+    @Test
+    public void testValidate_withInvalidHtml() {
+        String elapsedTimeFormat = "'<b>'HH:mm:ss.S'</b><script>console.log(\"foo\")</script>'";
+        assertThrows(InvalidHtmlException.class, () -> new ElapsedTimestampFormat(elapsedTimeFormat).validate());
+    }
 
-  @Test
-  public void testGetPlainTextUrl() {
-    ElapsedTimestampFormat format = new ElapsedTimestampFormat("'<b>'HH:mm:ss.S'</b> '");
-    assertThat(format.getPlainTextUrl(), is("timestamps/?elapsed=HH:mm:ss.S&appendLog"));
-  }
+    @Test
+    public void testGetPlainTextUrl() {
+        ElapsedTimestampFormat format = new ElapsedTimestampFormat("'<b>'HH:mm:ss.S'</b> '");
+        assertThat(format.getPlainTextUrl(), is("timestamps/?elapsed=HH:mm:ss.S&appendLog"));
+    }
 
-  @Test
-  public void testGetPlainTextUrl_excessWhitespace() {
-    ElapsedTimestampFormat format = new ElapsedTimestampFormat(" ' <b> ' HH:mm:ss.S ' </b> ' ");
-    assertThat(format.getPlainTextUrl(), is("timestamps/?elapsed=HH:mm:ss.S&appendLog"));
-  }
+    @Test
+    public void testGetPlainTextUrl_excessWhitespace() {
+        ElapsedTimestampFormat format = new ElapsedTimestampFormat(" ' <b> ' HH:mm:ss.S ' </b> ' ");
+        assertThat(format.getPlainTextUrl(), is("timestamps/?elapsed=HH:mm:ss.S&appendLog"));
+    }
 
-  @Test
-  public void testEqualsAndHashCode() {
-    EqualsVerifier.forClass(ElapsedTimestampFormat.class).suppress(Warning.NULL_FIELDS).verify();
-  }
+    @Test
+    public void testEqualsAndHashCode() {
+        EqualsVerifier.forClass(ElapsedTimestampFormat.class)
+                .suppress(Warning.NULL_FIELDS)
+                .verify();
+    }
 }

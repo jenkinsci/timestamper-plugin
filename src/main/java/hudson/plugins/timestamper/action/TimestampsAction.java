@@ -44,66 +44,64 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public final class TimestampsAction implements Action {
 
-  private static final Logger LOGGER = Logger.getLogger(TimestampsAction.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TimestampsAction.class.getName());
 
-  /** The build to inspect. */
-  private final Run<?, ?> build;
+    /** The build to inspect. */
+    private final Run<?, ?> build;
 
-  /**
-   * Create a {@link TimestampsAction} for the given build.
-   *
-   * @param build the build to inspect
-   */
-  TimestampsAction(Run<?, ?> build) {
-    this.build = Objects.requireNonNull(build);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public String getIconFileName() {
-    return null; // do not display this action
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public String getDisplayName() {
-    return null; // do not display this action
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public String getUrlName() {
-    return "timestamps";
-  }
-
-  /** Serve a page at this URL. */
-  @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
-  public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
-    response.setContentType("text/plain;charset=UTF-8");
-
-    PrintWriter writer = response.getWriter();
-
-    try {
-      // throws RuntimeException for invalid query
-      TimestampsActionQuery query = TimestampsActionQuery.create(request.getQueryString());
-
-      try (BufferedReader reader = TimestampsActionOutput.open(build, query)) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-          writer.println(line);
-        }
-      }
-
-    } catch (RuntimeException | IOException e) {
-      String urlWithQueryString = request.getRequestURLWithQueryString().toString();
-      writer.println(urlWithQueryString);
-      String exceptionMessage = e.getMessage() == null ? "" : e.getMessage();
-      writer.println(
-          e.getClass().getSimpleName()
-              + (exceptionMessage.isEmpty() ? "" : ": " + exceptionMessage));
-      LOGGER.log(Level.WARNING, urlWithQueryString, e);
-    } finally {
-      writer.flush();
+    /**
+     * Create a {@link TimestampsAction} for the given build.
+     *
+     * @param build the build to inspect
+     */
+    TimestampsAction(Run<?, ?> build) {
+        this.build = Objects.requireNonNull(build);
     }
-  }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getIconFileName() {
+        return null; // do not display this action
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getDisplayName() {
+        return null; // do not display this action
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getUrlName() {
+        return "timestamps";
+    }
+
+    /** Serve a page at this URL. */
+    @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
+    public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
+        response.setContentType("text/plain;charset=UTF-8");
+
+        PrintWriter writer = response.getWriter();
+
+        try {
+            // throws RuntimeException for invalid query
+            TimestampsActionQuery query = TimestampsActionQuery.create(request.getQueryString());
+
+            try (BufferedReader reader = TimestampsActionOutput.open(build, query)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    writer.println(line);
+                }
+            }
+
+        } catch (RuntimeException | IOException e) {
+            String urlWithQueryString = request.getRequestURLWithQueryString().toString();
+            writer.println(urlWithQueryString);
+            String exceptionMessage = e.getMessage() == null ? "" : e.getMessage();
+            writer.println(e.getClass().getSimpleName() + (exceptionMessage.isEmpty() ? "" : ": " + exceptionMessage));
+            LOGGER.log(Level.WARNING, urlWithQueryString, e);
+        } finally {
+            writer.flush();
+        }
+    }
 }

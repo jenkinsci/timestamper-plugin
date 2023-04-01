@@ -35,10 +35,10 @@ import org.junit.Test;
  */
 public class ConsoleLogParserResultTest {
 
-  @Test
-  public void testResultEqualsAndHashCode() {
-    EqualsVerifier.forClass(ConsoleLogParser.Result.class)
-        .suppress(Warning.NONFINAL_FIELDS)
-        .verify();
-  }
+    @Test
+    public void testResultEqualsAndHashCode() {
+        EqualsVerifier.forClass(ConsoleLogParser.Result.class)
+                .suppress(Warning.NONFINAL_FIELDS)
+                .verify();
+    }
 }

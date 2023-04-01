@@ -45,121 +45,122 @@ import org.apache.commons.io.input.CountingInputStream;
  */
 public class TimestampsReader implements Serializable, Closeable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final File timestampsFile;
+    private final File timestampsFile;
 
-  private long filePointer;
+    private long filePointer;
 
-  private long elapsedMillis;
+    private long elapsedMillis;
 
-  private long millisSinceEpoch;
+    private long millisSinceEpoch;
 
-  private long entry;
+    private long entry;
 
-  private final TimeShiftsReader timeShiftsReader;
+    private final TimeShiftsReader timeShiftsReader;
 
-  @CheckForNull private transient InputStream inputStream;
+    @CheckForNull
+    private transient InputStream inputStream;
 
-  /** Create a time-stamps reader for the given build. */
-  public TimestampsReader(Run<?, ?> build) {
-    this.timestampsFile = TimestamperPaths.timestampsFile(build).toFile();
-    this.timeShiftsReader = new TimeShiftsReader(build);
-    this.millisSinceEpoch = build.getStartTimeInMillis();
-  }
-
-  /**
-   * Skip past the given number of time-stamp entries.
-   *
-   * @param count the number of time-stamp entries to skip
-   */
-  public void skip(int count) throws IOException {
-    for (int i = 0; i < count; i++) {
-      Optional<Timestamp> timestamp = read();
-      if (!timestamp.isPresent()) {
-        return;
-      }
+    /** Create a time-stamps reader for the given build. */
+    public TimestampsReader(Run<?, ?> build) {
+        this.timestampsFile = TimestamperPaths.timestampsFile(build).toFile();
+        this.timeShiftsReader = new TimeShiftsReader(build);
+        this.millisSinceEpoch = build.getStartTimeInMillis();
     }
-  }
 
-  /**
-   * Convert negative line number that was calculated from end of file to absolute line number (from
-   * head)
-   *
-   * @param lineNumber line number (should be negative)
-   * @return absolute line
-   */
-  public int getAbs(int lineNumber) throws IOException {
-    skip(-lineNumber);
-
-    int numberOfTimestampsFromStart = 0;
-    while (true) {
-      Optional<Timestamp> timestamp = read();
-      if (!timestamp.isPresent()) {
-        return numberOfTimestampsFromStart;
-      }
-      numberOfTimestampsFromStart++;
+    /**
+     * Skip past the given number of time-stamp entries.
+     *
+     * @param count the number of time-stamp entries to skip
+     */
+    public void skip(int count) throws IOException {
+        for (int i = 0; i < count; i++) {
+            Optional<Timestamp> timestamp = read();
+            if (!timestamp.isPresent()) {
+                return;
+            }
+        }
     }
-  }
 
-  /**
-   * Read the next time-stamp.
-   *
-   * @return the next time-stamp, or {@link Optional#empty()} if there are no more to read
-   */
-  public Optional<Timestamp> read() throws IOException {
-    if (inputStream == null) {
-      if (!Files.isRegularFile(timestampsFile.toPath())) {
-        return Optional.empty();
-      }
-      inputStream = Files.newInputStream(timestampsFile.toPath());
-      ByteStreams.skipFully(inputStream, filePointer);
-      inputStream = new BufferedInputStream(inputStream);
+    /**
+     * Convert negative line number that was calculated from end of file to absolute line number (from
+     * head)
+     *
+     * @param lineNumber line number (should be negative)
+     * @return absolute line
+     */
+    public int getAbs(int lineNumber) throws IOException {
+        skip(-lineNumber);
+
+        int numberOfTimestampsFromStart = 0;
+        while (true) {
+            Optional<Timestamp> timestamp = read();
+            if (!timestamp.isPresent()) {
+                return numberOfTimestampsFromStart;
+            }
+            numberOfTimestampsFromStart++;
+        }
     }
-    Optional<Timestamp> timestamp = Optional.empty();
-    if (filePointer < Files.size(timestampsFile.toPath())) {
-      timestamp = Optional.of(readNext(inputStream));
+
+    /**
+     * Read the next time-stamp.
+     *
+     * @return the next time-stamp, or {@link Optional#empty()} if there are no more to read
+     */
+    public Optional<Timestamp> read() throws IOException {
+        if (inputStream == null) {
+            if (!Files.isRegularFile(timestampsFile.toPath())) {
+                return Optional.empty();
+            }
+            inputStream = Files.newInputStream(timestampsFile.toPath());
+            ByteStreams.skipFully(inputStream, filePointer);
+            inputStream = new BufferedInputStream(inputStream);
+        }
+        Optional<Timestamp> timestamp = Optional.empty();
+        if (filePointer < Files.size(timestampsFile.toPath())) {
+            timestamp = Optional.of(readNext(inputStream));
+        }
+        return timestamp;
     }
-    return timestamp;
-  }
 
-  /** Close this reader. */
-  @Override
-  public void close() {
-    try {
-      if (inputStream != null) {
-        inputStream.close();
-      }
-    } catch (IOException e) {
-      // ignore
+    /** Close this reader. */
+    @Override
+    public void close() {
+        try {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        } catch (IOException e) {
+            // ignore
+        }
+        inputStream = null;
     }
-    inputStream = null;
-  }
 
-  /**
-   * Read the next time-stamp from the given input stream.
-   *
-   * @return the next time-stamp
-   */
-  private Timestamp readNext(InputStream inputStream) throws IOException {
-    CountingInputStream countingInputStream = new CountingInputStream(inputStream);
-    long elapsedMillisDiff = Varint.read(countingInputStream);
+    /**
+     * Read the next time-stamp from the given input stream.
+     *
+     * @return the next time-stamp
+     */
+    private Timestamp readNext(InputStream inputStream) throws IOException {
+        CountingInputStream countingInputStream = new CountingInputStream(inputStream);
+        long elapsedMillisDiff = Varint.read(countingInputStream);
 
-    elapsedMillis += elapsedMillisDiff;
-    millisSinceEpoch = timeShiftsReader.getTime(entry).orElse(millisSinceEpoch + elapsedMillisDiff);
-    filePointer += countingInputStream.getCount();
-    entry++;
-    return new Timestamp(elapsedMillis, millisSinceEpoch);
-  }
-
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    out.defaultWriteObject();
-    try {
-      if (inputStream != null) {
-        inputStream.close();
-      }
-    } catch (IOException e) {
-      // ignore
+        elapsedMillis += elapsedMillisDiff;
+        millisSinceEpoch = timeShiftsReader.getTime(entry).orElse(millisSinceEpoch + elapsedMillisDiff);
+        filePointer += countingInputStream.getCount();
+        entry++;
+        return new Timestamp(elapsedMillis, millisSinceEpoch);
     }
-  }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        try {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        } catch (IOException e) {
+            // ignore
+        }
+    }
 }

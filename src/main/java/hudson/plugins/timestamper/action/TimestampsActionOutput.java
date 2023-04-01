@@ -75,119 +75,117 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
  */
 public class TimestampsActionOutput {
 
-  /**
-   * Open a reader which provides the page of time-stamps.
-   *
-   * @return a {@link BufferedReader}
-   */
-  public static BufferedReader open(Run<?, ?> build, TimestampsActionQuery query) {
-    long buildStartTime = build.getStartTimeInMillis();
-    long millisSinceEpoch = System.currentTimeMillis();
-    Timestamp currentTimestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+    /**
+     * Open a reader which provides the page of time-stamps.
+     *
+     * @return a {@link BufferedReader}
+     */
+    public static BufferedReader open(Run<?, ?> build, TimestampsActionQuery query) {
+        long buildStartTime = build.getStartTimeInMillis();
+        long millisSinceEpoch = System.currentTimeMillis();
+        Timestamp currentTimestamp = new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
 
-    return open(query, currentTimestamp, build);
-  }
-
-  static BufferedReader open(
-      final TimestampsActionQuery query, final Timestamp currentTimestamp, final Run<?, ?> build) {
-    if (query.currentTime) {
-      List<String> parts = new ArrayList<>();
-      for (Function<Timestamp, String> format : query.timestampFormats) {
-        parts.add(format.apply(currentTimestamp));
-      }
-      String result = String.join(" ", parts) + "\n";
-      return new BufferedReader(new StringReader(result));
+        return open(query, currentTimestamp, build);
     }
 
-    final StringBuilder buffer = new StringBuilder();
-
-    Reader reader =
-        new Reader() {
-          int linesRead;
-          Optional<Integer> endLine = Optional.empty();
-          boolean started;
-          TimestampLogFileLineAccessor timestampLogFileLineAccessor;
-
-          @Override
-          public int read(@NonNull char[] cbuf, int off, int len) throws IOException {
-            if (!started) {
-              timestampLogFileLineAccessor = new TimestampLogFileLineAccessor(build);
-              linesRead = readToStartLine(query);
-              endLine = resolveEndLine(query);
-              started = true;
+    static BufferedReader open(
+            final TimestampsActionQuery query, final Timestamp currentTimestamp, final Run<?, ?> build) {
+        if (query.currentTime) {
+            List<String> parts = new ArrayList<>();
+            for (Function<Timestamp, String> format : query.timestampFormats) {
+                parts.add(format.apply(currentTimestamp));
             }
-            while (buffer.length() < len) {
-              Optional<String> nextLine = readNextLine(query);
-              if (!nextLine.isPresent()) {
-                break;
-              }
-              linesRead++;
-              if (endLine.isPresent() && linesRead > endLine.get()) {
-                break;
-              }
-              buffer.append(nextLine.get());
-              buffer.append("\n");
-            }
-            int numRead = new StringReader(buffer.toString()).read(cbuf, off, len);
-            buffer.delete(0, (numRead >= 0 ? numRead : buffer.length()));
-            return numRead;
-          }
+            String result = String.join(" ", parts) + "\n";
+            return new BufferedReader(new StringReader(result));
+        }
 
-          private int readToStartLine(TimestampsActionQuery query) throws IOException {
-            int linesToSkip = Math.max(query.startLine - 1, 0);
-            if (query.startLine < 0) {
-              linesToSkip = timestampLogFileLineAccessor.getLineCount() + query.startLine;
-            }
+        final StringBuilder buffer = new StringBuilder();
 
-            for (int line = 0; line < linesToSkip; line++) {
-              timestampLogFileLineAccessor.skipLine();
-            }
-            return linesToSkip;
-          }
+        Reader reader = new Reader() {
+            int linesRead;
+            Optional<Integer> endLine = Optional.empty();
+            boolean started;
+            TimestampLogFileLineAccessor timestampLogFileLineAccessor;
 
-          private Optional<Integer> resolveEndLine(TimestampsActionQuery query) throws IOException {
-            if (query.endLine.isPresent() && query.endLine.get() < 0) {
-              return Optional.of(
-                  timestampLogFileLineAccessor.getLineCount() + query.endLine.get() + 1);
-            }
-            return query.endLine;
-          }
-
-          private Optional<String> readNextLine(TimestampsActionQuery query) throws IOException {
-
-            TimestampLogFileLine timestampLogFileLine = timestampLogFileLineAccessor.readLine();
-            Optional<Timestamp> timestamp = timestampLogFileLine.getTimestamp();
-            Optional<String> logFileLine = timestampLogFileLine.getLogFileLine();
-
-            String result = "";
-            if (timestamp.isPresent()) {
-              List<String> parts = new ArrayList<>();
-              for (Function<Timestamp, String> format : query.timestampFormats) {
-                parts.add(format.apply(timestamp.get()));
-              }
-              result = String.join(" ", parts);
-            }
-            if (query.appendLogLine) {
-              result += "  ";
-              if (logFileLine.isPresent()) {
-                result += ConsoleNote.removeNotes(logFileLine.get());
-              }
+            @Override
+            public int read(@NonNull char[] cbuf, int off, int len) throws IOException {
+                if (!started) {
+                    timestampLogFileLineAccessor = new TimestampLogFileLineAccessor(build);
+                    linesRead = readToStartLine(query);
+                    endLine = resolveEndLine(query);
+                    started = true;
+                }
+                while (buffer.length() < len) {
+                    Optional<String> nextLine = readNextLine(query);
+                    if (!nextLine.isPresent()) {
+                        break;
+                    }
+                    linesRead++;
+                    if (endLine.isPresent() && linesRead > endLine.get()) {
+                        break;
+                    }
+                    buffer.append(nextLine.get());
+                    buffer.append("\n");
+                }
+                int numRead = new StringReader(buffer.toString()).read(cbuf, off, len);
+                buffer.delete(0, numRead >= 0 ? numRead : buffer.length());
+                return numRead;
             }
 
-            if (!timestamp.isPresent() && !logFileLine.isPresent()) {
-              return Optional.empty();
-            }
-            return Optional.of(result);
-          }
+            private int readToStartLine(TimestampsActionQuery query) throws IOException {
+                int linesToSkip = Math.max(query.startLine - 1, 0);
+                if (query.startLine < 0) {
+                    linesToSkip = timestampLogFileLineAccessor.getLineCount() + query.startLine;
+                }
 
-          @Override
-          public void close() throws IOException {
-            timestampLogFileLineAccessor.close();
-          }
+                for (int line = 0; line < linesToSkip; line++) {
+                    timestampLogFileLineAccessor.skipLine();
+                }
+                return linesToSkip;
+            }
+
+            private Optional<Integer> resolveEndLine(TimestampsActionQuery query) throws IOException {
+                if (query.endLine.isPresent() && query.endLine.get() < 0) {
+                    return Optional.of(timestampLogFileLineAccessor.getLineCount() + query.endLine.get() + 1);
+                }
+                return query.endLine;
+            }
+
+            private Optional<String> readNextLine(TimestampsActionQuery query) throws IOException {
+
+                TimestampLogFileLine timestampLogFileLine = timestampLogFileLineAccessor.readLine();
+                Optional<Timestamp> timestamp = timestampLogFileLine.getTimestamp();
+                Optional<String> logFileLine = timestampLogFileLine.getLogFileLine();
+
+                String result = "";
+                if (timestamp.isPresent()) {
+                    List<String> parts = new ArrayList<>();
+                    for (Function<Timestamp, String> format : query.timestampFormats) {
+                        parts.add(format.apply(timestamp.get()));
+                    }
+                    result = String.join(" ", parts);
+                }
+                if (query.appendLogLine) {
+                    result += "  ";
+                    if (logFileLine.isPresent()) {
+                        result += ConsoleNote.removeNotes(logFileLine.get());
+                    }
+                }
+
+                if (!timestamp.isPresent() && !logFileLine.isPresent()) {
+                    return Optional.empty();
+                }
+                return Optional.of(result);
+            }
+
+            @Override
+            public void close() throws IOException {
+                timestampLogFileLineAccessor.close();
+            }
         };
 
-    return new BufferedReader(reader);
-  }
+        return new BufferedReader(reader);
+    }
 
-  private TimestampsActionOutput() {}
+    private TimestampsActionOutput() {}
 }

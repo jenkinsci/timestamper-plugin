@@ -40,95 +40,94 @@ import org.apache.commons.lang3.time.FastDateFormat;
  */
 public final class SystemTimestampFormat extends TimestampFormat {
 
-  /**
-   * This System property is used to configure the time zone. See the "Change time zone" Jenkins
-   * wiki page.
-   */
-  private static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
+    /**
+     * This System property is used to configure the time zone. See the "Change time zone" Jenkins
+     * wiki page.
+     */
+    private static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
 
-  private final FastDateFormat format;
+    private final FastDateFormat format;
 
-  private final Optional<String> timeZoneId;
+    private final Optional<String> timeZoneId;
 
-  public SystemTimestampFormat(
-      String systemTimeFormat, Optional<String> timeZoneId, Locale locale) {
-    TimeZone timeZone = null;
-    if (timeZoneId.isPresent()) {
-      timeZone = TimeZone.getTimeZone(timeZoneId.get());
-    } else {
-      String timeZoneProperty = System.getProperty(TIME_ZONE_PROPERTY);
-      if (timeZoneProperty != null) {
-        timeZone = TimeZone.getTimeZone(timeZoneProperty);
-      }
-    }
-    try {
-      this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone, locale);
-    } catch (IllegalArgumentException e) {
-      throw new FormatParseException(e);
-    }
-    this.timeZoneId = timeZoneId;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public String apply(@NonNull Timestamp timestamp) {
-    String result = format.format(new Date(timestamp.millisSinceEpoch));
-    return TimestampFormatUtils.sanitize(result);
-  }
-
-  @Override
-  public void validate() throws FormatParseException, InvalidHtmlException {
-    String result;
-    try {
-      result = format.format(new Date(0L));
-    } catch (IllegalArgumentException e) {
-      throw new FormatParseException(e);
+    public SystemTimestampFormat(String systemTimeFormat, Optional<String> timeZoneId, Locale locale) {
+        TimeZone timeZone = null;
+        if (timeZoneId.isPresent()) {
+            timeZone = TimeZone.getTimeZone(timeZoneId.get());
+        } else {
+            String timeZoneProperty = System.getProperty(TIME_ZONE_PROPERTY);
+            if (timeZoneProperty != null) {
+                timeZone = TimeZone.getTimeZone(timeZoneProperty);
+            }
+        }
+        try {
+            this.format = FastDateFormat.getInstance(systemTimeFormat, timeZone, locale);
+        } catch (IllegalArgumentException e) {
+            throw new FormatParseException(e);
+        }
+        this.timeZoneId = timeZoneId;
     }
 
-    String sanitized = TimestampFormatUtils.sanitize(result);
-    if (!sanitized.equals(result)) {
-      throw new InvalidHtmlException();
+    /** {@inheritDoc} */
+    @Override
+    public String apply(@NonNull Timestamp timestamp) {
+        String result = format.format(new Date(timestamp.millisSinceEpoch));
+        return TimestampFormatUtils.sanitize(result);
     }
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String getPlainTextUrl() {
-    String timeParamValue = format.getPattern();
-    timeParamValue = FormatStringUtils.stripHtmlTags(timeParamValue);
-    timeParamValue = FormatStringUtils.trim(timeParamValue);
+    @Override
+    public void validate() throws FormatParseException, InvalidHtmlException {
+        String result;
+        try {
+            result = format.format(new Date(0L));
+        } catch (IllegalArgumentException e) {
+            throw new FormatParseException(e);
+        }
 
-    return "timestamps/?time="
-        + timeParamValue
-        + (timeZoneId.map(s -> "&timeZone=" + s).orElse(""))
-        + "&appendLog"
-        + "&locale="
-        + format.getLocale();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int hashCode() {
-    return Objects.hash(format, timeZoneId);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof SystemTimestampFormat) {
-      SystemTimestampFormat other = (SystemTimestampFormat) obj;
-      return format.equals(other.format) && timeZoneId.equals(other.timeZoneId);
+        String sanitized = TimestampFormatUtils.sanitize(result);
+        if (!sanitized.equals(result)) {
+            throw new InvalidHtmlException();
+        }
     }
-    return false;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("format", format.getPattern())
-        .append("timeZoneId", timeZoneId)
-        .append("locale", format.getLocale())
-        .toString();
-  }
+    /** {@inheritDoc} */
+    @Override
+    public String getPlainTextUrl() {
+        String timeParamValue = format.getPattern();
+        timeParamValue = FormatStringUtils.stripHtmlTags(timeParamValue);
+        timeParamValue = FormatStringUtils.trim(timeParamValue);
+
+        return "timestamps/?time="
+                + timeParamValue
+                + timeZoneId.map(s -> "&timeZone=" + s).orElse("")
+                + "&appendLog"
+                + "&locale="
+                + format.getLocale();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        return Objects.hash(format, timeZoneId);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SystemTimestampFormat) {
+            SystemTimestampFormat other = (SystemTimestampFormat) obj;
+            return format.equals(other.format) && timeZoneId.equals(other.timeZoneId);
+        }
+        return false;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("format", format.getPattern())
+                .append("timeZoneId", timeZoneId)
+                .append("locale", format.getLocale())
+                .toString();
+    }
 }

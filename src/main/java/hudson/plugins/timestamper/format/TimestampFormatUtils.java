@@ -1,15 +1,13 @@
 package hudson.plugins.timestamper.format;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.owasp.html.HtmlSanitizer;
 import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.Sanitizers;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Restricted(NoExternalUse.class)
 public class TimestampFormatUtils {

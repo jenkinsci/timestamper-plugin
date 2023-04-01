@@ -36,67 +36,66 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
  */
 public final class ElapsedTimestampFormat extends TimestampFormat {
 
-  private final String elapsedTimeFormat;
+    private final String elapsedTimeFormat;
 
-  public ElapsedTimestampFormat(String elapsedTimeFormat) {
-    this.elapsedTimeFormat = Objects.requireNonNull(elapsedTimeFormat);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public String apply(@NonNull Timestamp timestamp) {
-    if (timestamp.elapsedMillisKnown) {
-      String result =
-          DurationFormatUtils.formatDuration(timestamp.elapsedMillis, elapsedTimeFormat);
-      return TimestampFormatUtils.sanitize(result);
-    }
-    return "";
-  }
-
-  @Override
-  public void validate() throws FormatParseException, InvalidHtmlException {
-    String result;
-    try {
-      result = DurationFormatUtils.formatDuration(1000L, elapsedTimeFormat);
-    } catch (IllegalArgumentException e) {
-      throw new FormatParseException(e);
+    public ElapsedTimestampFormat(String elapsedTimeFormat) {
+        this.elapsedTimeFormat = Objects.requireNonNull(elapsedTimeFormat);
     }
 
-    String sanitized = TimestampFormatUtils.sanitize(result);
-    if (!sanitized.equals(result)) {
-      throw new InvalidHtmlException();
+    /** {@inheritDoc} */
+    @Override
+    public String apply(@NonNull Timestamp timestamp) {
+        if (timestamp.elapsedMillisKnown) {
+            String result = DurationFormatUtils.formatDuration(timestamp.elapsedMillis, elapsedTimeFormat);
+            return TimestampFormatUtils.sanitize(result);
+        }
+        return "";
     }
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String getPlainTextUrl() {
-    String elapsedParamValue = elapsedTimeFormat;
-    elapsedParamValue = FormatStringUtils.stripHtmlTags(elapsedParamValue);
-    elapsedParamValue = FormatStringUtils.trim(elapsedParamValue);
+    @Override
+    public void validate() throws FormatParseException, InvalidHtmlException {
+        String result;
+        try {
+            result = DurationFormatUtils.formatDuration(1000L, elapsedTimeFormat);
+        } catch (IllegalArgumentException e) {
+            throw new FormatParseException(e);
+        }
 
-    return "timestamps/?elapsed=" + elapsedParamValue + "&appendLog";
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int hashCode() {
-    return elapsedTimeFormat.hashCode();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof ElapsedTimestampFormat) {
-      ElapsedTimestampFormat other = (ElapsedTimestampFormat) obj;
-      return elapsedTimeFormat.equals(other.elapsedTimeFormat);
+        String sanitized = TimestampFormatUtils.sanitize(result);
+        if (!sanitized.equals(result)) {
+            throw new InvalidHtmlException();
+        }
     }
-    return false;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this).append("format", elapsedTimeFormat).toString();
-  }
+    /** {@inheritDoc} */
+    @Override
+    public String getPlainTextUrl() {
+        String elapsedParamValue = elapsedTimeFormat;
+        elapsedParamValue = FormatStringUtils.stripHtmlTags(elapsedParamValue);
+        elapsedParamValue = FormatStringUtils.trim(elapsedParamValue);
+
+        return "timestamps/?elapsed=" + elapsedParamValue + "&appendLog";
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        return elapsedTimeFormat.hashCode();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ElapsedTimestampFormat) {
+            ElapsedTimestampFormat other = (ElapsedTimestampFormat) obj;
+            return elapsedTimeFormat.equals(other.elapsedTimeFormat);
+        }
+        return false;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("format", elapsedTimeFormat).toString();
+    }
 }

@@ -59,123 +59,124 @@ import org.kohsuke.stapler.verb.POST;
 @Symbol({"timestamper", "timestamperConfig"})
 public final class TimestamperConfig extends GlobalConfiguration {
 
-  /**
-   * Get the current Timestamper global configuration.
-   *
-   * @return the Timestamper configuration, or {@code null} if Jenkins has been shut down
-   */
-  public static TimestamperConfig get() {
-    return ExtensionList.lookupSingleton(TimestamperConfig.class);
-  }
-
-  /** The default {@link #timestampFormat}. */
-  private static final String DEFAULT_TIMESTAMP_FORMAT = "'<b>'HH:mm:ss'</b> '";
-
-  /** The default {@link #elapsedTimeFormat}. */
-  private static final String DEFAULT_ELAPSED_TIME_FORMAT = "'<b>'HH:mm:ss.S'</b> '";
-
-  /**
-   * The chosen format for displaying the system clock time, as recognised by {@link
-   * SimpleDateFormat}.
-   */
-  @CheckForNull private String timestampFormat;
-
-  /**
-   * The chosen format for displaying the elapsed time, as recognised by {@link
-   * DurationFormatUtils}.
-   */
-  @CheckForNull private String elapsedTimeFormat;
-
-  /** Whether to activate {@link GlobalDecorator}. */
-  private boolean allPipelines;
-
-  /** Constructor. */
-  public TimestamperConfig() {
-    load();
-  }
-
-  /**
-   * Get the format for displaying the system clock time.
-   *
-   * @return the system clock time format
-   */
-  public String getSystemTimeFormat() {
-    return timestampFormat == null ? DEFAULT_TIMESTAMP_FORMAT : timestampFormat;
-  }
-
-  /**
-   * Set the format for displaying the system clock time.
-   *
-   * @param timestampFormat the system clock time format in {@link SimpleDateFormat} pattern
-   */
-  public void setSystemTimeFormat(@CheckForNull String timestampFormat) {
-    this.timestampFormat = timestampFormat != null ? timestampFormat.trim() : null;
-    save();
-  }
-
-  @POST
-  public FormValidation doCheckSystemTimeFormat(@QueryParameter String systemTimeFormat)
-      throws IOException, ServletException {
-    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-
-    if (Util.fixEmptyAndTrim(systemTimeFormat) == null) {
-      return FormValidation.ok();
+    /**
+     * Get the current Timestamper global configuration.
+     *
+     * @return the Timestamper configuration, or {@code null} if Jenkins has been shut down
+     */
+    public static TimestamperConfig get() {
+        return ExtensionList.lookupSingleton(TimestamperConfig.class);
     }
 
-    return validateFormat(
-        () -> new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.getDefault()));
-  }
+    /** The default {@link #timestampFormat}. */
+    private static final String DEFAULT_TIMESTAMP_FORMAT = "'<b>'HH:mm:ss'</b> '";
 
-  /**
-   * Get the format for displaying the elapsed time.
-   *
-   * @return the elapsed time format
-   */
-  public String getElapsedTimeFormat() {
-    return elapsedTimeFormat == null ? DEFAULT_ELAPSED_TIME_FORMAT : elapsedTimeFormat;
-  }
+    /** The default {@link #elapsedTimeFormat}. */
+    private static final String DEFAULT_ELAPSED_TIME_FORMAT = "'<b>'HH:mm:ss.S'</b> '";
 
-  /**
-   * Set the format for displaying the elapsed time.
-   *
-   * @param elapsedTimeFormat the elapsed time format in {@link DurationFormatUtils} pattern
-   */
-  public void setElapsedTimeFormat(@CheckForNull String elapsedTimeFormat) {
-    this.elapsedTimeFormat = elapsedTimeFormat != null ? elapsedTimeFormat.trim() : null;
-    save();
-  }
+    /**
+     * The chosen format for displaying the system clock time, as recognised by {@link
+     * SimpleDateFormat}.
+     */
+    @CheckForNull
+    private String timestampFormat;
 
-  @POST
-  public FormValidation doCheckElapsedTimeFormat(@QueryParameter String elapsedTimeFormat)
-      throws IOException, ServletException {
-    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+    /**
+     * The chosen format for displaying the elapsed time, as recognised by {@link
+     * DurationFormatUtils}.
+     */
+    @CheckForNull
+    private String elapsedTimeFormat;
 
-    if (Util.fixEmptyAndTrim(elapsedTimeFormat) == null) {
-      return FormValidation.ok();
+    /** Whether to activate {@link GlobalDecorator}. */
+    private boolean allPipelines;
+
+    /** Constructor. */
+    public TimestamperConfig() {
+        load();
     }
 
-    return validateFormat(() -> new ElapsedTimestampFormat(elapsedTimeFormat));
-  }
-
-  /** Validates the given input using the given {@link TimestampFormat}. */
-  private static FormValidation validateFormat(@NonNull Supplier<TimestampFormat> formatSupplier) {
-    try {
-      TimestampFormat format = formatSupplier.get();
-      format.validate();
-      return FormValidation.ok();
-    } catch (FormatParseException e) {
-      return FormValidation.error("Error parsing format");
-    } catch (InvalidHtmlException e) {
-      return FormValidation.error("Invalid HTML");
+    /**
+     * Get the format for displaying the system clock time.
+     *
+     * @return the system clock time format
+     */
+    public String getSystemTimeFormat() {
+        return timestampFormat == null ? DEFAULT_TIMESTAMP_FORMAT : timestampFormat;
     }
-  }
 
-  public boolean isAllPipelines() {
-    return allPipelines;
-  }
+    /**
+     * Set the format for displaying the system clock time.
+     *
+     * @param timestampFormat the system clock time format in {@link SimpleDateFormat} pattern
+     */
+    public void setSystemTimeFormat(@CheckForNull String timestampFormat) {
+        this.timestampFormat = timestampFormat != null ? timestampFormat.trim() : null;
+        save();
+    }
 
-  public void setAllPipelines(boolean allPipelines) {
-    this.allPipelines = allPipelines;
-    save();
-  }
+    @POST
+    public FormValidation doCheckSystemTimeFormat(@QueryParameter String systemTimeFormat)
+            throws IOException, ServletException {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+
+        if (Util.fixEmptyAndTrim(systemTimeFormat) == null) {
+            return FormValidation.ok();
+        }
+
+        return validateFormat(() -> new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.getDefault()));
+    }
+
+    /**
+     * Get the format for displaying the elapsed time.
+     *
+     * @return the elapsed time format
+     */
+    public String getElapsedTimeFormat() {
+        return elapsedTimeFormat == null ? DEFAULT_ELAPSED_TIME_FORMAT : elapsedTimeFormat;
+    }
+
+    /**
+     * Set the format for displaying the elapsed time.
+     *
+     * @param elapsedTimeFormat the elapsed time format in {@link DurationFormatUtils} pattern
+     */
+    public void setElapsedTimeFormat(@CheckForNull String elapsedTimeFormat) {
+        this.elapsedTimeFormat = elapsedTimeFormat != null ? elapsedTimeFormat.trim() : null;
+        save();
+    }
+
+    @POST
+    public FormValidation doCheckElapsedTimeFormat(@QueryParameter String elapsedTimeFormat)
+            throws IOException, ServletException {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+
+        if (Util.fixEmptyAndTrim(elapsedTimeFormat) == null) {
+            return FormValidation.ok();
+        }
+
+        return validateFormat(() -> new ElapsedTimestampFormat(elapsedTimeFormat));
+    }
+
+    /** Validates the given input using the given {@link TimestampFormat}. */
+    private static FormValidation validateFormat(@NonNull Supplier<TimestampFormat> formatSupplier) {
+        try {
+            TimestampFormat format = formatSupplier.get();
+            format.validate();
+            return FormValidation.ok();
+        } catch (FormatParseException e) {
+            return FormValidation.error("Error parsing format");
+        } catch (InvalidHtmlException e) {
+            return FormValidation.error("Invalid HTML");
+        }
+    }
+
+    public boolean isAllPipelines() {
+        return allPipelines;
+    }
+
+    public void setAllPipelines(boolean allPipelines) {
+        this.allPipelines = allPipelines;
+        save();
+    }
 }

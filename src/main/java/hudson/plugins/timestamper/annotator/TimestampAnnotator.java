@@ -45,67 +45,69 @@ import java.util.logging.Logger;
  */
 public final class TimestampAnnotator extends ConsoleAnnotator<Run<?, ?>> {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private static final Logger LOGGER = Logger.getLogger(TimestampAnnotator.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TimestampAnnotator.class.getName());
 
-  private final ConsoleLogParser logParser;
+    private final ConsoleLogParser logParser;
 
-  @CheckForNull private TimestampsReader timestampsReader;
+    @CheckForNull
+    private TimestampsReader timestampsReader;
 
-  @CheckForNull private transient TimestampFormat format;
+    @CheckForNull
+    private transient TimestampFormat format;
 
-  /**
-   * Create a new {@link TimestampAnnotator}.
-   *
-   * @param logParser the console log parser
-   */
-  TimestampAnnotator(ConsoleLogParser logParser) {
-    this.logParser = Objects.requireNonNull(logParser);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public ConsoleAnnotator<Run<?, ?>> annotate(@NonNull Run<?, ?> build, @NonNull MarkupText text) {
-    try {
-      if (timestampsReader == null) {
-        ConsoleLogParser.Result logPosition = logParser.seek(build);
-        if (logPosition.endOfFile) {
-          return null; // do not annotate the following lines
-        }
-
-        if (logPosition.lineNumber < 0) {
-          try (TimestampsReader temporaryTimestampsReader = new TimestampsReader(build)) {
-            logPosition.lineNumber = temporaryTimestampsReader.getAbs(logPosition.lineNumber);
-          }
-        }
-
-        timestampsReader = new TimestampsReader(build);
-        timestampsReader.skip(logPosition.lineNumber);
-        Optional<Timestamp> timestamp = timestampsReader.read();
-        if (logPosition.atNewLine && timestamp.isPresent()) {
-          markup(text, timestamp.get());
-        }
-        return this;
-      }
-      Optional<Timestamp> timestamp = timestampsReader.read();
-      if (timestamp.isPresent()) {
-        markup(text, timestamp.get());
-        return this;
-      }
-    } catch (IOException ex) {
-      LOGGER.log(Level.WARNING, "Error reading timestamps for " + build.getFullDisplayName(), ex);
+    /**
+     * Create a new {@link TimestampAnnotator}.
+     *
+     * @param logParser the console log parser
+     */
+    TimestampAnnotator(ConsoleLogParser logParser) {
+        this.logParser = Objects.requireNonNull(logParser);
     }
-    if (timestampsReader != null) {
-      timestampsReader.close();
-    }
-    return null; // do not annotate the following lines
-  }
 
-  private void markup(MarkupText text, Timestamp timestamp) {
-    if (format == null) {
-      format = TimestampFormatProvider.get();
+    /** {@inheritDoc} */
+    @Override
+    public ConsoleAnnotator<Run<?, ?>> annotate(@NonNull Run<?, ?> build, @NonNull MarkupText text) {
+        try {
+            if (timestampsReader == null) {
+                ConsoleLogParser.Result logPosition = logParser.seek(build);
+                if (logPosition.endOfFile) {
+                    return null; // do not annotate the following lines
+                }
+
+                if (logPosition.lineNumber < 0) {
+                    try (TimestampsReader temporaryTimestampsReader = new TimestampsReader(build)) {
+                        logPosition.lineNumber = temporaryTimestampsReader.getAbs(logPosition.lineNumber);
+                    }
+                }
+
+                timestampsReader = new TimestampsReader(build);
+                timestampsReader.skip(logPosition.lineNumber);
+                Optional<Timestamp> timestamp = timestampsReader.read();
+                if (logPosition.atNewLine && timestamp.isPresent()) {
+                    markup(text, timestamp.get());
+                }
+                return this;
+            }
+            Optional<Timestamp> timestamp = timestampsReader.read();
+            if (timestamp.isPresent()) {
+                markup(text, timestamp.get());
+                return this;
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "Error reading timestamps for " + build.getFullDisplayName(), ex);
+        }
+        if (timestampsReader != null) {
+            timestampsReader.close();
+        }
+        return null; // do not annotate the following lines
     }
-    format.markup(text, timestamp);
-  }
+
+    private void markup(MarkupText text, Timestamp timestamp) {
+        if (format == null) {
+            format = TimestampFormatProvider.get();
+        }
+        format.markup(text, timestamp);
+    }
 }

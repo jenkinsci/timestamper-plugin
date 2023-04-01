@@ -39,97 +39,97 @@ import java.util.logging.Logger;
  */
 final class TimestamperOutputStream extends OutputStream {
 
-  private static final Logger LOGGER = Logger.getLogger(TimestamperOutputStream.class.getName());
-  public static final byte NEWLINE = (byte) 0x0A;
+    private static final Logger LOGGER = Logger.getLogger(TimestamperOutputStream.class.getName());
+    public static final byte NEWLINE = (byte) 0x0A;
 
-  /** The delegate output stream. */
-  private final OutputStream delegate;
+    /** The delegate output stream. */
+    private final OutputStream delegate;
 
-  /** Writer for the time-stamps. */
-  private final TimestampsWriter timestampsWriter;
+    /** Writer for the time-stamps. */
+    private final TimestampsWriter timestampsWriter;
 
-  /** Byte array that is re-used each time the {@link #write(int)} method is called. */
-  private final byte[] oneElementByteArray = new byte[1];
+    /** Byte array that is re-used each time the {@link #write(int)} method is called. */
+    private final byte[] oneElementByteArray = new byte[1];
 
-  /** The last processed character, or {@code Integer.MIN_VALUE} for the start of the stream. */
-  private int previousCharacter = Integer.MIN_VALUE;
+    /** The last processed character, or {@code Integer.MIN_VALUE} for the start of the stream. */
+    private int previousCharacter = Integer.MIN_VALUE;
 
-  /** Set to {@code true} when an error occurs while writing the time-stamps. */
-  private boolean writeError;
+    /** Set to {@code true} when an error occurs while writing the time-stamps. */
+    private boolean writeError;
 
-  /**
-   * Create a new {@link TimestamperOutputStream}.
-   *
-   * @param delegate the delegate output stream
-   * @param timestampsWriter will be used by this output stream to write the time-stamps and closed
-   *     when the {@link #close()} method is called
-   */
-  TimestamperOutputStream(OutputStream delegate, TimestampsWriter timestampsWriter) {
-    this.delegate = Objects.requireNonNull(delegate);
-    this.timestampsWriter = Objects.requireNonNull(timestampsWriter);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void write(int b) throws IOException {
-    oneElementByteArray[0] = (byte) b;
-    writeTimestamps(oneElementByteArray, 0, 1);
-    delegate.write(b);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void write(@NonNull byte[] b) throws IOException {
-    writeTimestamps(b, 0, b.length);
-    delegate.write(b);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void write(@NonNull byte[] b, int off, int len) throws IOException {
-    writeTimestamps(b, off, len);
-    delegate.write(b, off, len);
-  }
-
-  private void writeTimestamps(byte[] b, int off, int len) {
-    int lineStartCount = 0;
-    for (int i = off; i < off + len; i++) {
-      if (previousCharacter == Integer.MIN_VALUE || previousCharacter == NEWLINE) {
-        lineStartCount++;
-      }
-      previousCharacter = b[i];
+    /**
+     * Create a new {@link TimestamperOutputStream}.
+     *
+     * @param delegate the delegate output stream
+     * @param timestampsWriter will be used by this output stream to write the time-stamps and closed
+     *     when the {@link #close()} method is called
+     */
+    TimestamperOutputStream(OutputStream delegate, TimestampsWriter timestampsWriter) {
+        this.delegate = Objects.requireNonNull(delegate);
+        this.timestampsWriter = Objects.requireNonNull(timestampsWriter);
     }
 
-    if (lineStartCount > 0 && !writeError) {
-      long currentTimeMillis = System.currentTimeMillis();
-      try {
-        timestampsWriter.write(currentTimeMillis, lineStartCount);
-      } catch (IOException ex) {
-        writeError = true;
-        LOGGER.log(Level.WARNING, "Error writing timestamps", ex);
-      }
-    }
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void flush() throws IOException {
-    delegate.flush();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void close() throws IOException {
-    try {
-      timestampsWriter.close();
-
-      if (!writeError) {
-        timestampsWriter.writeDigest();
-      }
-    } catch (IOException ex) {
-      LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+    /** {@inheritDoc} */
+    @Override
+    public void write(int b) throws IOException {
+        oneElementByteArray[0] = (byte) b;
+        writeTimestamps(oneElementByteArray, 0, 1);
+        delegate.write(b);
     }
 
-    delegate.close();
-  }
+    /** {@inheritDoc} */
+    @Override
+    public void write(@NonNull byte[] b) throws IOException {
+        writeTimestamps(b, 0, b.length);
+        delegate.write(b);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void write(@NonNull byte[] b, int off, int len) throws IOException {
+        writeTimestamps(b, off, len);
+        delegate.write(b, off, len);
+    }
+
+    private void writeTimestamps(byte[] b, int off, int len) {
+        int lineStartCount = 0;
+        for (int i = off; i < off + len; i++) {
+            if (previousCharacter == Integer.MIN_VALUE || previousCharacter == NEWLINE) {
+                lineStartCount++;
+            }
+            previousCharacter = b[i];
+        }
+
+        if (lineStartCount > 0 && !writeError) {
+            long currentTimeMillis = System.currentTimeMillis();
+            try {
+                timestampsWriter.write(currentTimeMillis, lineStartCount);
+            } catch (IOException ex) {
+                writeError = true;
+                LOGGER.log(Level.WARNING, "Error writing timestamps", ex);
+            }
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void flush() throws IOException {
+        delegate.flush();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void close() throws IOException {
+        try {
+            timestampsWriter.close();
+
+            if (!writeError) {
+                timestampsWriter.writeDigest();
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+        }
+
+        delegate.close();
+    }
 }

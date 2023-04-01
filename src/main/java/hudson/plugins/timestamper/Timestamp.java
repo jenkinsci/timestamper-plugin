@@ -35,62 +35,62 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 @Immutable
 public final class Timestamp {
 
-  /** The elapsed time in milliseconds since the start of the build. */
-  public final long elapsedMillis;
+    /** The elapsed time in milliseconds since the start of the build. */
+    public final long elapsedMillis;
 
-  /** Whether the elapsed time is known. */
-  public final boolean elapsedMillisKnown;
+    /** Whether the elapsed time is known. */
+    public final boolean elapsedMillisKnown;
 
-  /** The clock time in milliseconds since midnight, January 1, 1970 UTC. */
-  public final long millisSinceEpoch;
+    /** The clock time in milliseconds since midnight, January 1, 1970 UTC. */
+    public final long millisSinceEpoch;
 
-  /**
-   * Create a {@link Timestamp}.
-   *
-   * @param elapsedMillis the elapsed time in milliseconds since the start of the build
-   * @param millisSinceEpoch the clock time in milliseconds since midnight, January 1, 1970 UTC
-   */
-  public Timestamp(long elapsedMillis, long millisSinceEpoch) {
-    this(Long.valueOf(elapsedMillis), millisSinceEpoch);
-  }
-
-  /**
-   * Create a {@link Timestamp}.
-   *
-   * @param elapsedMillis the elapsed time in milliseconds since the start of the build (null if
-   *     unknown)
-   * @param millisSinceEpoch the clock time in milliseconds since midnight, January 1, 1970 UTC
-   */
-  public Timestamp(Long elapsedMillis, long millisSinceEpoch) {
-    this.elapsedMillis = (elapsedMillis == null ? 0 : elapsedMillis);
-    this.elapsedMillisKnown = (elapsedMillis != null);
-    this.millisSinceEpoch = millisSinceEpoch;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int hashCode() {
-    return Objects.hash(elapsedMillis, elapsedMillisKnown, millisSinceEpoch);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof Timestamp) {
-      Timestamp other = (Timestamp) obj;
-      return elapsedMillis == other.elapsedMillis
-          && elapsedMillisKnown == other.elapsedMillisKnown
-          && millisSinceEpoch == other.millisSinceEpoch;
+    /**
+     * Create a {@link Timestamp}.
+     *
+     * @param elapsedMillis the elapsed time in milliseconds since the start of the build
+     * @param millisSinceEpoch the clock time in milliseconds since midnight, January 1, 1970 UTC
+     */
+    public Timestamp(long elapsedMillis, long millisSinceEpoch) {
+        this(Long.valueOf(elapsedMillis), millisSinceEpoch);
     }
-    return false;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("elapsedMillis", elapsedMillisKnown ? elapsedMillis : "(unknown)")
-        .append("millisSinceEpoch", millisSinceEpoch)
-        .toString();
-  }
+    /**
+     * Create a {@link Timestamp}.
+     *
+     * @param elapsedMillis the elapsed time in milliseconds since the start of the build (null if
+     *     unknown)
+     * @param millisSinceEpoch the clock time in milliseconds since midnight, January 1, 1970 UTC
+     */
+    public Timestamp(Long elapsedMillis, long millisSinceEpoch) {
+        this.elapsedMillis = elapsedMillis == null ? 0 : elapsedMillis;
+        this.elapsedMillisKnown = elapsedMillis != null;
+        this.millisSinceEpoch = millisSinceEpoch;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        return Objects.hash(elapsedMillis, elapsedMillisKnown, millisSinceEpoch);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Timestamp) {
+            Timestamp other = (Timestamp) obj;
+            return elapsedMillis == other.elapsedMillis
+                    && elapsedMillisKnown == other.elapsedMillisKnown
+                    && millisSinceEpoch == other.millisSinceEpoch;
+        }
+        return false;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("elapsedMillis", elapsedMillisKnown ? elapsedMillis : "(unknown)")
+                .append("millisSinceEpoch", millisSinceEpoch)
+                .toString();
+    }
 }

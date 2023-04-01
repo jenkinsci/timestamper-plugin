@@ -56,80 +56,80 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public final class TimestampNote extends ConsoleNote<Object> {
 
-  /** Serialization UID. */
-  private static final long serialVersionUID = 1L;
+    /** Serialization UID. */
+    private static final long serialVersionUID = 1L;
 
-  /**
-   * Get the system property which will cause these console notes to be inserted into the console
-   * log file.
-   *
-   * @return the system property
-   */
-  public static String getSystemProperty() {
-    return "timestamper-consolenotes";
-  }
-
-  /** @return whether time-stamp notes apply to that type of build */
-  public static boolean useTimestampNotes(Class<?> buildClass) {
-    return !AbstractBuild.class.isAssignableFrom(buildClass);
-  }
-
-  /**
-   * The elapsed time in milliseconds since the start of the build.
-   *
-   * @since 1.7.4
-   */
-  private final Long elapsedMillis;
-
-  /** Milliseconds since the epoch. */
-  private final long millisSinceEpoch;
-
-  /**
-   * Create a new {@link TimestampNote}.
-   *
-   * @param elapsedMillis the elapsed time in milliseconds since the start of the build
-   * @param millisSinceEpoch milliseconds since the epoch
-   */
-  public TimestampNote(long elapsedMillis, long millisSinceEpoch) {
-    this.elapsedMillis = elapsedMillis;
-    this.millisSinceEpoch = millisSinceEpoch;
-  }
-
-  /**
-   * Get the time-stamp recorded by this console note.
-   *
-   * @param context the object that owns the console output in question
-   * @return the time-stamp
-   */
-  public Timestamp getTimestamp(Object context) {
-    if (elapsedMillis == null && context instanceof Run<?, ?>) {
-      // The elapsed time can be determined by using the build start time
-      Run<?, ?> build = (Run<?, ?>) context;
-      long buildStartTime = build.getStartTimeInMillis();
-      return new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+    /**
+     * Get the system property which will cause these console notes to be inserted into the console
+     * log file.
+     *
+     * @return the system property
+     */
+    public static String getSystemProperty() {
+        return "timestamper-consolenotes";
     }
-    // Use the elapsed time recorded in this console note, if known
-    return new Timestamp(elapsedMillis, millisSinceEpoch);
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public ConsoleAnnotator<Object> annotate(Object context, MarkupText text, int charPos) {
-    TimestampFormat format = TimestampFormatProvider.get();
-    Timestamp timestamp = getTimestamp(context);
-    format.markup(text, timestamp);
-    if (!(context instanceof Run<?, ?>)) {
-      text.addMarkup(0, "<style>.timestamper-plain-text {visibility: hidden;}</style>");
+    /** @return whether time-stamp notes apply to that type of build */
+    public static boolean useTimestampNotes(Class<?> buildClass) {
+        return !AbstractBuild.class.isAssignableFrom(buildClass);
     }
-    return null; // each time-stamp note affects one line only
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-        .append("elapsedMillis", elapsedMillis)
-        .append("millisSinceEpoch", millisSinceEpoch)
-        .toString();
-  }
+    /**
+     * The elapsed time in milliseconds since the start of the build.
+     *
+     * @since 1.7.4
+     */
+    private final Long elapsedMillis;
+
+    /** Milliseconds since the epoch. */
+    private final long millisSinceEpoch;
+
+    /**
+     * Create a new {@link TimestampNote}.
+     *
+     * @param elapsedMillis the elapsed time in milliseconds since the start of the build
+     * @param millisSinceEpoch milliseconds since the epoch
+     */
+    public TimestampNote(long elapsedMillis, long millisSinceEpoch) {
+        this.elapsedMillis = elapsedMillis;
+        this.millisSinceEpoch = millisSinceEpoch;
+    }
+
+    /**
+     * Get the time-stamp recorded by this console note.
+     *
+     * @param context the object that owns the console output in question
+     * @return the time-stamp
+     */
+    public Timestamp getTimestamp(Object context) {
+        if (elapsedMillis == null && context instanceof Run<?, ?>) {
+            // The elapsed time can be determined by using the build start time
+            Run<?, ?> build = (Run<?, ?>) context;
+            long buildStartTime = build.getStartTimeInMillis();
+            return new Timestamp(millisSinceEpoch - buildStartTime, millisSinceEpoch);
+        }
+        // Use the elapsed time recorded in this console note, if known
+        return new Timestamp(elapsedMillis, millisSinceEpoch);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public ConsoleAnnotator<Object> annotate(Object context, MarkupText text, int charPos) {
+        TimestampFormat format = TimestampFormatProvider.get();
+        Timestamp timestamp = getTimestamp(context);
+        format.markup(text, timestamp);
+        if (!(context instanceof Run<?, ?>)) {
+            text.addMarkup(0, "<style>.timestamper-plain-text {visibility: hidden;}</style>");
+        }
+        return null; // each time-stamp note affects one line only
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("elapsedMillis", elapsedMillis)
+                .append("millisSinceEpoch", millisSinceEpoch)
+                .toString();
+    }
 }

@@ -47,142 +47,142 @@ import org.junit.Test;
  */
 public class TimestamperOutputStreamTest {
 
-  private static final char NEWLINE = 0x0A;
+    private static final char NEWLINE = 0x0A;
 
-  private OutputStream delegate;
+    private OutputStream delegate;
 
-  private TimestampsWriter writer;
+    private TimestampsWriter writer;
 
-  private OutputStream timestamperOutputStream;
+    private OutputStream timestamperOutputStream;
 
-  private byte[] data;
+    private byte[] data;
 
-  private byte[] dataTwoLines;
+    private byte[] dataTwoLines;
 
-  @Before
-  public void setUp() {
-    delegate = mock(OutputStream.class);
-    writer = mock(TimestampsWriter.class);
-    timestamperOutputStream = new TimestamperOutputStream(delegate, writer);
-    data = new byte[] {'a', (byte) NEWLINE};
-    dataTwoLines = new byte[] {'a', (byte) NEWLINE, 'b', (byte) NEWLINE};
-  }
+    @Before
+    public void setUp() {
+        delegate = mock(OutputStream.class);
+        writer = mock(TimestampsWriter.class);
+        timestamperOutputStream = new TimestamperOutputStream(delegate, writer);
+        data = new byte[] {'a', (byte) NEWLINE};
+        dataTwoLines = new byte[] {'a', (byte) NEWLINE, 'b', (byte) NEWLINE};
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    timestamperOutputStream.close();
-  }
+    @After
+    public void tearDown() throws Exception {
+        timestamperOutputStream.close();
+    }
 
-  @Test
-  public void testPassThroughWriteByteArray() throws Exception {
-    timestamperOutputStream.write(data);
-    verify(delegate).write(data);
-  }
+    @Test
+    public void testPassThroughWriteByteArray() throws Exception {
+        timestamperOutputStream.write(data);
+        verify(delegate).write(data);
+    }
 
-  @Test
-  public void testPassThroughWriteByteArrayWithOffset() throws Exception {
-    timestamperOutputStream.write(data, 0, 1);
-    verify(delegate).write(data, 0, 1);
-  }
+    @Test
+    public void testPassThroughWriteByteArrayWithOffset() throws Exception {
+        timestamperOutputStream.write(data, 0, 1);
+        verify(delegate).write(data, 0, 1);
+    }
 
-  @Test
-  public void testPassThroughWriteByte() throws Exception {
-    timestamperOutputStream.write(42);
-    verify(delegate).write(42);
-  }
+    @Test
+    public void testPassThroughWriteByte() throws Exception {
+        timestamperOutputStream.write(42);
+        verify(delegate).write(42);
+    }
 
-  @Test
-  public void testPassThroughFlush() throws Exception {
-    timestamperOutputStream.flush();
-    verify(delegate).flush();
-  }
+    @Test
+    public void testPassThroughFlush() throws Exception {
+        timestamperOutputStream.flush();
+        verify(delegate).flush();
+    }
 
-  @Test
-  public void testPassThroughClose() throws Exception {
-    timestamperOutputStream.close();
-    verify(delegate).close();
-  }
+    @Test
+    public void testPassThroughClose() throws Exception {
+        timestamperOutputStream.close();
+        verify(delegate).close();
+    }
 
-  @Test
-  public void testWriteIntOneCharacter() throws Exception {
-    timestamperOutputStream.write('a');
-    verify(writer).write(anyLong(), eq(1));
-  }
+    @Test
+    public void testWriteIntOneCharacter() throws Exception {
+        timestamperOutputStream.write('a');
+        verify(writer).write(anyLong(), eq(1));
+    }
 
-  @Test
-  public void testWriteIntOneLine() throws Exception {
-    timestamperOutputStream.write('a');
-    timestamperOutputStream.write(NEWLINE);
-    verify(writer).write(anyLong(), eq(1));
-  }
+    @Test
+    public void testWriteIntOneLine() throws Exception {
+        timestamperOutputStream.write('a');
+        timestamperOutputStream.write(NEWLINE);
+        verify(writer).write(anyLong(), eq(1));
+    }
 
-  @Test
-  public void testWriteIntTwoLines() throws Exception {
-    timestamperOutputStream.write('a');
-    timestamperOutputStream.write(NEWLINE);
-    timestamperOutputStream.write('b');
-    verify(writer, times(2)).write(anyLong(), eq(1));
-  }
+    @Test
+    public void testWriteIntTwoLines() throws Exception {
+        timestamperOutputStream.write('a');
+        timestamperOutputStream.write(NEWLINE);
+        timestamperOutputStream.write('b');
+        verify(writer, times(2)).write(anyLong(), eq(1));
+    }
 
-  @Test
-  public void unicode() throws Exception {
-    String symbol = "Envoi d'une requˆte 'Ping'  127.0.0.1 avec 32 octets de donn‚esÿ:";
-    timestamperOutputStream.write(symbol.getBytes(Charset.forName("Windows-1252")));
-    timestamperOutputStream.write(NEWLINE);
-    timestamperOutputStream.write('b');
-    verify(writer, times(2)).write(anyLong(), eq(1));
-  }
+    @Test
+    public void unicode() throws Exception {
+        String symbol = "Envoi d'une requˆte 'Ping'  127.0.0.1 avec 32 octets de donn‚esÿ:";
+        timestamperOutputStream.write(symbol.getBytes(Charset.forName("Windows-1252")));
+        timestamperOutputStream.write(NEWLINE);
+        timestamperOutputStream.write('b');
+        verify(writer, times(2)).write(anyLong(), eq(1));
+    }
 
-  @Test
-  public void testWriteByteArray() throws Exception {
-    timestamperOutputStream.write(data);
-    verify(writer).write(anyLong(), eq(1));
-  }
+    @Test
+    public void testWriteByteArray() throws Exception {
+        timestamperOutputStream.write(data);
+        verify(writer).write(anyLong(), eq(1));
+    }
 
-  @Test
-  public void testWriteByteArrayTwoLines() throws Exception {
-    timestamperOutputStream.write(dataTwoLines);
-    verify(writer).write(anyLong(), eq(2));
-  }
+    @Test
+    public void testWriteByteArrayTwoLines() throws Exception {
+        timestamperOutputStream.write(dataTwoLines);
+        verify(writer).write(anyLong(), eq(2));
+    }
 
-  @Test
-  public void testWriteByteArraySegment() throws Exception {
-    timestamperOutputStream.write(dataTwoLines, 0, data.length);
-    verify(writer).write(anyLong(), eq(1));
-  }
+    @Test
+    public void testWriteByteArraySegment() throws Exception {
+        timestamperOutputStream.write(dataTwoLines, 0, data.length);
+        verify(writer).write(anyLong(), eq(1));
+    }
 
-  @Test
-  public void testWriteByteArraySegmentTwoLines() throws Exception {
-    timestamperOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
-    verify(writer).write(anyLong(), eq(2));
-  }
+    @Test
+    public void testWriteByteArraySegmentTwoLines() throws Exception {
+        timestamperOutputStream.write(dataTwoLines, 0, dataTwoLines.length);
+        verify(writer).write(anyLong(), eq(2));
+    }
 
-  @Test
-  public void testNoWritesAfterError() throws Exception {
-    doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
-    timestamperOutputStream.write(data);
-    timestamperOutputStream.write(data);
-    verify(writer, times(1)).write(anyLong(), anyInt());
-  }
+    @Test
+    public void testNoWritesAfterError() throws Exception {
+        doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
+        timestamperOutputStream.write(data);
+        timestamperOutputStream.write(data);
+        verify(writer, times(1)).write(anyLong(), anyInt());
+    }
 
-  @Test
-  public void testWriteDigest() throws Exception {
-    timestamperOutputStream.close();
-    verify(writer).writeDigest();
-  }
+    @Test
+    public void testWriteDigest() throws Exception {
+        timestamperOutputStream.close();
+        verify(writer).writeDigest();
+    }
 
-  @Test
-  public void testNoDigestAfterWriteError() throws Exception {
-    doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
-    timestamperOutputStream.write(data);
-    timestamperOutputStream.close();
-    verify(writer, never()).writeDigest();
-  }
+    @Test
+    public void testNoDigestAfterWriteError() throws Exception {
+        doThrow(new IOException()).when(writer).write(anyLong(), anyInt());
+        timestamperOutputStream.write(data);
+        timestamperOutputStream.close();
+        verify(writer, never()).writeDigest();
+    }
 
-  @Test
-  public void testNoDigestAfterCloseError() throws Exception {
-    doThrow(new IOException()).when(writer).close();
-    timestamperOutputStream.close();
-    verify(writer, never()).writeDigest();
-  }
+    @Test
+    public void testNoDigestAfterCloseError() throws Exception {
+        doThrow(new IOException()).when(writer).close();
+        timestamperOutputStream.close();
+        verify(writer, never()).writeDigest();
+    }
 }

@@ -44,40 +44,41 @@ import org.junit.rules.TemporaryFolder;
  */
 public class TimestampsIOTest {
 
-  @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
-  private Run<?, ?> build;
+    private Run<?, ?> build;
 
-  private TimestampsWriter writer;
+    private TimestampsWriter writer;
 
-  private TimestampsReader reader;
+    private TimestampsReader reader;
 
-  @Before
-  public void setUp() throws Exception {
-    build = mock(Run.class);
-    when(build.getRootDir()).thenReturn(folder.getRoot());
-    when(build.getStartTimeInMillis()).thenReturn(1L);
+    @Before
+    public void setUp() throws Exception {
+        build = mock(Run.class);
+        when(build.getRootDir()).thenReturn(folder.getRoot());
+        when(build.getStartTimeInMillis()).thenReturn(1L);
 
-    reader = new TimestampsReader(build);
-    writer = new TimestampsWriter(build);
-  }
+        reader = new TimestampsReader(build);
+        writer = new TimestampsWriter(build);
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    reader.close();
-    writer.close();
-  }
+    @After
+    public void tearDown() throws Exception {
+        reader.close();
+        writer.close();
+    }
 
-  @Test
-  public void testReadFromStartWhileWriting() throws Exception {
-    writer.write(2, 1);
-    assertThat(reader.read(), is(Optional.of(new Timestamp(1, 2))));
-    writer.write(3, 1);
-    assertThat(reader.read(), is(Optional.of(new Timestamp(2, 3))));
-    writer.write(4, 2);
-    assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
-    assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
-    writer.write(5, 1);
-    assertThat(reader.read(), is(Optional.of(new Timestamp(4, 5))));
-  }
+    @Test
+    public void testReadFromStartWhileWriting() throws Exception {
+        writer.write(2, 1);
+        assertThat(reader.read(), is(Optional.of(new Timestamp(1, 2))));
+        writer.write(3, 1);
+        assertThat(reader.read(), is(Optional.of(new Timestamp(2, 3))));
+        writer.write(4, 2);
+        assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
+        assertThat(reader.read(), is(Optional.of(new Timestamp(3, 4))));
+        writer.write(5, 1);
+        assertThat(reader.read(), is(Optional.of(new Timestamp(4, 5))));
+    }
 }

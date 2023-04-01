@@ -1,11 +1,9 @@
 package hudson.plugins.timestamper.accessor;
 
 import hudson.plugins.timestamper.Timestamp;
-
+import java.util.Optional;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
-
-import java.util.Optional;
 
 /**
  * Value class representing a single record in the abstract, regardless of how the storage of that
