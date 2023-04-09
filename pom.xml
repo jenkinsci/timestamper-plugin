@@ -1,199 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>4.58</version>
-        <relativePath />
-    </parent>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>4.59</version>
+    <relativePath />
+  </parent>
 
-    <artifactId>timestamper</artifactId>
-    <version>${revision}${changelist}</version>
-    <packaging>hpi</packaging>
+  <artifactId>timestamper</artifactId>
+  <version>${revision}${changelist}</version>
+  <packaging>hpi</packaging>
 
-    <name>Timestamper</name>
-    <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+  <name>Timestamper</name>
+  <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
-    <licenses>
-        <license>
-            <name>The MIT License (MIT)</name>
-            <url>https://opensource.org/licenses/MIT</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
-    <developers>
-        <developer>
-            <id>basil</id>
-            <name>Basil Crow</name>
-        </developer>
-        <developer>
-            <id>stevengbrown</id>
-            <name>Steven Brown</name>
-            <email>StevenGBrown@gmail.com</email>
-        </developer>
-        <developer>
-            <id>jglick</id>
-            <name>Jesse Glick</name>
-        </developer>
-    </developers>
+  <developers>
+    <developer>
+      <id>basil</id>
+      <name>Basil Crow</name>
+    </developer>
+    <developer>
+      <id>stevengbrown</id>
+      <name>Steven Brown</name>
+      <email>StevenGBrown@gmail.com</email>
+    </developer>
+    <developer>
+      <id>jglick</id>
+      <name>Jesse Glick</name>
+    </developer>
+  </developers>
 
-    <scm>
-        <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
-        <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
-        <tag>${scmTag}</tag>
-        <url>https://github.com/${gitHubRepo}</url>
-    </scm>
+  <scm>
+    <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <tag>${scmTag}</tag>
+    <url>https://github.com/${gitHubRepo}</url>
+  </scm>
 
-    <properties>
-        <revision>1.24</revision>
-        <changelist>-SNAPSHOT</changelist>
-        <jenkins.version>2.361.4</jenkins.version>
-        <spotbugs.threshold>Low</spotbugs.threshold>
-        <spotbugs.effort>Max</spotbugs.effort>
-        <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
-    </properties>
+  <properties>
+    <revision>1.24</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <jenkins.version>2.361.4</jenkins.version>
+    <spotbugs.threshold>Low</spotbugs.threshold>
+    <spotbugs.effort>Max</spotbugs.effort>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+  </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.361.x</artifactId>
-                <version>1981.v17df70e84a_a_1</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
+  <dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>io.jenkins.plugins</groupId>
-            <artifactId>commons-lang3-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>antisamy-markup-formatter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-step-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jenkins</groupId>
-            <artifactId>configuration-as-code</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jenkins.configuration-as-code</groupId>
-            <artifactId>test-harness</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nl.jqno.equalsverifier</groupId>
-            <artifactId>equalsverifier</artifactId>
-            <version>3.14.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>ansicolor</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>ant</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-basic-steps</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-cps</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-durable-task-step</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-job</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <scope>test</scope>
-        </dependency>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.361.x</artifactId>
+        <version>1981.v17df70e84a_a_1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
+  </dependencyManagement>
 
-    <repositories>
-        <repository>
-            <id>repo.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/public/</url>
-        </repository>
-    </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>io.jenkins.plugins</groupId>
+      <artifactId>commons-lang3-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>antisamy-markup-formatter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-step-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins</groupId>
+      <artifactId>configuration-as-code</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.configuration-as-code</groupId>
+      <artifactId>test-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.jqno.equalsverifier</groupId>
+      <artifactId>equalsverifier</artifactId>
+      <version>3.14.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>ansicolor</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>ant</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-basic-steps</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-cps</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-durable-task-step</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-job</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>repo.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.36.0</version>
-                <configuration>
-                    <java>
-                        <endWithNewline />
-                        <importOrder />
-                        <indent>
-                            <spaces>true</spaces>
-                        </indent>
-                        <palantirJavaFormat />
-                        <removeUnusedImports />
-                        <trimTrailingWhitespace />
-                    </java>
-                    <pom>
-                        <sortPom>
-                            <nrOfIndentSpace>4</nrOfIndentSpace>
-                            <encoding>${project.build.sourceEncoding}</encoding>
-                            <lineSeparator>\n</lineSeparator>
-                            <expandEmptyElements>false</expandEmptyElements>
-                            <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
-                            <sortDependencies>scope,groupId,artifactId</sortDependencies>
-                            <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
-                            <sortModules>true</sortModules>
-                            <sortExecutions>true</sortExecutions>
-                        </sortPom>
-                    </pom>
-                </configuration>
-                <executions>
-                    <execution>
-                        <!-- Runs in verify phase by default -->
-                        <goals>
-                            <!-- Can be disabled using -Dspotless.check.skip -->
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </pluginRepository>
+  </pluginRepositories>
 </project>
