@@ -63,7 +63,7 @@ function init() {
 
     // Set the click handler.
     for (mode in modes) {
-        modes[mode].observe('click', function() {
+        modes[mode].addEventListener('click', function() {
             onModeClick(modes);
         });
     }
@@ -77,7 +77,7 @@ function init() {
         setCookie(option, value);
 
         // Set the click handler.
-        options[option].observe('click', function() {
+        options[option].addEventListener('click', function() {
             onOptionClick(options);
         });
     }
@@ -136,22 +136,23 @@ function getCookie(suffix) {
 }
 
 function displaySettings() {
-    // Jenkins 1.608 displays the side panel widgets in 'side-panel-content'
-    var element = document.getElementById('side-panel-content');
+    var element = document.getElementById('side-panel');
     if (null == element) {
-        // Jenkins 1.619 has no 'side-panel-content', it displays the widgets in 'side-panel' 
-        element = document.getElementById('side-panel');
-        if (null == element) {
-            // element not found, so return to avoid an error (JENKINS-23867)
-            return;
-        }
+        // element not found, so return to avoid an error (JENKINS-23867)
+        return;
     }
 
-    new Ajax.Updater(
-        element,
-        rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings',
-        { insertion: Insertion.Bottom, onComplete: init }
-    );
+    fetch(rootURL + "/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings", {
+        method: "post",
+        headers: crumb.wrap({}),
+    }).then((rsp) => {
+        rsp.text().then((responseText) => {
+            if (rsp.ok) {
+                element.insertAdjacentHTML('beforeend', responseText);
+                init();
+            }
+        });
+    });
 }
 
 function onLoad() {
