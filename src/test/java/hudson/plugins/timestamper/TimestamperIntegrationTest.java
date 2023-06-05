@@ -2,10 +2,6 @@ package hudson.plugins.timestamper;
 
 import static org.junit.Assert.assertEquals;
 
-import com.gargoylesoftware.htmlunit.WebClientUtil;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlPreformattedText;
-import com.gargoylesoftware.htmlunit.html.HtmlSpan;
 import hudson.Functions;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
@@ -16,6 +12,10 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.htmlunit.WebClientUtil;
+import org.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlPreformattedText;
+import org.htmlunit.html.HtmlSpan;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
