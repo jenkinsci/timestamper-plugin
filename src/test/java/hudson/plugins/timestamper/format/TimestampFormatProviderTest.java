@@ -35,12 +35,12 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Unit test for the {@link TimestampFormatProvider} class.
@@ -80,8 +80,8 @@ public class TimestampFormatProviderTest {
         });
     }
 
-    private static HttpServletRequest request(String... cookies) {
-        HttpServletRequest request = mock(HttpServletRequest.class);
+    private static StaplerRequest request(String... cookies) {
+        StaplerRequest request = mock(StaplerRequest.class);
         Cookie[] requestCookies = null;
         if (cookies != null) {
             requestCookies = new Cookie[cookies.length];
@@ -91,7 +91,7 @@ public class TimestampFormatProviderTest {
             }
         }
         when(request.getCookies()).thenReturn(requestCookies);
-        when(request.toString()).thenReturn(HttpServletRequest.class.getSimpleName() + " " + Arrays.toString(cookies));
+        when(request.toString()).thenReturn(StaplerRequest.class.getSimpleName() + " " + Arrays.toString(cookies));
         return request;
     }
 
@@ -112,7 +112,7 @@ public class TimestampFormatProviderTest {
     }
 
     @Parameter(0)
-    public HttpServletRequest request;
+    public StaplerRequest request;
 
     @Parameter(1)
     public TimestampFormat expectedTimestampFormat;

@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -59,7 +58,7 @@ public class TimestampFormatProvider {
     }
 
     static TimestampFormat get(
-            String systemTimeFormat, String elapsedTimeFormat, HttpServletRequest request, Locale locale) {
+            String systemTimeFormat, String elapsedTimeFormat, StaplerRequest request, Locale locale) {
 
         String mode = null;
         Boolean local = null;
