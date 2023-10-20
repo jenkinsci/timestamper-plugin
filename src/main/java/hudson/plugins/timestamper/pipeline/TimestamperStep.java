@@ -109,7 +109,7 @@ public class TimestamperStep extends Step {
         /** {@inheritDoc} */
         @Override
         public String getFunctionName() {
-            return "timestamps";
+            return "timestamps()";
         }
 
         /** {@inheritDoc} */
