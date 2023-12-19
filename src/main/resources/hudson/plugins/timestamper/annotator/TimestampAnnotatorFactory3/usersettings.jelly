@@ -29,23 +29,36 @@ THE SOFTWARE.
   
   <l:ajax>
     <style>
-      .timestamper-form-pane {
-        padding: .5rem 1rem;
-        clear: both
+      #timestamper-pane .pane-header-title {
+        display: flex;
+        justify-content: space-between;
       }
-      .timestamper-form-pane label {
-        line-height: 2rem;
-        display: block;
+      .timestamper-form-pane {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        form {
+          display: contents;
+        }
+
+        * {
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          top: 0 !important;
+        }
       }
     </style>
-    <div>
-      <div class="pane-header col-xs-24">
-        <span class="pane-header-title">${%Timestamps}</span>
-        <span><a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a></span>
-      </div>
-      <div class="timestamper-form-pane">
+
+    <j:set var="title">
+      <span class="pane-header-title">${%Timestamps}</span>
+      <a class="timestamper-plain-text" href="${it.plainTextUrl}">${%View as plain text}</a>
+    </j:set>
+
+    <l:pane width="3" title="${title}" id="timestamper-pane">
+      <div class="timestamper-form-pane jenkins-!-padding-2">
         <st:include page="settingsForm.jelly"/>
       </div>
-    </div>
+    </l:pane>
   </l:ajax>
 </j:jelly>
