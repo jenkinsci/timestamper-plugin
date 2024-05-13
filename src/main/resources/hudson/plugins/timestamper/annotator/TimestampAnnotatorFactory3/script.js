@@ -141,6 +141,7 @@ function displaySettings() {
         // element not found, so return to avoid an error (JENKINS-23867)
         return;
     }
+
     fetch(rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings', {
         method: 'post',
         headers: crumb.wrap({}),
