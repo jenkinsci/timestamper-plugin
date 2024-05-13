@@ -161,7 +161,7 @@ function onLoad() {
         return;
     }
     var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
+        for (mutation of mutations) {
             var addedNodes = mutation.addedNodes;
             for (var i = 0; i < addedNodes.length; i++) {
                 var node = addedNodes[i];
@@ -172,7 +172,7 @@ function onLoad() {
                     return;
                 }
             }
-        });
+        }
     });
     observer.observe(document, { childList: true, subtree: true });
 }
