@@ -33,7 +33,6 @@ that the changes take effect when upgrading the Timestamper plugin.
 // http://googleblog.blogspot.com.au/2007/07/cookies-expiring-sooner-to-improve.html
 
 var cookieName = 'jenkins-timestamper';
-var timestamperLoaded = false;
 
 function init() {
     // Only one of these modes can be checked at a time.
@@ -138,12 +137,10 @@ function getCookie(suffix) {
 
 function displaySettings() {
     var element = document.getElementById('side-panel');
-    if (null == element || timestamperLoaded) {
-        // side-panel element not found, so return to avoid an error (JENKINS-23867)
-        // when timestamper widget is already loaded
+    if (null == element) {
+        // element not found, so return to avoid an error (JENKINS-23867)
         return;
     }
-    timestamperLoaded = true;
     fetch(rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings', {
         method: 'post',
         headers: crumb.wrap({}),
@@ -163,7 +160,7 @@ function onLoad() {
         return;
     }
     var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
+        for (mutation of mutations) {
             var addedNodes = mutation.addedNodes;
             for (var i = 0; i < addedNodes.length; i++) {
                 var node = addedNodes[i];
@@ -174,7 +171,7 @@ function onLoad() {
                     return;
                 }
             }
-        });
+        }
     });
     observer.observe(document, { childList: true, subtree: true });
 }
