@@ -46,8 +46,8 @@ import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /** Pipeline plug-in step for recording time-stamps. */
 public class TimestamperStep extends Step {
@@ -127,7 +127,7 @@ public class TimestamperStep extends Step {
         /** Serve the help file. */
         @Override
         @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
-        public void doHelp(StaplerRequest request, StaplerResponse response) throws IOException {
+        public void doHelp(StaplerRequest2 request, StaplerResponse2 response) throws IOException {
             response.setContentType("text/html;charset=UTF-8");
             PrintWriter writer = response.getWriter();
             writer.println(Messages.Description());

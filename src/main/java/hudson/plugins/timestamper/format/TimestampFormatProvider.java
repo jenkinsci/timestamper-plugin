@@ -24,12 +24,12 @@
 package hudson.plugins.timestamper.format;
 
 import hudson.plugins.timestamper.TimestamperConfig;
+import jakarta.servlet.http.Cookie;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
-import javax.servlet.http.Cookie;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Provides a {@link TimestampFormat} based on the current settings.
@@ -40,7 +40,7 @@ public class TimestampFormatProvider {
 
     private static Supplier<TimestampFormat> SUPPLIER = () -> {
         TimestamperConfig config = TimestamperConfig.get();
-        StaplerRequest request = Stapler.getCurrentRequest();
+        StaplerRequest2 request = Stapler.getCurrentRequest2();
         if (request == null) {
             return EmptyTimestampFormat.INSTANCE;
         }
@@ -58,7 +58,7 @@ public class TimestampFormatProvider {
     }
 
     static TimestampFormat get(
-            String systemTimeFormat, String elapsedTimeFormat, StaplerRequest request, Locale locale) {
+            String systemTimeFormat, String elapsedTimeFormat, StaplerRequest2 request, Locale locale) {
 
         String mode = null;
         Boolean local = null;

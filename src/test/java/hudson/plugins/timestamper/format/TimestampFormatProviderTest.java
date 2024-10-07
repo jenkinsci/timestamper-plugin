@@ -28,19 +28,19 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import jakarta.servlet.http.Cookie;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import javax.servlet.http.Cookie;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Unit test for the {@link TimestampFormatProvider} class.
@@ -80,8 +80,8 @@ public class TimestampFormatProviderTest {
         });
     }
 
-    private static StaplerRequest request(String... cookies) {
-        StaplerRequest request = mock(StaplerRequest.class);
+    private static StaplerRequest2 request(String... cookies) {
+        StaplerRequest2 request = mock(StaplerRequest2.class);
         Cookie[] requestCookies = null;
         if (cookies != null) {
             requestCookies = new Cookie[cookies.length];
@@ -91,7 +91,7 @@ public class TimestampFormatProviderTest {
             }
         }
         when(request.getCookies()).thenReturn(requestCookies);
-        when(request.toString()).thenReturn(StaplerRequest.class.getSimpleName() + " " + Arrays.toString(cookies));
+        when(request.toString()).thenReturn(StaplerRequest2.class.getSimpleName() + " " + Arrays.toString(cookies));
         return request;
     }
 
@@ -112,7 +112,7 @@ public class TimestampFormatProviderTest {
     }
 
     @Parameter(0)
-    public StaplerRequest request;
+    public StaplerRequest2 request;
 
     @Parameter(1)
     public TimestampFormat expectedTimestampFormat;
