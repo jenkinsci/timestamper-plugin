@@ -36,12 +36,12 @@ import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.pipeline.GlobalDecorator;
 import hudson.util.FormValidation;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
-import javax.servlet.ServletException;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
@@ -116,8 +116,7 @@ public final class TimestamperConfig extends GlobalConfiguration {
     }
 
     @POST
-    public FormValidation doCheckSystemTimeFormat(@QueryParameter String systemTimeFormat)
-            throws IOException, ServletException {
+    public FormValidation doCheckSystemTimeFormat(@QueryParameter String systemTimeFormat) {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 
         if (Util.fixEmptyAndTrim(systemTimeFormat) == null) {

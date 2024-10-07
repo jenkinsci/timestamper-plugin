@@ -31,8 +31,8 @@ import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Action which serves a page of time-stamps. The format of this page will not change, so it can be
@@ -78,7 +78,7 @@ public final class TimestampsAction implements Action {
 
     /** Serve a page at this URL. */
     @SuppressWarnings({"lgtm[jenkins/csrf]", "lgtm[jenkins/no-permission-check]"})
-    public void doIndex(StaplerRequest request, StaplerResponse response) throws IOException {
+    public void doIndex(StaplerRequest2 request, StaplerResponse2 response) throws IOException {
         response.setContentType("text/plain;charset=UTF-8");
 
         PrintWriter writer = response.getWriter();

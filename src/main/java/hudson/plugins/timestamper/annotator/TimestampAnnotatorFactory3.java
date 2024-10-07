@@ -32,7 +32,7 @@ import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import jenkins.YesNoMaybe;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Provides the initial {@link TimestampAnnotator} for an annotated console output.
@@ -48,7 +48,7 @@ public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Ru
         if (TimestampNote.useTimestampNotes(build.getClass())) {
             return null; // not using this system
         }
-        StaplerRequest request = Stapler.getCurrentRequest();
+        StaplerRequest2 request = Stapler.getCurrentRequest2();
         // JENKINS-16778: The request can be null when the slave goes off-line.
         if (request == null) {
             return null; // do not annotate
@@ -64,7 +64,7 @@ public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Ru
      *
      * @return the offset in bytes
      */
-    private static long getOffset(StaplerRequest request) {
+    private static long getOffset(StaplerRequest2 request) {
         String path = request.getPathInfo();
         if (path == null) {
             // JENKINS-16438
