@@ -29,10 +29,6 @@ THE SOFTWARE.
   
   <l:ajax>
     <style>
-      #timestamper-pane {
-        position: sticky;
-        top: 44px;
-      }
       #timestamper-pane .pane-header-title {
         display: flex;
         justify-content: space-between;
