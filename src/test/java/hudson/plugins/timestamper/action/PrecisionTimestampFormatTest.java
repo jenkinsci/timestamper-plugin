@@ -30,23 +30,20 @@ import static org.hamcrest.Matchers.is;
 import hudson.plugins.timestamper.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Unit test for the {@link PrecisionTimestampFormat} class.
  *
  * @author Steven G. Brown
  */
-@RunWith(Parameterized.class)
-public class PrecisionTimestampFormatTest {
+class PrecisionTimestampFormatTest {
 
     private static final List<Timestamp> TIMESTAMPS = Arrays.asList(
             new Timestamp(0, TimeUnit.SECONDS.toMillis(1)),
@@ -62,9 +59,8 @@ public class PrecisionTimestampFormatTest {
             new Timestamp(10000, TimeUnit.DAYS.toMillis(3)));
 
     /** @return the test data */
-    @Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
+    static Stream<Object> data() {
+        return Stream.of(new Object[][] {
             {0, asList("0", "0", "0", "0", "1", "10")},
             {1, asList("0.0", "0.0", "0.0", "0.1", "1.0", "10.0")},
             {2, asList("0.00", "0.00", "0.01", "0.10", "1.00", "10.00")},
@@ -78,14 +74,9 @@ public class PrecisionTimestampFormatTest {
         });
     }
 
-    @Parameter(0)
-    public int precision;
-
-    @Parameter(1)
-    public List<String> expectedResult;
-
-    @Test
-    public void testApply() {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testApply(int precision, List<String> expectedResult) {
         PrecisionTimestampFormat format = new PrecisionTimestampFormat(precision);
 
         List<String> result = new ArrayList<>();
@@ -97,7 +88,7 @@ public class PrecisionTimestampFormatTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         EqualsVerifier.forClass(PrecisionTimestampFormat.class).verify();
     }
 }
