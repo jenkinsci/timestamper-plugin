@@ -27,23 +27,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import hudson.plugins.timestamper.Timestamp;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the {@link EmptyTimestampFormat} class.
  *
  * @author Steven G. Brown
  */
-public class EmptyTimestampFormatTest {
+class EmptyTimestampFormatTest {
 
     @Test
-    public void testApply() {
+    void testApply() {
         Timestamp timestamp = new Timestamp(123, 42000);
         assertThat(EmptyTimestampFormat.INSTANCE.apply(timestamp), is(""));
     }
 
     @Test
-    public void testGetPlainTextUrl() {
+    void testGetPlainTextUrl() {
         assertThat(EmptyTimestampFormat.INSTANCE.getPlainTextUrl(), is("consoleText"));
     }
 }

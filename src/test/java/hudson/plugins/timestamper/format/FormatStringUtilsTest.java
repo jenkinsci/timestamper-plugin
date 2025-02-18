@@ -26,67 +26,67 @@ package hudson.plugins.timestamper.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the {@link FormatStringUtils} class.
  *
  * @author Steven G. Brown
  */
-public class FormatStringUtilsTest {
+class FormatStringUtilsTest {
 
     @Test
-    public void testStripTags_bold() {
+    void testStripTags_bold() {
         assertThat(FormatStringUtils.stripHtmlTags("1<b>2</b>3"), is("123"));
     }
 
     @Test
-    public void testStripTags_italic() {
+    void testStripTags_italic() {
         assertThat(FormatStringUtils.stripHtmlTags("1<i>2</i>3"), is("123"));
     }
 
     @Test
-    public void testStripTags_code() {
+    void testStripTags_code() {
         assertThat(FormatStringUtils.stripHtmlTags("1<code>2</code>3"), is("123"));
     }
 
     @Test
-    public void testStripTags_strong() {
+    void testStripTags_strong() {
         assertThat(FormatStringUtils.stripHtmlTags("1<strong>2</strong>3"), is("123"));
     }
 
     @Test
-    public void testStripTags_em() {
+    void testStripTags_em() {
         assertThat(FormatStringUtils.stripHtmlTags("1<em>2</em>3"), is("123"));
     }
 
     @Test
-    public void testStripTags_span() {
+    void testStripTags_span() {
         assertThat(FormatStringUtils.stripHtmlTags("1<span style=\"color: blue;\">2</span>3"), is("123"));
     }
 
     @Test
-    public void testStripTags_empty() {
+    void testStripTags_empty() {
         assertThat(FormatStringUtils.stripHtmlTags(""), is(""));
     }
 
     @Test
-    public void testTrim_noQuotes() {
+    void testTrim_noQuotes() {
         assertThat(FormatStringUtils.trim(" 1 "), is("1"));
     }
 
     @Test
-    public void testTrim_withQuotes() {
+    void testTrim_withQuotes() {
         assertThat(FormatStringUtils.trim(" ' ' 1 ' ' "), is("1"));
     }
 
     @Test
-    public void testTrim_withQuotesInMiddle() {
+    void testTrim_withQuotesInMiddle() {
         assertThat(FormatStringUtils.trim(" ' ' 1 ' ' 2 ' ' "), is("1 ' ' 2"));
     }
 
     @Test
-    public void testTrim_empty() {
+    void testTrim_empty() {
         assertThat(FormatStringUtils.trim(""), is(""));
     }
 }

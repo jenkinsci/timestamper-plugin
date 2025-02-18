@@ -32,16 +32,16 @@ import com.google.common.primitives.Bytes;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for the {@link TimestampNotesOutputStream} class.
  *
  * @author Steven G. Brown
  */
-public class TimestampNotesOutputStreamTest {
+class TimestampNotesOutputStreamTest {
 
     private static final char NEWLINE = 0x0A;
 
@@ -49,20 +49,20 @@ public class TimestampNotesOutputStreamTest {
 
     private TimestampNotesOutputStream timestampNotesOutputStream;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         delegateOutputStream = new ByteArrayOutputStream();
         timestampNotesOutputStream = new TimestampNotesOutputStream(delegateOutputStream, 0);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         delegateOutputStream.close();
         timestampNotesOutputStream.close();
     }
 
     @Test
-    public void testWrite() throws Exception {
+    void testWrite() throws Exception {
         byte[] line = new byte[] {'a', (byte) NEWLINE};
         timestampNotesOutputStream.write(line);
         byte[] result = delegateOutputStream.toByteArray();

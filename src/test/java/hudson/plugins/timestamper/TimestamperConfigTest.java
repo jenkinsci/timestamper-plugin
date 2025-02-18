@@ -29,126 +29,124 @@ import static org.hamcrest.Matchers.is;
 
 import hudson.util.XStream2;
 import java.util.Arrays;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 /**
  * Test for the {@link TimestamperConfig} class.
  *
  * @author Steven G. Brown
  */
-public class TimestamperConfigTest {
+@WithJenkins
+class TimestamperConfigTest {
 
     private static final String customSystemTimeFormat = "HH:mm:ss " + TimestamperConfigTest.class.getSimpleName();
 
     private static final String customElapsedTimeFormat = "ss.S " + TimestamperConfigTest.class.getSimpleName();
 
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
-
     @Test
-    public void testDefaultSystemTimeFormat() {
+    void testDefaultSystemTimeFormat(JenkinsRule r) {
         assertThat(TimestamperConfig.get().getSystemTimeFormat(), containsString("HH:mm:ss"));
     }
 
     @Test
-    public void testDefaultElapsedTimeFormat() {
+    void testDefaultElapsedTimeFormat(JenkinsRule r) {
         assertThat(TimestamperConfig.get().getElapsedTimeFormat(), containsString("HH:mm:ss.S"));
     }
 
     @Test
-    public void testSetSystemTimeFormat() {
+    void testSetSystemTimeFormat(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setSystemTimeFormat(customSystemTimeFormat);
         assertThat(config.getSystemTimeFormat(), is(customSystemTimeFormat));
     }
 
     @Test
-    public void testSetElapsedTimeFormat() {
+    void testSetElapsedTimeFormat(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setElapsedTimeFormat(customElapsedTimeFormat);
         assertThat(config.getElapsedTimeFormat(), is(customElapsedTimeFormat));
     }
 
     @Test
-    public void testSetSystemTimeFormatEmpty() {
+    void testSetSystemTimeFormatEmpty(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setSystemTimeFormat("");
         assertThat(config.getSystemTimeFormat(), is(""));
     }
 
     @Test
-    public void testSetElapsedTimeFormatEmpty() {
+    void testSetElapsedTimeFormatEmpty(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setElapsedTimeFormat("");
         assertThat(config.getElapsedTimeFormat(), is(""));
     }
 
     @Test
-    public void testSetSystemTimeFormatNull() {
+    void testSetSystemTimeFormatNull(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setSystemTimeFormat(null);
         assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
     }
 
     @Test
-    public void testSetElapsedTimeFormatNull() {
+    void testSetElapsedTimeFormatNull(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setElapsedTimeFormat(null);
         assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
     }
 
     @Test
-    public void testSetSystemTimeFormatTrimmed() {
+    void testSetSystemTimeFormatTrimmed(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setSystemTimeFormat("'<b>'HH:mm:ss'</b> '");
         assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
     }
 
     @Test
-    public void testSetElapsedTimeFormatTrimmed() {
+    void testSetElapsedTimeFormatTrimmed(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setElapsedTimeFormat("'<b>'HH:mm:ss.S'</b> '");
         assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
     }
 
     @Test
-    public void testSetSystemTimeFormatNotTrimmed() {
+    void testSetSystemTimeFormatNotTrimmed(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setSystemTimeFormat("       '<b>'HH:mm:ss'</b> '           ");
         assertThat(config.getSystemTimeFormat(), is("'<b>'HH:mm:ss'</b> '"));
     }
 
     @Test
-    public void testSetElapsedTimeFormatNotTrimmed() {
+    void testSetElapsedTimeFormatNotTrimmed(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setElapsedTimeFormat("        '<b>'HH:mm:ss.S'</b> '              ");
         assertThat(config.getElapsedTimeFormat(), is("'<b>'HH:mm:ss.S'</b> '"));
     }
 
     @Test
-    public void testToXmlDefault() {
+    void testToXmlDefault(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         assertThat(toXml(config), is(defaultXml()));
     }
 
     @Test
-    public void testToXmlCustomSystemTimeFormat() {
+    void testToXmlCustomSystemTimeFormat(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setSystemTimeFormat(customSystemTimeFormat);
         assertThat(toXml(config), is(xml(customSystemTimeFormat, null)));
     }
 
     @Test
-    public void testToXmlCustomElapsedTimeFormat() {
+    void testToXmlCustomElapsedTimeFormat(JenkinsRule r) {
         TimestamperConfig config = TimestamperConfig.get();
         config.setElapsedTimeFormat(customElapsedTimeFormat);
         assertThat(toXml(config), is(xml(null, customElapsedTimeFormat)));
     }
 
     @Test
-    public void testFromXmlDefault() {
+    void testFromXmlDefault(JenkinsRule r) {
         TimestamperConfig config = fromXml(defaultXml());
         TimestamperConfig defaultConfig = TimestamperConfig.get();
         assertThat(
@@ -157,19 +155,19 @@ public class TimestamperConfigTest {
     }
 
     @Test
-    public void testFromXmlCustomSystemTimeFormat() {
+    void testFromXmlCustomSystemTimeFormat(JenkinsRule r) {
         TimestamperConfig config = fromXml(xml(customSystemTimeFormat, null));
         assertThat(config.getSystemTimeFormat(), is(customSystemTimeFormat));
     }
 
     @Test
-    public void testFromXmlCustomElapsedTimeFormat() {
+    void testFromXmlCustomElapsedTimeFormat(JenkinsRule r) {
         TimestamperConfig config = fromXml(xml(null, customElapsedTimeFormat));
         assertThat(config.getElapsedTimeFormat(), is(customElapsedTimeFormat));
     }
 
     @Test
-    public void testFromXmlEmptyFormat() {
+    void testFromXmlEmptyFormat(JenkinsRule r) {
         TimestamperConfig config = fromXml(xml("", ""));
         assertThat(
                 Arrays.asList(config.getSystemTimeFormat(), config.getElapsedTimeFormat()), is(Arrays.asList("", "")));

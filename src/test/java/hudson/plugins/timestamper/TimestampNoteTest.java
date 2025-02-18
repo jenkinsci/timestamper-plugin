@@ -35,16 +35,13 @@ import hudson.model.Run;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import java.lang.reflect.Field;
-import java.util.Arrays;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
@@ -54,8 +51,7 @@ import org.mockito.MockitoAnnotations;
  *
  * @author Steven G. Brown
  */
-@RunWith(Parameterized.class)
-public class TimestampNoteTest {
+class TimestampNoteTest {
 
     private static final long BUILD_START = 1;
 
@@ -63,10 +59,24 @@ public class TimestampNoteTest {
 
     private static final long TIME = 3;
 
+    @Mock
+    private TimestampFormat format;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
+    }
+
     /** @return the test cases */
-    @Parameters(name = "{0}, {1}")
-    public static Iterable<Object[]> data() {
-        return Arrays.asList(new Object[][] {
+    static Stream<Object> data() {
+        return Stream.of(new Object[][] {
             //
             {build(), note(ELAPSED, TIME), new Timestamp(ELAPSED, TIME)},
             //
@@ -106,43 +116,22 @@ public class TimestampNoteTest {
         }
     }
 
-    @Parameter(0)
-    public Object context;
-
-    @Parameter(1)
-    public TimestampNote note;
-
-    @Parameter(2)
-    public Timestamp expectedTimestamp;
-
-    @Mock
-    private TimestampFormat format;
-
-    private AutoCloseable closeable;
-
-    @Before
-    public void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        closeable.close();
-    }
-
-    @Test
-    public void testGetTimestamp() {
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("data")
+    void testGetTimestamp(Object context, TimestampNote note, Timestamp expectedTimestamp) {
         assertThat(note.getTimestamp(context), is(expectedTimestamp));
     }
 
-    @Test
-    public void testGetTimestamp_afterSerialization() {
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("data")
+    void testGetTimestamp_afterSerialization(Object context, TimestampNote note, Timestamp expectedTimestamp) {
         note = SerializationUtils.clone(note);
-        testGetTimestamp();
+        testGetTimestamp(context, note, expectedTimestamp);
     }
 
-    @Test
-    public void testAnnotate() {
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("data")
+    void testAnnotate(Object context, TimestampNote note, Timestamp expectedTimestamp) {
         MarkupText text = new MarkupText("");
         try (MockedStatic<TimestampFormatProvider> mocked = mockStatic(TimestampFormatProvider.class)) {
             mocked.when(TimestampFormatProvider::get).thenReturn(format);
@@ -151,9 +140,10 @@ public class TimestampNoteTest {
         verify(format).markup(text, expectedTimestamp);
     }
 
-    @Test
-    public void testAnnotate_afterSerialization() {
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("data")
+    void testAnnotate_afterSerialization(Object context, TimestampNote note, Timestamp expectedTimestamp) {
         note = SerializationUtils.clone(note);
-        testAnnotate();
+        testGetTimestamp(context, note, expectedTimestamp);
     }
 }

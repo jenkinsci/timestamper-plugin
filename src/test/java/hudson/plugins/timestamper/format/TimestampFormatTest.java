@@ -32,33 +32,33 @@ import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
 import hudson.tasks._ant.AntTargetNote;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the {@link TimestampFormat} class.
  *
  * @author Steven G. Brown
  */
-public class TimestampFormatTest {
+class TimestampFormatTest {
 
-    private String timestampString = "TIMESTAMP";
+    private final String timestampString = "TIMESTAMP";
 
-    private String prefix = "<span class=\"timestamp\">" + timestampString + "</span>";
+    private final String prefix = "<span class=\"timestamp\">" + timestampString + "</span>";
 
     @Test
-    public void testMarkup() {
+    void testMarkup() {
         assertThat(markup("line").toString(true), is(prefix + "line"));
     }
 
     @Test
-    public void testMarkupThenAntTargetNote() {
+    void testMarkupThenAntTargetNote() {
         assertThat(
                 annotate(markup("target:"), new AntTargetNote()).toString(true),
                 is(prefix + "<b class=ant-target>target</b>:"));
     }
 
     @Test
-    public void testAntTargetNoteThenMarkup() {
+    void testAntTargetNoteThenMarkup() {
         assertThat(
                 markup(annotate("target:", new AntTargetNote())).toString(true),
                 is(prefix + "<b class=ant-target>target</b>:"));
