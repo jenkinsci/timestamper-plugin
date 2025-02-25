@@ -25,7 +25,7 @@ package hudson.plugins.timestamper.format;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import hudson.plugins.timestamper.Timestamp;
 import java.util.Locale;
@@ -33,37 +33,37 @@ import java.util.Optional;
 import java.util.TimeZone;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the {@link SystemTimestampFormat} class.
  *
  * @author Steven G. Brown
  */
-public class SystemTimestampFormatTest {
+class SystemTimestampFormatTest {
 
     // cf. hudson.plugins.timestamper.format.SystemTimestampFormat.TIME_ZONE_PROPERTY
     private static final String TIME_ZONE_PROPERTY = "org.apache.commons.jelly.tags.fmt.timeZone";
 
     private TimeZone systemDefaultTimeZone;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         systemDefaultTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
         System.clearProperty(TIME_ZONE_PROPERTY);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         TimeZone.setDefault(systemDefaultTimeZone);
         System.clearProperty(TIME_ZONE_PROPERTY);
     }
 
     @Test
-    public void testApply() {
+    void testApply() {
         String systemTimeFormat = "HH:mm:ss";
         Timestamp timestamp = new Timestamp(123, 42000);
         assertThat(
@@ -72,7 +72,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testApply_withDifferentTimeZone() {
+    void testApply_withDifferentTimeZone() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
 
         String systemTimeFormat = "HH:mm:ss";
@@ -83,7 +83,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testApply_withSystemProperty() {
+    void testApply_withSystemProperty() {
         System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
 
         String systemTimeFormat = "HH:mm:ss";
@@ -94,7 +94,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testApply_withProvidedTimeZone() {
+    void testApply_withProvidedTimeZone() {
         String systemTimeFormat = "HH:mm:ss";
         Timestamp timestamp = new Timestamp(123, 42000);
         assertThat(
@@ -103,7 +103,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testApply_withSystemPropertyAndProvidedTimeZone() {
+    void testApply_withSystemPropertyAndProvidedTimeZone() {
         System.setProperty(TIME_ZONE_PROPERTY, "GMT+2");
 
         String systemTimeFormat = "HH:mm:ss";
@@ -114,7 +114,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testApply_englishLocale() {
+    void testApply_englishLocale() {
         String systemTimeFormat = "EEEE, d MMMM";
         Timestamp timestamp = new Timestamp(123, 42000);
         assertThat(
@@ -123,7 +123,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testApply_germanLocale() {
+    void testApply_germanLocale() {
         String systemTimeFormat = "EEEE, d MMMM";
         Timestamp timestamp = new Timestamp(123, 42000);
         assertThat(
@@ -132,7 +132,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testApply_withInvalidHtml() {
+    void testApply_withInvalidHtml() {
         String systemTimeFormat = "'<b>'HH:mm:ss'</b><script>console.log(\"foo\")</script>'";
         Timestamp timestamp = new Timestamp(123, 42000);
         assertThat(
@@ -141,13 +141,13 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testValidate() {
+    void testValidate() {
         String systemTimeFormat = "'<b>'HH:mm:ss'</b>'";
         new SystemTimestampFormat(systemTimeFormat, Optional.empty(), Locale.ENGLISH).validate();
     }
 
     @Test
-    public void testValidate_withFormatParseException() {
+    void testValidate_withFormatParseException() {
         String systemTimeFormat = "'<b>'pHH:mm:ss'</b>'";
         assertThrows(
                 FormatParseException.class,
@@ -155,7 +155,7 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testValidate_withInvalidHtml() {
+    void testValidate_withInvalidHtml() {
         String systemTimeFormat = "'<b>'HH:mm:ss'</b><script>console.log(\"foo\")</script>'";
         assertThrows(
                 InvalidHtmlException.class,
@@ -163,28 +163,28 @@ public class SystemTimestampFormatTest {
     }
 
     @Test
-    public void testGetPlainTextUrl() {
+    void testGetPlainTextUrl() {
         SystemTimestampFormat format =
                 new SystemTimestampFormat("'<b>'HH:mm:ss'</b> '", Optional.empty(), Locale.ENGLISH);
         assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
     }
 
     @Test
-    public void testGetPlainTextUrl_excessWhitespace() {
+    void testGetPlainTextUrl_excessWhitespace() {
         SystemTimestampFormat format =
                 new SystemTimestampFormat(" ' <b> ' HH:mm:ss ' </b> ' ", Optional.empty(), Locale.ENGLISH);
         assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&appendLog&locale=en"));
     }
 
     @Test
-    public void testGetPlainTextUrl_withTimeZone() {
+    void testGetPlainTextUrl_withTimeZone() {
         SystemTimestampFormat format =
                 new SystemTimestampFormat("'<b>'HH:mm:ss'</b> '", Optional.of("GMT+1"), Locale.ENGLISH);
         assertThat(format.getPlainTextUrl(), is("timestamps/?time=HH:mm:ss&timeZone=GMT+1&appendLog&locale=en"));
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         EqualsVerifier.forClass(SystemTimestampFormat.class)
                 .suppress(Warning.NULL_FIELDS)
                 .verify();
