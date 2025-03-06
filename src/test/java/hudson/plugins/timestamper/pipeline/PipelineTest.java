@@ -1,8 +1,8 @@
 package hudson.plugins.timestamper.pipeline;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import hudson.plugins.timestamper.TimestamperApiTestUtil;
 import hudson.plugins.timestamper.TimestamperConfig;
@@ -19,19 +19,20 @@ import org.htmlunit.html.HtmlSpan;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class PipelineTest {
+@WithJenkins
+class PipelineTest {
 
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
+    private JenkinsRule r;
 
-    @Before
-    public void setAllPipelines() {
+    @BeforeEach
+    void setAllPipelines(JenkinsRule r) {
+        this.r = r;
         TimestamperConfig config = TimestamperConfig.get();
         config.setAllPipelines(true);
         config.save();
@@ -39,17 +40,18 @@ public class PipelineTest {
 
     @Issue("JENKINS-58102")
     @Test
-    public void globalDecoratorAnnotator() throws Exception {
+    void globalDecoratorAnnotator() throws Exception {
         WorkflowJob project = r.createProject(WorkflowJob.class);
         project.setDefinition(new CpsFlowDefinition(
-                "node {\n"
-                        + "  ansiColor('xterm') {\n"
-                        + "    echo 'foo'\n"
-                        + "    echo \"\\u001B[31mBeginning multi-line color\"\n"
-                        + "    echo \"More color\"\n"
-                        + "    echo \"Ending multi-line color\\u001B[39m\"\n"
-                        + "  }\n"
-                        + "}",
+                """
+                    node {
+                          ansiColor('xterm') {
+                            echo 'foo'
+                            echo "\\u001B[31mBeginning multi-line color"
+                            echo "More color"
+                            echo "Ending multi-line color\\u001B[39m"
+                          }
+                    }""",
                 true));
         WorkflowRun build = r.buildAndAssertSuccess(project);
         r.assertLogContains("foo", build);
@@ -64,10 +66,10 @@ public class PipelineTest {
          */
         List<String> rawTimestamps = new ArrayList<>();
         for (String line : build.getLog(Integer.MAX_VALUE)) {
-            assertTrue(line, line.startsWith("["));
+            assertTrue(line.startsWith("["), line);
             int end = line.indexOf(']');
-            assertEquals(line, 25, end);
-            assertNotNull(line, ZonedDateTime.parse(line.substring(1, end), GlobalDecorator.UTC_MILLIS));
+            assertEquals(25, end, line);
+            assertNotNull(ZonedDateTime.parse(line.substring(1, end), GlobalDecorator.UTC_MILLIS), line);
 
             rawTimestamps.add(line.substring(0, 26));
         }
@@ -87,17 +89,17 @@ public class PipelineTest {
                 new BufferedReader(new StringReader(consoleText)).lines().collect(Collectors.toList());
 
         List<String> annotatedTimestamps = getTimestamps(consoleOutput, "//span[@class='timestamp']");
-        assertEquals(consoleText, annotatedLines.size(), annotatedTimestamps.size());
+        assertEquals(annotatedLines.size(), annotatedTimestamps.size(), consoleText);
 
         List<String> annotatedRawTimestamps = getTimestamps(consoleOutput, "//span[contains(@style, 'display: none')]");
-        assertEquals(consoleText, annotatedLines.size(), annotatedRawTimestamps.size());
+        assertEquals(annotatedLines.size(), annotatedRawTimestamps.size(), consoleText);
 
         for (int i = 0; i < annotatedLines.size(); i++) {
             String annotatedLine = annotatedLines.get(i);
             String prefix = annotatedTimestamps.get(i) + annotatedRawTimestamps.get(i) + ' ';
             assertTrue(
-                    String.format("annotatedLine: '%s', prefix: '%s'", annotatedLine, prefix),
-                    annotatedLine.startsWith(prefix));
+                    annotatedLine.startsWith(prefix),
+                    String.format("annotatedLine: '%s', prefix: '%s'", annotatedLine, prefix));
 
             /*
              * The annotated console output contains "Terminated" lines which don't appear in the
@@ -131,7 +133,7 @@ public class PipelineTest {
 
     @Issue("JENKINS-60007")
     @Test
-    public void timestamperApi() throws Exception {
+    void timestamperApi() throws Exception {
         WorkflowJob project = r.createProject(WorkflowJob.class);
         project.setDefinition(new CpsFlowDefinition("echo 'foo'\n", true));
         WorkflowRun build = r.buildAndAssertSuccess(project);
@@ -146,7 +148,7 @@ public class PipelineTest {
     }
 
     @Test
-    public void timestamperStep() throws Exception {
+    void timestamperStep() throws Exception {
         TimestamperConfig config = TimestamperConfig.get();
         config.setAllPipelines(false);
         config.save();
@@ -158,10 +160,10 @@ public class PipelineTest {
         r.assertLogContains("foo", build);
         for (String line : build.getLog(Integer.MAX_VALUE)) {
             assertEquals(
-                    line,
                     line.contains("foo"),
                     GlobalAnnotator.parseTimestamp(line, build.getStartTimeInMillis())
-                            .isPresent());
+                            .isPresent(),
+                    line);
         }
     }
 }
