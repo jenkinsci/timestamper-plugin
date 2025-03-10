@@ -1,7 +1,6 @@
 package hudson.plugins.timestamper.accessor;
 
 import com.google.common.base.Suppliers;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.console.ConsoleNote;
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
@@ -29,9 +28,6 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
  * log file.
  */
 @Restricted(NoExternalUse.class)
-@SuppressFBWarnings(
-        value = {"RV_DONT_JUST_NULL_CHECK_READLINE", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
-        justification = "Line count lambda is just counting lines, not reading them")
 public class TimestampLogFileLineAccessor implements Closeable {
 
     /** The build whose timestamps and log file lines we are accessing. */
