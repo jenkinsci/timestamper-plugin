@@ -32,54 +32,41 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.junit.experimental.theories.DataPoint;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Unit test for the Varint class.
  *
  * @author Steven G. Brown
  */
-@RunWith(Theories.class)
-public class VarintTest {
+class VarintTest {
 
-    private static Pattern BINARY_PATTERN = Pattern.compile("([01]{8} )*[01]{8}");
+    private static final Pattern BINARY_PATTERN = Pattern.compile("([01]{8} )*[01]{8}");
 
-    @DataPoint
-    public static VarintValue MIN = new VarintValue(
-            Long.MIN_VALUE,
-            binary("10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000" + " 00000001"));
-
-    @DataPoint
-    public static VarintValue NEGATIVE_ONE = new VarintValue(
-            -1,
-            binary("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111" + " 00000001"));
-
-    @DataPoint
-    public static VarintValue ZERO = new VarintValue(0, binary("00000000"));
-
-    @DataPoint
-    public static VarintValue ONE = new VarintValue(1, binary("00000001"));
-
-    /** Maximum value that can be stored in a single byte. */
-    @DataPoint
-    public static VarintValue ONE_BYTE_MAX = new VarintValue(127, binary("01111111"));
-
-    /** Higher than {@link #ONE_BYTE_MAX}. Need two bytes. */
-    @DataPoint
-    public static VarintValue TWO_BYTES_MIN = new VarintValue(128, binary("10000000 00000001"));
-
-    @DataPoint
-    public static VarintValue THREE_HUNDRED = new VarintValue(300, binary("10101100 00000010"));
-
-    @DataPoint
-    public static VarintValue FIVE_HUNDRED = new VarintValue(500, binary("11110100 00000011"));
-
-    @DataPoint
-    public static VarintValue MAX = new VarintValue(
-            Long.MAX_VALUE, binary("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 01111111"));
+    static Stream<VarintValue> data() {
+        return Stream.of(
+                new VarintValue(
+                        Long.MIN_VALUE,
+                        binary(
+                                "10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000 10000000 00000001")),
+                new VarintValue(
+                        -1,
+                        binary(
+                                "11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 00000001")),
+                new VarintValue(0, binary("00000000")),
+                new VarintValue(1, binary("00000001")),
+                /** Maximum value that can be stored in a single byte. */
+                new VarintValue(127, binary("01111111")),
+                /** Higher than {@link #ONE_BYTE_MAX}. Need two bytes. */
+                new VarintValue(128, binary("10000000 00000001")),
+                new VarintValue(300, binary("10101100 00000010")),
+                new VarintValue(500, binary("11110100 00000011")),
+                new VarintValue(
+                        Long.MAX_VALUE,
+                        binary("11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111 01111111")));
+    }
 
     static class VarintValue {
 
@@ -88,43 +75,51 @@ public class VarintTest {
             this.varintEncoding = varintEncoding;
         }
 
-        long value;
-        byte[] varintEncoding;
+        final long value;
+        final byte[] varintEncoding;
     }
 
-    @Theory
-    public void testWriteSingleVarint(VarintValue value) throws Exception {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testWriteSingleVarint(VarintValue value) throws Exception {
         byte[] buffer = new byte[value.varintEncoding.length];
         Varint.write(value.value, buffer, 0);
         assertThat(buffer, is(value.varintEncoding));
     }
 
-    @Theory
-    public void testReadSingleVarint(VarintValue value) throws Exception {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testReadSingleVarint(VarintValue value) throws Exception {
         long readValue = Varint.read(new ByteArrayInputStream(value.varintEncoding));
         assertThat(readValue, is(value.value));
     }
 
-    @Theory
-    public void testWriteTwoVarints(VarintValue valueOne, VarintValue valueTwo) throws Exception {
-        byte[] buffer = new byte[valueOne.varintEncoding.length + valueTwo.varintEncoding.length];
-        int offset = Varint.write(valueOne.value, buffer, 0);
-        Varint.write(valueTwo.value, buffer, offset);
-        assertThat(buffer, is(Bytes.concat(valueOne.varintEncoding, valueTwo.varintEncoding)));
+    @ParameterizedTest
+    @MethodSource("data")
+    void testWriteTwoVarints(VarintValue value) throws Exception {
+        VarintValue other = data().unordered().findFirst().orElseThrow();
+
+        byte[] buffer = new byte[value.varintEncoding.length + other.varintEncoding.length];
+        int offset = Varint.write(value.value, buffer, 0);
+        Varint.write(other.value, buffer, offset);
+        assertThat(buffer, is(Bytes.concat(value.varintEncoding, other.varintEncoding)));
     }
 
-    @Theory
-    public void testReadTwoVarints(VarintValue valueOne, VarintValue valueTwo) throws Exception {
-        InputStream inputStream =
-                new ByteArrayInputStream(Bytes.concat(valueOne.varintEncoding, valueTwo.varintEncoding));
+    @ParameterizedTest
+    @MethodSource("data")
+    void testReadTwoVarints(VarintValue value) throws Exception {
+        VarintValue other = data().unordered().findFirst().orElseThrow();
+
+        InputStream inputStream = new ByteArrayInputStream(Bytes.concat(value.varintEncoding, other.varintEncoding));
         long readValueOne = Varint.read(inputStream);
-        assertThat("first value", readValueOne, is(valueOne.value));
+        assertThat("first value", readValueOne, is(value.value));
         long readValueTwo = Varint.read(inputStream);
-        assertThat("second value", readValueTwo, is(valueTwo.value));
+        assertThat("second value", readValueTwo, is(other.value));
     }
 
-    @Theory
-    public void testOffset(VarintValue value) throws Exception {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testOffset(VarintValue value) throws Exception {
         byte[] buffer = new byte[value.varintEncoding.length];
         int offset = Varint.write(value.value, buffer, 0);
         assertThat(offset, is(value.varintEncoding.length));
