@@ -30,22 +30,22 @@ import static org.mockito.Mockito.when;
 
 import hudson.model.Run;
 import hudson.plugins.timestamper.Timestamp;
+import java.io.File;
 import java.util.Optional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Test for integration between the {@link TimestampsReader} and {@link TimestampsWriter} classes.
  *
  * @author Steven G. Brown
  */
-public class TimestampsIOTest {
+class TimestampsIOTest {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    private File folder;
 
     private Run<?, ?> build;
 
@@ -53,24 +53,24 @@ public class TimestampsIOTest {
 
     private TimestampsReader reader;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         build = mock(Run.class);
-        when(build.getRootDir()).thenReturn(folder.getRoot());
+        when(build.getRootDir()).thenReturn(folder);
         when(build.getStartTimeInMillis()).thenReturn(1L);
 
         reader = new TimestampsReader(build);
         writer = new TimestampsWriter(build);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         reader.close();
         writer.close();
     }
 
     @Test
-    public void testReadFromStartWhileWriting() throws Exception {
+    void testReadFromStartWhileWriting() throws Exception {
         writer.write(2, 1);
         assertThat(reader.read(), is(Optional.of(new Timestamp(1, 2))));
         writer.write(3, 1);
