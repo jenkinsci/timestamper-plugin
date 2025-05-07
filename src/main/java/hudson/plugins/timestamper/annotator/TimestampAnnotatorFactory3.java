@@ -107,7 +107,9 @@ public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Ru
      * Make {@link hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3} available via HTTP
      * in preparation of {@code /extensionList/} URL removal.
      */
-    // TODO Consider reusing /hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/ on Jenkins 2.505, but that would require that URL to be stable API.
+    // TODO Consider reusing
+    //  /hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/ on
+    //  Jenkins 2.505, but that would require that URL to be stable API.
     @Restricted(NoExternalUse.class)
     @Extension
     public static class RootActionImpl extends InvisibleAction implements RootAction, StaplerProxy {
