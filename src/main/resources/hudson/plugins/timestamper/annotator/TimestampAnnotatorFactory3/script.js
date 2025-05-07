@@ -142,7 +142,7 @@ function displaySettings() {
         return;
     }
 
-    fetch(rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings', {
+    fetch(rootURL + '/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings', {
         method: 'post',
         headers: crumb.wrap({}),
     }).then((rsp) => {
