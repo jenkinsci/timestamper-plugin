@@ -28,12 +28,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import hudson.model.Run;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,23 +46,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.apache.commons.io.input.CountingInputStream;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.util.stream.Stream;
+import org.apache.commons.io.input.BoundedInputStream;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Unit test for the {@link TimestampsWriter} class.
  *
  * @author Steven G. Brown
  */
-public class TimestampsWriterTest {
+class TimestampsWriterTest {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    private File folder;
 
     private Run<?, ?> build;
 
@@ -71,23 +71,23 @@ public class TimestampsWriterTest {
 
     private TimestampsWriter timestampsWriter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         build = mock(Run.class);
-        when(build.getRootDir()).thenReturn(folder.getRoot());
+        when(build.getRootDir()).thenReturn(folder);
         timestampsFile = TimestamperPaths.timestampsFile(build);
         timestampsHashFile = timestampsFile.resolveSibling(timestampsFile.getFileName() + ".SHA-1");
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         if (timestampsWriter != null) {
             timestampsWriter.close();
         }
     }
 
     @Test
-    public void testWriteIncreasing() throws Exception {
+    void testWriteIncreasing() throws Exception {
         timestampsWriter = new TimestampsWriter(build);
         timestampsWriter.write(1, 1);
         timestampsWriter.write(2, 1);
@@ -96,7 +96,7 @@ public class TimestampsWriterTest {
     }
 
     @Test
-    public void testWriteDecreasing() throws Exception {
+    void testWriteDecreasing() throws Exception {
         timestampsWriter = new TimestampsWriter(build);
         timestampsWriter.write(3, 1);
         timestampsWriter.write(2, 1);
@@ -105,14 +105,14 @@ public class TimestampsWriterTest {
     }
 
     @Test
-    public void testWriteZeroTimes() throws Exception {
+    void testWriteZeroTimes() throws Exception {
         timestampsWriter = new TimestampsWriter(build);
         timestampsWriter.write(0, 0);
         assertThat(writtenTimestampData(), is(Collections.<Integer>emptyList()));
     }
 
     @Test
-    public void testWriteSeveralTimes() throws Exception {
+    void testWriteSeveralTimes() throws Exception {
         timestampsWriter = new TimestampsWriter(build);
         timestampsWriter.write(1, 1);
         timestampsWriter.write(6, 4);
@@ -121,7 +121,7 @@ public class TimestampsWriterTest {
     }
 
     @Test
-    public void testWriteSameTimestampManyTimes() throws Exception {
+    void testWriteSameTimestampManyTimes() throws Exception {
         int bufferSize = 1024; // cf. hudson.plugins.timestamper.io.TimestampsWriter.BUFFER_SIZE
         int times = bufferSize + 1000; // larger than the buffer
         timestampsWriter = new TimestampsWriter(build);
@@ -133,7 +133,7 @@ public class TimestampsWriterTest {
     }
 
     @Test
-    public void testHashFile() throws Exception {
+    void testHashFile() throws Exception {
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         timestampsWriter = new TimestampsWriter(build, Optional.of(sha1));
         timestampsWriter.write(1, 1);
@@ -150,28 +150,30 @@ public class TimestampsWriterTest {
     }
 
     @Test
-    public void testNoHashFile() throws Exception {
+    void testNoHashFile() throws Exception {
         timestampsWriter = new TimestampsWriter(build);
         timestampsWriter.write(1, 1);
         timestampsWriter.write(2, 1);
         timestampsWriter.write(3, 1);
         timestampsWriter.writeDigest();
         timestampsWriter.close();
-        assertThat(
-                Files.list(Objects.requireNonNull(timestampsHashFile.getParent()))
-                        .collect(Collectors.toList()),
-                is(Collections.singletonList(timestampsFile)));
+
+        try (Stream<Path> files = Files.list(Objects.requireNonNull(timestampsHashFile.getParent()))) {
+            assertThat(files.toList(), is(Collections.singletonList(timestampsFile)));
+        }
     }
 
     @Test
-    public void testOnlyOneWriterPerBuild() throws Exception {
+    void testOnlyOneWriterPerBuild() throws Exception {
         timestampsWriter = new TimestampsWriter(build);
         assertThrows(IOException.class, () -> timestampsWriter = new TimestampsWriter(build));
     }
 
     private List<Integer> writtenTimestampData() throws Exception {
         byte[] fileContents = Files.readAllBytes(timestampsFile);
-        CountingInputStream inputStream = new CountingInputStream(new ByteArrayInputStream(fileContents));
+        BoundedInputStream inputStream = BoundedInputStream.builder()
+                .setInputStream(new ByteArrayInputStream(fileContents))
+                .get();
         List<Integer> timestampData = new ArrayList<>();
         while (inputStream.getCount() < fileContents.length) {
             timestampData.add((int) Varint.read(inputStream));
