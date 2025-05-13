@@ -22,11 +22,6 @@
  * THE SOFTWARE.
  */
 
-/*
-When changing this file, also rename the TimestampAnnotatorFactory class so
-that the changes take effect when upgrading the Timestamper plugin.
-*/
-
 (function() {
 
 // Cookie is renewed each time the page is opened and expires after 2 years
@@ -142,7 +137,7 @@ function displaySettings() {
         return;
     }
 
-    fetch(rootURL + '/extensionList/hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings', {
+    fetch(rootURL + '/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings', {
         method: 'post',
         headers: crumb.wrap({}),
     }).then((rsp) => {
