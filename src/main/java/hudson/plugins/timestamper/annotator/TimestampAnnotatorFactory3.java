@@ -24,14 +24,20 @@
 package hudson.plugins.timestamper.annotator;
 
 import hudson.Extension;
+import hudson.ExtensionList;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
+import hudson.model.InvisibleAction;
+import hudson.model.RootAction;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import jenkins.YesNoMaybe;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest2;
 
 /**
@@ -95,5 +101,26 @@ public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Ru
     public String getPlainTextUrl() {
         TimestampFormat format = TimestampFormatProvider.get();
         return format.getPlainTextUrl();
+    }
+
+    /**
+     * Make {@link hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3} available via HTTP
+     * in preparation of {@code /extensionList/} URL removal.
+     */
+    // TODO Consider reusing
+    //  /hudson.console.ConsoleAnnotatorFactory/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/ on
+    //  Jenkins 2.505, but that would require that URL to be stable API.
+    @Restricted(NoExternalUse.class)
+    @Extension
+    public static class RootActionImpl extends InvisibleAction implements RootAction, StaplerProxy {
+        @Override
+        public String getUrlName() {
+            return "hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3";
+        }
+
+        @Override
+        public Object getTarget() {
+            return ExtensionList.lookupSingleton(hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3.class);
+        }
     }
 }
