@@ -38,22 +38,18 @@ import hudson.plugins.timestamper.Timestamp;
 import hudson.plugins.timestamper.format.TimestampFormat;
 import hudson.plugins.timestamper.format.TimestampFormatProvider;
 import hudson.plugins.timestamper.io.TimestampsWriter;
+import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 
@@ -62,20 +58,10 @@ import org.mockito.stubbing.Answer;
  *
  * @author Steven G. Brown
  */
-@RunWith(Parameterized.class)
-public class TimestampAnnotatorTest {
+class TimestampAnnotatorTest {
 
-    /** @return parameterised test data */
-    @Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[] {false}, new Object[] {true});
-    }
-
-    @Parameter
-    public boolean serialize;
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    private File folder;
 
     private Run<?, ?> build;
 
@@ -85,10 +71,10 @@ public class TimestampAnnotatorTest {
 
     private TimestampsWriter writer;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         build = mock(Run.class);
-        when(build.getRootDir()).thenReturn(folder.getRoot());
+        when(build.getRootDir()).thenReturn(folder);
 
         logPosition = new ConsoleLogParser.Result();
         capturedTimestamps = new ArrayList<>();
@@ -96,63 +82,70 @@ public class TimestampAnnotatorTest {
         writer = new TimestampsWriter(build);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         writer.close();
     }
 
-    @Test
-    public void testStartOfLogFile() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testStartOfLogFile(boolean serialize) throws Exception {
         List<Timestamp> timestamps = writeTimestamps(2);
         logPosition.lineNumber = 0;
         logPosition.atNewLine = true;
-        assertThat(annotate(), is(timestamps));
+        assertThat(annotate(serialize), is(timestamps));
     }
 
-    @Test
-    public void testStartOfLogFile_negativeLineNumber() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testStartOfLogFile_negativeLineNumber(boolean serialize) throws Exception {
         List<Timestamp> timestamps = writeTimestamps(2);
         logPosition.lineNumber = -2;
         logPosition.atNewLine = true;
-        assertThat(annotate(), is(timestamps));
+        assertThat(annotate(serialize), is(timestamps));
     }
 
-    @Test
-    public void testWithinFirstLine() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testWithinFirstLine(boolean serialize) throws Exception {
         List<Timestamp> timestamps = writeTimestamps(2);
         logPosition.lineNumber = 0;
         logPosition.atNewLine = false;
-        assertThat(annotate(), is(timestamps.subList(1, 2)));
+        assertThat(annotate(serialize), is(timestamps.subList(1, 2)));
     }
 
-    @Test
-    public void testWithinFirstLine_negativeLineNumber() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testWithinFirstLine_negativeLineNumber(boolean serialize) throws Exception {
         List<Timestamp> timestamps = writeTimestamps(2);
         logPosition.lineNumber = -2;
         logPosition.atNewLine = false;
-        assertThat(annotate(), is(timestamps.subList(1, 2)));
+        assertThat(annotate(serialize), is(timestamps.subList(1, 2)));
     }
 
-    @Test
-    public void testNextLine() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testNextLine(boolean serialize) throws Exception {
         List<Timestamp> timestamps = writeTimestamps(2);
         logPosition.lineNumber = 1;
         logPosition.atNewLine = true;
-        assertThat(annotate(), is(timestamps.subList(1, 2)));
+        assertThat(annotate(serialize), is(timestamps.subList(1, 2)));
     }
 
-    @Test
-    public void testNextLine_negativeLineNumber() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testNextLine_negativeLineNumber(boolean serialize) throws Exception {
         List<Timestamp> timestamps = writeTimestamps(2);
         logPosition.lineNumber = -1;
         logPosition.atNewLine = true;
-        assertThat(annotate(), is(timestamps.subList(1, 2)));
+        assertThat(annotate(serialize), is(timestamps.subList(1, 2)));
     }
 
-    @Test
-    public void testEndOfLogFile() {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testEndOfLogFile(boolean serialize) {
         logPosition.endOfFile = true;
-        assertThat(annotate(), is(Collections.<Timestamp>emptyList()));
+        assertThat(annotate(serialize), is(Collections.<Timestamp>emptyList()));
     }
 
     private List<Timestamp> writeTimestamps(int count) throws IOException {
@@ -165,7 +158,7 @@ public class TimestampAnnotatorTest {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private List<Timestamp> annotate() {
+    private List<Timestamp> annotate(boolean serialize) {
         ConsoleLogParser logParser = new MockConsoleLogParser();
         ConsoleAnnotator annotator = new TimestampAnnotator(logParser);
 
@@ -200,6 +193,7 @@ public class TimestampAnnotatorTest {
 
     private static class MockConsoleLogParser extends ConsoleLogParser {
 
+        @Serial
         private static final long serialVersionUID = 1L;
 
         MockConsoleLogParser() {
