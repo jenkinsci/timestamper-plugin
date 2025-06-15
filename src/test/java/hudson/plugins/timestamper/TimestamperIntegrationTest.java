@@ -1,6 +1,6 @@
 package hudson.plugins.timestamper;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import hudson.Functions;
 import hudson.model.FreeStyleBuild;
@@ -11,34 +11,31 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.htmlunit.WebClientUtil;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlPreformattedText;
 import org.htmlunit.html.HtmlSpan;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class TimestamperIntegrationTest {
+@WithJenkins
+class TimestamperIntegrationTest {
 
-    @Rule
-    public JenkinsRule r = new JenkinsRule();
-
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         System.clearProperty(TimestampNote.getSystemProperty());
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         System.clearProperty(TimestampNote.getSystemProperty());
     }
 
     @Test
-    public void buildWrapper() throws Exception {
+    void buildWrapper(JenkinsRule r) throws Exception {
         FreeStyleProject project = r.createFreeStyleProject();
         project.getBuildersList().add(Functions.isWindows() ? new BatchFile("echo foo") : new Shell("echo foo"));
         project.getBuildWrappersList().add(new TimestamperBuildWrapper());
@@ -54,14 +51,14 @@ public class TimestamperIntegrationTest {
         HtmlPreformattedText consoleOutput = page.getFirstByXPath("//pre[@class='console-output']");
         String consoleText = consoleOutput.asNormalizedText();
         List<String> annotatedLines =
-                new BufferedReader(new StringReader(consoleText)).lines().collect(Collectors.toList());
-        assertEquals(consoleText, unannotatedLines.size(), annotatedLines.size());
+                new BufferedReader(new StringReader(consoleText)).lines().toList();
+        assertEquals(unannotatedLines.size(), annotatedLines.size(), consoleText);
 
         // Ensure that each line of the annotated console output has a timestamp.
         List<String> annotatedTimestamps = getTimestamps(consoleOutput, "//span[@class='timestamp']");
-        assertEquals(consoleText, annotatedLines.size(), annotatedTimestamps.size());
+        assertEquals(annotatedLines.size(), annotatedTimestamps.size(), consoleText);
         for (String annotatedTimestamp : annotatedTimestamps) {
-            assertEquals(annotatedTimestamp, 8, annotatedTimestamp.length());
+            assertEquals(8, annotatedTimestamp.length(), annotatedTimestamp);
         }
 
         // Ensure that each line is annotated with nothing other than the timestamp.
@@ -85,7 +82,7 @@ public class TimestamperIntegrationTest {
     }
 
     @Test
-    public void timestamperApi() throws Exception {
+    void timestamperApi(JenkinsRule r) throws Exception {
         FreeStyleProject project = r.createFreeStyleProject();
         project.getBuildersList().add(Functions.isWindows() ? new BatchFile("echo foo") : new Shell("echo foo"));
         project.getBuildWrappersList().add(new TimestamperBuildWrapper());
@@ -97,7 +94,7 @@ public class TimestamperIntegrationTest {
     }
 
     @Test
-    public void timestampNote() throws Exception {
+    void timestampNote(JenkinsRule r) throws Exception {
         System.setProperty(TimestampNote.getSystemProperty(), "true");
 
         FreeStyleProject project = r.createFreeStyleProject();
