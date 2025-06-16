@@ -29,17 +29,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.Arrays;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the {@link Timestamp} class.
  *
  * @author Steven G. Brown
  */
-public class TimestampTest {
+class TimestampTest {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         Timestamp timestamp = new Timestamp(123, 42000);
         assertThat(
                 Arrays.asList(timestamp.elapsedMillis, timestamp.elapsedMillisKnown, timestamp.millisSinceEpoch),
@@ -47,7 +47,7 @@ public class TimestampTest {
     }
 
     @Test
-    public void testConstructor_unknownElapsed() {
+    void testConstructor_unknownElapsed() {
         Timestamp timestamp = new Timestamp(null, 42000);
         assertThat(
                 Arrays.asList(timestamp.elapsedMillis, timestamp.elapsedMillisKnown, timestamp.millisSinceEpoch),
@@ -55,7 +55,7 @@ public class TimestampTest {
     }
 
     @Test
-    public void testHashcodeAndEquals() {
+    void testHashcodeAndEquals() {
         EqualsVerifier.forClass(Timestamp.class)
                 .suppress(Warning.STRICT_INHERITANCE)
                 .verify();
