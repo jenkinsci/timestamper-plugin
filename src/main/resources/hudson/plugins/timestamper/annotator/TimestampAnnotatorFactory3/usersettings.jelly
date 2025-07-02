@@ -31,7 +31,7 @@ THE SOFTWARE.
     <style>
       #timestamper-pane {
         position: sticky;
-        top: 44px;
+        top: calc(var(--header-height, 46px) + 0.625rem);
       }
       #timestamper-pane .pane-header-title {
         display: flex;
