@@ -44,13 +44,15 @@ public class LogHtmlWriterBenchmark {
 
             WorkflowJob pipelineProject = jenkins.createProject(WorkflowJob.class, "timestamper-pipeline");
             pipelineProject.setDefinition(new CpsFlowDefinition(
-                    "node {\n"
-                            + "  if (isUnix()) {\n"
-                            + "    sh 'for i in $(seq 1 1 10000); do echo $i; done'\n"
-                            + "  } else {\n"
-                            + "    bat 'FOR /L %%n IN (1,1,10000) DO ECHO %%n'\n"
-                            + "  }\n"
-                            + "}\n",
+                    """
+                    "node {
+                        if (isUnix()) {
+                            sh 'for i in $(seq 1 1 10000); do echo $i; done'
+                        } else {
+                            bat 'FOR /L %%n IN (1,1,10000) DO ECHO %%n'
+                        }
+                    }
+                    """,
                     true));
             pipelineBuild = pipelineProject.scheduleBuild2(0).get();
         }
