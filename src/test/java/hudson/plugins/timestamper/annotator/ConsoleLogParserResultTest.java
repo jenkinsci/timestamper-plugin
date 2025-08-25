@@ -26,17 +26,17 @@ package hudson.plugins.timestamper.annotator;
 import hudson.plugins.timestamper.annotator.ConsoleLogParser.Result;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the {@link Result} class.
  *
  * @author Steven G. Brown
  */
-public class ConsoleLogParserResultTest {
+class ConsoleLogParserResultTest {
 
     @Test
-    public void testResultEqualsAndHashCode() {
+    void testResultEqualsAndHashCode() {
         EqualsVerifier.forClass(ConsoleLogParser.Result.class)
                 .suppress(Warning.NONFINAL_FIELDS)
                 .verify();
