@@ -19,7 +19,7 @@ For example:
 
 ....
 21:51:15  Started by user anonymous
-21:51:15  Building on master
+21:51:15  Building on my-jenkins-agent
 21:51:17  Finished: SUCCESS
 ....
 
