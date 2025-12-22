@@ -25,13 +25,12 @@ package hudson.plugins.timestamper.action;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import hudson.plugins.timestamper.format.ElapsedTimestampFormat;
 import hudson.plugins.timestamper.format.SystemTimestampFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,21 +39,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Unit test for the {@link TimestampsActionQuery} class.
  *
  * @author Steven G. Brown
  */
-@RunWith(Parameterized.class)
-public class TimestampsActionQueryTest {
+class TimestampsActionQueryTest {
 
     private static final Optional<Integer> NO_ENDLINE = Optional.empty();
 
@@ -64,8 +61,7 @@ public class TimestampsActionQueryTest {
             0, NO_ENDLINE, Collections.singletonList(new PrecisionTimestampFormat(3)), false, false);
 
     /** @return the test data */
-    @Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    static Stream<Object[]> data() {
         List<Object[]> testCases = new ArrayList<>();
 
         // No query
@@ -241,17 +237,12 @@ public class TimestampsActionQueryTest {
             });
         }
 
-        return testCases;
+        return testCases.stream();
     }
 
-    @Parameter(0)
-    public String queryString;
-
-    @Parameter(1)
-    public Object expectedResult;
-
-    @Test
-    public void testCreate() {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testCreate(String queryString, Object expectedResult) {
         if (expectedResult instanceof Class<?>) {
             @SuppressWarnings("unchecked")
             Class<? extends Throwable> expectedThrowable = (Class<? extends Throwable>) expectedResult;
@@ -262,14 +253,15 @@ public class TimestampsActionQueryTest {
         }
     }
 
-    @Test
-    public void testCreate_changeCaseOfQueryParameterNames() {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testCreate_changeCaseOfQueryParameterNames(String queryString, Object expectedResult) {
         queryString = changeCaseOfQueryParameterNames(queryString);
-        testCreate();
+        testCreate(queryString, expectedResult);
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         EqualsVerifier.forClass(TimestampsActionQuery.class)
                 .suppress(Warning.NULL_FIELDS)
                 .verify();
@@ -285,9 +277,9 @@ public class TimestampsActionQueryTest {
             return query;
         }
 
-        Pattern paramNamePattern = Pattern.compile("(^|\\&)(.+?)(\\=|\\&|$)");
+        Pattern paramNamePattern = Pattern.compile("(^|&)(.+?)(=|&|$)");
         Matcher m = paramNamePattern.matcher(query);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (m.find()) {
             String name = m.group();
             name = name.toLowerCase().equals(name) ? name.toUpperCase() : name.toLowerCase();

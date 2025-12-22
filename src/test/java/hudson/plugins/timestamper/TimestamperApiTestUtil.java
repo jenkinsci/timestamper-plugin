@@ -1,8 +1,8 @@
 package hudson.plugins.timestamper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import hudson.model.Run;
 import hudson.plugins.timestamper.api.TimestamperAPI;
@@ -12,7 +12,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TimestamperApiTestUtil {
@@ -159,7 +158,7 @@ public class TimestamperApiTestUtil {
     private static List<String> getQueryResults(Run<?, ?> build, String queryString) throws IOException {
         List<String> result;
         try (BufferedReader reader = TimestamperAPI.get().read(build, queryString)) {
-            result = reader.lines().collect(Collectors.toList());
+            result = reader.lines().toList();
         }
         return result;
     }

@@ -30,23 +30,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test for {@link TimeZoneUtils}.
  *
  * @author Steven G. Brown
  */
-@RunWith(Parameterized.class)
-public class TimeZoneUtilsTest {
+class TimeZoneUtilsTest {
 
     /** @return the test cases */
-    @Parameters(name = "getTimeZoneId[{0}]={1}")
-    public static Iterable<Object[]> data() {
+    static Stream<Object[]> data() {
         List<Object[]> testCases = new ArrayList<>();
         testCases.add(new Object[] {0, "GMT"});
         testCases.add(new Object[] {offset(0, 30), "GMT+0:30"});
@@ -58,26 +54,22 @@ public class TimeZoneUtilsTest {
             testCases.add(new Object[] {offset(hour, 0), "GMT+" + hour});
             testCases.add(new Object[] {-offset(hour, 0), "GMT-" + hour});
         }
-        return testCases;
+        return testCases.stream();
     }
 
     private static long offset(int hours, int minutes) {
         return TimeUnit.HOURS.toMillis(hours) + TimeUnit.MINUTES.toMillis(minutes);
     }
 
-    @Parameter(0)
-    public long offset;
-
-    @Parameter(1)
-    public String expectedTimeZoneId;
-
-    @Test
-    public void testGetTimeZoneId() {
+    @ParameterizedTest(name = "getTimeZoneId[{0}]={1}")
+    @MethodSource("data")
+    void testGetTimeZoneId(long offset, String expectedTimeZoneId) {
         assertThat(TimeZoneUtils.getTimeZoneId(offset), is(expectedTimeZoneId));
     }
 
-    @Test
-    public void testValidTimeZone() {
+    @ParameterizedTest(name = "getTimeZoneId[{0}]={1}")
+    @MethodSource("data")
+    void testValidTimeZone(long offset, String expectedTimeZoneI) {
         String timeZoneId = TimeZoneUtils.getTimeZoneId(offset);
         TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
         assertThat((long) timeZone.getRawOffset(), is(offset));

@@ -30,16 +30,13 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.Cookie;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.kohsuke.stapler.StaplerRequest2;
 
 /**
@@ -47,8 +44,7 @@ import org.kohsuke.stapler.StaplerRequest2;
  *
  * @author Steven G. Brown
  */
-@RunWith(Parameterized.class)
-public class TimestampFormatProviderTest {
+class TimestampFormatProviderTest {
 
     private static final long HALF_HOUR = TimeUnit.MINUTES.toMillis(30);
 
@@ -59,25 +55,34 @@ public class TimestampFormatProviderTest {
     private static final String ELAPSED_TIME_FORMAT = "ss.S";
 
     /** @return parameterised test data */
-    @Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-            // system
-            {request("jenkins-timestamper=system"), system()},
-            // local (system with browser time zone)
-            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"), system("GMT")},
-            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + HALF_HOUR), system("GMT-0:30")},
-            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + ONE_HOUR), system("GMT-1")},
-            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + HALF_HOUR), system("GMT+0:30")},
-            {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + ONE_HOUR), system("GMT+1")},
-            // elapsed
-            {request("jenkins-timestamper=elapsed"), elapsed()},
-            // none
-            {request("jenkins-timestamper=none"), empty()},
-            // other
-            {request(), system()},
-            {request((String[]) null), system()}
-        });
+    static Stream<Object[]> data() {
+        return Stream.of(
+                // system
+                new Object[] {request("jenkins-timestamper=system"), system()},
+                // local (system with browser time zone)
+                new Object[] {request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=0"), system("GMT")},
+                new Object[] {
+                    request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + HALF_HOUR),
+                    system("GMT-0:30")
+                },
+                new Object[] {
+                    request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=" + ONE_HOUR), system("GMT-1")
+                },
+                new Object[] {
+                    request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + HALF_HOUR),
+                    system("GMT+0:30")
+                },
+                new Object[] {
+                    request("jenkins-timestamper-local=true", "jenkins-timestamper-offset=-" + ONE_HOUR),
+                    system("GMT+1")
+                },
+                // elapsed
+                new Object[] {request("jenkins-timestamper=elapsed"), elapsed()},
+                // none
+                new Object[] {request("jenkins-timestamper=none"), empty()},
+                // other
+                new Object[] {request(), system()},
+                new Object[] {request((String[]) null), system()});
     }
 
     private static StaplerRequest2 request(String... cookies) {
@@ -111,14 +116,9 @@ public class TimestampFormatProviderTest {
         return EmptyTimestampFormat.INSTANCE;
     }
 
-    @Parameter(0)
-    public StaplerRequest2 request;
-
-    @Parameter(1)
-    public TimestampFormat expectedTimestampFormat;
-
-    @Test
-    public void testGet() {
+    @ParameterizedTest
+    @MethodSource("data")
+    void testGet(StaplerRequest2 request, TimestampFormat expectedTimestampFormat) {
         assertThat(
                 TimestampFormatProvider.get(SYSTEM_TIME_FORMAT, ELAPSED_TIME_FORMAT, request, Locale.ENGLISH),
                 is(expectedTimestampFormat));

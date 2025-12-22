@@ -7,26 +7,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.jenkins.plugins.casc.ConfigurationContext;
 import io.jenkins.plugins.casc.ConfiguratorRegistry;
 import io.jenkins.plugins.casc.misc.ConfiguredWithCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
+import io.jenkins.plugins.casc.misc.junit.jupiter.WithJenkinsConfiguredWithCode;
 import io.jenkins.plugins.casc.model.CNode;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ConfigurationAsCodeTest {
-
-    @Rule
-    public JenkinsConfiguredWithCodeRule j = new JenkinsConfiguredWithCodeRule();
+@WithJenkinsConfiguredWithCode
+class ConfigurationAsCodeTest {
 
     @Test
     @ConfiguredWithCode("Default.yml")
-    public void testDefault() {
+    void testDefault(JenkinsConfiguredWithCodeRule j) {
         TimestamperConfig timestamperConfig = TimestamperConfig.get();
         assertThat(timestamperConfig.getSystemTimeFormat(), containsString("HH:mm:ss"));
         assertThat(timestamperConfig.getElapsedTimeFormat(), containsString("HH:mm:ss.S"));
@@ -35,7 +33,7 @@ public class ConfigurationAsCodeTest {
 
     @Test
     @ConfiguredWithCode("Customized.yml")
-    public void testCustomTimeFormat() {
+    void testCustomTimeFormat(JenkinsConfiguredWithCodeRule j) {
         TimestamperConfig timestamperConfig = TimestamperConfig.get();
         assertThat(timestamperConfig.getSystemTimeFormat(), containsString("yyyy-MM-dd HH:mm:ss.SSS"));
         assertThat(timestamperConfig.getElapsedTimeFormat(), containsString("HH:mm:ss.SSS"));
@@ -44,7 +42,7 @@ public class ConfigurationAsCodeTest {
 
     @Test
     @ConfiguredWithCode("EmptyTimeFormat.yml")
-    public void testEmptyTimeFormat() {
+    void testEmptyTimeFormat(JenkinsConfiguredWithCodeRule j) {
         TimestamperConfig timestamperConfig = TimestamperConfig.get();
         assertThat(timestamperConfig.getSystemTimeFormat(), is(emptyString()));
         assertThat(timestamperConfig.getElapsedTimeFormat(), is(emptyString()));
@@ -53,7 +51,7 @@ public class ConfigurationAsCodeTest {
 
     @Test
     @ConfiguredWithCode("Customized.yml")
-    public void testConfigAsCodeExport() throws Exception {
+    void testConfigAsCodeExport(JenkinsConfiguredWithCodeRule j) throws Exception {
         ConfiguratorRegistry registry = ConfiguratorRegistry.get();
         ConfigurationContext context = new ConfigurationContext(registry);
         CNode timestamperConfig = getUnclassifiedRoot(context).get("timestamper");
