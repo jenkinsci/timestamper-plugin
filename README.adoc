@@ -48,9 +48,29 @@ timestamps {
 
 == Customization
 
-* The timestamp format can be configured via the *Manage Jenkins*, *Configure System* page.
+* The timestamp format can be configured via the *Manage Jenkins*, *Configure System* page or through the link:https://plugins.jenkins.io/configuration-as-code/[configuration as code plugin]
 * There is a panel on the left-hand side of the console page which allows either the system clock time or the elapsed time to be displayed.
 * The time zone used to display the timestamps can be configured by setting https://www.jenkins.io/doc/book/using/change-time-zone/[a system property].
+
+== Configuration as Code
+
+The link:https://plugins.jenkins.io/configuration-as-code/[configuration as code plugin] can configure the Timestamper plugin automatically.
+
+When `allPipelines` is true, timestamps are enabled for all Pipeline builds.
+Individual Pipelines do not need to use the `timestamps` step or the `timestamps` option.
+
+Elapsed time string formatting is controlled by a format string as defined in the link:https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/time/DurationFormatUtils.html[Apache Commons Lang DurationFormatUtils].
+
+System time string formatting is controlled by a format string as defined in link:https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/SimpleDateFormat.html[Java SimpleDateFormat].
+
+[source,yaml]
+----
+unclassified:
+  timestamper:
+    allPipelines: true
+    elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
+    systemTimeFormat: "'<b>'HH:mm:ss'</b> '"
+----
 
 == Scripting
 
