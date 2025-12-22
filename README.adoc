@@ -94,7 +94,7 @@ NOTE: The time zone and locale of the Jenkins controller will be used, unless th
 `startLine`:: Display the timestamps starting from a certain line. Accepts a positive integer to start at that line, or a negative integer to start that many lines back from the end.
 `endLine`:: Display the timestamps ending at a certain line. Accepts a positive integer to finish at that line, or a negative integer to finish that many lines back from the end.
 `timeZone`:: Time zone used when displaying the system clock time. Accepts the https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TimeZone.html[JDK `TimeZone`] ID format.
-`locale`:: Select the locale to use when displaying the system clock time. Accepts a locale in the format recognised by https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/LocaleUtils.html#toLocale-java.lang.String-[Commons Lang `LocaleUtils#toLocale`].
+`locale`:: Select the locale to use when displaying the system clock time. Accepts a locale in the format recognized by https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/LocaleUtils.html#toLocale-java.lang.String-[Commons Lang `LocaleUtils#toLocale`].
 `currentTime`:: Display the current time on the Jenkins controller instead of reading timestamps from the build.
 
 CAUTION: Reading the timestamps directly from the file system is not recommended, because the format may change.
