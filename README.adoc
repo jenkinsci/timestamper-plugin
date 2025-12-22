@@ -10,12 +10,6 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/[image:https://ci.jenkins.io/job/Plugins/job/timestamper-plugin/job/master/badge/icon[Build Status]]
-https://github.com/jenkinsci/timestamper-plugin/graphs/contributors[image:https://img.shields.io/github/contributors/jenkinsci/timestamper-plugin.svg[Contributors]]
-https://plugins.jenkins.io/timestamper[image:https://img.shields.io/jenkins/plugin/v/timestamper.svg[Jenkins Plugin]]
-https://github.com/jenkinsci/timestamper-plugin/releases/latest[image:https://img.shields.io/github/release/jenkinsci/timestamper-plugin.svg?label=changelog[GitHub release]]
-https://plugins.jenkins.io/timestamper[image:https://img.shields.io/jenkins/plugin/i/timestamper.svg?color=blue[Jenkins Plugin Installs]]
-
 toc::[]
 
 == Introduction
