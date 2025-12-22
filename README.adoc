@@ -120,6 +120,11 @@ try (BufferedReader reader = TimestamperAPI.get().read(build, query)) {
 
 Report issues and enhancements in https://github.com/jenkinsci/timestamper-plugin/issues/new/choose[GitHub].
 
+== Changelog in https://github.com/jenkinsci/timestamper-plugin/releases[GitHub Releases]
+
+Release notes have been recorded in https://github.com/jenkinsci/timestamper-plugin/releases[GitHub] since Timestamper plugin 1.10.
+Release notes for releases before 1.10 are recorded in the plugin repository link:https://github.com/jenkinsci/timestamper-plugin/blob/timestamper-1.30/CHANGELOG.adoc[change log].
+
 == Contributing
 
 Refer to our https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md[contribution guidelines].
