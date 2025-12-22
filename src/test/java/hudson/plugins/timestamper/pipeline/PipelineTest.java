@@ -42,8 +42,7 @@ class PipelineTest {
     @Test
     void globalDecoratorAnnotator() throws Exception {
         WorkflowJob project = r.createProject(WorkflowJob.class);
-        project.setDefinition(new CpsFlowDefinition(
-                """
+        project.setDefinition(new CpsFlowDefinition("""
                     node {
                           ansiColor('xterm') {
                             echo 'foo'
@@ -51,8 +50,7 @@ class PipelineTest {
                             echo "More color"
                             echo "Ending multi-line color\\u001B[39m"
                           }
-                    }""",
-                true));
+                    }""", true));
         WorkflowRun build = r.buildAndAssertSuccess(project);
         r.assertLogContains("foo", build);
         r.assertLogContains("Beginning multi-line color", build);
