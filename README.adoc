@@ -31,9 +31,9 @@ Enable timestamps within the *Build Environment* section of the build's configur
 
 To enable timestamps for multiple builds at once, use the https://plugins.jenkins.io/configurationslicing/[Configuration Slicing plugin] version 1.32 or later.
 
-=== https://jenkins.io/doc/book/pipeline/[Pipeline] jobs
+=== Pipeline jobs
 
-Set the global option to enable timestamps for all Pipeline builds (in *Manage Jenkins*, *Configure System*), or use the `timestamps` step as described below.
+Set the global option to enable timestamps for all https://jenkins.io/doc/book/pipeline/[Pipeline] builds (in *Manage Jenkins*, *Configure System*), or use the `timestamps` step as described below.
 
 image:docs/images/allBuilds.png[image]
 
