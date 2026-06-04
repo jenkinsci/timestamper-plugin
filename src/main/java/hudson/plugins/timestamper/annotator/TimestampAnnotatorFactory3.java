@@ -28,7 +28,6 @@ import hudson.ExtensionList;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleAnnotatorFactory;
 import hudson.model.InvisibleAction;
-import hudson.model.RootAction;
 import hudson.model.Run;
 import hudson.plugins.timestamper.TimestampNote;
 import hudson.plugins.timestamper.format.TimestampFormat;
@@ -112,7 +111,7 @@ public final class TimestampAnnotatorFactory3 extends ConsoleAnnotatorFactory<Ru
     //  Jenkins 2.505, but that would require that URL to be stable API.
     @Restricted(NoExternalUse.class)
     @Extension
-    public static class RootActionImpl extends InvisibleAction implements RootAction, StaplerProxy {
+    public static class RootActionImpl extends InvisibleAction implements hudson.model.RootAction, StaplerProxy {
         @Override
         public String getUrlName() {
             return "hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3";
