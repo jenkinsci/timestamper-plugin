@@ -105,11 +105,11 @@ public class TimestampLogFileLineAccessor implements Closeable {
             if (timestamp != null) {
                 // If we succeeded, then the log file was decorated by GlobalDecorator. Strip the
                 // timestamp decoration from the front of the line.
-                if (logFileLine.length() > 27) {  
+                if (logFileLine.length() > 27) {
                     logFileLine = logFileLine.substring(27);
                 } else {
                     logFileLine = "";
-            }
+                }
             } else {
                 // Attempt to read the timestamp from TimestampNotes embedded in the log file.
                 // Such TimestampNotes are present for Pipeline builds prior to version 1.9 as well
