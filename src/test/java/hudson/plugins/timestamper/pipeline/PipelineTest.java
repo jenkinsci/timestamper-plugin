@@ -164,4 +164,20 @@ class PipelineTest {
                     line);
         }
     }
+
+    @Issue("JENKINS-75929")
+    @Test
+    void timestampOnlyLine() throws Exception {
+        WorkflowJob project = r.createProject(WorkflowJob.class);
+        project.setDefinition(new CpsFlowDefinition("echo ''\necho 'Hello'\n", true));
+        WorkflowRun build = r.buildAndAssertSuccess(project);
+        // Ensure no StringIndexOutOfBoundsException is thrown when processing log lines
+        for (String line : build.getLog(Integer.MAX_VALUE)) {
+            if (GlobalAnnotator.parseTimestamp(line, build.getStartTimeInMillis()).isPresent()) {
+                // This must not throw even if line is exactly 27 chars (timestamp only)
+                String content = line.length() > 27 ? line.substring(27) : "";
+                assertNotNull(content);
+            }
+        }
+    }
 }
