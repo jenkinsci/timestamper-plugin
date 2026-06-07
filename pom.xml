@@ -25,22 +25,6 @@
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>basil</id>
-      <name>Basil Crow</name>
-    </developer>
-    <developer>
-      <id>stevengbrown</id>
-      <name>Steven Brown</name>
-      <email>StevenGBrown@gmail.com</email>
-    </developer>
-    <developer>
-      <id>jglick</id>
-      <name>Jesse Glick</name>
-    </developer>
-  </developers>
-
   <scm>
     <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
     <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
@@ -60,6 +44,8 @@
     <spotless.check.skip>false</spotless.check.skip>
     <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
+    <ban-deprecated-stapler.skip>false</ban-deprecated-stapler.skip>
+    <banObsoleteDependencyOverrides.skip>false</banObsoleteDependencyOverrides.skip>
   </properties>
 
   <dependencyManagement>
