@@ -112,7 +112,7 @@ function setCookie(suffix, value) {
     }
     var currentDate = new Date();
     currentDate.setTime(currentDate.getTime() + 1000 * 60 * 60 * 24 * 365 * 2); // 2 years
-    var attributes = '; path=' + path + '; expires=' + currentDate.toGMTString();
+    var attributes = '; path=' + path + '; expires=' + currentDate.toGMTString() + '; SameSite=Lax';
     document.cookie = name + '=' + value + attributes;
 }
 
