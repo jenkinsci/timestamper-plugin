@@ -132,9 +132,15 @@ function getCookie(suffix) {
 
 function displaySettings() {
     var element = document.getElementById('side-panel');
+    var isModernPage = false;
+
     if (null == element) {
-        // element not found, so return to avoid an error (JENKINS-23867)
-        return;
+        // Modern build page without side-panel (Issue #546)
+        element = document.querySelector('.app-build-content') || document.getElementById('main-panel');
+        if (null == element) {
+            return;
+        }
+        isModernPage = true;
     }
 
     fetch(rootURL + '/hudson.plugins.timestamper.annotator.TimestampAnnotatorFactory3/usersettings', {
@@ -143,7 +149,14 @@ function displaySettings() {
     }).then((rsp) => {
         rsp.text().then((responseText) => {
             if (rsp.ok) {
-                element.insertAdjacentHTML('beforeend', responseText);
+                if (isModernPage) {
+                    var card = document.createElement('div');
+                    card.className = 'jenkins-card jenkins-!-margin-bottom-3';
+                    card.innerHTML = responseText;
+                    element.insertBefore(card, element.firstChild);
+                } else {
+                    element.insertAdjacentHTML('beforeend', responseText);
+                }
                 init();
             }
         });
